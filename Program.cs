@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+=======
+using CRM_ERP_UNID.Data;
+using Microsoft.EntityFrameworkCore;
+>>>>>>> origin/develop
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+<<<<<<< HEAD
 //autenticacion
 
 builder.Services.AddAuthentication(options =>
@@ -31,6 +37,10 @@ builder.Services.AddAuthentication(options =>
          IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
      };
  });
+=======
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+>>>>>>> origin/develop
 
 var app = builder.Build();
 
