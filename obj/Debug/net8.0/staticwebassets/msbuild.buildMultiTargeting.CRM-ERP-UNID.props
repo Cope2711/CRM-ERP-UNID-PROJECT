@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\CRM-ERP-UNID.props" />
+</Project>
