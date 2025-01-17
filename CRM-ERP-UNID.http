@@ -1,0 +1,6 @@
+@CRM_ERP_UNID_HostAddress = http://localhost:5245
+
+GET {{CRM_ERP_UNID_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
