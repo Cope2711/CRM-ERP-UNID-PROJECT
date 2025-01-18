@@ -9,44 +9,44 @@ namespace CRM_ERP_UNID.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+        /* private readonly AppDbContext _context;
 
-        private readonly ILogger<WeatherForecastController> _logger;
+         private static readonly string[] Summaries = new[]
+         {
+             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+         };
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, AppDbContext context)
-        {
-            _logger = logger;
-            this._context = context;
-        }
+         private readonly ILogger<WeatherForecastController> _logger;
 
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
-        {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
-        }
+         public WeatherForecastController(ILogger<WeatherForecastController> logger, AppDbContext context)
+         {
+             _logger = logger;
+             this._context = context;
+         }
 
-        [HttpGet("UsersTest")]
-        public async Task<ActionResult<List<User>>> GetUsers()
-        {
-            List<User> users = await this._context.Users.ToListAsync();
+         [HttpGet(Name = "GetWeatherForecast")]
+         public IEnumerable<WeatherForecast> Get()
+         {
+             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+             {
+                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                 TemperatureC = Random.Shared.Next(-20, 55),
+                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+             })
+             .ToArray();
+         }
 
-            if (users.Count == 0)
-            {
-                return NotFound(users);
-            }
+         [HttpGet("UsersTest")]
+         public async Task<ActionResult<List<User>>> GetUsers()
+         {
+             List<User> users = await this._context.Users.ToListAsync();
 
-            return Ok(users);
-        }
+             if (users.Count == 0)
+             {
+                 return NotFound(users);
+             }
+
+             return Ok(users);
+         }*/
     }
 }

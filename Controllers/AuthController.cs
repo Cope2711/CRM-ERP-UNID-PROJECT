@@ -1,12 +1,57 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using CRM_ERP_UNID.Services;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CRM_ERP_UNID.Controllers
 {
-    public class AuthController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+  
+    public class AuthController : ControllerBase
     {
-        public IActionResult Index()
+        private readonly IAuthService _authService;
+
+        public AuthController(IAuthService authService)
         {
-            return View();
+            _authService = authService;
         }
+
+        [HttpPost("login")]
+      
+        public IActionResult Login([FromBody] LoginModel login)
+        {
+            if (login.Username == "user" && login.Password == "password") // Simulando validación
+            {
+                var claims = new[]
+                {
+                    new Claim(ClaimTypes.Name, login.Username),
+                    new Claim(ClaimTypes.Role, "User")
+                };
+
+                var accessToken = _authService.GenerateAccessToken(claims);
+                var refreshToken = _authService.GenerateRefreshToken();
+
+
+
+                return Ok(new
+                {
+                    Accesstoken = accessToken,
+                    RefreshToken = refreshToken
+                    
+                });
+                
+
+            }
+            // Respuesta inválidas de credenciales
+            return Unauthorized("Usuario o contraseña incorrectos.");
+
+        }
+    }
+
+    public class LoginModel
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
     }
 }
