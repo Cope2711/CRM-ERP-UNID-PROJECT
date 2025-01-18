@@ -1,13 +1,11 @@
-﻿
-using CRM_ERP_UNID.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace CRM_ERP_UNID.Controllers
+namespace CRM_ERP_UNID.Controllers.Services
 {
     [Route("api/[controller]")]
     [ApiController]
-  
+
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -18,7 +16,7 @@ namespace CRM_ERP_UNID.Controllers
         }
 
         [HttpPost("login")]
-      
+
         public IActionResult Login([FromBody] LoginModel login)
         {
             if (login.Username == "user" && login.Password == "password") // Simulando validación
@@ -38,9 +36,9 @@ namespace CRM_ERP_UNID.Controllers
                 {
                     Accesstoken = accessToken,
                     RefreshToken = refreshToken
-                    
+
                 });
-                
+
 
             }
             // Respuesta inválidas de credenciales

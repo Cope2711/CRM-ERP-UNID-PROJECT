@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace CRM_ERP_UNID.Services
+namespace CRM_ERP_UNID.Controllers.Services
 {
     public interface IAuthService
     {

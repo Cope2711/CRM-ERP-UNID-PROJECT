@@ -1,6 +1,4 @@
-
-using CRM_ERP_UNID.Services;
-using CRM_ERP_UNID.Service;
+using CRM_ERP_UNID.Controllers.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
