@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 using CRM_ERP_UNID.Controllers.Services;
 
+=======
+using CRM_ERP_UNID.Controllers.Users;
+using CRM_ERP_UNID.Data;
+using Microsoft.EntityFrameworkCore;
+>>>>>>> origin/develop
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +35,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
     };
 });*/
+
+builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
 var app = builder.Build();
 
