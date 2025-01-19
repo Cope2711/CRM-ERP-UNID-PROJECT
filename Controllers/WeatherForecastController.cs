@@ -3,6 +3,7 @@ using CRM_ERP_UNID.Data;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CRM_ERP_UNID.Controllers
 {
@@ -10,9 +11,9 @@ namespace CRM_ERP_UNID.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-<<<<<<< HEAD
-        /* private readonly AppDbContext _context;
-=======
+
+      
+
         private readonly AppDbContext _context;
         private readonly IUsersService _usersService;
         
@@ -20,16 +21,9 @@ namespace CRM_ERP_UNID.Controllers
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
->>>>>>> origin/develop
 
-         private static readonly string[] Summaries = new[]
-         {
-             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-         };
-
-<<<<<<< HEAD
          private readonly ILogger<WeatherForecastController> _logger;
-=======
+
         public WeatherForecastController(ILogger<WeatherForecastController> logger, AppDbContext context,
             IUsersService usersService)
         {
@@ -37,15 +31,7 @@ namespace CRM_ERP_UNID.Controllers
             this._context = context;
             this._usersService = usersService;
         }
->>>>>>> origin/develop
 
-         public WeatherForecastController(ILogger<WeatherForecastController> logger, AppDbContext context)
-         {
-             _logger = logger;
-             this._context = context;
-         }
-
-<<<<<<< HEAD
          [HttpGet(Name = "GetWeatherForecast")]
          public IEnumerable<WeatherForecast> Get()
          {
@@ -69,8 +55,8 @@ namespace CRM_ERP_UNID.Controllers
              }
 
              return Ok(users);
-         }*/
-=======
+         }
+
         [HttpGet("getUser")]
         public async Task<ActionResult<User>> GetUser([FromQuery] Guid id)
         {
@@ -96,6 +82,6 @@ namespace CRM_ERP_UNID.Controllers
 
             return Ok(user);
         }
->>>>>>> origin/develop
+
     }
 }

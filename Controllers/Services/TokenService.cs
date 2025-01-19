@@ -6,10 +6,10 @@ using System.Text;
 namespace CRM_ERP_UNID.Controllers.Services
 
 {
-    public class AuthService : IAuthService
+    public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;
-        public AuthService(IConfiguration configuration)
+        public TokenService(IConfiguration configuration)
         {
             _configuration = configuration;
 

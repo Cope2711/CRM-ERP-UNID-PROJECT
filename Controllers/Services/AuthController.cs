@@ -8,9 +8,9 @@ namespace CRM_ERP_UNID.Controllers.Services
 
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authService;
+        private readonly ITokenService _authService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(ITokenService authService)
         {
             _authService = authService;
         }
