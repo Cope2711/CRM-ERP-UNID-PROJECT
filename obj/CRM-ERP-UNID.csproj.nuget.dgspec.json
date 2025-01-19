@@ -1,21 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\diego\\Documents\\programacion\\CRM-ERP-UNID\\CRM-ERP-UNID.csproj": {}
+    "C:\\Users\\pelay\\OneDrive\\Documentos\\GitHub\\CRM-ERP-UNID\\CRM-ERP-UNID.csproj": {}
   },
   "projects": {
-    "C:\\Users\\diego\\Documents\\programacion\\CRM-ERP-UNID\\CRM-ERP-UNID.csproj": {
+    "C:\\Users\\pelay\\OneDrive\\Documentos\\GitHub\\CRM-ERP-UNID\\CRM-ERP-UNID.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\diego\\Documents\\programacion\\CRM-ERP-UNID\\CRM-ERP-UNID.csproj",
+        "projectUniqueName": "C:\\Users\\pelay\\OneDrive\\Documentos\\GitHub\\CRM-ERP-UNID\\CRM-ERP-UNID.csproj",
         "projectName": "CRM-ERP-UNID",
-        "projectPath": "C:\\Users\\diego\\Documents\\programacion\\CRM-ERP-UNID\\CRM-ERP-UNID.csproj",
-        "packagesPath": "C:\\Users\\diego\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\diego\\Documents\\programacion\\CRM-ERP-UNID\\obj\\",
+        "projectPath": "C:\\Users\\pelay\\OneDrive\\Documentos\\GitHub\\CRM-ERP-UNID\\CRM-ERP-UNID.csproj",
+        "packagesPath": "C:\\Users\\pelay\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\pelay\\OneDrive\\Documentos\\GitHub\\CRM-ERP-UNID\\obj\\",
         "projectStyle": "PackageReference",
-        "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
-          "C:\\Users\\diego\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\pelay\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -23,7 +22,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -51,6 +49,10 @@
               "target": "Package",
               "version": "[0.1.0, )"
             },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[9.0.1, )"
@@ -62,6 +64,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.0.0, )"
             }
           },
           "imports": [
@@ -83,7 +89,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.403/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
