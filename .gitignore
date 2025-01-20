@@ -1,3 +1,10 @@
+# Ignorar carpetas de configuración local
+.idea/
 .vs/
-obj/
+
+# Ignorar carpetas de compilación
 bin/
+obj/
+
+# Ignorar archivos de configuración específicos del usuario
+*.user
