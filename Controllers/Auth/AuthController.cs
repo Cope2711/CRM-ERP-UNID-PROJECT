@@ -1,55 +1,34 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+﻿
 
-namespace CRM_ERP_UNID.Controllers.Services
+using CRM_ERP_UNID.Dtos;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace CRM_ERP_UNID.Controllers.Services;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class AuthController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    private readonly IAuthService _authService;
 
-    public class AuthController : ControllerBase
+    public AuthController(IAuthService authService)
     {
-        private readonly ITokenService _authService;
-
-        public AuthController(ITokenService authService)
-        {
-            _authService = authService;
-        }
-
-        [HttpPost("login")]
-
-        public IActionResult Login([FromBody] LoginModel login)
-        {
-            if (login.Username == "user" && login.Password == "password") // Simulando validación
-            {
-                var claims = new[]
-                {
-                    new Claim(ClaimTypes.Name, login.Username),
-                    new Claim(ClaimTypes.Role, "User")
-                };
-
-                var accessToken = _authService.GenerateAccessToken(claims);
-                var refreshToken = _authService.GenerateRefreshToken();
-
-
-
-                return Ok(new
-                {
-                    Accesstoken = accessToken,
-                    RefreshToken = refreshToken
-
-                });
-
-
-            }
-            // Respuesta inválidas de credenciales
-            return Unauthorized("Usuario o contraseña incorrectos.");
-
-        }
+        this._authService = authService;
     }
 
-    public class LoginModel
+    [AllowAnonymous]
+    [HttpPost("login")]
+    public async Task<ActionResult<TokenDto>> Login([FromBody] LoginUserDto loginUserDto)
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
+        TokenDto? tokenDto = await this._authService.Login(loginUserDto);
+
+        if (tokenDto == null)
+        {
+            return BadRequest("Some errors ocurre while login in :(");
+        }
+
+        return Ok(tokenDto);
     }
 }

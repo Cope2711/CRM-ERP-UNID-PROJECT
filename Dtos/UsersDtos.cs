@@ -21,10 +21,23 @@ public class CreateUserDto
     [EmailAddress]
     public string UserEmail { get; set; } 
 
+    [MinLength(6)]
     [MaxLength(255)] 
     [Required]
     public string UserPassword { get; set; }
 
     [Required]
     public bool IsActive { get; set; } = true;
+}
+
+
+public class LoginUserDto
+{
+    [MaxLength(50)] 
+    [Required]
+    public string UserUserName { get; set; }   
+    
+    [MaxLength(255)] 
+    [Required]
+    public string UserPassword { get; set; }
 }
