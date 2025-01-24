@@ -2,7 +2,7 @@
 using CRM_ERP_UNID.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace CRM_ERP_UNID.Controllers.Users;
+namespace CRM_ERP_UNID.Controllers;
 
 public interface IUsersRepository
 {

@@ -1,10 +1,8 @@
-﻿
-
-using CRM_ERP_UNID.Dtos;
+﻿using CRM_ERP_UNID.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CRM_ERP_UNID.Controllers.Services;
+namespace CRM_ERP_UNID.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
