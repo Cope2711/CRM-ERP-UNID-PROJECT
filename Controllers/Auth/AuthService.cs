@@ -1,14 +1,13 @@
 using System.Security.Claims;
-using CRM_ERP_UNID.Controllers.Users;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Helpers;
 
-namespace CRM_ERP_UNID.Controllers.Services;
+namespace CRM_ERP_UNID.Controllers;
 
 public interface IAuthService
 {
-    Task<TokenDto> Login(LoginUserDto loginUserDto);    
+    Task<TokenDto> Login(LoginUserDto loginUserDto);
 }
 
 public class AuthService : IAuthService

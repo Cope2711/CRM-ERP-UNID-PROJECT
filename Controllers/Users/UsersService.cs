@@ -2,7 +2,7 @@
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Helpers;
 
-namespace CRM_ERP_UNID.Controllers.Users;
+namespace CRM_ERP_UNID.Controllers;
 
 public interface IUsersService
 {

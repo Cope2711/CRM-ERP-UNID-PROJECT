@@ -1,7 +1,6 @@
 using System.Text;
 using System.Threading.RateLimiting;
-using CRM_ERP_UNID.Controllers.Services;
-using CRM_ERP_UNID.Controllers.Users;
+using CRM_ERP_UNID.Controllers;
 using CRM_ERP_UNID.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
