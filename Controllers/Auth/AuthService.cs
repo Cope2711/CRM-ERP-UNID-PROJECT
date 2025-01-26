@@ -8,6 +8,8 @@ namespace CRM_ERP_UNID.Controllers;
 public interface IAuthService
 {
     Task<TokenDto> Login(LoginUserDto loginUserDto);
+    Task<TokenDto> RefreshTokenAsync(string refreshTokenString);
+    Task<RefreshToken?> Logout(string refreshTokenString);
 }
 
 public class AuthService : IAuthService
@@ -19,6 +21,33 @@ public class AuthService : IAuthService
     {
         this._usersService = usersService;
         this._tokenService = tokenService;
+    }
+
+    public async Task<TokenDto> RefreshTokenAsync(string refreshTokenString)
+    {
+        // 1. Get the refreshToken object 
+        RefreshToken? refreshToken = await this._tokenService.GetRefreshTokenByRefreshToken(refreshTokenString);
+
+        if (refreshToken == null || refreshToken.ExpiresAt < DateTime.UtcNow || refreshToken.RevokedAt != null)
+        {
+            return null;
+        }
+
+        // 2. Get the user
+        User? user = await this._usersService.GetById(refreshToken.UserId);
+        if (user == null)
+        {
+            return null;
+        }
+
+        // 3. Create the new Token Data
+        TokenDto newTokenDto = new TokenDto
+        {
+            Token = this._tokenService.GenerateAccessToken(user),
+            RefreshToken = refreshToken.Token
+        };
+
+        return newTokenDto;
     }
 
     public async Task<TokenDto> Login(LoginUserDto loginUserDto)
@@ -39,12 +68,24 @@ public class AuthService : IAuthService
 
         return new TokenDto
         {
-            Token = this._tokenService.GenerateAccessToken(claims: new[]
-            {
-                new Claim(ClaimTypes.Name, user.UserUserName),
-                new Claim(ClaimTypes.Role, "User")
-            }),
-            RefreshToken = this._tokenService.GenerateRefreshToken()
+            Token = this._tokenService.GenerateAccessToken(user),
+            RefreshToken = (await this._tokenService.GenerateAndStoreRefreshTokenAsync(user.UserId)).Token
         };
+    }
+
+    public async Task<RefreshToken?> Logout(string refreshTokenString)
+    {
+        // 1. Get the refresh token
+        RefreshToken? refreshToken = await this._tokenService.GetRefreshTokenByRefreshToken(refreshTokenString);
+
+        if (refreshToken == null || refreshToken.ExpiresAt < DateTime.UtcNow || refreshToken.RevokedAt != null)
+        {
+            return null;
+        }
+
+        // 2. Revoke refresh token and return
+        await this._tokenService.RevokeRefreshTokenByObject(refreshToken);
+
+        return refreshToken;
     }
 }

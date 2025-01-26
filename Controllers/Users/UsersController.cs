@@ -21,7 +21,7 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<User>> GetUser([FromQuery] Guid id)
     {
         User? user = await this._usersService.GetById(id);
-
+        
         if (user == null)
         {
             return NotFound(user);
@@ -31,7 +31,7 @@ public class UsersController : ControllerBase
     }
     
     [HttpPost("create")]
-    public async Task<ActionResult<User>> GetUser([FromBody] CreateUserDto createUserDto)
+    public async Task<ActionResult<User>> CreateUser([FromBody] CreateUserDto createUserDto)
     {
         User? user = await this._usersService.Create(createUserDto);
 
