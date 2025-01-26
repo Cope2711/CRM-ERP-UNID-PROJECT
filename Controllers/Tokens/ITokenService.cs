@@ -1,9 +1,11 @@
-﻿using System.Security.Claims;
+﻿using CRM_ERP_UNID.Data.Models;
 
 namespace CRM_ERP_UNID.Controllers;
 
 public interface ITokenService
 {
-    string GenerateAccessToken(IEnumerable<Claim> claims); // Genera el token de acceso (JWT)
-    string GenerateRefreshToken(); // Genera un token de actualización (refresh token)
+    string GenerateAccessToken(User user);
+    Task<RefreshToken> GenerateAndStoreRefreshTokenAsync(Guid userId);
+    Task<RefreshToken?> GetRefreshTokenByRefreshToken(string refreshToken);
+    Task<RefreshToken> RevokeRefreshTokenByObject(RefreshToken refreshToken);
 }

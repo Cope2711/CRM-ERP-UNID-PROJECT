@@ -10,3 +10,8 @@ public class TokenDto
     [Required]
     public string RefreshToken { get; set; }
 }
+
+public class RefreshTokenEntryDto
+{
+    public string RefreshToken { get; set; }
+}
