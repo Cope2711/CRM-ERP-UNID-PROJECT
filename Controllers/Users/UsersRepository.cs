@@ -24,17 +24,17 @@ public class UsersRepository : IUsersRepository
     
     public async Task<User?> GetById(Guid id)
     {
-        return await this._context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+        return await this._context.Users.Include(u=> u.Role).FirstOrDefaultAsync(u => u.UserId == id);
     }
 
     public async Task<User?> GetByUserName(string userName)
     {
-        return await this._context.Users.FirstOrDefaultAsync(u => u.UserUserName == userName);
+        return await this._context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserUserName == userName);
     }
 
     public async Task<User?> GetByEmail(string email)
     {
-        return await this._context.Users.FirstOrDefaultAsync(u => u.UserEmail == email);
+        return await this._context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserEmail == email);
     }
 
     public void Add(User user)
