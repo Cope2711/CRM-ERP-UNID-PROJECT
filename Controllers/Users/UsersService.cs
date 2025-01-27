@@ -1,5 +1,6 @@
 ﻿using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
+using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
 
 namespace CRM_ERP_UNID.Controllers;
@@ -7,9 +8,11 @@ namespace CRM_ERP_UNID.Controllers;
 public interface IUsersService
 {
     Task<User?> GetById(Guid id);
+    Task<User> GetByIdThrowsNotFound(Guid id);
     Task<User?> GetByUserName(string userName);
     Task<User?> GetByEmail(string email);
     Task<User?> Create(CreateUserDto createUserDto);
+    Task<User> GetByUserNameThrowsNotFound(string userName);
 }
 
 public class UsersService : IUsersService
@@ -25,10 +28,30 @@ public class UsersService : IUsersService
     {
         return await this._usersRepository.GetById(id);
     }  
+    
+    public async Task<User> GetByIdThrowsNotFound(Guid id)
+    {
+        User? user = await this._usersRepository.GetById(id);
+
+        if (user == null)
+            throw new NotFoundException(message: $"User with id: {id} not found!", field: "UserId");
+
+        return user;
+    }  
 
     public async Task<User?> GetByUserName(string userName)
     {
         return await this._usersRepository.GetByUserName(userName);
+    }
+    
+    public async Task<User> GetByUserNameThrowsNotFound(string userName)
+    {
+        User? user = await this._usersRepository.GetByUserName(userName);
+
+        if (user == null)
+            throw new NotFoundException(message: $"User with username: {userName} not found!", field: "UserUserName");
+
+        return user;
     }
     
     public async Task<User?> GetByEmail(string email)
@@ -40,12 +63,12 @@ public class UsersService : IUsersService
     {
         if (await this.GetByUserName(createUserDto.UserUserName) != null)
         {
-            return null;
+            throw new UniqueConstraintViolationException(message: $"User with username {createUserDto.UserUserName} already exists", field: "UserUserName");
         }
 
         if (await this.GetByEmail(createUserDto.UserEmail) != null)
         {
-            return null;
+            throw new UniqueConstraintViolationException(message: $"User with email {createUserDto.UserEmail} already exists", field: "UserEmail");
         }
 
         User user = new User

@@ -18,14 +18,17 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("get-by-id")]
-    public async Task<ActionResult<User>> GetUser([FromQuery] Guid id)
+    public async Task<ActionResult<User>> GetUserById([FromQuery] Guid id)
     {
-        User? user = await this._usersService.GetById(id);
-        
-        if (user == null)
-        {
-            return NotFound(user);
-        }
+        User user = await this._usersService.GetByIdThrowsNotFound(id);
+
+        return Ok(user);
+    }
+    
+    [HttpGet("get-by-username")]
+    public async Task<ActionResult<User>> GetUserByUsername([FromQuery] string username)
+    {
+        User user = await this._usersService.GetByUserNameThrowsNotFound(username);
 
         return Ok(user);
     }
