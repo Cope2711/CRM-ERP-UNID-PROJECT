@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
+using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
 
 namespace CRM_ERP_UNID.Controllers;
@@ -28,17 +28,10 @@ public class AuthService : IAuthService
         // 1. Get the refreshToken object 
         RefreshToken? refreshToken = await this._tokenService.GetRefreshTokenByRefreshToken(refreshTokenString);
 
-        if (refreshToken == null || refreshToken.ExpiresAt < DateTime.UtcNow || refreshToken.RevokedAt != null)
-        {
-            return null;
-        }
+        this.ValidateRefreshToken(refreshToken);
 
         // 2. Get the user
-        User? user = await this._usersService.GetById(refreshToken.UserId);
-        if (user == null)
-        {
-            return null;
-        }
+        User user = await this._usersService.GetByIdThrowsNotFound(refreshToken.UserId);
 
         // 3. Create the new Token Data
         TokenDto newTokenDto = new TokenDto
@@ -53,17 +46,12 @@ public class AuthService : IAuthService
     public async Task<TokenDto> Login(LoginUserDto loginUserDto)
     {
         // 1. Exist User
-        User? user = await this._usersService.GetByUserName(loginUserDto.UserUserName);
-
-        if (user == null)
-        {
-            return null;
-        }
+        User? user = await this._usersService.GetByUserNameThrowsNotFound(loginUserDto.UserUserName);
 
         // 2. Correct password?
         if (!PasswordHelper.VerifyPassword(loginUserDto.UserPassword, user.UserPassword))
         {
-            return null;
+            throw new UnauthorizedException(message: "The password is incorrect.", reason: "IncorrectPassword");
         }
 
         return new TokenDto
@@ -78,14 +66,29 @@ public class AuthService : IAuthService
         // 1. Get the refresh token
         RefreshToken? refreshToken = await this._tokenService.GetRefreshTokenByRefreshToken(refreshTokenString);
 
-        if (refreshToken == null || refreshToken.ExpiresAt < DateTime.UtcNow || refreshToken.RevokedAt != null)
-        {
-            return null;
-        }
+        this.ValidateRefreshToken(refreshToken);
 
         // 2. Revoke refresh token and return
         await this._tokenService.RevokeRefreshTokenByObject(refreshToken);
 
         return refreshToken;
+    }
+
+    private void ValidateRefreshToken(RefreshToken? refreshToken)
+    {
+        if (refreshToken == null)
+        {
+            throw new UnauthorizedException(message: "InvalidToken", reason: "Refresh token is null.");
+        }
+
+        if (refreshToken.ExpiresAt < DateTime.UtcNow)
+        {
+            throw new UnauthorizedException(message: "Refresh token has expired.", reason: "ExpiredToken");
+        }
+
+        if (refreshToken.RevokedAt != null)
+        {
+            throw new UnauthorizedException(message: "Refresh token has been revoked.", reason: "RevokedToken");
+        }
     }
 }
