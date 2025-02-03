@@ -1,32 +1,38 @@
-﻿using CRM_ERP_UNID.Data.Models;
+﻿
 using Microsoft.AspNetCore.Mvc;
+using CRM_ERP_UNID.Dtos;
 
+namespace CRM_ERP_UNID.Controllers;
 
-
-namespace CRM_ERP_UNID.Controllers.Permissionss
+[ApiController]
+[Route("api/permissions")]
+public class PermissionController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class PermissionController : ControllerBase
+    private readonly IPermissionService _permissionService;
+
+    public PermissionController(IPermissionService permissionService)
     {
-        private readonly IPermissionRepository _permissionRepository;
+        _permissionService = permissionService;
+    }
 
-        public PermissionController(IPermissionRepository permissionRepository)
-        {
-            _permissionRepository = permissionRepository;
-        }
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<PermissionDto>>> GetPermissions()
+    {
+        var permissions = await _permissionService.GetAllPermissionsAsync();
+        return Ok(permissions);
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<List<Permission>>> GetPermissions()
-        {
-            return Ok(await _permissionRepository.GetAllPermissionsAsync());
-        }
+    [HttpGet("{id}")]
+    public async Task<ActionResult<PermissionDto>> GetPermissionById(Guid id)
+    {
+        var permission = await _permissionService.GetPermissionByIdAsync(id);
+        return Ok(permission);
+    }
 
-        [HttpPost]
-        public async Task<ActionResult<Permission>> CreatePermission([FromBody] Permission permission)
-        {
-            var newPermission = await _permissionRepository.CreatePermissionAsync(permission);
-            return CreatedAtAction(nameof(GetPermissions), new { id = newPermission.PermissionId }, newPermission);
-        }
+    [HttpPost]
+    public async Task<ActionResult<PermissionDto>> CreatePermission([FromBody] PermissionDto permissionDto)
+    {
+        var createdPermission = await _permissionService.CreatePermissionAsync(permissionDto);
+        return CreatedAtAction(nameof(GetPermissionById), new { id = createdPermission.PermissionId }, createdPermission);
     }
 }

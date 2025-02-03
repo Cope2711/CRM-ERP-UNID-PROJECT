@@ -1,17 +1,17 @@
 ﻿using CRM_ERP_UNID.Data;
 using CRM_ERP_UNID.Data.Models;
-using CRM_ERP_UNID.Dtos;
 using Microsoft.EntityFrameworkCore;
 
-namespace CRM_ERP_UNID.Controllers.Roles
-{
+namespace CRM_ERP_UNID.Controllers;
+
     public interface IRoleRepository
     {
         Task<List<Role>> GetAllRolesAsync();
         Task<Role> GetRoleByIdAsync(Guid id);
         Task<Role> CreateRoleAsync(Role role);
         Task<Role?> GetByName(string roleName);
-     
+
+        Task AddRolePermissionAsync(RolePermission rolePermission);
     }
 
     public class RoleRepository : IRoleRepository
@@ -50,7 +50,11 @@ namespace CRM_ERP_UNID.Controllers.Roles
         {
             return await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == roleName);
         }
-
+        public async Task AddRolePermissionAsync(RolePermission rolePermission)
+        {
+            _context.RolePermissions.Add(rolePermission);
+            await _context.SaveChangesAsync();
+        }
         /*public async Task<List<RoleWithPermissionDtos>> GetRolesWithPermissionAsync(Guid permissionId)
         {
             return await _context.RolePermissions
@@ -67,5 +71,5 @@ namespace CRM_ERP_UNID.Controllers.Roles
         }*/
 
     }
-}
+
 

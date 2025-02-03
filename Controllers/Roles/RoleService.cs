@@ -1,67 +1,94 @@
 ﻿using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
-using CRM_ERP_UNID.Controllers.Permissionss;
+using CRM_ERP_UNID.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using CRM_ERP_UNID.Data;
+namespace CRM_ERP_UNID.Controllers;
 
-namespace CRM_ERP_UNID.Controllers.Roles
-{
     public interface IRoleService
     {
-        Task<List<Role>> GetAllRolesAsync();
-        Task<Role> GetRoleByIdAsync(Guid id);
-        Task<Role> CreateRoleAsync(Role role);
-        Task<Role> GetByNameThrowsNotFound(string roleName);
-        Task<Role> AssignPermissionToRoleAsync(Guid roleId, Guid permissionId);
+        Task<List<RoleDto>> GetAllRolesAsync();
+        Task<RoleDto> GetRoleByIdAsync(Guid id);
+        Task<RoleDto> CreateRoleAsync(RoleDto role);
+        Task<RoleDto> GetByNameThrowsNotFound(string roleName);
+        Task<RoleDto> AssignPermissionToRoleAsync(Guid roleId, Guid permissionId);
         /*Task<List<RoleWithPermissionDtos>> GetRolesWithPermissionAsync(Guid permissionId);*/
     }
-        
 
     public class RoleService : IRoleService
     {
         private readonly IRoleRepository _roleRepository;
         private readonly IPermissionRepository _permissionRepository;
-        private readonly AppDbContext _context;
         
-        public RoleService(IRoleRepository roleRepository, IPermissionRepository permissionRepository, AppDbContext context)
+        
+        public RoleService(IRoleRepository roleRepository, IPermissionRepository permissionRepository)
         {
-            this._roleRepository = roleRepository;
+            _roleRepository = roleRepository;
             _permissionRepository = permissionRepository;
-            _context = context;
         }
 
-        public async Task<List<Role>> GetAllRolesAsync()
+        public async Task<List<RoleDto>> GetAllRolesAsync()
         {
-            return await _roleRepository.GetAllRolesAsync();
+            var roles = await _roleRepository.GetAllRolesAsync();
+            return roles.Select(role => new RoleDto
+            {
+                RoleId = role.RoleId,
+                RoleName = role.RoleName,
+                RolePermissions = role.RolePermissions?.Select(rp => new RolePermissionDto
+                {
+                    PermissionId = rp.PermissionId
+                }).ToList()  
+            }).ToList();
         }
 
-        public async Task<Role> GetRoleByIdAsync(Guid id)
+        public async Task<RoleDto> GetRoleByIdAsync(Guid id)
         {
             var role = await _roleRepository.GetRoleByIdAsync(id);
             if (role == null)
             {
-                throw new KeyNotFoundException($"Role with ID {id} not found");
+                throw new NotFoundException($"Role with ID {id} not found", field:"no jala");
             }
-            return role;
+            return new RoleDto
+            {
+                RoleId = role.RoleId,
+                RoleName = role.RoleName,
+                RolePermissions = role.RolePermissions?.Select(rp => new RolePermissionDto
+                {
+                    PermissionId = rp.PermissionId
+                }).ToList()
+            };
         }
 
-        public async Task<Role> CreateRoleAsync(Role role)
+        public async Task<RoleDto> CreateRoleAsync(RoleDto roleDto)
         {
-            return await _roleRepository.CreateRoleAsync(role);
+            var newRole = new Role
+            {
+                RoleId = Guid.NewGuid(),
+                RoleName = roleDto.RoleName,
+            };
+            await _roleRepository.CreateRoleAsync(newRole);
+
+            return new RoleDto
+            {
+                RoleId = newRole.RoleId,
+                RoleName = newRole.RoleName,
+            };
         }
 
-        public async Task<Role> GetByNameThrowsNotFound(string roleName)
+        public async Task<RoleDto> GetByNameThrowsNotFound(string roleName)
         {
-            Role? role = await _roleRepository.GetByName(roleName);
-
+            var role = await _roleRepository.GetByName(roleName);
             if (role == null)
             {
                 throw new InvalidOperationException($"Role with name: {roleName} not found");
             }
-            return role;
+            return new RoleDto
+            {
+                RoleId = role.RoleId,
+                RoleName = role.RoleName
+            };
         }
        
-        public async Task<Role> AssignPermissionToRoleAsync(Guid roleId, Guid permissionId)
+        public async Task<RoleDto> AssignPermissionToRoleAsync(Guid roleId, Guid permissionId)
         {
             var role = await _roleRepository.GetRoleByIdAsync(roleId);
             var permission = await _permissionRepository.GetPermissionByIdAsync(permissionId);
@@ -70,27 +97,28 @@ namespace CRM_ERP_UNID.Controllers.Roles
             {
                 throw new KeyNotFoundException("Role or permission not found.");
             }
-            
-            //Verifica si ya existe la relación
-            var existingRelation = await _context.RolePermissions
-                .FirstOrDefaultAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
 
+            var existingRelation = role.RolePermissions?.FirstOrDefault(rp => rp.PermissionId == permissionId);
             if (existingRelation != null)
             {
                 throw new InvalidOperationException("This permission is already assigned to the role.");
             }
-            
-            //relación entre el rol y el permiso
-            _context.RolePermissions.Add(new RolePermission { RoleId = roleId, PermissionId = permissionId });
-            await _context.SaveChangesAsync();
 
-            return role;
+            var rolePermission = new RolePermission
+            {
+                RoleId = roleId,
+                PermissionId = permissionId
+            };
+
+            await _roleRepository.AddRolePermissionAsync(rolePermission);
+            return await GetRoleByIdAsync(roleId);
         }
+    }
         
         /*public async Task<List<RoleWithPermissionDtos>> GetRolesWithPermissionAsync(Guid permissionId)
         {
             return await _roleRepository.GetRolesWithPermissionAsync(permissionId);
         }*/
         
-    }
-}
+    
+

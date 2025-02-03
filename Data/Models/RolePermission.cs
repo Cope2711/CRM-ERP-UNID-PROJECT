@@ -7,6 +7,7 @@ namespace CRM_ERP_UNID.Data.Models;
 public class RolePermission
 {
     [Key] public Guid RolePermissionId { get; set; }
+    
     public Guid RoleId { get; set; }
     public Guid PermissionId { get; set; }
 }

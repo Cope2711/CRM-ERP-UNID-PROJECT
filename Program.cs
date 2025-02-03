@@ -1,8 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
-using CRM_ERP_UNID.Controllers.Roles;
-using CRM_ERP_UNID.Controllers.Permissionss;
 using CRM_ERP_UNID.Controllers;
 using CRM_ERP_UNID.Data;
 using CRM_ERP_UNID.Exceptions;
@@ -21,6 +19,7 @@ builder.Services.AddScoped<ITokensRepository, TokensRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 
 
 builder.Services.AddControllers();

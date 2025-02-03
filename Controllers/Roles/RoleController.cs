@@ -2,10 +2,10 @@
 using CRM_ERP_UNID.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CRM_ERP_UNID.Controllers.Roles
-{
+namespace CRM_ERP_UNID.Controllers;
+
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/roles")]
     public class RoleController : ControllerBase
     {
         private readonly IRoleService _roleService;
@@ -18,12 +18,13 @@ namespace CRM_ERP_UNID.Controllers.Roles
         [HttpGet]
         public async Task<ActionResult<List<Role>>> GetRoles()
         {
-            return Ok(await _roleService.GetAllRolesAsync());
+            var roles = await _roleService.GetAllRolesAsync();
+            return Ok(roles);
 
         }
 
         [HttpPost]
-        public async Task<ActionResult<Role>> CreateRole([FromBody] Role role)
+        public async Task<ActionResult<RoleDto>> CreateRole([FromBody] RoleDto role)
         {
             var newRole = await _roleService.CreateRoleAsync(role);
             return CreatedAtAction(nameof(GetRoles), new { id = newRole.RoleId }, newRole);
@@ -32,21 +33,10 @@ namespace CRM_ERP_UNID.Controllers.Roles
         }
         
         [HttpPost("assign-permission")]
-        public async Task<IActionResult> AssignPermissionToRole([FromBody] AssignPermissionDtos dto)
+        public async Task<IActionResult> AssignPermissionToRole([FromBody] AssignPermissionDto dto)
         {
-            try
-            {
                 var role = await _roleService.AssignPermissionToRoleAsync(dto.RoleId, dto.PermissionId);
                 return Ok(new { Message = "Permission assigned successfully", role });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { Error = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Error = ex.Message });
-            }
         }
         /*[HttpGet("roles-with-permission/{permissionId}")]
         public async Task<IActionResult> GetRolesWithPermission(Guid permissionId)
@@ -62,4 +52,4 @@ namespace CRM_ERP_UNID.Controllers.Roles
         }*/
 
     }
-}
+

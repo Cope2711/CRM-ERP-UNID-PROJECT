@@ -2,11 +2,9 @@
 
 namespace CRM_ERP_UNID.Dtos
 {
-    public class RolePermissionDtos
+    public class RolePermissionDto
     {
         public Guid RoleId { get; set; }
-        public Role Role { get; set; }
-
         public Guid PermissionId { get; set; }
         
     }
