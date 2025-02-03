@@ -13,6 +13,12 @@ using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.Test.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
 // Add services to the container.
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITokensRepository, TokensRepository>();
@@ -26,8 +32,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+if (builder.Environment.IsEnvironment("Test"))
+{
+    // Configuración para el entorno de pruebas
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseInMemoryDatabase("TestDatabase"));
+}
+else
+{
+
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
 
 // Http response exception
 builder.Services
@@ -42,17 +58,17 @@ builder.Services
             Title = "Resource Not Found",
             Status = StatusCodes.Status404NotFound,
             Detail = ex.Message,
-            Extensions = { { "field", ex.Field } } 
+            Extensions = { { "field", ex.Field } }
         });
-        
+
         options.Map<UniqueConstraintViolationException>(ex => new ProblemDetails
         {
             Title = "Unique Constraint Violation",
             Status = StatusCodes.Status409Conflict,
             Detail = ex.Message,
-            Extensions = { { "field", ex.Field } } 
+            Extensions = { { "field", ex.Field } }
         });
-        
+
         options.Map<UnauthorizedException>(ex => new ProblemDetails
         {
             Title = "Unauthorized",
@@ -60,13 +76,12 @@ builder.Services
             Detail = ex.Message,
             Extensions = { { "reason", ex.Reason } }
         });
-        
+
         options.MapToStatusCode<NotImplementedException>(StatusCodes.Status501NotImplemented);
         options.MapToStatusCode<HttpRequestException>(StatusCodes.Status503ServiceUnavailable);
 
-        
-        options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
 
+        options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
     })
     .AddControllersWithViews()
     .AddProblemDetailsConventions()
@@ -119,6 +134,17 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000")
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -134,7 +160,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseProblemDetails();
 
+app.UseCors("AllowAllOrigins");
 
 app.MapControllers();
 
 app.Run();
+
+public partial class Program
+{
+}
