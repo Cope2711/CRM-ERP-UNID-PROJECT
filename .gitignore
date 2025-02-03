@@ -1,0 +1,57 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Dd]Release/
+[Dd]ReleasePublic/
+x64/
+x86/
+[Aa]rchive/
+[Aa]rchives/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows Installer files (if using clickonce)
+*.application
+*.manifest
+*.deploy
+
+# User-specific files for JetBrains Rider
+.idea/
+
+# User-specific files for Visual Studio for Mac
+.vscode/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Build directories
+bin/
+obj/
+
+# Rider specific files
+.idea/
+
+# VS Code specific files
+.vscode/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# NPM packages
+node_modules/
+
+# Other files you don't want to track
+*.log
