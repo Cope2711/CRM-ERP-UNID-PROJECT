@@ -8,9 +8,9 @@ namespace CRM_ERP_UNID.Controllers;
     {
         Task<List<Role>> GetAllRolesAsync();
         Task<Role> GetRoleByIdAsync(Guid id);
-        Task<Role> CreateRoleAsync(Role role);
         Task<Role?> GetByName(string roleName);
-
+        Task SaveChangesAsync();
+        void AddRoleAsync(Role role);
         Task AddRolePermissionAsync(RolePermission rolePermission);
     }
 
@@ -27,34 +27,31 @@ namespace CRM_ERP_UNID.Controllers;
         {
             return await _context.Roles.Include(r => r.RolePermissions).ToListAsync();
         }
-
+        
         public async Task<Role> GetRoleByIdAsync(Guid id)
         {
             return await _context.Roles.Include(r => r.RolePermissions).FirstOrDefaultAsync(r => r.RoleId == id);
-        }
-
-        public async Task<Role> CreateRoleAsync(Role role)
-        {
-
-            if (role.RoleId == Guid.Empty)
-            {
-                role.RoleId = Guid.NewGuid();
-            }
-
-            _context.Roles.Add(role);
-            await _context.SaveChangesAsync();
-            return role;
         }
 
         public async Task<Role?> GetByName(string roleName)
         {
             return await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == roleName);
         }
+        
         public async Task AddRolePermissionAsync(RolePermission rolePermission)
         {
             _context.RolePermissions.Add(rolePermission);
-            await _context.SaveChangesAsync();
         }
+        
+        public void AddRoleAsync(Role role)
+        {
+            this. _context.Roles.Add(role);
+        }
+        public async Task SaveChangesAsync()
+        {
+            await this._context.SaveChangesAsync();
+        }
+        
         /*public async Task<List<RoleWithPermissionDtos>> GetRolesWithPermissionAsync(Guid permissionId)
         {
             return await _context.RolePermissions

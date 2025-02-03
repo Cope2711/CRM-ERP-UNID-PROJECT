@@ -8,7 +8,9 @@ public interface IPermissionRepository
 {
     Task<List<Permission>> GetAllPermissionsAsync();
     Task<Permission> GetPermissionByIdAsync(Guid id);
-    Task<Permission> CreatePermissionAsync(Permission permission);
+    void AddPermissionAsync(Permission permission);
+    Task SaveChangesAsync();
+    Task<Permission?> GetByName(string permissionName);
 }
 
 public class PermissionRepository : IPermissionRepository
@@ -30,10 +32,17 @@ public class PermissionRepository : IPermissionRepository
         return await _context.Permissions.FindAsync(id);
     }
 
-    public async Task<Permission> CreatePermissionAsync(Permission permissions)
+    public void AddPermissionAsync(Permission permissions)
     {
-        _context.Permissions.Add(permissions);
-        await _context.SaveChangesAsync();
-        return permissions;
+        this._context.Permissions.Add(permissions);
+    }
+    public async Task SaveChangesAsync()
+    {
+        await this._context.SaveChangesAsync();
+    }
+    public async Task<Permission?> GetByName(string permissionName)
+    {
+        return await _context.Permissions
+            .FirstOrDefaultAsync(p => p.PermissionName == permissionName);
     }
 }

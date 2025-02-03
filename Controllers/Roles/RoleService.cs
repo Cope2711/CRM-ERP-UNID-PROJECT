@@ -60,12 +60,21 @@ namespace CRM_ERP_UNID.Controllers;
 
         public async Task<RoleDto> CreateRoleAsync(RoleDto roleDto)
         {
+            // Verificar si ya existe un rol con el mismo nombre para evitar duplicados
+            var existingRole = await _roleRepository.GetByName(roleDto.RoleName);
+            if (existingRole != null)
+            {
+                throw new UniqueConstraintViolationException($"A role with the name '{roleDto.RoleName}' already exists.", field: "roleName");
+            }
+
             var newRole = new Role
             {
                 RoleId = Guid.NewGuid(),
                 RoleName = roleDto.RoleName,
             };
-            await _roleRepository.CreateRoleAsync(newRole);
+
+             this._roleRepository.AddRoleAsync(newRole);
+            await this._roleRepository.SaveChangesAsync(); 
 
             return new RoleDto
             {
@@ -79,7 +88,7 @@ namespace CRM_ERP_UNID.Controllers;
             var role = await _roleRepository.GetByName(roleName);
             if (role == null)
             {
-                throw new InvalidOperationException($"Role with name: {roleName} not found");
+                throw new NotFoundException($"Role with name: {roleName} not found", field:"roleNmae");
             }
             return new RoleDto
             {
@@ -95,13 +104,13 @@ namespace CRM_ERP_UNID.Controllers;
 
             if (role == null || permission == null)
             {
-                throw new KeyNotFoundException("Role or permission not found.");
+                throw new NotFoundException($"Role with ID {roleId} not found.", field: "roleId");
             }
 
             var existingRelation = role.RolePermissions?.FirstOrDefault(rp => rp.PermissionId == permissionId);
             if (existingRelation != null)
             {
-                throw new InvalidOperationException("This permission is already assigned to the role.");
+                throw new UniqueConstraintViolationException("This permission is already assigned to the role.", field: "permissionId");
             }
 
             var rolePermission = new RolePermission
