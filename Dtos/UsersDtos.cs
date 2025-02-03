@@ -33,6 +33,20 @@ public class CreateUserDto
     public Guid RoleId { get; set; } //campo de Rol
 }
 
+public class UserDto
+{
+    public Guid UserId { get; set; }
+
+    [MaxLength(50)] public string UserUserName { get; set; }
+
+    [MaxLength(50)] public string UserFirstName { get; set; }
+
+    [MaxLength(50)] public string UserLastName { get; set; }
+
+    [MaxLength(255)] public string UserEmail { get; set; }
+    
+    public bool IsActive { get; set; }
+}
 
 public class LoginUserDto
 {

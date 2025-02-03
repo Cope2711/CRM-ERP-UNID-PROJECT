@@ -56,6 +56,10 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = "Invalid or expired refresh token." });
         }
 
-        return Ok(refreshToken);
+        return Ok(new TokenDto
+        {
+            Token = null,
+            RefreshToken = refreshToken.Token
+        });
     }
 }
