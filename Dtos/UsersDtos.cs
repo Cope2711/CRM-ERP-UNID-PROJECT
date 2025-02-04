@@ -28,6 +28,9 @@ public class CreateUserDto
 
     [Required]
     public bool IsActive { get; set; } = true;
+
+    [Required]
+    public Guid RoleId { get; set; } //campo de Rol
 }
 
 public class UserDto
