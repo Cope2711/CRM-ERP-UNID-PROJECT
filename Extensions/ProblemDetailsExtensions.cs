@@ -37,6 +37,14 @@ public static class ProblemDetailsExtensions
                 Extensions = { { "reason", ex.Reason } }
             });
 
+            options.Map<BadRequestException>(ex => new ProblemDetails
+            {
+                Title = "Bad Request",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = ex.Message,
+                Extensions = { { "field", ex.Field } }
+            });
+            
             options.MapToStatusCode<NotImplementedException>(StatusCodes.Status501NotImplemented);
             options.MapToStatusCode<HttpRequestException>(StatusCodes.Status503ServiceUnavailable);
             options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
