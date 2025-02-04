@@ -1,5 +1,6 @@
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
+using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,6 +45,26 @@ public class UsersController : ControllerBase
         }
 
         return Ok(user);
+    }
+    
+    [HttpPost("get-all")]
+    public async Task<ActionResult<User>> GetAll([FromBody] GetAllDto getAllDto)
+    {
+        if (getAllDto.OrderBy != null)
+            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.OrderBy, typeof(User));
+        
+        if (getAllDto.SearchColumn != null)
+            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.SearchColumn, typeof(User));
+        
+        
+        GetAllResponseDto<User> getAllResponseDto = await this._usersService.GetAll(getAllDto);
+
+        if (getAllResponseDto == null)
+        {
+            return BadRequest("Some problems ocurred getting the users :(");
+        }
+
+        return Ok(getAllResponseDto);
     }
 
     [HttpGet("exist-user-by-email")]

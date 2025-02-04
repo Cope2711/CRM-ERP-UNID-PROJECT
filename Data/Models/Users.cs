@@ -33,7 +33,6 @@ public class User
     [Required]
     public bool IsActive { get; set; }
 
-    //relacion co Role
     public Guid RoleId { get; set; }
 
     [ForeignKey("RoleId")]
