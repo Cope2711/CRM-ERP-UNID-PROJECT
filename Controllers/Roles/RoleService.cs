@@ -1,7 +1,7 @@
 ﻿using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
-using Microsoft.EntityFrameworkCore;
+
 namespace CRM_ERP_UNID.Controllers;
 
     public interface IRoleService
@@ -11,7 +11,6 @@ namespace CRM_ERP_UNID.Controllers;
         Task<RoleDto> CreateRoleAsync(RoleDto role);
         Task<RoleDto> GetByNameThrowsNotFound(string roleName);
         Task<RoleDto> AssignPermissionToRoleAsync(Guid roleId, Guid permissionId);
-        /*Task<List<RoleWithPermissionDtos>> GetRolesWithPermissionAsync(Guid permissionId);*/
     }
 
     public class RoleService : IRoleService
@@ -45,7 +44,7 @@ namespace CRM_ERP_UNID.Controllers;
             var role = await _roleRepository.GetRoleByIdAsync(id);
             if (role == null)
             {
-                throw new NotFoundException($"Role with ID {id} not found", field:"no jala");
+                throw new NotFoundException($"Role with ID {id} not found", field:"Role");
             }
             return new RoleDto
             {
@@ -64,7 +63,7 @@ namespace CRM_ERP_UNID.Controllers;
             var existingRole = await _roleRepository.GetByName(roleDto.RoleName);
             if (existingRole != null)
             {
-                throw new UniqueConstraintViolationException($"A role with the name '{roleDto.RoleName}' already exists.", field: "roleName");
+                throw new UniqueConstraintViolationException($"A role with the name '{roleDto.RoleName}' already exists.", field: "RoleName");
             }
 
             var newRole = new Role
@@ -88,7 +87,7 @@ namespace CRM_ERP_UNID.Controllers;
             var role = await _roleRepository.GetByName(roleName);
             if (role == null)
             {
-                throw new NotFoundException($"Role with name: {roleName} not found", field:"roleNmae");
+                throw new NotFoundException($"Role with name: {roleName} not found", field:"RoleNmae");
             }
             return new RoleDto
             {
@@ -104,13 +103,13 @@ namespace CRM_ERP_UNID.Controllers;
 
             if (role == null || permission == null)
             {
-                throw new NotFoundException($"Role with ID {roleId} not found.", field: "roleId");
+                throw new NotFoundException($"Role with ID {roleId} not found.", field: "RoleId");
             }
 
             var existingRelation = role.RolePermissions?.FirstOrDefault(rp => rp.PermissionId == permissionId);
             if (existingRelation != null)
             {
-                throw new UniqueConstraintViolationException("This permission is already assigned to the role.", field: "permissionId");
+                throw new UniqueConstraintViolationException("This permission is already assigned to the role.", field: "PermissionId");
             }
 
             var rolePermission = new RolePermission
@@ -123,11 +122,3 @@ namespace CRM_ERP_UNID.Controllers;
             return await GetRoleByIdAsync(roleId);
         }
     }
-        
-        /*public async Task<List<RoleWithPermissionDtos>> GetRolesWithPermissionAsync(Guid permissionId)
-        {
-            return await _roleRepository.GetRolesWithPermissionAsync(permissionId);
-        }*/
-        
-    
-

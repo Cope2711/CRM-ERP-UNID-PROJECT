@@ -45,28 +45,11 @@ namespace CRM_ERP_UNID.Controllers;
         
         public void AddRoleAsync(Role role)
         {
-            this. _context.Roles.Add(role);
+            this._context.Roles.Add(role);
         }
+        
         public async Task SaveChangesAsync()
         {
             await this._context.SaveChangesAsync();
         }
-        
-        /*public async Task<List<RoleWithPermissionDtos>> GetRolesWithPermissionAsync(Guid permissionId)
-        {
-            return await _context.RolePermissions
-                .Where(rp => rp.PermissionId == permissionId)
-                .Include(rp => rp.Role)
-                .Include(rp => rp.Permission)
-                .Select(rp => new RoleWithPermissionDtos
-                {
-                    RoleId = rp.Role.RoleId,
-                    RoleName = rp.Role.RoleName,
-                    PermissionName = rp.Permission.PermissionName
-                })
-                .ToListAsync();
-        }*/
-
     }
-
-

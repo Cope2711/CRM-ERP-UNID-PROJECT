@@ -20,7 +20,6 @@ namespace CRM_ERP_UNID.Controllers;
         {
             var roles = await _roleService.GetAllRolesAsync();
             return Ok(roles);
-
         }
 
         [HttpPost]
@@ -28,8 +27,6 @@ namespace CRM_ERP_UNID.Controllers;
         {
             var newRole = await _roleService.CreateRoleAsync(role);
             return CreatedAtAction(nameof(GetRoles), new { id = newRole.RoleId }, newRole);
-
-
         }
         
         [HttpPost("assign-permission")]
@@ -38,18 +35,4 @@ namespace CRM_ERP_UNID.Controllers;
                 var role = await _roleService.AssignPermissionToRoleAsync(dto.RoleId, dto.PermissionId);
                 return Ok(new { Message = "Permission assigned successfully", role });
         }
-        /*[HttpGet("roles-with-permission/{permissionId}")]
-        public async Task<IActionResult> GetRolesWithPermission(Guid permissionId)
-        {
-            var roles = await _roleService.GetRolesWithPermissionAsync(permissionId);
-
-            if (roles == null || roles.Count == 0)
-            {
-                return NotFound(new { message = "No roles found with this permission." });
-            }
-
-            return Ok(roles);
-        }*/
-
     }
-

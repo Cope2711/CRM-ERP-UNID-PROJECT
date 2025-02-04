@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using CRM_ERP_UNID.Dtos;
 
 namespace CRM_ERP_UNID.Controllers;

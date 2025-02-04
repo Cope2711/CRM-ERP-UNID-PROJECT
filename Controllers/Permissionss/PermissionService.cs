@@ -1,6 +1,4 @@
-
 using CRM_ERP_UNID.Dtos;
-
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Exceptions;
 
@@ -42,7 +40,7 @@ public class PermissionService : IPermissionService
         var permission = await _permissionRepository.GetPermissionByIdAsync(id);
         if (permission == null)
         {
-            throw new NotFoundException($"Permission with ID {id} not found.", field: "permissionId");
+            throw new NotFoundException($"Permission with ID {id} not found.", field: "PermissionId");
         }
 
         return new PermissionDto
@@ -59,7 +57,7 @@ public class PermissionService : IPermissionService
         var existingPermission = await _permissionRepository.GetByName(permissionDto.PermissionName);
         if (existingPermission != null)
         {
-            throw new UniqueConstraintViolationException($"A permission with the name '{permissionDto.PermissionName}' already exists.", field: "permissionName");
+            throw new UniqueConstraintViolationException($"A permission with the name '{permissionDto.PermissionName}' already exists.", field: "PermissionName");
         }
 
         var permission = new Permission
