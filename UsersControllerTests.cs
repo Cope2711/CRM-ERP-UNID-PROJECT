@@ -1,7 +1,9 @@
 ﻿using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using CRM_ERP_UNID.Data.Models;
 
 public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
 {
@@ -93,7 +95,8 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
             UserFirstName = "Admin",
             UserLastName = "User",
             UserEmail = "admin@admin.com",
-            IsActive = true
+            IsActive = true,
+            RoleId = Guid.Parse("735250a8-d410-4f77-870a-4422ab28a1a1")
         };
 
         // Act
@@ -127,11 +130,13 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
             UserFirstName = "Admin",
             UserLastName = "User",
             UserEmail = "admin@admin.com",
-            IsActive = true
+            IsActive = true,
+            RoleId = Guid.Parse("735250a8-d410-4f77-870a-4422ab28a1a1")
         };
 
         // Act
-        var response = await _client.GetFromJsonAsync<UserDto>($"/api/users/get-by-username?username={expectedUser.UserUserName}");
+        var response =
+            await _client.GetFromJsonAsync<UserDto>($"/api/users/get-by-username?username={expectedUser.UserUserName}");
 
         // Assert
         response.Should().NotBeNull();
@@ -209,5 +214,161 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.ReadAsStringAsync().Result.Should().Be("false");
+    }
+
+    [Fact]
+    public async Task GetAllUsers_WhenGetAllDtoIsValid_ReturnsExpectedUsers()
+    {
+        // Arrange
+        GetAllDto getAllDto = new GetAllDto
+        {
+            PageNumber = 1,
+            PageSize = 1,
+            OrderBy = "UserUserName",
+            Descending = false,
+            SearchTerm = null,
+            SearchColumn = null
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+
+        GetAllResponseDto<UserDto> getAllResponseDto =
+            await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
+
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        getAllResponseDto.Should().NotBeNull();
+        getAllResponseDto.Data.Should().NotBeNull();
+        getAllResponseDto.Data.Should().HaveCount(1);
+        getAllResponseDto.TotalItems.Should().Be(3);
+        getAllResponseDto.PageNumber.Should().Be(1);
+        getAllResponseDto.PageSize.Should().Be(1);
+        getAllResponseDto.TotalPages.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task GetAllUsers_WhenOrderByIsInvalid_ReturnsBadRequest()
+    {
+        // Arrange
+        GetAllDto getAllDto = new GetAllDto
+        {
+            PageNumber = 1,
+            PageSize = 1,
+            OrderBy = "invalid-column",
+            Descending = false,
+            SearchTerm = null,
+            SearchColumn = null
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetAllUsers_WhenSearchTermIsValid_ReturnsExpectedOrder()
+    {
+        // Arrange
+        GetAllDto getAllDto = new GetAllDto
+        {
+            PageNumber = 1,
+            PageSize = 10,
+            OrderBy = "UserUserName",
+            Descending = false,
+            SearchTerm = "a",
+            SearchColumn = "UserUserName"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+
+        GetAllResponseDto<UserDto> getAllResponseDto =
+            await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
+
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        getAllResponseDto.Data[0].UserUserName.Should().Be("admin");
+        getAllResponseDto.Data[1].UserUserName.Should().Be("janedoe");
+        
+    }
+    
+    [Fact]
+    public async Task GetAllUsers_WhenSearchColumnIsInvalid_ReturnsBadRequest()
+    {
+        // Arrange
+        GetAllDto getAllDto = new GetAllDto
+        {
+            PageNumber = 1,
+            PageSize = 1,
+            OrderBy = "UserUserName",
+            Descending = false,
+            SearchTerm = null,
+            SearchColumn = "invalid-column"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+    
+    [Fact]
+    public async Task GetAllUsers_WhenSearchTermIsInvalid_ReturnsEmptyData()
+    {
+        // Arrange
+        GetAllDto getAllDto = new GetAllDto
+        {
+            PageNumber = 1,
+            PageSize = 10,
+            OrderBy = "UserUserName",
+            Descending = false,
+            SearchTerm = "invalid-term",
+            SearchColumn = "UserUserName"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+
+        GetAllResponseDto<UserDto> getAllResponseDto =
+            await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
+
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        getAllResponseDto.Data.Should().BeEmpty();
+        getAllResponseDto.TotalItems.Should().Be(0);
+    }
+    
+    [Fact]
+    public async Task GetAllUsers_WhenDescendingIsTrue_ReturnsExpectedOrder()
+    {
+        // Arrange
+        GetAllDto getAllDto = new GetAllDto
+        {
+            PageNumber = 1,
+            PageSize = 10,
+            OrderBy = "UserUserName",
+            Descending = true,
+            SearchTerm = "a",
+            SearchColumn = "UserUserName"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+
+        GetAllResponseDto<UserDto> getAllResponseDto =
+            await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
+
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        getAllResponseDto.Data[0].UserUserName.Should().Be("janedoe");
+        getAllResponseDto.Data[1].UserUserName.Should().Be("admin");
     }
 }
