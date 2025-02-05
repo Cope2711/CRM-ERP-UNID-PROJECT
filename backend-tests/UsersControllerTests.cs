@@ -1,9 +1,7 @@
 ﻿using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using CRM_ERP_UNID.Data.Models;
 
 public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
 {

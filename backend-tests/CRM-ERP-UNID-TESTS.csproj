@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CRM-ERP-UNID\CRM-ERP-UNID.csproj" />
+    <ProjectReference Include="..\backend\CRM-ERP-UNID.csproj" />
   </ItemGroup>
 
 </Project>
