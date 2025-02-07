@@ -4,7 +4,7 @@
     using CRM_ERP_UNID.Data;
     using Microsoft.EntityFrameworkCore;
 
-    namespace CRM_ERP_UNID.Controllers;
+    namespace CRM_ERP_UNID.Modules;
 
     public interface IGenericRepository<T> where T : class
     {

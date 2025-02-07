@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using CRM_ERP_UNID.Data.Models;
 
-namespace CRM_ERP_UNID.Controllers;
+namespace CRM_ERP_UNID.Modules;
 
 public class TokenService : ITokenService
 {

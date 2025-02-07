@@ -2,7 +2,7 @@
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
 
-namespace CRM_ERP_UNID.Controllers;
+namespace CRM_ERP_UNID.Modules;
 
 public interface IGenericServie<T> where T : class
 {

@@ -3,7 +3,7 @@ using CRM_ERP_UNID.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CRM_ERP_UNID.Controllers;
+namespace CRM_ERP_UNID.Modules;
 
 [ApiController]
 [Route("api/auth")]

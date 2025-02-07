@@ -3,7 +3,7 @@ using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
 
-namespace CRM_ERP_UNID.Controllers;
+namespace CRM_ERP_UNID.Modules;
 
 public interface IUsersService
 {

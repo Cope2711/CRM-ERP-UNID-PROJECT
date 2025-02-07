@@ -4,7 +4,7 @@ using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
 
-namespace CRM_ERP_UNID.Controllers;
+namespace CRM_ERP_UNID.Modules;
 
 [ApiController]
 [Authorize]
