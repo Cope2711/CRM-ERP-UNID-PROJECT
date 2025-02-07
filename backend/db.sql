@@ -35,6 +35,14 @@ CREATE TABLE Roles
     RoleName VARCHAR(50) NOT NULL
 );
 
+CREATE TABLE RolePermissions
+(
+    RolePermissionId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    RoleId           UNIQUEIDENTIFIER NOT NULL,
+    PermissionId     UNIQUEIDENTIFIER NOT NULL,
+    FOREIGN KEY (RoleId) REFERENCES Roles (RoleId),
+    FOREIGN KEY (PermissionId) REFERENCES Permissions (PermissionId)
+);
 
 CREATE TABLE Users
 (
@@ -47,8 +55,8 @@ CREATE TABLE Users
     IsActive      BIT              DEFAULT 1,
     CreatedDate   DATETIME         DEFAULT GETDATE(),
     UpdatedDate   DATETIME         DEFAULT GETDATE(),
-    RoleId        UNIQUEIDENTIFIER NOT NULL,
-    CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleId) REFERENCES Roles(RoleId) ON DELETE CASCADE
+    RoleId        UNIQUEIDENTIFIER    NOT NULL,
+    CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleId) REFERENCES Roles (RoleId) ON DELETE CASCADE
 );
 
 
@@ -59,22 +67,14 @@ CREATE TABLE RefreshTokens
     Token          NVARCHAR(200) UNIQUE NOT NULL,
     ExpiresAt      DATETIME             NOT NULL,
     RevokedAt      DATETIME             NULL,
-    CONSTRAINT FK_RefreshTokens_Users FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE
-);
-
-
-CREATE TABLE RolePermissions
-(
-    RolePermissionId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    RoleId           UNIQUEIDENTIFIER NOT NULL,
-    PermissionId     UNIQUEIDENTIFIER NOT NULL,
-    FOREIGN KEY (RoleId) REFERENCES Roles(RoleId),
-    FOREIGN KEY (PermissionId) REFERENCES Permissions(PermissionId)
+    CONSTRAINT FK_RefreshTokens_Users FOREIGN KEY (UserId) REFERENCES Users (UserId) ON DELETE CASCADE
 );
 
 
 INSERT INTO Roles (RoleName)
-VALUES ('Admin'), ('User'), ('Guest');
+VALUES ('Admin'),
+       ('User'),
+       ('Guest');
 
 
 INSERT INTO Users (UserUserName, UserFirstName, UserLastName, UserEmail, UserPassword, IsActive, RoleId)
@@ -101,8 +101,13 @@ VALUES ((SELECT UserId FROM Users WHERE UserUserName = 'admin'),
         DATEADD(DAY, 30, GETDATE()));
 
 -- Consultas para verificar la inserción de datos
-SELECT * FROM Users;
-SELECT * FROM Roles;
-SELECT * FROM Permissions;
-SELECT * FROM RolePermissions;
-SELECT * FROM RefreshTokens;
+SELECT *
+FROM Users;
+SELECT *
+FROM Roles;
+SELECT *
+FROM Permissions;
+SELECT *
+FROM RolePermissions;
+SELECT *
+FROM RefreshTokens;

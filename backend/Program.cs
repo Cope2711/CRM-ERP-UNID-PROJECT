@@ -20,6 +20,8 @@ builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+builder.Services.AddScoped(typeof(IGenericServie<>), typeof(GenericService<>));
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -32,6 +34,7 @@ builder.Services.AddCustomProblemDetails(builder.Environment);
 builder.Services.AddCustomAuthentication(builder.Configuration);
 builder.Services.AddCustomRateLimiting();
 builder.Services.AddCustomCors();
+
 
 var app = builder.Build();
 

@@ -31,7 +31,7 @@ public class AuthService : IAuthService
         this.ValidateRefreshToken(refreshToken);
 
         // 2. Get the user
-        User user = await this._usersService.GetByIdThrowsNotFound(refreshToken.UserId);
+        User user = await this._usersService.GetByIdThrowsNotFoundAsync(refreshToken.UserId);
 
         // 3. Create the new Token Data
         TokenDto newTokenDto = new TokenDto

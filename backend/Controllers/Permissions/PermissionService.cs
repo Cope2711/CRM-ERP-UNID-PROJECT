@@ -7,54 +7,42 @@ namespace CRM_ERP_UNID.Controllers;
 
 public interface IPermissionService
 {
-    Task<IEnumerable<PermissionDto>> GetAllPermissionsAsync();
-    Task<PermissionDto> GetPermissionByIdAsync(Guid id);
+    Task<GetAllResponseDto<Permission>> GetAllAsync(GetAllDto getAllDto);
+    Task<Permission> GetByIdThrowsNotFoundAsync(Guid id);
     Task<PermissionDto> CreatePermissionAsync(PermissionDto permissionDto);
-    
-    
+    Task<Permission?> GetByNameAsync(string permissionName);
 }
 
 public class PermissionService : IPermissionService
 {
     private readonly IPermissionRepository _permissionRepository;
+    private readonly IGenericServie<Permission> _genericService;
     
-    
-    public PermissionService(IPermissionRepository permissionRepository)
+    public PermissionService(IPermissionRepository permissionRepository, IGenericServie<Permission> genericService)
     {
         _permissionRepository = permissionRepository;
+        _genericService = genericService;
+    }
+
+    public async Task<GetAllResponseDto<Permission>> GetAllAsync(GetAllDto getAllDto)
+    {
+        return await _genericService.GetAllAsync(getAllDto);
+    }
+
+    public async Task<Permission> GetByIdThrowsNotFoundAsync(Guid id)
+    {
+        return await _genericService.GetByIdThrowsNotFoundAsync(id);
     }
     
-    public async Task<IEnumerable<PermissionDto>> GetAllPermissionsAsync()
+    public async Task<Permission?> GetByNameAsync(string permissionName)
     {
-        var permissions = await _permissionRepository.GetAllPermissionsAsync();
-        return permissions.Select(p => new PermissionDto
-        {
-            PermissionId = p.PermissionId,
-            PermissionName = p.PermissionName,
-            Description = p.Description
-        });
-    }
-
-    public async Task<PermissionDto> GetPermissionByIdAsync(Guid id)
-    {
-        var permission = await _permissionRepository.GetPermissionByIdAsync(id);
-        if (permission == null)
-        {
-            throw new NotFoundException($"Permission with ID {id} not found.", field: "PermissionId");
-        }
-
-        return new PermissionDto
-        {
-            PermissionId = permission.PermissionId,
-            PermissionName = permission.PermissionName,
-            Description = permission.Description
-        };
+        return await _genericService.GetFirstAsync(p => p.PermissionName, permissionName);
     }
 
     public async Task<PermissionDto> CreatePermissionAsync(PermissionDto permissionDto)
     {
         // Verificar si ya existe un permiso con el mismo nombre
-        var existingPermission = await _permissionRepository.GetByName(permissionDto.PermissionName);
+        var existingPermission = await GetByNameAsync(permissionDto.PermissionName);
         if (existingPermission != null)
         {
             throw new UniqueConstraintViolationException($"A permission with the name '{permissionDto.PermissionName}' already exists.", field: "PermissionName");

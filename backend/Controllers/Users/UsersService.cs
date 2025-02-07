@@ -8,8 +8,7 @@ namespace CRM_ERP_UNID.Controllers;
 public interface IUsersService
 {
     Task<GetAllResponseDto<User>> GetAll(GetAllDto getAllDto);
-    Task<User?> GetById(Guid id);
-    Task<User> GetByIdThrowsNotFound(Guid id);
+    Task<User> GetByIdThrowsNotFoundAsync(Guid id);
     Task<User?> GetByUserName(string userName);
     Task<User?> GetByEmail(string email);
     Task<User?> Create(CreateUserDto createUserDto);
@@ -19,56 +18,42 @@ public interface IUsersService
 public class UsersService : IUsersService
 {
     private readonly IUsersRepository _usersRepository;
+    private readonly IGenericServie<User> _genericService;
 
-    public UsersService(IUsersRepository usersRepository)
+    public UsersService(IUsersRepository usersRepository, IGenericServie<User> genericService)
     {
-        this._usersRepository = usersRepository;
+        _usersRepository = usersRepository;
+        _genericService = genericService;
     }
 
     public async Task<GetAllResponseDto<User>> GetAll(GetAllDto getAllDto)
     {
-        GetAllResponseDto<User> getAllResponseDto = new GetAllResponseDto<User>();
-        getAllResponseDto.TotalItems = await this._usersRepository.GetTotalItems(getAllDto);
-        getAllResponseDto.TotalPages = (int)Math.Ceiling((double)getAllResponseDto.TotalItems / getAllDto.PageSize);
-        getAllResponseDto.PageNumber = getAllDto.PageNumber;
-        getAllResponseDto.PageSize = getAllDto.PageSize;
-        getAllResponseDto.Data = await this._usersRepository.GetAll(getAllDto);
-        return getAllResponseDto;
+        return await _genericService.GetAllAsync(getAllDto, u => u.Role);
     }
 
     public async Task<User?> GetById(Guid id)
     {
-        return await this._usersRepository.GetById(id);
+        return await _genericService.GetById(id, u => u.Role);
     }
 
-    public async Task<User> GetByIdThrowsNotFound(Guid id)
+    public async Task<User> GetByIdThrowsNotFoundAsync(Guid id)
     {
-        User? user = await this._usersRepository.GetById(id);
-
-        if (user == null)
-            throw new NotFoundException(message: $"User with id: {id} not found!", field: "UserId");
-
-        return user;
+        return await _genericService.GetByIdThrowsNotFoundAsync(id, u => u.Role);
     }
 
     public async Task<User?> GetByUserName(string userName)
     {
-        return await this._usersRepository.GetByUserName(userName);
+        return await _genericService.GetFirstAsync(u => u.UserUserName, userName);
     }
 
     public async Task<User> GetByUserNameThrowsNotFound(string userName)
     {
-        User? user = await this._usersRepository.GetByUserName(userName);
-
-        if (user == null)
-            throw new NotFoundException(message: $"User with username: {userName} not found!", field: "UserUserName");
-
-        return user;
+        return await _genericService.GetFirstThrowsNotFoundAsync(u => u.UserUserName, userName);
     }
 
     public async Task<User?> GetByEmail(string email)
     {
-        return await this._usersRepository.GetByEmail(email);
+        return await _genericService.GetFirstAsync(u => u.UserEmail, email);
     }
 
     public async Task<User?> Create(CreateUserDto createUserDto)
