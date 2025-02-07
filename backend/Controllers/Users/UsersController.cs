@@ -21,7 +21,7 @@ public class UsersController : ControllerBase
     [HttpGet("get-by-id")]
     public async Task<ActionResult<User>> GetUserById([FromQuery] Guid id)
     {
-        User user = await this._usersService.GetByIdThrowsNotFound(id);
+        User user = await this._usersService.GetByIdThrowsNotFoundAsync(id);
 
         return Ok(user);
     }
@@ -78,4 +78,5 @@ public class UsersController : ControllerBase
     {
         return Ok(await this._usersService.GetByUserName(username) != null);
     }
+    
 }

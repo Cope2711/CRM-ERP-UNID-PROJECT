@@ -11,11 +11,13 @@ public class TokenService : ITokenService
 {
     private readonly ITokensRepository _tokensRepository;
     private readonly IConfiguration _configuration;
+    private readonly IGenericServie<RefreshToken> _genericService;
 
-    public TokenService(IConfiguration configuration, ITokensRepository tokensRepository)
+    public TokenService(IConfiguration configuration, ITokensRepository tokensRepository, IGenericServie<RefreshToken> genericService)
     {
         this._configuration = configuration;
         this._tokensRepository = tokensRepository;
+        _genericService = genericService;
     }
 
     public string GenerateAccessToken(User user)
@@ -58,7 +60,7 @@ public class TokenService : ITokenService
 
     public async Task<RefreshToken?> GetRefreshTokenByRefreshToken(string refreshToken)
     {
-        return await this._tokensRepository.GetRefreshTokenByRefreshToken(refreshToken);
+       return await _genericService.GetFirstAsync(rt => rt.Token, refreshToken);
     }
 
     public async Task<RefreshToken> RevokeRefreshTokenByObject(RefreshToken refreshToken)

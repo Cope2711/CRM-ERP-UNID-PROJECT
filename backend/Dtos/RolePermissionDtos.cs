@@ -1,11 +1,9 @@
-﻿using CRM_ERP_UNID.Data.Models;
+﻿namespace CRM_ERP_UNID.Dtos;
 
-namespace CRM_ERP_UNID.Dtos
+public class RolePermissionDto
 {
-    public class RolePermissionDto
-    {
-        public Guid RoleId { get; set; }
-        public Guid PermissionId { get; set; }
-        
-    }
+    public Guid RoleId { get; set; }
+    public string RoleName { get; set; }
+    public Guid PermissionId { get; set; }
+    public string PermissionName { get; set; }
 }

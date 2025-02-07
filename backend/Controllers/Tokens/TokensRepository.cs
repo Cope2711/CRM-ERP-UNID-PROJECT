@@ -8,7 +8,6 @@ public interface ITokensRepository
 {
     void AddRefreshToken(RefreshToken refreshToken);
     Task SaveChangesAsync();
-    Task<RefreshToken?> GetRefreshTokenByRefreshToken(string refreshToken);
 }
 
 public class TokensRepository : ITokensRepository
@@ -28,10 +27,5 @@ public class TokensRepository : ITokensRepository
     public async Task SaveChangesAsync()
     {
         await this._context.SaveChangesAsync();
-    }
-
-    public async Task<RefreshToken?> GetRefreshTokenByRefreshToken(string refreshToken)
-    {
-        return await this._context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == refreshToken);
     }
 }
