@@ -14,4 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<Permission> Permissions { get; set; }
     public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<Resource> Resources { get; set; }
+    public DbSet<PermissionResource> PermissionResources { get; set; }
+    public DbSet<UserRole> UsersRoles { get; set; }
 }

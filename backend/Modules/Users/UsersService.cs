@@ -2,6 +2,7 @@
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace CRM_ERP_UNID.Modules;
 
@@ -28,17 +29,18 @@ public class UsersService : IUsersService
 
     public async Task<GetAllResponseDto<User>> GetAll(GetAllDto getAllDto)
     {
-        return await _genericService.GetAllAsync(getAllDto, u => u.Role);
+        return await _genericService.GetAllAsync(getAllDto, query => query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role));
     }
 
     public async Task<User?> GetById(Guid id)
     {
-        return await _genericService.GetById(id, u => u.Role);
+        return await _genericService.GetById(id, query => query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role));
     }
 
     public async Task<User> GetByIdThrowsNotFoundAsync(Guid id)
     {
-        return await _genericService.GetByIdThrowsNotFoundAsync(id, u => u.Role);
+        return await _genericService.GetByIdThrowsNotFoundAsync(id,
+            query => query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role));
     }
 
     public async Task<User?> GetByUserName(string userName)

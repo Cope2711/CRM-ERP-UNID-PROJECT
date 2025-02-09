@@ -8,25 +8,32 @@ public interface IRoleService
 {
     Task<GetAllResponseDto<Role>> GetAllAsync(GetAllDto getAllDto);
     Task<Role> GetByIdThrowsNotFoundAsync(Guid id);
-    Task<RoleDto> CreateRoleAsync(RoleDto role);
+    Task<Role> CreateRoleAsync(CreateRoleDto createRoleDto);
+    Task<Role> UpdateAsync(UpdateRoleDto updateRoleDto);
     Task<Role> GetByNameThrowsNotFoundAsync(string roleName);
+    Task<Role> DeleteById(Guid id);
     Task<Role?> GetByNameAsync(string roleName);
-    Task<Role> AssignPermissionToRoleAsync(Guid roleId, Guid permissionId);
 }
 
 public class RoleService : IRoleService
 {
     private readonly IRoleRepository _roleRepository;
     private readonly IGenericServie<Role> _genericService;
-    private readonly IPermissionService _permissionService;
 
-    public RoleService(IRoleRepository roleRepository, IGenericServie<Role> genericService, IPermissionService permissionService)
+    public RoleService(IRoleRepository roleRepository, IGenericServie<Role> genericService)
     {
         _roleRepository = roleRepository;
         _genericService = genericService;
-        _permissionService = permissionService;
     }
 
+    public async Task<Role> DeleteById(Guid id)
+    {
+        Role role = await GetByIdThrowsNotFoundAsync(id);
+        _roleRepository.Remove(role);
+        await _roleRepository.SaveChangesAsync();
+        return role;
+    }
+    
     public async Task<GetAllResponseDto<Role>> GetAllAsync(GetAllDto getAllDto)
     {
         return await _genericService.GetAllAsync(getAllDto);
@@ -38,32 +45,40 @@ public class RoleService : IRoleService
     }
 
 
-    public async Task<RoleDto> CreateRoleAsync(RoleDto roleDto)
+    public async Task<Role> CreateRoleAsync(CreateRoleDto createRoleDto)
     {
-        // Verificar si ya existe un rol con el mismo nombre para evitar duplicados
-        Role existingRole = await GetByNameAsync(roleDto.RoleName);
-        if (existingRole != null)
+        // Exist roleName?
+        if (await GetByNameAsync(createRoleDto.RoleName) != null)
         {
-            throw new UniqueConstraintViolationException($"A role with the name '{roleDto.RoleName}' already exists.",
+            throw new UniqueConstraintViolationException($"A role with the name '{createRoleDto.RoleName}' already exists.",
                 field: "RoleName");
         }
-
-        var newRole = new Role
+        
+        Role newRole = new Role
         {
-            RoleId = Guid.NewGuid(),
-            RoleName = roleDto.RoleName,
+            RoleName = createRoleDto.RoleName,
+            RoleDescription = createRoleDto.RoleDescription,
         };
 
-        this._roleRepository.AddRoleAsync(newRole);
-        await this._roleRepository.SaveChangesAsync();
+        _roleRepository.Add(newRole);
+        await _roleRepository.SaveChangesAsync();
 
-        return new RoleDto
-        {
-            RoleId = newRole.RoleId,
-            RoleName = newRole.RoleName,
-        };
+        return newRole;
     }
 
+    public async Task<Role> UpdateAsync(UpdateRoleDto updateRoleDto)
+    {
+        Role role = await GetByIdThrowsNotFoundAsync(updateRoleDto.RoleId);
+        
+        role.RoleName = updateRoleDto.RoleName ?? role.RoleName;
+        role.RoleDescription = updateRoleDto.RoleDescription ?? role.RoleDescription;
+        
+        _roleRepository.Update(role);
+        await _roleRepository.SaveChangesAsync();
+        
+        return role;
+    }
+    
     public async Task<Role> GetByNameThrowsNotFoundAsync(string roleName)
     {
         return await _genericService.GetFirstThrowsNotFoundAsync(r => r.RoleName, roleName);
@@ -72,33 +87,5 @@ public class RoleService : IRoleService
     public async Task<Role?> GetByNameAsync(string roleName)
     {
         return await _genericService.GetFirstAsync(r => r.RoleName, roleName);
-    }
-
-    public async Task<Role> AssignPermissionToRoleAsync(Guid roleId, Guid permissionId)
-    {
-        Role role = await _genericService.GetByIdThrowsNotFoundAsync(roleId);
-        
-        Permission permission = await _permissionService.GetByIdThrowsNotFoundAsync(permissionId);
-
-        if (role == null || permission == null)
-        {
-            throw new NotFoundException($"Role with ID {roleId} not found.", field: "RoleId");
-        }
-
-        var existingRelation = role.RolePermissions?.FirstOrDefault(rp => rp.PermissionId == permissionId);
-        if (existingRelation != null)
-        {
-            throw new UniqueConstraintViolationException("This permission is already assigned to the role.",
-                field: "PermissionId");
-        }
-
-        var rolePermission = new RolePermission
-        {
-            RoleId = roleId,
-            PermissionId = permissionId
-        };
-
-        await _roleRepository.AddRolePermissionAsync(rolePermission);
-        return await GetByIdThrowsNotFoundAsync(roleId);
     }
 }
