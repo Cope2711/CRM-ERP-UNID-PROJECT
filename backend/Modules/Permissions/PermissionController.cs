@@ -27,20 +27,22 @@ public class PermissionController : ControllerBase
         if (getAllDto.SearchColumn != null)
             CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.SearchColumn, typeof(Permission));
         GetAllResponseDto<Permission> getAllResponseDto = await _permissionService.GetAllAsync(getAllDto);
-        return Ok(getAllResponseDto);
+        GetAllResponseDto<PermissionDto> getAllResponseDtoDto = new GetAllResponseDto<PermissionDto>
+        {
+            Data = getAllResponseDto.Data.Select(Mapper.PermissionToPermissionDto).ToList(),
+            TotalItems = getAllResponseDto.TotalItems,
+            PageNumber = getAllResponseDto.PageNumber,
+            PageSize = getAllResponseDto.PageSize,
+            TotalPages = getAllResponseDto.TotalPages
+        };
+        
+        return Ok(getAllResponseDtoDto);
     }
 
     [HttpGet("get-by-id")]
     public async Task<ActionResult<PermissionDto>> GetById(Guid id)
     {
         Permission permission = await _permissionService.GetByIdThrowsNotFoundAsync(id);
-        return Ok(permission);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<PermissionDto>> CreatePermission([FromBody] PermissionDto permissionDto)
-    {
-        var createdPermission = await _permissionService.CreatePermissionAsync(permissionDto);
-        return CreatedAtAction(nameof(GetById), new { id = createdPermission.PermissionId }, createdPermission);
+        return Ok(Mapper.PermissionToPermissionDto(permission));
     }
 }

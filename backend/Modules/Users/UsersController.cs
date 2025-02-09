@@ -23,7 +23,34 @@ public class UsersController : ControllerBase
     {
         User user = await this._usersService.GetByIdThrowsNotFoundAsync(id);
 
-        return Ok(user);
+        return Ok(Mapper.UserToUserDto(user));
+    }
+    
+    [HttpPost("get-all")]
+    public async Task<ActionResult<GetAllResponseDto<UserDto>>> GetAll([FromBody] GetAllDto getAllDto)
+    {
+        if (getAllDto.OrderBy != null)
+            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.OrderBy, typeof(User));
+        
+        if (getAllDto.SearchColumn != null)
+            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.SearchColumn, typeof(User));
+        
+        
+        GetAllResponseDto<User> getAllResponseDto = await _usersService.GetAll(getAllDto);
+
+        if (getAllResponseDto == null)
+        {
+            return BadRequest("Some problems ocurred getting the users :(");
+        }
+        
+        GetAllResponseDto<UserDto> getAllResponseDtoDto = new GetAllResponseDto<UserDto>();
+        getAllResponseDtoDto.TotalItems = getAllResponseDto.TotalItems;
+        getAllResponseDtoDto.TotalPages = getAllResponseDto.TotalPages;
+        getAllResponseDtoDto.PageNumber = getAllResponseDto.PageNumber;
+        getAllResponseDtoDto.PageSize = getAllResponseDto.PageSize;
+        getAllResponseDtoDto.Data = getAllResponseDto.Data.Select(u => Mapper.UserToUserDto(u)).ToList();
+
+        return Ok(getAllResponseDtoDto);
     }
     
     [HttpGet("get-by-username")]
@@ -45,26 +72,6 @@ public class UsersController : ControllerBase
         }
 
         return Ok(user);
-    }
-    
-    [HttpPost("get-all")]
-    public async Task<ActionResult<User>> GetAll([FromBody] GetAllDto getAllDto)
-    {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.OrderBy, typeof(User));
-        
-        if (getAllDto.SearchColumn != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.SearchColumn, typeof(User));
-        
-        
-        GetAllResponseDto<User> getAllResponseDto = await this._usersService.GetAll(getAllDto);
-
-        if (getAllResponseDto == null)
-        {
-            return BadRequest("Some problems ocurred getting the users :(");
-        }
-
-        return Ok(getAllResponseDto);
     }
 
     [HttpGet("exist-user-by-email")]

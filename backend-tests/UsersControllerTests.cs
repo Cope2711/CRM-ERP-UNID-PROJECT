@@ -94,7 +94,14 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
             UserLastName = "User",
             UserEmail = "admin@admin.com",
             IsActive = true,
-            RoleId = Guid.Parse("735250a8-d410-4f77-870a-4422ab28a1a1")
+            Roles = new List<RoleDto>
+            {
+                new RoleDto
+                {
+                    RoleId = Guid.Parse("735250a8-d410-4f77-870a-4422ab28a1a1"),
+                    RoleName = "Admin"
+                }
+            }
         };
 
         // Act
@@ -129,7 +136,6 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
             UserLastName = "User",
             UserEmail = "admin@admin.com",
             IsActive = true,
-            RoleId = Guid.Parse("735250a8-d410-4f77-870a-4422ab28a1a1")
         };
 
         // Act

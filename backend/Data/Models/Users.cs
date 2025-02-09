@@ -32,8 +32,5 @@ public class User
     
     [Required]
     public bool IsActive { get; set; }
-
-    public Guid RoleId { get; set; }
-
-    public virtual Role Role { get; set; }
+    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

@@ -17,50 +17,75 @@ public class RoleController : ControllerBase
     {
         _roleService = roleService;
     }
-    
-    [HttpGet("get-by-id")]
-    public async Task<ActionResult<RoleDto>> GetRoleById([FromQuery] Guid id)
+
+    [HttpPut("update")]
+    public async Task<ActionResult<RoleDto>> Update([FromBody] UpdateRoleDto updateRoleDto)
     {
-        Role role = await this._roleService.GetByIdThrowsNotFoundAsync(id);
-        
+        Role role = await _roleService.UpdateAsync(updateRoleDto);
+        return Ok(Mapper.RoleToRoleDto(role));
+    }
+
+    [HttpGet("get-by-id")]
+    public async Task<ActionResult<RoleDto>> GetById([FromQuery] Guid id)
+    {
+        Role role = await _roleService.GetByIdThrowsNotFoundAsync(id);
+
         RoleDto roleDto = new RoleDto
         {
             RoleId = role.RoleId,
             RoleName = role.RoleName,
-            Permissions = role.RolePermissions?.Select(rp => new PermissionDto
-            {
-                PermissionId = rp.PermissionId,
-                PermissionName = rp.Permission.PermissionName
-            }).ToList()
         };
-        
+
         return Ok(roleDto);
     }
 
+    [HttpGet("get-by-name")]
+    public async Task<ActionResult<RoleDto>> GetByName([FromQuery] string roleName)
+    {
+        Role role = await _roleService.GetByNameThrowsNotFoundAsync(roleName);
+
+        RoleDto roleDto = new RoleDto
+        {
+            RoleId = role.RoleId,
+            RoleName = role.RoleName,
+        };
+
+        return Ok(roleDto);
+    }
+    
     [HttpPost("get-all")]
-    public async Task<ActionResult<List<Role>>> GetRoles([FromBody] GetAllDto getAllDto)
+    public async Task<ActionResult<GetAllResponseDto<RoleDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
             CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.OrderBy, typeof(Role));
-        
+
         if (getAllDto.SearchColumn != null)
             CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.SearchColumn, typeof(Role));
-        
+
         GetAllResponseDto<Role> getAllResponseDto = await _roleService.GetAllAsync(getAllDto);
-        return Ok(getAllResponseDto);
+        GetAllResponseDto<RoleDto> getAllResponseDtoDto = new GetAllResponseDto<RoleDto>
+        {
+            Data = getAllResponseDto.Data.Select(Mapper.RoleToRoleDto).ToList(),
+            TotalItems = getAllResponseDto.TotalItems,
+            PageNumber = getAllResponseDto.PageNumber,
+            PageSize = getAllResponseDto.PageSize,
+            TotalPages = getAllResponseDto.TotalPages
+        };
+        
+        return Ok(getAllResponseDtoDto);
     }
 
-    [HttpPost]
-    public async Task<ActionResult<RoleDto>> CreateRole([FromBody] RoleDto role)
+    [HttpPost("create")]
+    public async Task<ActionResult<RoleDto>> CreateRole([FromBody] CreateRoleDto createRoleDto)
     {
-        var newRole = await _roleService.CreateRoleAsync(role);
-        return CreatedAtAction(nameof(GetRoles), new { id = newRole.RoleId }, newRole);
+        Role newRole = await _roleService.CreateRoleAsync(createRoleDto);
+        return CreatedAtAction(nameof(GetAll), new { id = newRole.RoleId }, newRole);
     }
-
-    [HttpPost("assign-permission")]
-    public async Task<IActionResult> AssignPermissionToRole([FromBody] AssignPermissionDto dto)
+    
+    [HttpDelete("delete-by-id")]
+    public async Task<ActionResult<RoleDto>> DeleteById([FromQuery] Guid id)
     {
-        var role = await _roleService.AssignPermissionToRoleAsync(dto.RoleId, dto.PermissionId);
-        return Ok(new { Message = "Permission assigned successfully", role });
+        Role role = await _roleService.DeleteById(id);
+        return Ok(Mapper.RoleToRoleDto(role));
     }
 }
