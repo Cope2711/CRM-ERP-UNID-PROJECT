@@ -11,17 +11,18 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 // Add services to the container.
+builder.Services.AddScoped<IRolesPermissionsResourcesRepository, RolesPermissionsResourcesResourcesRepository>();
+builder.Services.AddScoped<IRolesPermissionsResourcesService, RolesPermissionsResourcesService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITokensRepository, TokensRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<IResourceService, ResourceService>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUsersRolesRepository, UsersRolesRepository>();
 builder.Services.AddScoped<IUsersRolesService, UsersRolesService>();
-builder.Services.AddScoped<IRolesPermissionsRepository, RolesPermissionsRepository>();
-builder.Services.AddScoped<IRolesPermissionsService, RolesPermissionsService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped(typeof(IGenericServie<>), typeof(GenericService<>));

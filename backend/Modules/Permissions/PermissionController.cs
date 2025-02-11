@@ -1,4 +1,5 @@
-﻿using CRM_ERP_UNID.Data.Models;
+﻿using CRM_ERP_UNID.Attributes;
+using CRM_ERP_UNID.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Helpers;
@@ -19,6 +20,7 @@ public class PermissionController : ControllerBase
     }
 
     [HttpPost("get-all")]
+    [PermissionAuthorize("View", "Permissions")]
     public async Task<ActionResult<GetAllResponseDto<PermissionDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
@@ -40,6 +42,7 @@ public class PermissionController : ControllerBase
     }
 
     [HttpGet("get-by-id")]
+    [PermissionAuthorize("View", "Permissions")]
     public async Task<ActionResult<PermissionDto>> GetById(Guid id)
     {
         Permission permission = await _permissionService.GetByIdThrowsNotFoundAsync(id);

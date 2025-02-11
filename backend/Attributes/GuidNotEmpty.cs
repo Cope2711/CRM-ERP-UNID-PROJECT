@@ -2,19 +2,20 @@
 
 namespace CRM_ERP_UNID.Attributes;
 
-public class GuidNotEmptyAttribute : ValidationAttribute
+public class GuidNotEmpty : ValidationAttribute
 {
-    public GuidNotEmptyAttribute() 
-        : base("The value cannot be an empty GUID.")
-    { }
-
     protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
-        if (value is Guid guidValue && guidValue == Guid.Empty)
+        if (value == null)
         {
-            return new ValidationResult(ErrorMessage ?? "The GUID cannot be empty.");
+            return new ValidationResult("The Guid cannot be null.");
         }
 
-        return ValidationResult.Success; 
+        if (value is Guid guid && guid == Guid.Empty)
+        {
+            return new ValidationResult("The Guid cannot be empty.");
+        }
+
+        return ValidationResult.Success;
     }
 }

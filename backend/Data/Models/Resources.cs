@@ -13,5 +13,8 @@ public class Resource
     [MaxLength(50)]
     public string ResourceName { get; set; }
     
-    public ICollection<PermissionResource> PermissionResources { get; set; } = new List<PermissionResource>();
+    [MaxLength(255)]
+    public string? ResourceDescription { get; set; }
+    
+    public ICollection<RolePermissionResource> RolesPermissionsResources { get; set; } = new List<RolePermissionResource>();
 }

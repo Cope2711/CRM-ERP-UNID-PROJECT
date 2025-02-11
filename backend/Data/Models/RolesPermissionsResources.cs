@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CRM_ERP_UNID.Data.Models;
 
-[Table("RolesPermissions")]
-public class RolePermission
+[Table("RolesPermissionsResources")]
+public class RolePermissionResource
 {
     [Key] 
     public Guid RolePermissionId { get; set; }
@@ -18,4 +18,9 @@ public class RolePermission
     [ForeignKey("PermissionId")]
     public Guid PermissionId { get; set; }
     public Permission Permission { get; set; }
+
+    [ForeignKey("ResourceId")] 
+    public Guid? ResourceId { get; set; }
+
+    public Resource? Resource { get; set; }
 }

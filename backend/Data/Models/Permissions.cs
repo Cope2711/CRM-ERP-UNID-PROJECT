@@ -16,7 +16,6 @@ public class Permission
     [MaxLength(255)]
     public string? PermissionDescription { get; set; } 
     
-    public ICollection<PermissionResource> PermissionResources { get; set; } = new List<PermissionResource>();
-    public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+    public ICollection<RolePermissionResource> RolesPermissionsResources { get; set; } = new List<RolePermissionResource>();
 }
 

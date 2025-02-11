@@ -5,16 +5,19 @@ namespace CRM_ERP_UNID.Helpers;
 
 public static class Mapper
 {
-    public static RolePermissionDto RolePermissionToRolePermissionDto(RolePermission rolePermission)
+    public static RolePermissionResourceDto RolePermissionResourceToRolePermissionResourceDto(RolePermissionResource rolePermissionResource)
     {
-        return new RolePermissionDto
+        return new RolePermissionResourceDto
         {
-            RoleId = rolePermission.RoleId,
-            RoleName = rolePermission.Role.RoleName,
-            RoleDescription = rolePermission.Role.RoleDescription,
-            PermissionId = rolePermission.PermissionId,
-            PermissionName = rolePermission.Permission.PermissionName,
-            PermissionDescription = rolePermission.Permission.PermissionDescription
+            RoleId = rolePermissionResource.RoleId,
+            RoleName = rolePermissionResource.Role.RoleName,
+            RoleDescription = rolePermissionResource.Role.RoleDescription,
+            PermissionId = rolePermissionResource.PermissionId,
+            PermissionName = rolePermissionResource.Permission.PermissionName,
+            PermissionDescription = rolePermissionResource.Permission.PermissionDescription,
+            ResourceId = rolePermissionResource.ResourceId,
+            ResourceName = rolePermissionResource.Resource?.ResourceName,
+            ResourceDescription = rolePermissionResource.Resource?.ResourceDescription
         };
     }
     
@@ -65,19 +68,6 @@ public static class Mapper
         {
             ResourceId = resource.ResourceId,
             ResourceName = resource.ResourceName
-        };
-    }
-    
-    public static PermissionResourceDto PermissionResourceToPermissionResourceDto(PermissionResource permissionResource)
-    {
-        return new PermissionResourceDto
-        {
-            PermissionResourceId = permissionResource.PermissionResourceId,
-            PermissionId = permissionResource.PermissionId,
-            PermissionName = permissionResource.Permission.PermissionName,
-            PermissionDescription = permissionResource.Permission.PermissionDescription,
-            ResourceId = permissionResource.ResourceId,
-            ResourceName = permissionResource.Resource.ResourceName
         };
     }
     

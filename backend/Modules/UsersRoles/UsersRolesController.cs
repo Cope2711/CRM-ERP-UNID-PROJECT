@@ -1,4 +1,5 @@
-﻿using CRM_ERP_UNID.Data.Models;
+﻿using CRM_ERP_UNID.Attributes;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -19,20 +20,23 @@ public class UsersRolesController : ControllerBase
     }
     
     [HttpPost("assign-role")]
-    public async Task<ActionResult<RolePermissionDto>> AssignRoleToUser([FromBody] UserAndRoleDto userAndRoleDto)
+    [PermissionAuthorize("Assign_Role")]
+    public async Task<ActionResult<RolePermissionResourceDto>> AssignRole([FromBody] UserAndRoleDto userAndRoleDto)
     {
         UserRole userRole = await _usersRolesService.AssignRoleToUserAsync(userAndRoleDto);
         return Ok(Mapper.UserRoleToUserRoleDto(userRole));
     }
     
     [HttpDelete("revoke-role")]
-    public async Task<ActionResult<UserRoleDto>> RevokeRoleToUser([FromBody] UserAndRoleDto userAndRoleDto)
+    [PermissionAuthorize("Revoke_Role")]
+    public async Task<ActionResult<UserRoleDto>> RevokeRole([FromBody] UserAndRoleDto userAndRoleDto)
     {
         UserRole userRole = await _usersRolesService.RevokeRoleToUserAsync(userAndRoleDto);
         return Ok(Mapper.UserRoleToUserRoleDto(userRole));
     }
     
     [HttpGet("get-all")]
+    [PermissionAuthorize("View", "UsersRoles")]
     public async Task<ActionResult<GetAllResponseDto<UserRoleDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)

@@ -16,6 +16,6 @@ public class Role
     [MaxLength(255)] 
     public string? RoleDescription { get; set; }
     
-    public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+    public ICollection<RolePermissionResource> RolesPermissionsResources { get; set; } = new List<RolePermissionResource>();
     public ICollection<UserRole> UsersRoles { get; set; } = new List<UserRole>();
 }

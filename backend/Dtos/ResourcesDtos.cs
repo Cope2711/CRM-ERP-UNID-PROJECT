@@ -10,4 +10,7 @@ public class ResourceDto
     
     [MaxLength(50)]
     public string ResourceName { get; set; }
+    
+    [MaxLength(255)]
+    public string? ResourceDescription { get; set; }
 }
