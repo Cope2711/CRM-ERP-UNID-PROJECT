@@ -1,4 +1,6 @@
-﻿namespace CRM_ERP_UNID.Dtos;
+﻿using CRM_ERP_UNID.Attributes;
+
+namespace CRM_ERP_UNID.Dtos;
 
 using System.ComponentModel.DataAnnotations;
 
@@ -23,6 +25,13 @@ public class CreateUserDto
     [Required] public bool IsActive { get; set; } = true;
 
     [Required] public Guid RoleId { get; set; }
+}
+
+public class DeactivateUserDto
+{
+    [Required] 
+    [GuidNotEmpty]
+    public Guid UserId { get; set; }
 }
 
 public class UserDto

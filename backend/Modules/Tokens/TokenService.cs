@@ -76,6 +76,11 @@ public class TokenService : ITokenService
         return refreshToken;
     }
     
+    public async Task RevokeRefreshsTokensByUserId(Guid userId)
+    {
+        await this._tokensRepository.RevokeTokensByUserIdAsync(userId);
+    }
+    
     private string GenerateSecureToken()
     {
         // Generar un buffer aleatorio seguro de 32 bytes

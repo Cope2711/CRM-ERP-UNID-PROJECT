@@ -14,17 +14,54 @@ public interface IUsersService
     Task<User?> GetByEmail(string email);
     Task<User?> Create(CreateUserDto createUserDto);
     Task<User> GetByUserNameThrowsNotFound(string userName);
+    Task<User> DeactivateUserAsync(Guid id);
 }
 
 public class UsersService : IUsersService
 {
     private readonly IUsersRepository _usersRepository;
+    private readonly ITokenService _tokenService;
     private readonly IGenericServie<User> _genericService;
 
-    public UsersService(IUsersRepository usersRepository, IGenericServie<User> genericService)
+    public UsersService(IUsersRepository usersRepository, IGenericServie<User> genericService, ITokenService tokenService)
     {
         _usersRepository = usersRepository;
         _genericService = genericService;
+        _tokenService = tokenService;
+    }
+    
+    public async Task<User> DeactivateUserAsync(Guid id)
+    {
+        using var transaction = await _usersRepository.BeginTransactionAsync();
+
+        try
+        {
+            // Deactivate user
+            User user = await this.GetByIdThrowsNotFoundAsync(id);
+            
+            if (user.IsActive == false)
+            {
+                throw new BadRequestException(message: "The user is already deactivated.", field: "IsActive");
+            }
+            
+            user.IsActive = false;
+        
+            // Inactivate resfresh tokens
+            await _tokenService.RevokeRefreshsTokensByUserId(user.UserId);
+        
+            // Save changes
+            await this._usersRepository.SaveChangesAsync();
+        
+            await transaction.CommitAsync();
+            
+            return user;
+        } 
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            throw ex;
+        }
+        
     }
 
     public async Task<GetAllResponseDto<User>> GetAll(GetAllDto getAllDto)

@@ -21,8 +21,8 @@ public class CustomWebApiFactory : WebApplicationFactory<Program>
             using var scope = provider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            context.Database.EnsureDeleted(); 
-            context.Database.EnsureCreated(); 
+            context.Database.EnsureCreated();
+            
             DatabaseSeeder.Seed(context);
         });
     }
@@ -44,7 +44,7 @@ public class CustomWebApiFactory : WebApplicationFactory<Program>
     {
         LoginUserDto loginRequest = new LoginUserDto { UserUserName = "admin", UserPassword = "123456" };
         var loginResponse = await client.PostAsJsonAsync("/api/auth/login", loginRequest);
-        loginResponse.EnsureSuccessStatusCode();
+        loginResponse.EnsureSuccessStatusCode();    
 
         var loginResult = await loginResponse.Content.ReadFromJsonAsync<TokenDto>();
         _bearerToken = loginResult?.Token;
