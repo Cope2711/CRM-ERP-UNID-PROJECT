@@ -1,4 +1,5 @@
-﻿using CRM_ERP_UNID.Data.Models;
+﻿using CRM_ERP_UNID.Attributes;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +20,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpPut("update")]
+    [PermissionAuthorize("Edit_Content", "Roles")]
     public async Task<ActionResult<RoleDto>> Update([FromBody] UpdateRoleDto updateRoleDto)
     {
         Role role = await _roleService.UpdateAsync(updateRoleDto);
@@ -26,6 +28,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpGet("get-by-id")]
+    [PermissionAuthorize("View", "Roles")]
     public async Task<ActionResult<RoleDto>> GetById([FromQuery] Guid id)
     {
         Role role = await _roleService.GetByIdThrowsNotFoundAsync(id);
@@ -40,6 +43,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpGet("get-by-name")]
+    [PermissionAuthorize("View", "Roles")]
     public async Task<ActionResult<RoleDto>> GetByName([FromQuery] string roleName)
     {
         Role role = await _roleService.GetByNameThrowsNotFoundAsync(roleName);
@@ -54,6 +58,7 @@ public class RoleController : ControllerBase
     }
     
     [HttpPost("get-all")]
+    [PermissionAuthorize("View", "Roles")]
     public async Task<ActionResult<GetAllResponseDto<RoleDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
@@ -76,6 +81,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost("create")]
+    [PermissionAuthorize("Create", "Roles")]
     public async Task<ActionResult<RoleDto>> CreateRole([FromBody] CreateRoleDto createRoleDto)
     {
         Role newRole = await _roleService.CreateRoleAsync(createRoleDto);
@@ -83,6 +89,7 @@ public class RoleController : ControllerBase
     }
     
     [HttpDelete("delete-by-id")]
+    [PermissionAuthorize("Delete", "Roles")]
     public async Task<ActionResult<RoleDto>> DeleteById([FromQuery] Guid id)
     {
         Role role = await _roleService.DeleteById(id);

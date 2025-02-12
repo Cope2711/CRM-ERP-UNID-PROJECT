@@ -1,4 +1,5 @@
-﻿using CRM_ERP_UNID.Data.Models;
+﻿using CRM_ERP_UNID.Attributes;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +20,7 @@ public class ResourceController : ControllerBase
     }
 
     [HttpGet("get-by-id")]
+    [PermissionAuthorize("View", "Resources")]
     public async Task<ActionResult<ResourceDto>> GetById([FromQuery] Guid id)
     {
         Resource resource = await _resourceService.GetByIdThrowsNotFoundAsync(id);
@@ -26,6 +28,7 @@ public class ResourceController : ControllerBase
     }
 
     [HttpGet("get-by-name")]
+    [PermissionAuthorize("View", "Resources")]
     public async Task<ActionResult<ResourceDto>> GetByName([FromQuery] string resourceName)
     {
         Resource resource = await _resourceService.GetByNameThrowsNotFoundAsync(resourceName);
@@ -33,6 +36,7 @@ public class ResourceController : ControllerBase
     }
 
     [HttpPost("get-all")]
+    [PermissionAuthorize("View", "Resources")]
     public async Task<ActionResult<GetAllResponseDto<ResourceDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)

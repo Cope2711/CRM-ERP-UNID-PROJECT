@@ -9,10 +9,10 @@ public interface IGenericServie<T> where T : class
     Task<T?> GetById(Guid id, Func<IQueryable<T>, IQueryable<T>>? include = null);
 
     Task<T> GetFirstThrowsNotFoundAsync(Expression<Func<T, object>> fieldSelector, object value,
-        params Expression<Func<T, object>>[] includes);
+        Func<IQueryable<T>, IQueryable<T>> include = null);
 
     Task<T?> GetFirstAsync(Expression<Func<T, object>> fieldSelector, object value,
-        params Expression<Func<T, object>>[] includes);
+        Func<IQueryable<T>, IQueryable<T>> include = null);
 
     Task<T> GetByIdThrowsNotFoundAsync(Guid id, Func<IQueryable<T>, IQueryable<T>>? include = null);
 
@@ -36,9 +36,9 @@ public class GenericService<T> : IGenericServie<T> where T : class
     }
 
     public async Task<T> GetFirstThrowsNotFoundAsync(Expression<Func<T, object>> fieldSelector, object value,
-        params Expression<Func<T, object>>[] includes)
+        Func<IQueryable<T>, IQueryable<T>> include = null)
     {
-        T? entity = await _genericRepository.GetFirstAsync(fieldSelector, value, includes);
+        T? entity = await _genericRepository.GetFirstAsync(fieldSelector, value, include);
 
         if (entity == null)
         {
@@ -56,9 +56,9 @@ public class GenericService<T> : IGenericServie<T> where T : class
     }
 
     public async Task<T?> GetFirstAsync(Expression<Func<T, object>> fieldSelector, object value,
-        params Expression<Func<T, object>>[] includes)
+        Func<IQueryable<T>, IQueryable<T>> include = null)
     {
-        return await _genericRepository.GetFirstAsync(fieldSelector, value, includes);
+        return await _genericRepository.GetFirstAsync(fieldSelector, value, include);
     }
 
     public async Task<T> GetByIdThrowsNotFoundAsync(Guid id, Func<IQueryable<T>, IQueryable<T>>? include = null)

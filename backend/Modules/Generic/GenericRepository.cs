@@ -11,11 +11,12 @@ public interface IGenericRepository<T> where T : class
     Task<T?> GetByIdAsync(Guid id, Func<IQueryable<T>, IQueryable<T>> include = null);
 
     Task<T?> GetFirstAsync(Expression<Func<T, object>> fieldSelector, object value,
-        params Expression<Func<T, object>>[] includes);
+        Func<IQueryable<T>, IQueryable<T>> include = null);
 
     Task<List<T>> GetAllAsync<GetAllDto>(
         GetAllDto getAllDto,
         Func<IQueryable<T>, IQueryable<T>> queryModifier = null);
+
     Task<int> GetTotalItemsAsync<GetAllDto>(GetAllDto getAllDto);
     PropertyInfo? GetKeyProperty();
 }
@@ -51,15 +52,17 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             .FirstOrDefaultAsync();
     }
 
-    public async Task<T?> GetFirstAsync(Expression<Func<T, object>> fieldSelector, object value,
-        params Expression<Func<T, object>>[] includes)
+    public async Task<T?> GetFirstAsync(
+        Expression<Func<T, object>> fieldSelector,
+        object value,
+        Func<IQueryable<T>, IQueryable<T>> include = null)
     {
         IQueryable<T> queryable = _dbSet.AsQueryable();
 
         // Aplicar Includes si hay relaciones
-        foreach (var include in includes)
+        if (include != null)
         {
-            queryable = queryable.Include(include);
+            queryable = include(queryable);
         }
 
         // Obtener el nombre del campo de la expresión
@@ -150,7 +153,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         {
             var property = typeof(T).GetProperty(searchColumn,
                 BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-        
+
             if (property != null)
             {
                 // Is a boolean?

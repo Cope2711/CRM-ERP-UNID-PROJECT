@@ -1,3 +1,4 @@
+using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Helpers;
@@ -19,6 +20,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("get-by-id")]
+    [PermissionAuthorize("View", "Users")]
     public async Task<ActionResult<User>> GetUserById([FromQuery] Guid id)
     {
         User user = await this._usersService.GetByIdThrowsNotFoundAsync(id);
@@ -27,6 +29,7 @@ public class UsersController : ControllerBase
     }
     
     [HttpPost("get-all")]
+    [PermissionAuthorize("View", "Users")]
     public async Task<ActionResult<GetAllResponseDto<UserDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
@@ -54,6 +57,7 @@ public class UsersController : ControllerBase
     }
     
     [HttpGet("get-by-username")]
+    [PermissionAuthorize("View", "Users")]
     public async Task<ActionResult<User>> GetUserByUsername([FromQuery] string username)
     {
         User user = await this._usersService.GetByUserNameThrowsNotFound(username);
@@ -62,6 +66,7 @@ public class UsersController : ControllerBase
     }
     
     [HttpPost("create")]
+    [PermissionAuthorize("Create", "Users")]
     public async Task<ActionResult<User>> CreateUser([FromBody] CreateUserDto createUserDto)
     {
         User? user = await this._usersService.Create(createUserDto);
@@ -75,12 +80,14 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("exist-user-by-email")]
+    [PermissionAuthorize("View", "Users")]
     public async Task<ActionResult<bool>> ExistUserByEmail([FromQuery] string email)
     {
         return Ok(await this._usersService.GetByEmail(email) != null);
     }
     
     [HttpGet("exist-user-by-username")]
+    [PermissionAuthorize("View", "Users")]
     public async Task<ActionResult<bool>> ExistUserByUsername([FromQuery] string username)
     {
         return Ok(await this._usersService.GetByUserName(username) != null);

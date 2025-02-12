@@ -12,19 +12,25 @@ public class TokenService : ITokenService
     private readonly ITokensRepository _tokensRepository;
     private readonly IConfiguration _configuration;
     private readonly IGenericServie<RefreshToken> _genericService;
+    private readonly IRolesPermissionsResourcesService _rolesPermissionsResourcesService;
 
-    public TokenService(IConfiguration configuration, ITokensRepository tokensRepository, IGenericServie<RefreshToken> genericService)
+    public TokenService(IConfiguration configuration, ITokensRepository tokensRepository, IGenericServie<RefreshToken> genericService, IRolesPermissionsResourcesService rolesPermissionsResourcesService)
     {
         this._configuration = configuration;
         this._tokensRepository = tokensRepository;
         _genericService = genericService;
+        _rolesPermissionsResourcesService = rolesPermissionsResourcesService;
     }
 
     public string GenerateAccessToken(User user)
     {
-        var claims = new[]
+        var rolesIds = user.UserRoles.Select(ur => ur.Role.RoleId).ToList();
+        
+        var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+            new Claim(ClaimTypes.Name, user.UserUserName),
+            new Claim(ClaimTypes.Role, string.Join(",", rolesIds))
         };
             
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));

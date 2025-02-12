@@ -45,12 +45,12 @@ public class UsersService : IUsersService
 
     public async Task<User?> GetByUserName(string userName)
     {
-        return await _genericService.GetFirstAsync(u => u.UserUserName, userName);
+        return await _genericService.GetFirstAsync(u => u.UserUserName, userName, query => query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role));
     }
 
     public async Task<User> GetByUserNameThrowsNotFound(string userName)
     {
-        return await _genericService.GetFirstThrowsNotFoundAsync(u => u.UserUserName, userName);
+        return await _genericService.GetFirstThrowsNotFoundAsync(u => u.UserUserName, userName, query => query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role));
     }
 
     public async Task<User?> GetByEmail(string email)
