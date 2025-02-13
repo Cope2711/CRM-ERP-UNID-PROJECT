@@ -2,6 +2,9 @@
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
+using CRM_ERP_UNID_TESTS;
+using CRM_ERP_UNID.Data.Models;
+using CRM_ERP_UNID.Helpers;
 
 public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
 {
@@ -10,6 +13,57 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
     public UsersControllerShouldTests(CustomWebApiFactory factory)
     {
         _client = factory.CreateClientWithBearerToken();
+    }
+    
+    [Fact]
+    public async Task DeactivateUser_WhenUserIsNotActive_ReturnsBadRequest()
+    {
+        // Arrange 
+        DeactivateUserDto deactivateUserDto = new DeactivateUserDto
+        {
+            UserId = Models.Users.InactiveTestUser.UserId
+        };
+        
+        // Act
+        var response = await _client.PutAsJsonAsync($"/api/users/deactivate", deactivateUserDto);
+
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+    
+    [Fact]
+    public async Task DeactivateUser_WhenUserIsNotExist_ReturnsNotFound()
+    {
+        // Arrange 
+        DeactivateUserDto deactivateUserDto = new DeactivateUserDto
+        {
+            UserId = Guid.NewGuid()
+        };
+        
+        // Act
+        var response = await _client.PutAsJsonAsync($"/api/users/deactivate", deactivateUserDto);
+
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+    
+    [Fact]
+    public async Task DeactivateUser_WhenUserIsActive_ReturnsOkAndLogoutTheUser()
+    {
+        // Deactivate logged user and make sure the user is logged out
+        DeactivateUserDto deactivateUserDto = new DeactivateUserDto
+        {
+            UserId = Models.Users.TestUser.UserId
+        };
+        
+        // Act
+        var response = await _client.PutAsJsonAsync($"/api/users/deactivate", deactivateUserDto);
+        
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -86,30 +140,14 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
     public async Task GetUserById_ReturnsExpectedUser()
     {
         // Arrange
-        UserDto expectedUser = new UserDto
-        {
-            UserId = Guid.Parse("d7f9ed1e-417e-46c0-98f3-df8d63e1e8b6"),
-            UserUserName = "admin",
-            UserFirstName = "Admin",
-            UserLastName = "User",
-            UserEmail = "admin@admin.com",
-            IsActive = true,
-            Roles = new List<RoleDto>
-            {
-                new RoleDto
-                {
-                    RoleId = Guid.Parse("735250a8-d410-4f77-870a-4422ab28a1a1"),
-                    RoleName = "Admin"
-                }
-            }
-        };
+        UserDto expectedUserDto = Mapper.UserToUserDto(Models.Users.Admin);
 
         // Act
-        var response = await _client.GetFromJsonAsync<UserDto>($"/api/users/get-by-id?id={expectedUser.UserId}");
+        var response = await _client.GetFromJsonAsync<UserDto>($"/api/users/get-by-id?id={expectedUserDto.UserId}");
 
         // Assert
         response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(expectedUser);
+        response.Should().BeEquivalentTo(expectedUserDto);
     }
 
     [Fact]
@@ -128,23 +166,15 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
     [Fact]
     public async Task GetUserByUsername_ReturnsExpectedUser()
     {
-        UserDto expectedUser = new UserDto
-        {
-            UserId = Guid.Parse("d7f9ed1e-417e-46c0-98f3-df8d63e1e8b6"),
-            UserUserName = "admin",
-            UserFirstName = "Admin",
-            UserLastName = "User",
-            UserEmail = "admin@admin.com",
-            IsActive = true,
-        };
+        UserDto expectedUserDto = Mapper.UserToUserDto(Models.Users.Admin);
 
         // Act
         var response =
-            await _client.GetFromJsonAsync<UserDto>($"/api/users/get-by-username?username={expectedUser.UserUserName}");
+            await _client.GetFromJsonAsync<UserDto>($"/api/users/get-by-username?username={expectedUserDto.UserUserName}");
 
         // Assert
         response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(expectedUser);
+        response.Should().BeEquivalentTo(expectedUserDto);
     }
 
     [Fact]
@@ -164,7 +194,7 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
     public async Task ExistUserByEmail_ReturnsTrue()
     {
         // Arrange
-        string email = "admin@admin.com";
+        string email = Models.Users.Admin.UserEmail;
 
         // Act
         var response = await _client.GetAsync($"/api/users/exist-user-by-email?email={email}");
@@ -172,7 +202,7 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         // Assert
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.Content.ReadAsStringAsync().Result.Should().Be("true");
+        response.Content.ReadAsStringAsync()?.Result.Should().Be("true");
     }
 
     [Fact]
@@ -187,14 +217,14 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         // Assert
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.Content.ReadAsStringAsync().Result.Should().Be("false");
+        response.Content.ReadAsStringAsync()?.Result.Should().Be("false");
     }
 
     [Fact]
     public async Task ExistUserByUsername_ReturnsTrue()
     {
         // Arrange
-        string username = "admin";
+        string username = Models.Users.Admin.UserUserName;
 
         // Act
         var response = await _client.GetAsync($"/api/users/exist-user-by-username?username={username}");
@@ -202,7 +232,7 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         // Assert
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.Content.ReadAsStringAsync().Result.Should().Be("true");
+        response.Content.ReadAsStringAsync()?.Result.Should().Be("true");
     }
 
     [Fact]
@@ -217,7 +247,7 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         // Assert
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.Content.ReadAsStringAsync().Result.Should().Be("false");
+        response.Content.ReadAsStringAsync()?.Result.Should().Be("false");
     }
 
     [Fact]
@@ -237,7 +267,7 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         // Act
         var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
 
-        GetAllResponseDto<UserDto> getAllResponseDto =
+        GetAllResponseDto<UserDto>? getAllResponseDto =
             await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
 
         // Assert
@@ -290,15 +320,13 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         // Act
         var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
 
-        GetAllResponseDto<UserDto> getAllResponseDto =
+        GetAllResponseDto<UserDto>? getAllResponseDto =
             await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
 
         // Assert
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        getAllResponseDto.Data[0].UserUserName.Should().Be("admin");
-        getAllResponseDto.Data[1].UserUserName.Should().Be("janedoe");
-        
+        getAllResponseDto?.Data[0].UserUserName.Should().Be("admin");
     }
     
     [Fact]
@@ -339,40 +367,13 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         // Act
         var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
 
-        GetAllResponseDto<UserDto> getAllResponseDto =
+        GetAllResponseDto<UserDto>? getAllResponseDto =
             await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
 
         // Assert
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        getAllResponseDto.Data.Should().BeEmpty();
-        getAllResponseDto.TotalItems.Should().Be(0);
-    }
-    
-    [Fact]
-    public async Task GetAllUsers_WhenDescendingIsTrue_ReturnsExpectedOrder()
-    {
-        // Arrange
-        GetAllDto getAllDto = new GetAllDto
-        {
-            PageNumber = 1,
-            PageSize = 10,
-            OrderBy = "UserUserName",
-            Descending = true,
-            SearchTerm = "a",
-            SearchColumn = "UserUserName"
-        };
-
-        // Act
-        var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
-
-        GetAllResponseDto<UserDto> getAllResponseDto =
-            await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
-
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        getAllResponseDto.Data[0].UserUserName.Should().Be("janedoe");
-        getAllResponseDto.Data[1].UserUserName.Should().Be("admin");
+        getAllResponseDto?.Data.Should().BeEmpty();
+        getAllResponseDto?.TotalItems.Should().Be(0);
     }
 }

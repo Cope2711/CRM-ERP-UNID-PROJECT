@@ -1,6 +1,7 @@
 ﻿using CRM_ERP_UNID.Data;
 using CRM_ERP_UNID.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CRM_ERP_UNID.Modules;
 
@@ -8,6 +9,7 @@ public interface IUsersRepository
 {
     void Add(User user);
     Task SaveChangesAsync();
+    Task<IDbContextTransaction> BeginTransactionAsync();
 }
 
 public class UsersRepository : IUsersRepository
@@ -24,6 +26,11 @@ public class UsersRepository : IUsersRepository
         this._context.Users.Add(user);
     }
 
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+       return await this._context.Database.BeginTransactionAsync();
+    }
+    
     public async Task SaveChangesAsync()
     {
         await this._context.SaveChangesAsync();

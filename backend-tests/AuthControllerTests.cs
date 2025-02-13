@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using CRM_ERP_UNID_TESTS;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -167,22 +168,35 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
     [Fact]
     public async Task Logout_WhenRefreshTokenIsValid_ReturnsTokenDto()
     {
-        // Arrange
-        RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
+        // Logg in
+        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", new LoginUserDto
         {
-            RefreshToken = "+9wpQEQ3YJsBXCzLbutUMyIwGo1RenCAh7iKSCQEugg-"
-        };
+            UserUserName = Models.Users.TestUser.UserUserName,
+            UserPassword = "123456"
+        });
+        
+        loginResponse.Should().NotBeNull();
+        loginResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        TokenDto? tokenDto = await loginResponse.Content.ReadFromJsonAsync<TokenDto>();
 
-        // Act
-        var refreshTokenResponse = await _client.PostAsJsonAsync("/api/auth/logout", refreshTokenEntryDto);
-
-        // Assert
-        refreshTokenResponse.Should().NotBeNull();
-        refreshTokenResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-
-        var tokenDto = await refreshTokenResponse.Content.ReadFromJsonAsync<TokenDto>();
         tokenDto.Should().NotBeNull();
+        tokenDto.Token.Should().NotBeNullOrEmpty();
         tokenDto.RefreshToken.Should().NotBeNullOrEmpty();
+
+        // Logout
+        var logoutResponse = await _client.PostAsJsonAsync("/api/auth/logout", new RefreshTokenEntryDto
+        {
+            RefreshToken = tokenDto.RefreshToken
+        });
+
+        logoutResponse.Should().NotBeNull();
+        logoutResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        TokenDto? logoutTokenDto = await logoutResponse.Content.ReadFromJsonAsync<TokenDto>();
+
+        logoutTokenDto.Should().NotBeNull();
+        logoutTokenDto.Token.Should().BeNull();
+        logoutTokenDto.RefreshToken.Should().NotBeNullOrEmpty();
+
     }
 
     [Fact]

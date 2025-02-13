@@ -21,7 +21,7 @@ public class UsersController : ControllerBase
 
     [HttpGet("get-by-id")]
     [PermissionAuthorize("View", "Users")]
-    public async Task<ActionResult<User>> GetUserById([FromQuery] Guid id)
+    public async Task<ActionResult<UserDto>> GetUserById([FromQuery] Guid id)
     {
         User user = await this._usersService.GetByIdThrowsNotFoundAsync(id);
 
@@ -58,16 +58,16 @@ public class UsersController : ControllerBase
     
     [HttpGet("get-by-username")]
     [PermissionAuthorize("View", "Users")]
-    public async Task<ActionResult<User>> GetUserByUsername([FromQuery] string username)
+    public async Task<ActionResult<UserDto>> GetUserByUsername([FromQuery] string username)
     {
         User user = await this._usersService.GetByUserNameThrowsNotFound(username);
 
-        return Ok(user);
+        return Ok(Mapper.UserToUserDto(user));
     }
     
     [HttpPost("create")]
     [PermissionAuthorize("Create", "Users")]
-    public async Task<ActionResult<User>> CreateUser([FromBody] CreateUserDto createUserDto)
+    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
     {
         User? user = await this._usersService.Create(createUserDto);
 
@@ -76,7 +76,7 @@ public class UsersController : ControllerBase
             return BadRequest("Some problems ocurred creating the user :(");
         }
 
-        return Ok(user);
+        return Ok(Mapper.UserToUserDto(user));
     }
 
     [HttpGet("exist-user-by-email")]
@@ -91,6 +91,14 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<bool>> ExistUserByUsername([FromQuery] string username)
     {
         return Ok(await this._usersService.GetByUserName(username) != null);
+    }
+    
+    [HttpPut("deactivate")]
+    [PermissionAuthorize("Deactivate_User")]
+    public async Task<ActionResult<UserDto>> DeactivateUser([FromBody] DeactivateUserDto deactivateUserDto)
+    {
+        User user = await this._usersService.DeactivateUserAsync(deactivateUserDto.UserId);     
+        return Ok(Mapper.UserToUserDto(user));
     }
     
 }

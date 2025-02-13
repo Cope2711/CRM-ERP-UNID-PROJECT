@@ -8,4 +8,5 @@ public interface ITokenService
     Task<RefreshToken> GenerateAndStoreRefreshTokenAsync(Guid userId);
     Task<RefreshToken?> GetRefreshTokenByRefreshToken(string refreshToken);
     Task<RefreshToken> RevokeRefreshTokenByObject(RefreshToken refreshToken);
+    Task RevokeRefreshsTokensByUserId(Guid userId);
 }
