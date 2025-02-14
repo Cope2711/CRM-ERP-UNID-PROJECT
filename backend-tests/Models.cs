@@ -41,7 +41,7 @@ public static class Models
         {
             UserId = Guid.Parse("2c0180d4-040c-4c00-b8f9-31f7a1e72259"), UserUserName = "test-user",
             UserFirstName = "Test", UserLastName = "User", UserEmail = "test-user@test.com",
-            UserPassword = "$2b$12$H4hFo5E9XkP5vwsWfvBi8ea.uh1Vz/5RrG0k3Wu3CC5Y1DuhLK3We", IsActive = false
+            UserPassword = "$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW", IsActive = false
         };
         
         public static readonly User TestUser = new User

@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using CRM_ERP_UNID_TESTS;
 using CRM_ERP_UNID.Data;
 using CRM_ERP_UNID.Dtos;
 using Microsoft.AspNetCore.Hosting;
@@ -42,7 +43,7 @@ public class CustomWebApiFactory : WebApplicationFactory<Program>
 
     private async Task AuthenticateAsync(HttpClient client)
     {
-        LoginUserDto loginRequest = new LoginUserDto { UserUserName = "admin", UserPassword = "123456" };
+        LoginUserDto loginRequest = new LoginUserDto { UserUserName = Models.Users.Admin.UserUserName, UserPassword = "123456" };
         var loginResponse = await client.PostAsJsonAsync("/api/auth/login", loginRequest);
         loginResponse.EnsureSuccessStatusCode();    
 

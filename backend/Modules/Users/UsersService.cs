@@ -15,6 +15,7 @@ public interface IUsersService
     Task<User?> Create(CreateUserDto createUserDto);
     Task<User> GetByUserNameThrowsNotFound(string userName);
     Task<User> DeactivateUserAsync(Guid id);
+    Task<User> ChangePasswordAsync(Guid userId, ChangePasswordDto changePasswordDto);
 }
 
 public class UsersService : IUsersService
@@ -29,7 +30,32 @@ public class UsersService : IUsersService
         _genericService = genericService;
         _tokenService = tokenService;
     }
-    
+
+    public async Task<User> ChangePasswordAsync(Guid userId, ChangePasswordDto changePasswordDto)
+    {
+        // Get the user
+        User user = await this.GetByIdThrowsNotFoundAsync(userId);
+        
+        if (user.IsActive == false)
+        {
+            throw new BadRequestException(message: "The user is already deactivated.", field: "IsActive");
+        }
+        
+        // Check password
+        if (PasswordHelper.VerifyPassword(changePasswordDto.ActualPassword, user.UserPassword) == false)
+        {
+            throw new UnauthorizedException(message: "The actual password is not correct.", reason: "WrongPassword");
+        }
+        
+        // Change password
+        user.UserPassword = PasswordHelper.HashPassword(changePasswordDto.NewPassword);
+        
+        // Save changes
+        await this._usersRepository.SaveChangesAsync();
+        
+        return user;
+    }
+
     public async Task<User> DeactivateUserAsync(Guid id)
     {
         using var transaction = await _usersRepository.BeginTransactionAsync();
