@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
@@ -16,11 +17,13 @@ public class AuthService : IAuthService
 {
     private readonly IUsersService _usersService;
     private readonly ITokenService _tokenService;
-
-    public AuthService(IUsersService usersService, ITokenService tokenService)
+    private readonly ILogger<AuthService> _logger;
+    
+    public AuthService(IUsersService usersService, ITokenService tokenService, ILogger<AuthService> logger)
     {
         this._usersService = usersService;
         this._tokenService = tokenService;
+        _logger = logger;
     }
 
     public async Task<TokenDto> RefreshTokenAsync(string refreshTokenString)
@@ -39,21 +42,26 @@ public class AuthService : IAuthService
             Token = this._tokenService.GenerateAccessToken(user),
             RefreshToken = refreshToken.Token
         };
-
+        
         return newTokenDto;
     }
 
     public async Task<TokenDto> Login(LoginUserDto loginUserDto)
     {
+        _logger.LogInformation("User with UserName {UserUserName} requested Login", loginUserDto.UserUserName);
+        
         // 1. Exist User
         User? user = await this._usersService.GetByUserNameThrowsNotFound(loginUserDto.UserUserName);
 
         // 2. Correct password?
         if (!PasswordHelper.VerifyPassword(loginUserDto.UserPassword, user.UserPassword))
         {
+            _logger.LogError("User with UserName {UserUserName} requested Login but the password is incorrect", loginUserDto.UserUserName);
             throw new UnauthorizedException(message: "The password is incorrect.", reason: "IncorrectPassword");
         }
 
+        _logger.LogInformation("User with UserName {UserUserName} requested Login and the user was logged in", loginUserDto.UserUserName);
+        
         return new TokenDto
         {
             Token = this._tokenService.GenerateAccessToken(user),

@@ -1,15 +1,20 @@
-using CRM_ERP_UNID.Data;
 using CRM_ERP_UNID.Extensions;
 using CRM_ERP_UNID.Modules;
 using Hellang.Middleware.ProblemDetails;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.Test.json", optional: true, reloadOnChange: true)
-    .AddEnvironmentVariables();
+if (!builder.Environment.IsEnvironment("Test"))
+{
+    builder.Configuration
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddJsonFile($"appsettings.Test.json", optional: true, reloadOnChange: true)
+        .AddEnvironmentVariables();
+
+    builder.Host.UseSerilog();
+}
 
 // Add services to the container.
 builder.Services.AddScoped<IRolesPermissionsResourcesRepository, RolesPermissionsResourcesResourcesRepository>();
@@ -31,6 +36,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IMailService, MailService>();
 
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -41,7 +47,6 @@ builder.Services.AddCustomProblemDetails(builder.Environment);
 builder.Services.AddCustomAuthentication(builder.Configuration);
 builder.Services.AddCustomRateLimiting();
 builder.Services.AddCustomCors();
-
 
 var app = builder.Build();
 

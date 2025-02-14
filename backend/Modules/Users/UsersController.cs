@@ -14,6 +14,7 @@ namespace CRM_ERP_UNID.Modules;
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _usersService;
+    private Guid UserId => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Guid.Empty.ToString());
     
     public UsersController(IUsersService usersService)
     {
@@ -105,8 +106,7 @@ public class UsersController : ControllerBase
     [HttpPut("change-password")]
     public async Task<ActionResult<UserDto>> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
     {
-        Guid userIdFromToken = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "");
-        User user = await this._usersService.ChangePasswordAsync(userIdFromToken, changePasswordDto);
+        User user = await this._usersService.ChangePasswordAsync(UserId, changePasswordDto);
         return Ok(Mapper.UserToUserDto(user));
     }
     

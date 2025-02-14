@@ -1,4 +1,5 @@
-﻿using CRM_ERP_UNID.Data.Models;
+﻿using System.Security.Claims;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
@@ -23,27 +24,37 @@ public class UsersService : IUsersService
     private readonly IUsersRepository _usersRepository;
     private readonly ITokenService _tokenService;
     private readonly IGenericServie<User> _genericService;
-
-    public UsersService(IUsersRepository usersRepository, IGenericServie<User> genericService, ITokenService tokenService)
+    private readonly ILogger<UsersService> _logger;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private Guid AuthenticatedUserId => Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Guid.Empty.ToString());
+    
+    public UsersService(IUsersRepository usersRepository, IGenericServie<User> genericService,
+        ITokenService tokenService, ILogger<UsersService> logger, IHttpContextAccessor httpContextAccessor)
     {
         _usersRepository = usersRepository;
         _genericService = genericService;
         _tokenService = tokenService;
+        _logger = logger;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<User> ChangePasswordAsync(Guid userId, ChangePasswordDto changePasswordDto)
     {
+        _logger.LogInformation("User with Id {AuthenticatedUserId} requested ChangePassword", AuthenticatedUserId);
+        
         // Get the user
         User user = await this.GetByIdThrowsNotFoundAsync(userId);
         
         if (user.IsActive == false)
         {
+            _logger.LogInformation("User with Id {AuthenticatedUserId} requested ChangePassword but the user is already deactivated", AuthenticatedUserId);
             throw new BadRequestException(message: "The user is already deactivated.", field: "IsActive");
         }
         
         // Check password
         if (PasswordHelper.VerifyPassword(changePasswordDto.ActualPassword, user.UserPassword) == false)
         {
+            _logger.LogInformation("User with Id {AuthenticatedUserId} requested ChangePassword but the actual password is not correct", AuthenticatedUserId);
             throw new UnauthorizedException(message: "The actual password is not correct.", reason: "WrongPassword");
         }
         
@@ -52,6 +63,8 @@ public class UsersService : IUsersService
         
         // Save changes
         await this._usersRepository.SaveChangesAsync();
+        
+        _logger.LogInformation("User with Id {AuthenticatedUserId} requested ChangePassword and the password was changed", AuthenticatedUserId);
         
         return user;
     }
@@ -62,11 +75,14 @@ public class UsersService : IUsersService
 
         try
         {
+            _logger.LogInformation("User with Id {AuthenticatedUserId} requested DeactivateUser for UserId {TargetUserId}", AuthenticatedUserId, id);
+            
             // Deactivate user
             User user = await this.GetByIdThrowsNotFoundAsync(id);
             
             if (user.IsActive == false)
             {
+                _logger.LogInformation("User with Id {AuthenticatedUserId} requested DeactivateUser for UserId {TargetUserId} but the user is already deactivated", AuthenticatedUserId, id);
                 throw new BadRequestException(message: "The user is already deactivated.", field: "IsActive");
             }
             
@@ -80,12 +96,14 @@ public class UsersService : IUsersService
         
             await transaction.CommitAsync();
             
+            _logger.LogInformation("User with Id {AuthenticatedUserId} requested DeactivateUser for UserId {TargetUserId} and the user was deactivated", AuthenticatedUserId, id);
+            
             return user;
         } 
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            throw ex;
+            throw;
         }
         
     }
@@ -123,14 +141,17 @@ public class UsersService : IUsersService
 
     public async Task<User?> Create(CreateUserDto createUserDto)
     {
+        _logger.LogInformation("User with Id {AuthenticatedUserId} requested CreateUser with UserName {UserUserName}", AuthenticatedUserId, createUserDto.UserUserName);
         if (await this.GetByUserName(createUserDto.UserUserName) != null)
         {
+            _logger.LogError("User with Id {AuthenticatedUserId} requested CreateUser but the user with username {UserUserName} already exists", AuthenticatedUserId, createUserDto.UserUserName);
             throw new UniqueConstraintViolationException(
                 message: $"User with username {createUserDto.UserUserName} already exists", field: "UserUserName");
         }
 
         if (await this.GetByEmail(createUserDto.UserEmail) != null)
         {
+            _logger.LogError("User with Id {AuthenticatedUserId} requested CreateUser but the user with email {UserEmail} already exists", AuthenticatedUserId, createUserDto.UserEmail);
             throw new UniqueConstraintViolationException(
                 message: $"User with email {createUserDto.UserEmail} already exists", field: "UserEmail");
         }
@@ -148,6 +169,8 @@ public class UsersService : IUsersService
         this._usersRepository.Add(user);
         await this._usersRepository.SaveChangesAsync();
 
+        _logger.LogInformation("User with Id {AuthenticatedUserId} requested CreateUser and the user was created with Id {CreatedUserId}", AuthenticatedUserId, user.UserId);
+        
         return user;
     }
 }
