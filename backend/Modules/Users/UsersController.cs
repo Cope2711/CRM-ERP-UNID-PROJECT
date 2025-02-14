@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -98,6 +99,14 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<UserDto>> DeactivateUser([FromBody] DeactivateUserDto deactivateUserDto)
     {
         User user = await this._usersService.DeactivateUserAsync(deactivateUserDto.UserId);     
+        return Ok(Mapper.UserToUserDto(user));
+    }
+    
+    [HttpPut("change-password")]
+    public async Task<ActionResult<UserDto>> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+    {
+        Guid userIdFromToken = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "");
+        User user = await this._usersService.ChangePasswordAsync(userIdFromToken, changePasswordDto);
         return Ok(Mapper.UserToUserDto(user));
     }
     

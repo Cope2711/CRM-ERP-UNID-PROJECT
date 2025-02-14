@@ -61,3 +61,16 @@ public class LoginUserDto
 
     [MaxLength(255)] [Required] public string UserPassword { get; set; }
 }
+
+public class ChangePasswordDto
+{
+    [Required]
+    [MaxLength(255)]
+    [MinLength(6)]
+    public string ActualPassword { get; set; }
+
+    [Required]
+    [MaxLength(255)]
+    [MinLength(6)]
+    public string NewPassword { get; set; }
+}

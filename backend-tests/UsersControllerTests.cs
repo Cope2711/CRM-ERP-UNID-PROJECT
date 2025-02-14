@@ -14,366 +14,449 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
     {
         _client = factory.CreateClientWithBearerToken();
     }
-    
-    [Fact]
-    public async Task DeactivateUser_WhenUserIsNotActive_ReturnsBadRequest()
+
+    public class ChangePasswordTests : UsersControllerShouldTests
     {
-        // Arrange 
-        DeactivateUserDto deactivateUserDto = new DeactivateUserDto
+        public ChangePasswordTests(CustomWebApiFactory factory) : base(factory)
         {
-            UserId = Models.Users.InactiveTestUser.UserId
-        };
-        
-        // Act
-        var response = await _client.PutAsJsonAsync($"/api/users/deactivate", deactivateUserDto);
+        }
 
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-    
-    [Fact]
-    public async Task DeactivateUser_WhenUserIsNotExist_ReturnsNotFound()
-    {
-        // Arrange 
-        DeactivateUserDto deactivateUserDto = new DeactivateUserDto
+        [Fact]
+        public async Task ChangePassword_WhenAllAreValid_ReturnsOk()
         {
-            UserId = Guid.NewGuid()
-        };
-        
-        // Act
-        var response = await _client.PutAsJsonAsync($"/api/users/deactivate", deactivateUserDto);
+            ChangePasswordDto changePasswordDto = new ChangePasswordDto
+            {
+                ActualPassword = "123456", NewPassword = "12345678"
+            };
 
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-    
-    [Fact]
-    public async Task DeactivateUser_WhenUserIsActive_ReturnsOkAndLogoutTheUser()
-    {
-        // Deactivate logged user and make sure the user is logged out
-        DeactivateUserDto deactivateUserDto = new DeactivateUserDto
+            // Act
+            var response = await _client.PutAsJsonAsync($"/api/users/change-password", changePasswordDto);
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task ChangePassword_WithWrongPassword_ReturnsUnauthorized()
         {
-            UserId = Models.Users.TestUser.UserId
-        };
-        
-        // Act
-        var response = await _client.PutAsJsonAsync($"/api/users/deactivate", deactivateUserDto);
-        
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+            // Arrange
+            ChangePasswordDto changePasswordDto = new ChangePasswordDto
+            {
+                ActualPassword = "1234566", NewPassword = "12345678"
+            };
+            
+            // Act
+            var response = await _client.PutAsJsonAsync($"/api/users/change-password", changePasswordDto);
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
     }
 
-    [Fact]
-    public async Task CreateUser_ReturnsCreatedUser()
+    public class DeactivateUserTests : UsersControllerShouldTests
     {
-        // Arrange
-        CreateUserDto createUserDto = new CreateUserDto
+        public DeactivateUserTests(CustomWebApiFactory factory) : base(factory)
         {
-            UserUserName = "test-user-1",
-            UserFirstName = "Test",
-            UserLastName = "User",
-            UserEmail = "test-user-1@test.com",
-            UserPassword = "123456",
-            IsActive = true
-        };
+        }
 
-        // Act
-        var response = await _client.PostAsJsonAsync("/api/users/create", createUserDto);
-
-        // Assert
-        response.Should().NotBeNull();
-
-        // Obtener el UserDto de la respuesta
-        UserDto? userDto = await response.Content.ReadFromJsonAsync<UserDto>();
-
-        // Validaciones adicionales
-        userDto.Should().NotBeNull();
-        userDto.UserUserName.Should().Be(createUserDto.UserUserName);
-    }
-
-    [Fact]
-    public async Task CreateUser_WhenUserNameAlreadyExists_ReturnsConflict()
-    {
-        // Arrange
-        CreateUserDto createUserDto = new CreateUserDto
+        [Fact]
+        public async Task DeactivateUser_WhenUserIsNotActive_ReturnsBadRequest()
         {
-            UserUserName = "admin",
-            UserFirstName = "Admin",
-            UserLastName = "User",
-            UserEmail = "admin@admin.com",
-            UserPassword = "123456",
-            IsActive = true
-        };
+            // Arrange 
+            DeactivateUserDto deactivateUserDto = new DeactivateUserDto
+            {
+                UserId = Models.Users.InactiveTestUser.UserId
+            };
 
-        // Act
-        var response = await _client.PostAsJsonAsync("/api/users/create", createUserDto);
+            // Act
+            var response = await _client.PutAsJsonAsync($"/api/users/deactivate", deactivateUserDto);
 
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-    }
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
 
-    [Fact]
-    public async Task CreateUser_WhenEmailAlreadyExists_ReturnsConflict()
-    {
-        // Arrange
-        CreateUserDto createUserDto = new CreateUserDto
+        [Fact]
+        public async Task DeactivateUser_WhenUserIsNotExist_ReturnsNotFound()
         {
-            UserUserName = "test-user-11",
-            UserFirstName = "Test",
-            UserLastName = "User",
-            UserEmail = "admin@admin.com",
-            UserPassword = "123456",
-            IsActive = true
-        };
+            // Arrange 
+            DeactivateUserDto deactivateUserDto = new DeactivateUserDto
+            {
+                UserId = Guid.NewGuid()
+            };
 
-        // Act
-        var response = await _client.PostAsJsonAsync("/api/users/create", createUserDto);
+            // Act
+            var response = await _client.PutAsJsonAsync($"/api/users/deactivate", deactivateUserDto);
 
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-    }
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
 
-    [Fact]
-    public async Task GetUserById_ReturnsExpectedUser()
-    {
-        // Arrange
-        UserDto expectedUserDto = Mapper.UserToUserDto(Models.Users.Admin);
-
-        // Act
-        var response = await _client.GetFromJsonAsync<UserDto>($"/api/users/get-by-id?id={expectedUserDto.UserId}");
-
-        // Assert
-        response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(expectedUserDto);
-    }
-
-    [Fact]
-    public async Task GetUserById_WhenUserDoesNotExist_ReturnsNotFound()
-    {
-        // Arrange
-        Guid nonExistentUserId = Guid.NewGuid();
-
-        // Act
-        var response = await _client.GetAsync($"/api/users/get-by-id?id={nonExistentUserId}");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task GetUserByUsername_ReturnsExpectedUser()
-    {
-        UserDto expectedUserDto = Mapper.UserToUserDto(Models.Users.Admin);
-
-        // Act
-        var response =
-            await _client.GetFromJsonAsync<UserDto>($"/api/users/get-by-username?username={expectedUserDto.UserUserName}");
-
-        // Assert
-        response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(expectedUserDto);
-    }
-
-    [Fact]
-    public async Task GetUserByUsername_WhenUserDoesNotExist_ReturnsNotFound()
-    {
-        // Arrange
-        string nonExistentUserName = "non-existent-user";
-
-        // Act
-        var response = await _client.GetAsync($"/api/users/get-by-username?username={nonExistentUserName}");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task ExistUserByEmail_ReturnsTrue()
-    {
-        // Arrange
-        string email = Models.Users.Admin.UserEmail;
-
-        // Act
-        var response = await _client.GetAsync($"/api/users/exist-user-by-email?email={email}");
-
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.Content.ReadAsStringAsync()?.Result.Should().Be("true");
-    }
-
-    [Fact]
-    public async Task ExistUserByEmail_ReturnsFalse()
-    {
-        // Arrange
-        string email = "non-existent-email@email.com";
-
-        // Act
-        var response = await _client.GetAsync($"/api/users/exist-user-by-email?email={email}");
-
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.Content.ReadAsStringAsync()?.Result.Should().Be("false");
-    }
-
-    [Fact]
-    public async Task ExistUserByUsername_ReturnsTrue()
-    {
-        // Arrange
-        string username = Models.Users.Admin.UserUserName;
-
-        // Act
-        var response = await _client.GetAsync($"/api/users/exist-user-by-username?username={username}");
-
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.Content.ReadAsStringAsync()?.Result.Should().Be("true");
-    }
-
-    [Fact]
-    public async Task ExistUserByUsername_ReturnsFalse()
-    {
-        // Arrange
-        string username = "non-existent-username";
-
-        // Act
-        var response = await _client.GetAsync($"/api/users/exist-user-by-username?username={username}");
-
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.Content.ReadAsStringAsync()?.Result.Should().Be("false");
-    }
-
-    [Fact]
-    public async Task GetAllUsers_WhenGetAllDtoIsValid_ReturnsExpectedUsers()
-    {
-        // Arrange
-        GetAllDto getAllDto = new GetAllDto
+        [Fact]
+        public async Task DeactivateUser_WhenUserIsActive_ReturnsOkAndLogoutTheUser()
         {
-            PageNumber = 1,
-            PageSize = 1,
-            OrderBy = "UserUserName",
-            Descending = false,
-            SearchTerm = null,
-            SearchColumn = null
-        };
+            // Deactivate logged user and make sure the user is logged out
+            DeactivateUserDto deactivateUserDto = new DeactivateUserDto
+            {
+                UserId = Models.Users.TestUser.UserId
+            };
 
-        // Act
-        var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+            // Act
+            var response = await _client.PutAsJsonAsync($"/api/users/deactivate", deactivateUserDto);
 
-        GetAllResponseDto<UserDto>? getAllResponseDto =
-            await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
-
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        getAllResponseDto.Should().NotBeNull();
-        getAllResponseDto.Data.Should().NotBeNull();
-        getAllResponseDto.Data.Should().HaveCount(1);
-        getAllResponseDto.TotalItems.Should().Be(3);
-        getAllResponseDto.PageNumber.Should().Be(1);
-        getAllResponseDto.PageSize.Should().Be(1);
-        getAllResponseDto.TotalPages.Should().Be(3);
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
     }
 
-    [Fact]
-    public async Task GetAllUsers_WhenOrderByIsInvalid_ReturnsBadRequest()
+    public class CreateUserTests : UsersControllerShouldTests
     {
-        // Arrange
-        GetAllDto getAllDto = new GetAllDto
+        public CreateUserTests(CustomWebApiFactory factory) : base(factory)
         {
-            PageNumber = 1,
-            PageSize = 1,
-            OrderBy = "invalid-column",
-            Descending = false,
-            SearchTerm = null,
-            SearchColumn = null
-        };
+        }
 
-        // Act
-        var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+        [Fact]
+        public async Task CreateUser_ReturnsCreatedUser()
+        {
+            // Arrange
+            CreateUserDto createUserDto = new CreateUserDto
+            {
+                UserUserName = "test-user-1",
+                UserFirstName = "Test",
+                UserLastName = "User",
+                UserEmail = "test-user-1@test.com",
+                UserPassword = "123456",
+                IsActive = true
+            };
 
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/users/create", createUserDto);
+
+            // Assert
+            response.Should().NotBeNull();
+
+            // Obtener el UserDto de la respuesta
+            UserDto? userDto = await response.Content.ReadFromJsonAsync<UserDto>();
+
+            // Validaciones adicionales
+            userDto.Should().NotBeNull();
+            userDto.UserUserName.Should().Be(createUserDto.UserUserName);
+        }
+
+        [Fact]
+        public async Task CreateUser_WhenUserNameAlreadyExists_ReturnsConflict()
+        {
+            // Arrange
+            CreateUserDto createUserDto = new CreateUserDto
+            {
+                UserUserName = "admin",
+                UserFirstName = "Admin",
+                UserLastName = "User",
+                UserEmail = "admin@admin.com",
+                UserPassword = "123456",
+                IsActive = true
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/users/create", createUserDto);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        }
+
+        [Fact]
+        public async Task CreateUser_WhenEmailAlreadyExists_ReturnsConflict()
+        {
+            // Arrange
+            CreateUserDto createUserDto = new CreateUserDto
+            {
+                UserUserName = "test-user-11",
+                UserFirstName = "Test",
+                UserLastName = "User",
+                UserEmail = "admin@admin.com",
+                UserPassword = "123456",
+                IsActive = true
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/users/create", createUserDto);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        }
     }
 
-    [Fact]
-    public async Task GetAllUsers_WhenSearchTermIsValid_ReturnsExpectedOrder()
+    public class GetUserByIdTests : UsersControllerShouldTests
     {
-        // Arrange
-        GetAllDto getAllDto = new GetAllDto
+        public GetUserByIdTests(CustomWebApiFactory factory) : base(factory)
         {
-            PageNumber = 1,
-            PageSize = 10,
-            OrderBy = "UserUserName",
-            Descending = false,
-            SearchTerm = "a",
-            SearchColumn = "UserUserName"
-        };
+        }
 
-        // Act
-        var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+        [Fact]
+        public async Task GetUserById_ReturnsExpectedUser()
+        {
+            // Arrange
+            UserDto expectedUserDto = Mapper.UserToUserDto(Models.Users.Admin);
 
-        GetAllResponseDto<UserDto>? getAllResponseDto =
-            await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
+            // Act
+            var response = await _client.GetFromJsonAsync<UserDto>($"/api/users/get-by-id?id={expectedUserDto.UserId}");
 
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        getAllResponseDto?.Data[0].UserUserName.Should().Be("admin");
+            // Assert
+            response.Should().NotBeNull();
+            response.Should().BeEquivalentTo(expectedUserDto);
+        }
+
+        [Fact]
+        public async Task GetUserById_WhenUserDoesNotExist_ReturnsNotFound()
+        {
+            // Arrange
+            Guid nonExistentUserId = Guid.NewGuid();
+
+            // Act
+            var response = await _client.GetAsync($"/api/users/get-by-id?id={nonExistentUserId}");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
     }
-    
-    [Fact]
-    public async Task GetAllUsers_WhenSearchColumnIsInvalid_ReturnsBadRequest()
+
+    public class GetUserByUsernameTests : UsersControllerShouldTests
     {
-        // Arrange
-        GetAllDto getAllDto = new GetAllDto
+        public GetUserByUsernameTests(CustomWebApiFactory factory) : base(factory)
         {
-            PageNumber = 1,
-            PageSize = 1,
-            OrderBy = "UserUserName",
-            Descending = false,
-            SearchTerm = null,
-            SearchColumn = "invalid-column"
-        };
+        }
 
-        // Act
-        var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+        [Fact]
+        public async Task GetUserByUsername_ReturnsExpectedUser()
+        {
+            UserDto expectedUserDto = Mapper.UserToUserDto(Models.Users.Admin);
 
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            // Act
+            var response =
+                await _client.GetFromJsonAsync<UserDto>(
+                    $"/api/users/get-by-username?username={expectedUserDto.UserUserName}");
+
+            // Assert
+            response.Should().NotBeNull();
+            response.Should().BeEquivalentTo(expectedUserDto);
+        }
+
+        [Fact]
+        public async Task GetUserByUsername_WhenUserDoesNotExist_ReturnsNotFound()
+        {
+            // Arrange
+            string nonExistentUserName = "non-existent-user";
+
+            // Act
+            var response = await _client.GetAsync($"/api/users/get-by-username?username={nonExistentUserName}");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
     }
-    
-    [Fact]
-    public async Task GetAllUsers_WhenSearchTermIsInvalid_ReturnsEmptyData()
+
+    public class ExistUserBy : UsersControllerShouldTests
     {
-        // Arrange
-        GetAllDto getAllDto = new GetAllDto
+        public ExistUserBy(CustomWebApiFactory factory) : base(factory)
         {
-            PageNumber = 1,
-            PageSize = 10,
-            OrderBy = "UserUserName",
-            Descending = false,
-            SearchTerm = "invalid-term",
-            SearchColumn = "UserUserName"
-        };
+        }
 
-        // Act
-        var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+        [Fact]
+        public async Task ExistUserByEmail_ReturnsTrue()
+        {
+            // Arrange
+            string email = Models.Users.Admin.UserEmail;
 
-        GetAllResponseDto<UserDto>? getAllResponseDto =
-            await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
+            // Act
+            var response = await _client.GetAsync($"/api/users/exist-user-by-email?email={email}");
 
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        getAllResponseDto?.Data.Should().BeEmpty();
-        getAllResponseDto?.TotalItems.Should().Be(0);
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.Content.ReadAsStringAsync()?.Result.Should().Be("true");
+        }
+
+        [Fact]
+        public async Task ExistUserByEmail_ReturnsFalse()
+        {
+            // Arrange
+            string email = "non-existent-email@email.com";
+
+            // Act
+            var response = await _client.GetAsync($"/api/users/exist-user-by-email?email={email}");
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.Content.ReadAsStringAsync()?.Result.Should().Be("false");
+        }
+
+        [Fact]
+        public async Task ExistUserByUsername_ReturnsTrue()
+        {
+            // Arrange
+            string username = Models.Users.Admin.UserUserName;
+
+            // Act
+            var response = await _client.GetAsync($"/api/users/exist-user-by-username?username={username}");
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.Content.ReadAsStringAsync()?.Result.Should().Be("true");
+        }
+
+        [Fact]
+        public async Task ExistUserByUsername_ReturnsFalse()
+        {
+            // Arrange
+            string username = "non-existent-username";
+
+            // Act
+            var response = await _client.GetAsync($"/api/users/exist-user-by-username?username={username}");
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.Content.ReadAsStringAsync()?.Result.Should().Be("false");
+        }
+    }
+
+    public class GetAllUsersTests : UsersControllerShouldTests
+    {
+        public GetAllUsersTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
+
+        [Fact]
+        public async Task GetAllUsers_WhenGetAllDtoIsValid_ReturnsExpectedUsers()
+        {
+            // Arrange
+            GetAllDto getAllDto = new GetAllDto
+            {
+                PageNumber = 1,
+                PageSize = 1,
+                OrderBy = "UserUserName",
+                Descending = false,
+                SearchTerm = null,
+                SearchColumn = null
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+
+            GetAllResponseDto<UserDto>? getAllResponseDto =
+                await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            getAllResponseDto.Should().NotBeNull();
+            getAllResponseDto.Data.Should().NotBeNull();
+            getAllResponseDto.Data.Should().HaveCount(1);
+            getAllResponseDto.TotalItems.Should().Be(3);
+            getAllResponseDto.PageNumber.Should().Be(1);
+            getAllResponseDto.PageSize.Should().Be(1);
+            getAllResponseDto.TotalPages.Should().Be(3);
+        }
+
+        [Fact]
+        public async Task GetAllUsers_WhenOrderByIsInvalid_ReturnsBadRequest()
+        {
+            // Arrange
+            GetAllDto getAllDto = new GetAllDto
+            {
+                PageNumber = 1,
+                PageSize = 1,
+                OrderBy = "invalid-column",
+                Descending = false,
+                SearchTerm = null,
+                SearchColumn = null
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task GetAllUsers_WhenSearchTermIsValid_ReturnsExpectedOrder()
+        {
+            // Arrange
+            GetAllDto getAllDto = new GetAllDto
+            {
+                PageNumber = 1,
+                PageSize = 10,
+                OrderBy = "UserUserName",
+                Descending = false,
+                SearchTerm = "a",
+                SearchColumn = "UserUserName"
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+
+            GetAllResponseDto<UserDto>? getAllResponseDto =
+                await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            getAllResponseDto?.Data[0].UserUserName.Should().Be("admin");
+        }
+
+        [Fact]
+        public async Task GetAllUsers_WhenSearchColumnIsInvalid_ReturnsBadRequest()
+        {
+            // Arrange
+            GetAllDto getAllDto = new GetAllDto
+            {
+                PageNumber = 1,
+                PageSize = 1,
+                OrderBy = "UserUserName",
+                Descending = false,
+                SearchTerm = null,
+                SearchColumn = "invalid-column"
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task GetAllUsers_WhenSearchTermIsInvalid_ReturnsEmptyData()
+        {
+            // Arrange
+            GetAllDto getAllDto = new GetAllDto
+            {
+                PageNumber = 1,
+                PageSize = 10,
+                OrderBy = "UserUserName",
+                Descending = false,
+                SearchTerm = "invalid-term",
+                SearchColumn = "UserUserName"
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/users/get-all", getAllDto);
+
+            GetAllResponseDto<UserDto>? getAllResponseDto =
+                await response.Content.ReadFromJsonAsync<GetAllResponseDto<UserDto>>();
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            getAllResponseDto?.Data.Should().BeEmpty();
+            getAllResponseDto?.TotalItems.Should().Be(0);
+        }
     }
 }
