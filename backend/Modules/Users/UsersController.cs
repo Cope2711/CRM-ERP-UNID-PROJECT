@@ -21,6 +21,14 @@ public class UsersController : ControllerBase
         this._usersService = usersService;
     }
 
+    [HttpPatch("update")]
+    [PermissionAuthorize("Edit_Content", "Users")]
+    public async Task<ActionResult<UserDto>> UpdateUser([FromBody] UpdateUserDto updateUserDto)
+    {
+        User user = await this._usersService.UpdateAsync(updateUserDto);
+        return Ok(Mapper.UserToUserDto(user));
+    }
+
     [HttpGet("get-by-id")]
     [PermissionAuthorize("View", "Users")]
     public async Task<ActionResult<UserDto>> GetUserById([FromQuery] Guid id)

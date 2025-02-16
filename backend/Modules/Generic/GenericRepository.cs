@@ -12,6 +12,8 @@ public interface IGenericRepository<T> where T : class
 
     Task<T?> GetFirstAsync(Expression<Func<T, object>> fieldSelector, object value,
         Func<IQueryable<T>, IQueryable<T>> include = null);
+    
+    Task<bool> ExistsAsync(Expression<Func<T, object>> fieldSelector, object value);
 
     Task<List<T>> GetAllAsync<GetAllDto>(
         GetAllDto getAllDto,
@@ -30,6 +32,17 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         _dbSet = context.Set<T>();
     }
 
+    public async Task<bool> ExistsAsync(Expression<Func<T, object>> fieldSelector, object value)
+    {
+        IQueryable<T> queryable = _dbSet.AsQueryable();
+
+        string fieldName =
+            ((MemberExpression)(fieldSelector.Body is UnaryExpression unary ? unary.Operand : fieldSelector.Body))
+            .Member.Name;
+
+        return await queryable.AnyAsync(e => EF.Property<object>(e, fieldName).Equals(value));
+    }
+    
     public async Task<T?> GetByIdAsync(Guid id, Func<IQueryable<T>, IQueryable<T>> include = null)
     {
         IQueryable<T> queryable = _dbSet.AsQueryable();

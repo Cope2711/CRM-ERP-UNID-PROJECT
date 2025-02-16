@@ -10,7 +10,6 @@ public interface IRoleRepository
     void Update(Role role);
     Task SaveChangesAsync();
     void Add(Role role);
-    Task<bool> ExistRoleNameAsync(string roleName);
 }
 
 public class RoleRepository : IRoleRepository
@@ -20,11 +19,6 @@ public class RoleRepository : IRoleRepository
     public RoleRepository(AppDbContext context)
     {
         _context = context;
-    }
-    
-    public async Task<bool> ExistRoleNameAsync(string roleName)
-    {
-        return await _context.Roles.AnyAsync(r => r.RoleName == roleName);
     }
 
     public void Add(Role role)

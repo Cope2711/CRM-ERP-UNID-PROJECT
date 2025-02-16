@@ -39,7 +39,7 @@ public class RoleService : IRoleService
 
     public async Task<bool> ExistRoleNameAsync(string roleName)
     {
-        return await _roleRepository.ExistRoleNameAsync(roleName);
+        return await _genericService.ExistsAsync(r => r.RoleName, roleName);
     }
     
     public async Task<Role> DeleteById(Guid id)

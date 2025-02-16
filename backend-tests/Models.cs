@@ -220,6 +220,14 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
             PermissionId = Permissions.DeactivateUser.PermissionId,
             ResourceId = null
         };
+
+        public static readonly RolePermissionResource AdminEditContentUsers = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.EditContent.PermissionId,
+            ResourceId = Resources.Users.ResourceId
+        };
         
         public static readonly RolePermissionResource AdminEditContent = new RolePermissionResource
         {
