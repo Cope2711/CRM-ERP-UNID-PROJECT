@@ -39,6 +39,7 @@ public class DatabaseSeeder
             Models.Resources.ResourcesResource);
         context.RolesPermissionsResources.AddRange(Models.RolesPermissionsResources.AdminViewUsers,
             Models.RolesPermissionsResources.AdminDeactivateUser,
+            Models.RolesPermissionsResources.AdminEditContentUsers,
             Models.RolesPermissionsResources.AdminEditContent, 
             Models.RolesPermissionsResources.AdminCreateUsers,
             Models.RolesPermissionsResources.AdminAssignRole,

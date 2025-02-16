@@ -158,6 +158,7 @@ VALUES (@ResourceId_Users, 'Users', 'Users module'),
 -- Insertar Permisos a los Roles
 INSERT INTO RolesPermissionsResources (RolePermissionId, RoleId, PermissionId, ResourceId)
 VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_DeactivateUser, NULL),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, NULL),
        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Users),

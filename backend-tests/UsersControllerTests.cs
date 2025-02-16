@@ -15,6 +15,91 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         _client = factory.CreateClientWithBearerToken();
     }
 
+    public class UpdateUserTests : UsersControllerShouldTests
+    {
+        public UpdateUserTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
+
+        [Fact]
+        public async Task UpdateUser_WhenAllAreValid_ReturnsOk()
+        {
+            // Arrange
+            UpdateUserDto updateUserDto = new UpdateUserDto
+            {
+                UserId = Models.Users.TestUser.UserId,
+                UserUserName = "test-updated"
+            };
+
+            // Act
+            var response = await _client.PatchAsJsonAsync($"/api/users/update", updateUserDto);
+            
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+
+            UserDto? userDto = await response.Content.ReadFromJsonAsync<UserDto>();
+
+            // Assert
+            userDto.Should().NotBeNull();
+            userDto.UserUserName.Should().Be(updateUserDto.UserUserName);
+        }
+
+        [Fact]
+        public async Task UpdateUser_WhenUserDoesNotExist_ReturnsNotFound()
+        {
+            // Arrange
+            UpdateUserDto updateUserDto = new UpdateUserDto
+            {
+                UserId = Guid.NewGuid(),
+                UserUserName = "TestUserr",
+            };
+
+            // Act
+            var response = await _client.PatchAsJsonAsync($"/api/users/update", updateUserDto);
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task UpdateUser_WhenUserNameAlreadyExist_ReturnsConflict()
+        {
+            // Arrange
+            UpdateUserDto updateUserDto = new UpdateUserDto
+            {
+                UserId = Models.Users.TestUser.UserId,
+                UserUserName = "admin"
+            };
+            
+            // Act
+            var response = await _client.PatchAsJsonAsync($"/api/users/update", updateUserDto);
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.Conflict);
+        }
+        
+        [Fact]
+        public async Task UpdateUser_WhenEmailAlreadyExist_ReturnsConflict()
+        {
+            // Arrange
+            UpdateUserDto updateUserDto = new UpdateUserDto
+            {
+                UserId = Models.Users.TestUser.UserId,
+                UserEmail = "admin@admin.com"
+            };
+            
+            // Act
+            var response = await _client.PatchAsJsonAsync($"/api/users/update", updateUserDto);
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.Conflict);
+        }
+    }
+    
     public class ChangePasswordTests : UsersControllerShouldTests
     {
         public ChangePasswordTests(CustomWebApiFactory factory) : base(factory)
