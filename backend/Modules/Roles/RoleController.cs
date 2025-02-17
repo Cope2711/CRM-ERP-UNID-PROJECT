@@ -62,10 +62,10 @@ public class RoleController : ControllerBase
     public async Task<ActionResult<GetAllResponseDto<RoleDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.OrderBy, typeof(Role));
+            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Role));
 
-        if (getAllDto.SearchColumn != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.SearchColumn, typeof(Role));
+        if (getAllDto.Filters != null)
+            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Role));
 
         GetAllResponseDto<Role> getAllResponseDto = await _roleService.GetAllAsync(getAllDto);
         GetAllResponseDto<RoleDto> getAllResponseDtoDto = new GetAllResponseDto<RoleDto>

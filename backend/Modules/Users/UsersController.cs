@@ -43,10 +43,10 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<GetAllResponseDto<UserDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.OrderBy, typeof(User));
+            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(User));
         
-        if (getAllDto.SearchColumn != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.SearchColumn, typeof(User));
+        if (getAllDto.Filters != null)
+            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(User));
         
         
         GetAllResponseDto<User> getAllResponseDto = await _usersService.GetAll(getAllDto);

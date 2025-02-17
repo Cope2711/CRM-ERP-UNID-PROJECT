@@ -24,10 +24,10 @@ public class PermissionController : ControllerBase
     public async Task<ActionResult<GetAllResponseDto<PermissionDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.OrderBy, typeof(Permission));
+            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Permission));
         
-        if (getAllDto.SearchColumn != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.SearchColumn, typeof(Permission));
+        if (getAllDto.Filters != null)
+            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Permission));
         GetAllResponseDto<Permission> getAllResponseDto = await _permissionService.GetAllAsync(getAllDto);
         GetAllResponseDto<PermissionDto> getAllResponseDtoDto = new GetAllResponseDto<PermissionDto>
         {
