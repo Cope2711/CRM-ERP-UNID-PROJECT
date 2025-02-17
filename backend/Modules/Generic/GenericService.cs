@@ -62,7 +62,7 @@ public class GenericService<T> : IGenericServie<T> where T : class
     {
         return await _genericRepository.GetFirstAsync(fieldSelector, value, include);
     }
-    
+
     public async Task<bool> ExistsAsync(Expression<Func<T, object>> fieldSelector, object value)
     {
         return await _genericRepository.ExistsAsync(fieldSelector, value);
@@ -87,12 +87,16 @@ public class GenericService<T> : IGenericServie<T> where T : class
         GetAllDto getAllDto,
         Func<IQueryable<T>, IQueryable<T>> queryModifier = null)
     {
-        GetAllResponseDto<T> getAllResponseDto = new GetAllResponseDto<T>();
-        getAllResponseDto.TotalItems = await this._genericRepository.GetTotalItemsAsync(getAllDto);
-        getAllResponseDto.TotalPages = (int)Math.Ceiling((double)getAllResponseDto.TotalItems / getAllDto.PageSize);
-        getAllResponseDto.PageNumber = getAllDto.PageNumber;
-        getAllResponseDto.PageSize = getAllDto.PageSize;
-        getAllResponseDto.Data = await this._genericRepository.GetAllAsync(getAllDto, queryModifier);
-        return getAllResponseDto;
+        GetAllResponseDto<T> response = new GetAllResponseDto<T>
+        {
+            TotalItems = await _genericRepository.GetTotalItemsAsync(getAllDto),
+            PageNumber = getAllDto.PageNumber,
+            PageSize = getAllDto.PageSize
+        };
+
+        response.TotalPages = (int)Math.Ceiling((double)response.TotalItems / getAllDto.PageSize);
+        response.Data = await _genericRepository.GetAllAsync(getAllDto);
+
+        return response;
     }
 }

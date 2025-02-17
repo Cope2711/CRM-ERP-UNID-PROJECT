@@ -1,4 +1,5 @@
 ﻿using CRM_ERP_UNID.Data.Models;
+using CRM_ERP_UNID.Helpers;
 
 namespace CRM_ERP_UNID_TESTS;
 
@@ -34,21 +35,21 @@ public static class Models
         {
             UserId = Guid.Parse("172422a0-5164-4470-acae-72022d3820b1"), UserUserName = "admin",
             UserFirstName = "Admin", UserLastName = "User", UserEmail = "admin@admin.com",
-            UserPassword = "$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW", IsActive = true
+            UserPassword = PasswordHelper.HashPassword("123456"), IsActive = true
         };
 
         public static readonly User InactiveTestUser = new User
         {
             UserId = Guid.Parse("2c0180d4-040c-4c00-b8f9-31f7a1e72259"), UserUserName = "test-user",
             UserFirstName = "Test", UserLastName = "User", UserEmail = "test-user@test.com",
-            UserPassword = "$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW", IsActive = false
+            UserPassword = PasswordHelper.HashPassword("123456"), IsActive = false
         };
         
         public static readonly User TestUser = new User
         {
             UserId = Guid.Parse("2c0180d4-040c-4c00-b8f9-31f7a1e72258"), UserUserName = "test-user2",
             UserFirstName = "Test2", UserLastName = "User2", UserEmail = "test-user2@test.com",
-            UserPassword = "$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW", IsActive = true
+            UserPassword = PasswordHelper.HashPassword("123456"), IsActive = true
         };
     }
 

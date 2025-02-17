@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using CRM_ERP_UNID.Data;
+using CRM_ERP_UNID.Dtos;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_ERP_UNID.Modules;
@@ -15,13 +16,13 @@ public interface IGenericRepository<T> where T : class
     
     Task<bool> ExistsAsync(Expression<Func<T, object>> fieldSelector, object value);
 
-    Task<List<T>> GetAllAsync<GetAllDto>(
-        GetAllDto getAllDto,
-        Func<IQueryable<T>, IQueryable<T>> queryModifier = null);
+    Task<List<T>> GetAllAsync(GetAllDto getAllDto, Func<IQueryable<T>, IQueryable<T>> queryModifier = null);
 
-    Task<int> GetTotalItemsAsync<GetAllDto>(GetAllDto getAllDto);
+    Task<int> GetTotalItemsAsync(GetAllDto getAllDto);
+
     PropertyInfo? GetKeyProperty();
 }
+
 
 public class GenericRepository<T> : IGenericRepository<T> where T : class
 {
@@ -65,6 +66,16 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             .FirstOrDefaultAsync();
     }
 
+    private Expression<Func<T, bool>> BuildKeyPredicate(Guid id, PropertyInfo keyProperty)
+    {
+        var parameter = Expression.Parameter(typeof(T), "x");
+        var propertyAccess = Expression.Property(parameter, keyProperty);
+        var constant = Expression.Constant(id);
+        var equals = Expression.Equal(propertyAccess, constant);
+
+        return Expression.Lambda<Func<T, bool>>(equals, parameter);
+    }
+    
     public async Task<T?> GetFirstAsync(
         Expression<Func<T, object>> fieldSelector,
         object value,
@@ -86,9 +97,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await queryable.FirstOrDefaultAsync(e => EF.Property<object>(e, fieldName).Equals(value));
     }
 
-    public async Task<List<T>> GetAllAsync<GetAllDto>(
-        GetAllDto getAllDto,
-        Func<IQueryable<T>, IQueryable<T>> queryModifier = null)
+    public async Task<List<T>> GetAllAsync(GetAllDto getAllDto, Func<IQueryable<T>, IQueryable<T>> queryModifier = null)
     {
         IQueryable<T> queryable = _dbSet.AsQueryable();
 
@@ -97,43 +106,20 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             queryable = queryModifier(queryable);
         }
 
-        var searchTerm = GetPropertyValue<string>(getAllDto, "SearchTerm");
-        var searchColumn = GetPropertyValue<string>(getAllDto, "SearchColumn");
-        var orderBy = GetPropertyValue<string>(getAllDto, "OrderBy");
-        var descending = GetPropertyValue<bool>(getAllDto, "Descending");
-        var pageNumber = GetPropertyValue<int>(getAllDto, "PageNumber", 1);
-        var pageSize = GetPropertyValue<int>(getAllDto, "PageSize", 10);
-
-        // Aplica el filtro de búsqueda
-        queryable = ApplySearchFilter(queryable, searchTerm, searchColumn);
-        // Aplica el orden
-        queryable = ApplyOrdering(queryable, orderBy, descending);
-
-        if (queryModifier != null)
-        {
-            queryable = queryModifier(queryable);
-        }
+        // Aplica filtros dinámicos
+        queryable = ApplyFilters(queryable, getAllDto.Filters);
+        
+        // Aplica el ordenamiento
+        queryable = ApplyOrdering(queryable, getAllDto.OrderBy, getAllDto.Descending);
 
         // Aplica la paginación
-        return await ApplyPagination(queryable, pageNumber, pageSize).ToListAsync();
+        return await ApplyPagination(queryable, getAllDto.PageNumber, getAllDto.PageSize).ToListAsync();
     }
 
-    public async Task<int> GetTotalItemsAsync<GetAllDto>(GetAllDto getAllDto)
+    public async Task<int> GetTotalItemsAsync(GetAllDto getAllDto)
     {
         IQueryable<T> query = _dbSet.AsQueryable();
-
-        var searchTerm = GetPropertyValue<string>(getAllDto, "SearchTerm");
-        var searchColumn = GetPropertyValue<string>(getAllDto, "SearchColumn");
-
-        if (!string.IsNullOrEmpty(searchTerm) && !string.IsNullOrEmpty(searchColumn))
-        {
-            query = ApplySearchFilter(query, searchTerm, searchColumn);
-        }
-        else if (!string.IsNullOrEmpty(searchTerm))
-        {
-            query = ApplyStringSearch(query, searchTerm);
-        }
-
+        query = ApplyFilters(query, getAllDto.Filters);
         return await query.CountAsync();
     }
 
@@ -143,55 +129,67 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             .FirstOrDefault(p => p.GetCustomAttributes(typeof(KeyAttribute), false).Any());
     }
 
-    private Expression<Func<T, bool>> BuildKeyPredicate(Guid id, PropertyInfo keyProperty)
+    private static IQueryable<T> ApplyFilters(IQueryable<T> query, List<FilterDto>? filters)
     {
-        var parameter = Expression.Parameter(typeof(T), "x");
-        var propertyAccess = Expression.Property(parameter, keyProperty);
-        var constant = Expression.Constant(id);
-        var equals = Expression.Equal(propertyAccess, constant);
+        if (filters == null || !filters.Any()) return query;
 
-        return Expression.Lambda<Func<T, bool>>(equals, parameter);
-    }
+        ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
+        Expression? finalExpression = null;
 
-    private static TProperty GetPropertyValue<TProperty>(object obj, string propertyName,
-        TProperty defaultValue = default)
-    {
-        var property = obj.GetType().GetProperty(propertyName);
-        return property != null ? (TProperty)property.GetValue(obj) : defaultValue;
-    }
-
-    private IQueryable<T> ApplySearchFilter(IQueryable<T> queryable, string searchTerm, string searchColumn)
-    {
-        if (!string.IsNullOrEmpty(searchTerm) && !string.IsNullOrEmpty(searchColumn))
+        foreach (var filter in filters)
         {
-            var property = typeof(T).GetProperty(searchColumn,
+            var property = typeof(T).GetProperty(filter.Column,
                 BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
-            if (property != null)
+            if (property == null) continue;
+
+            var left = Expression.Property(parameter, property);
+            var right = Expression.Constant(Convert.ChangeType(filter.Value, property.PropertyType));
+
+            Expression comparison;
+            switch (filter.Operator.ToLower())
             {
-                // Is a boolean?
-                if (property.PropertyType == typeof(bool) && bool.TryParse(searchTerm, out bool boolValue))
-                {
-                    queryable = queryable.Where(e => EF.Property<bool>(e, searchColumn) == boolValue);
-                }
-                // Is string?
-                else if (property.PropertyType == typeof(string))
-                {
-                    queryable = queryable.Where(e =>
-                        EF.Functions.Like(EF.Property<string>(e, searchColumn), $"%{searchTerm}%"));
-                }
-                // Is Guid?
-                else if (property.PropertyType == typeof(Guid) && Guid.TryParse(searchTerm, out Guid guidValue))
-                {
-                    queryable = queryable.Where(e => EF.Property<Guid>(e, searchColumn) == guidValue);
-                }
+                case "==":
+                    comparison = Expression.Equal(left, right);
+                    break;
+                case "!=":
+                    comparison = Expression.NotEqual(left, right);
+                    break;
+                case ">":
+                    comparison = Expression.GreaterThan(left, right);
+                    break;
+                case "<":
+                    comparison = Expression.LessThan(left, right);
+                    break;
+                case ">=":
+                    comparison = Expression.GreaterThanOrEqual(left, right);
+                    break;
+                case "<=":
+                    comparison = Expression.LessThanOrEqual(left, right);
+                    break;
+                case "like":
+                    comparison = Expression.Call(left, typeof(string).GetMethod("Contains", new[] { typeof(string) })!, right);
+                    break;
+                case "contains":
+                    comparison = Expression.Call(left, typeof(string).GetMethod("Contains", new[] { typeof(string) })!, right);
+                    break;
+                default:
+                    continue;
             }
+
+            finalExpression = finalExpression == null ? comparison : Expression.AndAlso(finalExpression, comparison);
         }
 
-        return queryable;
+        if (finalExpression != null)
+        {
+            var lambda = Expression.Lambda<Func<T, bool>>(finalExpression, parameter);
+            query = query.Where(lambda);
+        }
+
+        return query;
     }
 
-    private IQueryable<T> ApplyOrdering(IQueryable<T> queryable, string orderBy, bool descending)
+    private IQueryable<T> ApplyOrdering(IQueryable<T> queryable, string? orderBy, bool descending)
     {
         if (!string.IsNullOrEmpty(orderBy))
         {
@@ -218,29 +216,5 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     private IQueryable<T> ApplyPagination(IQueryable<T> queryable, int pageNumber, int pageSize)
     {
         return queryable.Skip((pageNumber - 1) * pageSize).Take(pageSize);
-    }
-
-    private IQueryable<T> ApplyStringSearch(IQueryable<T> query, string searchTerm)
-    {
-        var stringProperties = typeof(T).GetProperties().Where(p => p.PropertyType == typeof(string)).ToList();
-        if (stringProperties.Any())
-        {
-            var parameter = Expression.Parameter(typeof(T), "e");
-            var searchExpressions = stringProperties.Select(p =>
-                (Expression)Expression.Call(Expression.Property(parameter, p),
-                    typeof(string).GetMethod("Contains", new[] { typeof(string) })!, Expression.Constant(searchTerm))
-            ).ToList();
-
-            Expression combinedExpression = searchExpressions.First();
-            foreach (var expr in searchExpressions.Skip(1))
-            {
-                combinedExpression = Expression.OrElse(combinedExpression, expr);
-            }
-
-            var lambda = Expression.Lambda<Func<T, bool>>(combinedExpression, parameter);
-            query = query.Where(lambda);
-        }
-
-        return query;
     }
 }

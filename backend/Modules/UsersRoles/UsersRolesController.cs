@@ -40,10 +40,10 @@ public class UsersRolesController : ControllerBase
     public async Task<ActionResult<GetAllResponseDto<UserRoleDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.OrderBy, typeof(UserRole));
+            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(UserRole));
         
-        if (getAllDto.SearchColumn != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.SearchColumn, typeof(UserRole));
+        if (getAllDto.Filters != null)
+            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(UserRole));
         
         GetAllResponseDto<UserRole> getAllResponseDto = await _usersRolesService.GetAllAsync(getAllDto);
         GetAllResponseDto<UserRoleDto> getAllResponseDtoDto = new GetAllResponseDto<UserRoleDto>();

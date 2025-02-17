@@ -40,10 +40,10 @@ public class RolesPermissionsResourcesController : ControllerBase
     public async Task<ActionResult<GetAllResponseDto<RolePermissionResourceDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.OrderBy, typeof(RolePermissionResource));
+            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(RolePermissionResource));
         
-        if (getAllDto.SearchColumn != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.SearchColumn, typeof(RolePermissionResource));
+        if (getAllDto.Filters != null)
+            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(RolePermissionResource));
         
         GetAllResponseDto<RolePermissionResource> getAllResponseDto = await _rolesPermissionsResourcesService.GetAllAsync(getAllDto);
         

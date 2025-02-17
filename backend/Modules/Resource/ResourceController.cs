@@ -40,10 +40,10 @@ public class ResourceController : ControllerBase
     public async Task<ActionResult<GetAllResponseDto<ResourceDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.OrderBy, typeof(Resource));
+            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Resource));
 
-        if (getAllDto.SearchColumn != null)
-            CustomValidators.ValidateModelContainsColumnNameThrowsBadRequest(getAllDto.SearchColumn, typeof(Resource));
+        if (getAllDto.Filters != null)
+            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Resource));
 
         GetAllResponseDto<Resource> getAllResponseDto = await _resourceService.GetAllAsync(getAllDto);
         GetAllResponseDto<ResourceDto> getAllResponseDtoDto = new GetAllResponseDto<ResourceDto>
