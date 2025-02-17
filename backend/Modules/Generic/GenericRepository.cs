@@ -129,65 +129,61 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             .FirstOrDefault(p => p.GetCustomAttributes(typeof(KeyAttribute), false).Any());
     }
 
-    private static IQueryable<T> ApplyFilters(IQueryable<T> query, List<FilterDto>? filters)
+    private static IQueryable<T> ApplyFilters<T>(IQueryable<T> query, List<FilterDto>? filters)
+{
+    if (filters == null || !filters.Any()) return query;
+
+    ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
+    Expression? finalExpression = null;
+
+    foreach (var filter in filters)
     {
-        if (filters == null || !filters.Any()) return query;
+        var property = typeof(T).GetProperty(filter.Column,
+            BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
-        ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
-        Expression? finalExpression = null;
+        if (property == null) continue;
 
-        foreach (var filter in filters)
+        Type propertyType = property.PropertyType;
+        Type underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
+
+        object? filterValue = string.IsNullOrEmpty(filter.Value) ? null : Convert.ChangeType(filter.Value, underlyingType);
+        Expression left = Expression.Property(parameter, property);
+        Expression right = Expression.Constant(filterValue, propertyType);
+
+        Expression comparison = filter.Operator.ToLower() switch
         {
-            var property = typeof(T).GetProperty(filter.Column,
-                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            "==" => Expression.Equal(left, right),
+            "!=" => Expression.NotEqual(left, right),
+            ">" => Expression.GreaterThan(left, right),
+            "<" => Expression.LessThan(left, right),
+            ">=" => Expression.GreaterThanOrEqual(left, right),
+            "<=" => Expression.LessThanOrEqual(left, right),
+            "like" or "contains" => Expression.Call(left, typeof(string).GetMethod("Contains", new[] { typeof(string) })!, right),
+            "startswith" => Expression.Call(left, typeof(string).GetMethod("StartsWith", new[] { typeof(string) })!, right),
+            "endswith" => Expression.Call(left, typeof(string).GetMethod("EndsWith", new[] { typeof(string) })!, right),
+            "in" when filterValue is not null => 
+                Expression.Call(
+                    Expression.Constant(filterValue),
+                    typeof(List<>).MakeGenericType(propertyType).GetMethod("Contains", new[] { propertyType })!,
+                    left
+                ),
+            _ => null
+        };
 
-            if (property == null) continue;
+        if (comparison == null) continue;
 
-            var left = Expression.Property(parameter, property);
-            var right = Expression.Constant(Convert.ChangeType(filter.Value, property.PropertyType));
-
-            Expression comparison;
-            switch (filter.Operator.ToLower())
-            {
-                case "==":
-                    comparison = Expression.Equal(left, right);
-                    break;
-                case "!=":
-                    comparison = Expression.NotEqual(left, right);
-                    break;
-                case ">":
-                    comparison = Expression.GreaterThan(left, right);
-                    break;
-                case "<":
-                    comparison = Expression.LessThan(left, right);
-                    break;
-                case ">=":
-                    comparison = Expression.GreaterThanOrEqual(left, right);
-                    break;
-                case "<=":
-                    comparison = Expression.LessThanOrEqual(left, right);
-                    break;
-                case "like":
-                    comparison = Expression.Call(left, typeof(string).GetMethod("Contains", new[] { typeof(string) })!, right);
-                    break;
-                case "contains":
-                    comparison = Expression.Call(left, typeof(string).GetMethod("Contains", new[] { typeof(string) })!, right);
-                    break;
-                default:
-                    continue;
-            }
-
-            finalExpression = finalExpression == null ? comparison : Expression.AndAlso(finalExpression, comparison);
-        }
-
-        if (finalExpression != null)
-        {
-            var lambda = Expression.Lambda<Func<T, bool>>(finalExpression, parameter);
-            query = query.Where(lambda);
-        }
-
-        return query;
+        finalExpression = finalExpression == null ? comparison : Expression.AndAlso(finalExpression, comparison);
     }
+
+    if (finalExpression != null)
+    {
+        var lambda = Expression.Lambda<Func<T, bool>>(finalExpression, parameter);
+        query = query.Where(lambda);
+    }
+
+    return query;
+}
+
 
     private IQueryable<T> ApplyOrdering(IQueryable<T> queryable, string? orderBy, bool descending)
     {

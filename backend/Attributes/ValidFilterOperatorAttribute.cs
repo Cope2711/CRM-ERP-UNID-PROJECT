@@ -8,7 +8,7 @@ public class ValidOperatorAttribute : ValidationAttribute
     {
         "==", "!=", ">", "<", ">=", "<=",
         "StartsWith", "EndsWith", "Contains",
-        "In", "Any", "All"
+        "In", "Any", "All", "Like"
     };
 
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
