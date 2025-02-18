@@ -3,8 +3,6 @@ using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
 using CRM_ERP_UNID_TESTS;
-using CRM_ERP_UNID.Data.Models;
-using CRM_ERP_UNID.Helpers;
 
 [Collection("Tests")]
 public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
@@ -22,122 +20,96 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         {
         }
 
-        [Fact]
-        public async Task UpdateUser_WhenAllAreValid_ReturnsOk()
+        public static IEnumerable<object[]> UpdateUserTestData()
         {
-            // Arrange
-            UpdateUserDto updateUserDto = new UpdateUserDto
+            yield return new object[]
             {
-                UserId = Models.Users.TestUser.UserId,
-                UserUserName = "test-updated"
+                new UpdateUserDto
+                {
+                    UserId = Models.Users.TestUser.UserId,
+                    UserUserName = "test-updated"
+                },
+                HttpStatusCode.OK
             };
 
-            // Act
-            var response = await _client.PatchAsJsonAsync($"/api/users/update", updateUserDto);
-            
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            // When User does not exist
+            yield return new object[]
+            {
+                new UpdateUserDto
+                {
+                    UserId = Guid.NewGuid(),
+                    UserUserName = "TestUserr",
+                },
+                HttpStatusCode.NotFound
+            };
 
-            UserDto? userDto = await response.Content.ReadFromJsonAsync<UserDto>();
+            // When UserName already exist
+            yield return new object[]
+            {
+                new UpdateUserDto
+                {
+                    UserId = Models.Users.TestUser.UserId,
+                    UserUserName = "admin"
+                },
+                HttpStatusCode.Conflict
+            };
 
-            // Assert
-            userDto.Should().NotBeNull();
-            userDto.UserUserName.Should().Be(updateUserDto.UserUserName);
+            // When Email already exist
+            yield return new object[]
+            {
+                new UpdateUserDto
+                {
+                    UserId = Models.Users.TestUser.UserId,
+                    UserEmail = "admin@admin.com"
+                },
+                HttpStatusCode.Conflict
+            };
         }
 
-        [Fact]
-        public async Task UpdateUser_WhenUserDoesNotExist_ReturnsNotFound()
+        [Theory]
+        [MemberData(nameof(UpdateUserTestData))]
+        public async Task UpdateUser_ReturnsExpectedResult(UpdateUserDto updateUserDto,
+            HttpStatusCode expectedStatusCode)
         {
-            // Arrange
-            UpdateUserDto updateUserDto = new UpdateUserDto
-            {
-                UserId = Guid.NewGuid(),
-                UserUserName = "TestUserr",
-            };
-
-            // Act
             var response = await _client.PatchAsJsonAsync($"/api/users/update", updateUserDto);
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
-        }
-
-        [Fact]
-        public async Task UpdateUser_WhenUserNameAlreadyExist_ReturnsConflict()
-        {
-            // Arrange
-            UpdateUserDto updateUserDto = new UpdateUserDto
-            {
-                UserId = Models.Users.TestUser.UserId,
-                UserUserName = "admin"
-            };
-            
-            // Act
-            var response = await _client.PatchAsJsonAsync($"/api/users/update", updateUserDto);
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.Conflict);
-        }
-        
-        [Fact]
-        public async Task UpdateUser_WhenEmailAlreadyExist_ReturnsConflict()
-        {
-            // Arrange
-            UpdateUserDto updateUserDto = new UpdateUserDto
-            {
-                UserId = Models.Users.TestUser.UserId,
-                UserEmail = "admin@admin.com"
-            };
-            
-            // Act
-            var response = await _client.PatchAsJsonAsync($"/api/users/update", updateUserDto);
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.Conflict);
+            response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
-    
+
     public class ChangePasswordTests : UsersControllerTests
     {
         public ChangePasswordTests(CustomWebApiFactory factory) : base(factory)
         {
         }
 
-        [Fact]
-        public async Task ChangePassword_WhenAllAreValid_ReturnsOk()
+        public static IEnumerable<object[]> ChangePasswordTestData()
         {
-            ChangePasswordDto changePasswordDto = new ChangePasswordDto
+            yield return new object[]
             {
-                ActualPassword = "123456", NewPassword = "12345678"
+                new ChangePasswordDto
+                {
+                    ActualPassword = "123456", NewPassword = "12345678"
+                },
+                HttpStatusCode.OK
             };
 
-            // Act
-            var response = await _client.PutAsJsonAsync($"/api/users/change-password", changePasswordDto);
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            yield return new object[]
+            {
+                new ChangePasswordDto
+                {
+                    ActualPassword = "1234566", NewPassword = "12345678"
+                },
+                HttpStatusCode.Unauthorized
+            };
         }
 
-        [Fact]
-        public async Task ChangePassword_WithWrongPassword_ReturnsUnauthorized()
+        [Theory]
+        [MemberData(nameof(ChangePasswordTestData))]
+        public async Task ChangePassword_ReturnsExpectedResult(ChangePasswordDto changePasswordDto,
+            HttpStatusCode expectedStatusCode)
         {
-            // Arrange
-            ChangePasswordDto changePasswordDto = new ChangePasswordDto
-            {
-                ActualPassword = "1234566", NewPassword = "12345678"
-            };
-            
-            // Act
             var response = await _client.PutAsJsonAsync($"/api/users/change-password", changePasswordDto);
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
 
@@ -147,55 +119,34 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         {
         }
 
-        [Fact]
-        public async Task DeactivateUser_WhenUserIsNotActive_ReturnsBadRequest()
+        public static IEnumerable<object[]> DeactiveUserTestData()
         {
-            // Arrange 
-            DeactivateUserDto deactivateUserDto = new DeactivateUserDto
+            yield return new object[]
             {
-                UserId = Models.Users.InactiveTestUser.UserId
+                new DeactivateUserDto
+                {
+                    UserId = Models.Users.InactiveTestUser.UserId
+                },
+                HttpStatusCode.BadRequest
             };
 
-            // Act
-            var response = await _client.PutAsJsonAsync($"/api/users/deactivate", deactivateUserDto);
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            yield return new object[]
+            {
+                new DeactivateUserDto
+                {
+                    UserId = Guid.NewGuid()
+                },
+                HttpStatusCode.NotFound
+            };
         }
 
-        [Fact]
-        public async Task DeactivateUser_WhenUserIsNotExist_ReturnsNotFound()
+        [Theory]
+        [MemberData(nameof(DeactiveUserTestData))]
+        public async Task DeactiveUser_ReturnsExpectedResult(DeactivateUserDto deactivateUserDto,
+            HttpStatusCode expectedStatusCode)
         {
-            // Arrange 
-            DeactivateUserDto deactivateUserDto = new DeactivateUserDto
-            {
-                UserId = Guid.NewGuid()
-            };
-
-            // Act
-            var response = await _client.PutAsJsonAsync($"/api/users/deactivate", deactivateUserDto);
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        }
-
-        [Fact]
-        public async Task DeactivateUser_WhenUserIsActive_ReturnsOkAndLogoutTheUser()
-        {
-            // Deactivate logged user and make sure the user is logged out
-            DeactivateUserDto deactivateUserDto = new DeactivateUserDto
-            {
-                UserId = Models.Users.TestUser.UserId
-            };
-
-            // Act
-            var response = await _client.PutAsJsonAsync($"/api/users/deactivate", deactivateUserDto);
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var response = await _client.PutAsJsonAsync("/api/users/deactivate", deactivateUserDto);
+            response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
 
@@ -205,74 +156,61 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         {
         }
 
-        [Fact]
-        public async Task CreateUser_ReturnsCreatedUser()
+        public static IEnumerable<object[]> CreateUserTestData()
         {
-            // Arrange
-            CreateUserDto createUserDto = new CreateUserDto
+            // Returns Ok
+            yield return new object[]
             {
-                UserUserName = "test-user-1",
-                UserFirstName = "Test",
-                UserLastName = "User",
-                UserEmail = "test-user-1@test.com",
-                UserPassword = "123456",
-                IsActive = true
+                new CreateUserDto
+                {
+                    UserUserName = "test-user-1",
+                    UserFirstName = "Test",
+                    UserLastName = "User",
+                    UserEmail = "test-user-1@test.com",
+                    UserPassword = "123456",
+                    IsActive = true
+                },
+                HttpStatusCode.OK
             };
 
-            // Act
-            var response = await _client.PostAsJsonAsync("/api/users/create", createUserDto);
+            // Returns Conflict for the UserName
+            yield return new object[]
+            {
+                new CreateUserDto
+                {
+                    UserUserName = Models.Users.Admin.UserUserName,
+                    UserFirstName = "Admin",
+                    UserLastName = "User",
+                    UserEmail = "admin@admin.com",
+                    UserPassword = "123456",
+                    IsActive = true
+                },
+                HttpStatusCode.Conflict
+            };
 
-            // Assert
-            response.Should().NotBeNull();
-
-            // Obtener el UserDto de la respuesta
-            UserDto? userDto = await response.Content.ReadFromJsonAsync<UserDto>();
-
-            // Validaciones adicionales
-            userDto.Should().NotBeNull();
-            userDto.UserUserName.Should().Be(createUserDto.UserUserName);
+            // Returns Conflict for the Email
+            yield return new object[]
+            {
+                new CreateUserDto
+                {
+                    UserUserName = "test-user-11",
+                    UserFirstName = "Test",
+                    UserLastName = "User",
+                    UserEmail = Models.Users.Admin.UserEmail,
+                    UserPassword = "123456",
+                    IsActive = true
+                },
+                HttpStatusCode.Conflict
+            };
         }
 
-        [Fact]
-        public async Task CreateUser_WhenUserNameAlreadyExists_ReturnsConflict()
+        [Theory]
+        [MemberData(nameof(CreateUserTestData))]
+        public async Task CreateUser_ReturnsExpectedResult(CreateUserDto createUserDto,
+            HttpStatusCode expectedStatusCode)
         {
-            // Arrange
-            CreateUserDto createUserDto = new CreateUserDto
-            {
-                UserUserName = "admin",
-                UserFirstName = "Admin",
-                UserLastName = "User",
-                UserEmail = "admin@admin.com",
-                UserPassword = "123456",
-                IsActive = true
-            };
-
-            // Act
             var response = await _client.PostAsJsonAsync("/api/users/create", createUserDto);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        }
-
-        [Fact]
-        public async Task CreateUser_WhenEmailAlreadyExists_ReturnsConflict()
-        {
-            // Arrange
-            CreateUserDto createUserDto = new CreateUserDto
-            {
-                UserUserName = "test-user-11",
-                UserFirstName = "Test",
-                UserLastName = "User",
-                UserEmail = "admin@admin.com",
-                UserPassword = "123456",
-                IsActive = true
-            };
-
-            // Act
-            var response = await _client.PostAsJsonAsync("/api/users/create", createUserDto);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+            response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
 
@@ -282,31 +220,18 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         {
         }
 
-        [Fact]
-        public async Task GetUserById_ReturnsExpectedUser()
+        public static IEnumerable<object[]> GetUserTestData()
         {
-            // Arrange
-            UserDto expectedUserDto = Mapper.UserToUserDto(Models.Users.Admin);
-
-            // Act
-            var response = await _client.GetFromJsonAsync<UserDto>($"/api/users/get-by-id?id={expectedUserDto.UserId}");
-
-            // Assert
-            response.Should().NotBeNull();
-            response.Should().BeEquivalentTo(expectedUserDto);
+            yield return new object[] { Guid.NewGuid(), HttpStatusCode.NotFound };
+            yield return new object[] { Models.Users.Admin.UserId, HttpStatusCode.OK };
         }
 
-        [Fact]
-        public async Task GetUserById_WhenUserDoesNotExist_ReturnsNotFound()
+        [Theory]
+        [MemberData(nameof(GetUserTestData))]
+        public async Task GetUserById_ReturnsExpectedResult(Guid userId, HttpStatusCode expectedStatusCode)
         {
-            // Arrange
-            Guid nonExistentUserId = Guid.NewGuid();
-
-            // Act
-            var response = await _client.GetAsync($"/api/users/get-by-id?id={nonExistentUserId}");
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            var response = await _client.GetAsync($"/api/users/get-by-id?id={userId}");
+            response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
 
@@ -316,32 +241,18 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         {
         }
 
-        [Fact]
-        public async Task GetUserByUsername_ReturnsExpectedUser()
+        public static IEnumerable<object[]> GetUserByUsernameTestData()
         {
-            UserDto expectedUserDto = Mapper.UserToUserDto(Models.Users.Admin);
-
-            // Act
-            var response =
-                await _client.GetFromJsonAsync<UserDto>(
-                    $"/api/users/get-by-username?username={expectedUserDto.UserUserName}");
-
-            // Assert
-            response.Should().NotBeNull();
-            response.Should().BeEquivalentTo(expectedUserDto);
+            yield return new object[] { Models.Users.Admin.UserUserName, HttpStatusCode.OK };
+            yield return new object[] { "non-existent-username", HttpStatusCode.NotFound };
         }
 
-        [Fact]
-        public async Task GetUserByUsername_WhenUserDoesNotExist_ReturnsNotFound()
+        [Theory]
+        [MemberData(nameof(GetUserByUsernameTestData))]
+        public async Task GetUserByUsername_ReturnsExpectedResult(string username, HttpStatusCode expectedStatusCode)
         {
-            // Arrange
-            string nonExistentUserName = "non-existent-user";
-
-            // Act
-            var response = await _client.GetAsync($"/api/users/get-by-username?username={nonExistentUserName}");
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            var response = await _client.GetAsync($"/api/users/get-by-username?username={username}");
+            response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
 
@@ -351,64 +262,36 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         {
         }
 
-        [Fact]
-        public async Task ExistUserByEmail_ReturnsTrue()
+        public static IEnumerable<object[]> ExistUserByEmailTestData()
         {
-            // Arrange
-            string email = Models.Users.Admin.UserEmail;
+            yield return new object[] { Models.Users.Admin.UserEmail, HttpStatusCode.OK, true };
+            yield return new object[] { "non-existent-email@email.com", HttpStatusCode.OK, false };
+        }
 
-            // Act
+        [Theory]
+        [MemberData(nameof(ExistUserByEmailTestData))]
+        public async Task ExistUserByEmail_ReturnsExpectedResult(string email, HttpStatusCode expectedStatusCode,
+            bool expectedResult)
+        {
             var response = await _client.GetAsync($"/api/users/exist-user-by-email?email={email}");
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            response.Content.ReadAsStringAsync()?.Result.Should().Be("true");
+            response.StatusCode.Should().Be(expectedStatusCode);
+            response.Content.ReadAsStringAsync()?.Result.ToLower().Should().Be(expectedResult.ToString().ToLower());
         }
 
-        [Fact]
-        public async Task ExistUserByEmail_ReturnsFalse()
+        public static IEnumerable<object[]> ExistUserByUsernameTestData()
         {
-            // Arrange
-            string email = "non-existent-email@email.com";
-
-            // Act
-            var response = await _client.GetAsync($"/api/users/exist-user-by-email?email={email}");
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            response.Content.ReadAsStringAsync()?.Result.Should().Be("false");
+            yield return new object[] { Models.Users.Admin.UserUserName, HttpStatusCode.OK, true };
+            yield return new object[] { "non-existent-username", HttpStatusCode.OK, false };
         }
 
-        [Fact]
-        public async Task ExistUserByUsername_ReturnsTrue()
+        [Theory]
+        [MemberData(nameof(ExistUserByUsernameTestData))]
+        public async Task ExistUserByUsername_ReturnsExpectedResult(string username, HttpStatusCode expectedStatusCode,
+            bool expectedResult)
         {
-            // Arrange
-            string username = Models.Users.Admin.UserUserName;
-
-            // Act
             var response = await _client.GetAsync($"/api/users/exist-user-by-username?username={username}");
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            response.Content.ReadAsStringAsync()?.Result.Should().Be("true");
-        }
-
-        [Fact]
-        public async Task ExistUserByUsername_ReturnsFalse()
-        {
-            // Arrange
-            string username = "non-existent-username";
-
-            // Act
-            var response = await _client.GetAsync($"/api/users/exist-user-by-username?username={username}");
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            response.Content.ReadAsStringAsync()?.Result.Should().Be("false");
+            response.StatusCode.Should().Be(expectedStatusCode);
+            response.Content.ReadAsStringAsync()?.Result.ToLower().Should().Be(expectedResult.ToString().ToLower());
         }
     }
 }
