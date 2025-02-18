@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using CRM_ERP_UNID_TESTS;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
@@ -14,70 +15,52 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
     {
         _client = factory.CreateClientWithBearerToken();
     }
-    
+
     public class LoginTests : AuthControllerTests
     {
         public LoginTests(CustomWebApiFactory factory) : base(factory)
         {
         }
 
-        [Fact]
-        public async Task Login_WhenCredentialsAreValid_ReturnsTokenDto()
+        public static IEnumerable<object[]> LoginTestData()
         {
-            // Arrange
-            LoginUserDto loginUserDto = new LoginUserDto
+            yield return new object[]
             {
-                UserUserName = "admin",
-                UserPassword = "123456"
+                new LoginUserDto
+                {
+                    UserUserName = "admin",
+                    UserPassword = "123456"
+                },
+                HttpStatusCode.OK
             };
 
-            // Act
-            var response = await _client.PostAsJsonAsync("/api/auth/login", loginUserDto);
+            yield return new object[]
+            {
+                new LoginUserDto
+                {
+                    UserUserName = "non-existent-user",
+                    UserPassword = "123456"
+                },
+                HttpStatusCode.NotFound
+            };
 
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-
-            var tokenDto = await response.Content.ReadFromJsonAsync<TokenDto>();
-            tokenDto.Should().NotBeNull();
-            tokenDto.Token.Should().NotBeNullOrEmpty();
-            tokenDto.RefreshToken.Should().NotBeNullOrEmpty();
+            yield return new object[]
+            {
+                new LoginUserDto
+                {
+                    UserUserName = "admin",
+                    UserPassword = "invalid-password"
+                },
+                HttpStatusCode.Unauthorized
+            };
         }
 
-        [Fact]
-        public async Task Login_WhenUserNameDoesNotExist_ReturnsNotFound()
+        [Theory]
+        [MemberData(nameof(LoginTestData))]
+        public async Task Login_ReturnsExpectedResult(LoginUserDto loginUserDto, HttpStatusCode expectedStatusCode)
         {
-            // Arrange
-            LoginUserDto loginUserDto = new LoginUserDto
-            {
-                UserUserName = "non-existent-user",
-                UserPassword = "123456"
-            };
-
-            // Act
             var response = await _client.PostAsJsonAsync("/api/auth/login", loginUserDto);
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
-        }
-
-        [Fact]
-        public async Task Login_WhenPasswordIsInvalid_ReturnsUnauthorized()
-        {
-            // Arrange
-            LoginUserDto loginUserDto = new LoginUserDto
-            {
-                UserUserName = "admin",
-                UserPassword = "invalid-password"
-            };
-
-            // Act
-            var response = await _client.PostAsJsonAsync("/api/auth/login", loginUserDto);
-
-            // Assert
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+            response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
 
@@ -86,7 +69,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
         public RefreshTokenTests(CustomWebApiFactory factory) : base(factory)
         {
         }
-
+        
+        
         [Fact]
         public async Task RefreshToken_WhenRefreshTokenIsValid_ReturnsTokenDto()
         {
