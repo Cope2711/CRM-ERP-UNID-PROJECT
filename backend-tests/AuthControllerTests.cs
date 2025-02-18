@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace Tests;
 
+[Collection("Tests")]
 public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 {
     private readonly HttpClient _client;
@@ -13,7 +14,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
     {
         _client = factory.CreateClientWithBearerToken();
     }
-
+    
     public class LoginTests : AuthControllerTests
     {
         public LoginTests(CustomWebApiFactory factory) : base(factory)

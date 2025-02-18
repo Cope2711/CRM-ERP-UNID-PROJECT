@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Reflection;
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data;
 using CRM_ERP_UNID.Dtos;
 using Microsoft.EntityFrameworkCore;
@@ -150,23 +151,19 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         Expression left = Expression.Property(parameter, property);
         Expression right = Expression.Constant(filterValue, propertyType);
 
-        Expression comparison = filter.Operator.ToLower() switch
+        Expression? comparison = filter.Operator switch
         {
-            "==" => Expression.Equal(left, right),
-            "!=" => Expression.NotEqual(left, right),
-            ">" => Expression.GreaterThan(left, right),
-            "<" => Expression.LessThan(left, right),
-            ">=" => Expression.GreaterThanOrEqual(left, right),
-            "<=" => Expression.LessThanOrEqual(left, right),
-            "like" or "contains" => Expression.Call(left, typeof(string).GetMethod("Contains", new[] { typeof(string) })!, right),
-            "startswith" => Expression.Call(left, typeof(string).GetMethod("StartsWith", new[] { typeof(string) })!, right),
-            "endswith" => Expression.Call(left, typeof(string).GetMethod("EndsWith", new[] { typeof(string) })!, right),
-            "in" when filterValue is not null => 
-                Expression.Call(
-                    Expression.Constant(filterValue),
-                    typeof(List<>).MakeGenericType(propertyType).GetMethod("Contains", new[] { propertyType })!,
-                    left
-                ),
+            FilterOperators.Equal => Expression.Equal(left, right),
+            FilterOperators.NotEqual => Expression.NotEqual(left, right),
+            FilterOperators.GreaterThan => Expression.GreaterThan(left, right),
+            FilterOperators.LessThan => Expression.LessThan(left, right),
+            FilterOperators.GreaterThanOrEqual => Expression.GreaterThanOrEqual(left, right),
+            FilterOperators.LessThanOrEqual => Expression.LessThanOrEqual(left, right),
+            FilterOperators.Like or FilterOperators.Contains => Expression.Call(left, typeof(string).GetMethod("Contains", new[] { typeof(string) })!, right),
+            FilterOperators.StartsWith => Expression.Call(left, typeof(string).GetMethod("StartsWith", new[] { typeof(string) })!, right),
+            FilterOperators.EndsWith => Expression.Call(left, typeof(string).GetMethod("EndsWith", new[] { typeof(string) })!, right),
+            FilterOperators.In when filterValue is not null =>
+                Expression.Call(Expression.Constant(filterValue), typeof(List<>).MakeGenericType(propertyType).GetMethod("Contains", new[] { propertyType })!, left),
             _ => null
         };
 

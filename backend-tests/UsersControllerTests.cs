@@ -6,16 +6,17 @@ using CRM_ERP_UNID_TESTS;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Helpers;
 
-public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
+[Collection("Tests")]
+public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
 {
     private readonly HttpClient _client;
 
-    public UsersControllerShouldTests(CustomWebApiFactory factory)
+    public UsersControllerTests(CustomWebApiFactory factory)
     {
         _client = factory.CreateClientWithBearerToken();
     }
 
-    public class UpdateUserTests : UsersControllerShouldTests
+    public class UpdateUserTests : UsersControllerTests
     {
         public UpdateUserTests(CustomWebApiFactory factory) : base(factory)
         {
@@ -100,7 +101,7 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         }
     }
     
-    public class ChangePasswordTests : UsersControllerShouldTests
+    public class ChangePasswordTests : UsersControllerTests
     {
         public ChangePasswordTests(CustomWebApiFactory factory) : base(factory)
         {
@@ -140,7 +141,7 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         }
     }
 
-    public class DeactivateUserTests : UsersControllerShouldTests
+    public class DeactivateUserTests : UsersControllerTests
     {
         public DeactivateUserTests(CustomWebApiFactory factory) : base(factory)
         {
@@ -198,7 +199,7 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         }
     }
 
-    public class CreateUserTests : UsersControllerShouldTests
+    public class CreateUserTests : UsersControllerTests
     {
         public CreateUserTests(CustomWebApiFactory factory) : base(factory)
         {
@@ -275,7 +276,7 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         }
     }
 
-    public class GetUserByIdTests : UsersControllerShouldTests
+    public class GetUserByIdTests : UsersControllerTests
     {
         public GetUserByIdTests(CustomWebApiFactory factory) : base(factory)
         {
@@ -309,7 +310,7 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         }
     }
 
-    public class GetUserByUsernameTests : UsersControllerShouldTests
+    public class GetUserByUsernameTests : UsersControllerTests
     {
         public GetUserByUsernameTests(CustomWebApiFactory factory) : base(factory)
         {
@@ -344,7 +345,7 @@ public class UsersControllerShouldTests : IClassFixture<CustomWebApiFactory>
         }
     }
 
-    public class ExistUserBy : UsersControllerShouldTests
+    public class ExistUserBy : UsersControllerTests
     {
         public ExistUserBy(CustomWebApiFactory factory) : base(factory)
         {
