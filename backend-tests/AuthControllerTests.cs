@@ -28,8 +28,9 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new LoginUserDto
                 {
-                    UserUserName = "admin",
-                    UserPassword = "123456"
+                    UserUserName = Models.Users.TestUser.UserUserName,
+                    UserPassword = "123456",
+                    DeviceId = "1"
                 },
                 HttpStatusCode.OK
             };
@@ -39,7 +40,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
                 new LoginUserDto
                 {
                     UserUserName = "non-existent-user",
-                    UserPassword = "123456"
+                    UserPassword = "123456",
+                    DeviceId = "1"
                 },
                 HttpStatusCode.NotFound
             };
@@ -49,7 +51,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
                 new LoginUserDto
                 {
                     UserUserName = "admin",
-                    UserPassword = "invalid-password"
+                    UserPassword = "invalid-password",
+                    DeviceId = "1"
                 },
                 HttpStatusCode.Unauthorized
             };
@@ -61,6 +64,33 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
         {
             var response = await _client.PostAsJsonAsync("/api/auth/login", loginUserDto);
             response.StatusCode.Should().Be(expectedStatusCode);
+        }
+
+        [Fact]
+        public async Task Login_WhenDevicesReachedTheMax_ReturnsUnauthorized()
+        {
+            for (int device = 0; device < 3; device++)
+            {
+                LoginUserDto loginUserDto = new LoginUserDto
+                {
+                    UserUserName = Models.Users.Admin.UserUserName,
+                    UserPassword = "123456",
+                    DeviceId = device.ToString()
+                };
+                
+                var response = await _client.PostAsJsonAsync("/api/auth/login", loginUserDto);
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+            }
+            
+            LoginUserDto loginUserDtoFinal = new LoginUserDto
+            {
+                UserUserName = Models.Users.Admin.UserUserName,
+                UserPassword = "123456",
+                DeviceId = "1231241241241"
+            };
+                
+            var response2 = await _client.PostAsJsonAsync("/api/auth/login", loginUserDtoFinal);
+            response2.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
     }
 
@@ -78,7 +108,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             LoginUserDto loginUserDto = new LoginUserDto
             {
                 UserUserName = "admin",
-                UserPassword = "123456"
+                UserPassword = "123456",
+                DeviceId = "devicexd1"
             };
 
             // Act
@@ -86,7 +117,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             // Assert
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var tokenDto = await response.Content.ReadFromJsonAsync<TokenDto>();
             tokenDto.Should().NotBeNull();
@@ -96,7 +127,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = tokenDto.RefreshToken
+                RefreshToken = tokenDto.RefreshToken,
+                DeviceId = "devicexd1"
             };
 
             // Act
@@ -104,7 +136,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
-            refreshTokenResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            refreshTokenResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var refreshTokenDto = await refreshTokenResponse.Content.ReadFromJsonAsync<TokenDto>();
             refreshTokenDto.Should().NotBeNull();
@@ -113,12 +145,51 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
         }
 
         [Fact]
-        public async Task RefreshToken_WhenRefreshTokenIsInvalid_ReturnsUnauthorized()
+        public async Task RefreshToken_WhenDeviceIdIsInvalid_ReturnsUnauthorized()
+        {
+            // Arrange
+            LoginUserDto loginUserDto = new LoginUserDto
+            {
+                UserUserName = "admin",
+                UserPassword = "123456",
+                DeviceId = "devicexd1"
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/auth/login", loginUserDto);
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var tokenDto = await response.Content.ReadFromJsonAsync<TokenDto>();
+            tokenDto.Should().NotBeNull();
+            tokenDto.Token.Should().NotBeNullOrEmpty();
+            tokenDto.RefreshToken.Should().NotBeNullOrEmpty();
+
+            // Arrange
+            RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
+            {
+                RefreshToken = tokenDto.RefreshToken,
+                DeviceId = "devicexd11"
+            };
+
+            // Act
+            var refreshTokenResponse = await _client.PostAsJsonAsync("/api/auth/refresh-token", refreshTokenEntryDto);
+
+            // Assert
+            refreshTokenResponse.Should().NotBeNull();
+            refreshTokenResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+        
+        [Fact]
+        public async Task RefreshToken_WhenRefreshTokenIsInvalid_ReturnsNotFound()
         {
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = "invalid-refresh-token"
+                RefreshToken = "invalid-refresh-token",
+                DeviceId = "1"
             };
 
             // Act
@@ -126,7 +197,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
-            refreshTokenResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+            refreshTokenResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
         [Fact]
@@ -135,7 +206,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = "zVrwFaCSNYH12C2a3jbb/ejmKloVSnJgYwJNeQsW/xs="
+                RefreshToken = Models.RefreshTokens.TestUserExpiredRefreshToken.Token,
+                DeviceId = "1"
             };
 
             // Act
@@ -143,7 +215,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
-            refreshTokenResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+            refreshTokenResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
         [Fact]
@@ -152,7 +224,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = "+9wpQEQ3YJsBXCzLbutUMyIwGo1RenCAh7iKSCQEugg="
+                RefreshToken = Models.RefreshTokens.TestUserRefreshTokenRevoked.Token,
+                DeviceId = "1"
             };
 
             // Act
@@ -160,7 +233,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
-            refreshTokenResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+            refreshTokenResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
     }
 
@@ -177,11 +250,12 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", new LoginUserDto
             {
                 UserUserName = Models.Users.TestUser.UserUserName,
-                UserPassword = "123456"
+                UserPassword = "123456",
+                DeviceId = "1"
             });
 
             loginResponse.Should().NotBeNull();
-            loginResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             TokenDto? tokenDto = await loginResponse.Content.ReadFromJsonAsync<TokenDto>();
 
             tokenDto.Should().NotBeNull();
@@ -191,11 +265,12 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Logout
             var logoutResponse = await _client.PostAsJsonAsync("/api/auth/logout", new RefreshTokenEntryDto
             {
-                RefreshToken = tokenDto.RefreshToken
+                RefreshToken = tokenDto.RefreshToken,
+                DeviceId = "1"
             });
 
             logoutResponse.Should().NotBeNull();
-            logoutResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            logoutResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             TokenDto? logoutTokenDto = await logoutResponse.Content.ReadFromJsonAsync<TokenDto>();
 
             logoutTokenDto.Should().NotBeNull();
@@ -204,12 +279,13 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
         }
 
         [Fact]
-        public async Task Logout_WhenRefreshTokenIsInvalid_ReturnsUnauthorized()
+        public async Task Logout_WhenRefreshTokenIsInvalid_ReturnsNotFound()
         {
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = "invalid-refresh-token"
+                RefreshToken = "invalid-refresh-token",
+                DeviceId = "1"
             };
 
             // Act
@@ -217,7 +293,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
-            refreshTokenResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+            refreshTokenResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
         [Fact]
@@ -226,7 +302,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = "zVrwFaCSNYH12C2a3jbb/ejmKloVSnJgYwJNeQsW/xs="
+                RefreshToken = Models.RefreshTokens.TestUserRefreshTokenRevoked.Token,
+                DeviceId = "1"
             };
 
             // Act
@@ -234,7 +311,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
-            refreshTokenResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+            refreshTokenResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
         [Fact]
@@ -243,7 +320,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = "+9wpQEQ3YJsBXCzLbutUMyIwGo1RenCAh7iKSCQEugg="
+                RefreshToken = Models.RefreshTokens.TestUserRefreshTokenRevoked.Token,
+                DeviceId = "1"
             };
 
             // Act
@@ -251,7 +329,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
-            refreshTokenResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+            refreshTokenResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
     }
 }

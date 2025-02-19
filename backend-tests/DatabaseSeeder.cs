@@ -9,52 +9,55 @@ public class DatabaseSeeder
     public static void Seed(AppDbContext context)
     {
         context.Roles.AddRange(
-            Models.Roles.Admin, 
-            Models.Roles.User, 
+            Models.Roles.Admin,
+            Models.Roles.User,
             Models.Roles.Guest);
         context.Users.AddRange(
-            Models.Users.Admin, 
+            Models.Users.Admin,
             Models.Users.InactiveTestUser,
             Models.Users.TestUser);
         context.UsersRoles.AddRange(
-            Models.UsersRoles.AdminUserRoleAdmin, 
+            Models.UsersRoles.AdminUserRoleAdmin,
             Models.UsersRoles.TestUserRoleUser);
         context.Permissions.AddRange(
-            Models.Permissions.View, 
+            Models.Permissions.View,
             Models.Permissions.ViewReports,
             Models.Permissions.EditContent,
-            Models.Permissions.Create, 
-            Models.Permissions.AssignRole, 
+            Models.Permissions.Create,
+            Models.Permissions.AssignRole,
             Models.Permissions.RevokeRole,
             Models.Permissions.AssignPermission,
-            Models.Permissions.RevokePermission, 
-            Models.Permissions.Delete, 
+            Models.Permissions.RevokePermission,
+            Models.Permissions.Delete,
             Models.Permissions.DeactivateUser);
         context.Resources.AddRange(
-            Models.Resources.Users, 
-            Models.Resources.Roles, 
+            Models.Resources.Users,
+            Models.Resources.Roles,
             Models.Resources.Permissions,
             Models.Resources.UsersRoles,
-            Models.Resources.RolesPermissionsResources, 
+            Models.Resources.RolesPermissionsResources,
             Models.Resources.ResourcesResource);
         context.RolesPermissionsResources.AddRange(Models.RolesPermissionsResources.AdminViewUsers,
             Models.RolesPermissionsResources.AdminDeactivateUser,
             Models.RolesPermissionsResources.AdminEditContentUsers,
-            Models.RolesPermissionsResources.AdminEditContent, 
+            Models.RolesPermissionsResources.AdminEditContent,
             Models.RolesPermissionsResources.AdminCreateUsers,
             Models.RolesPermissionsResources.AdminAssignRole,
-            Models.RolesPermissionsResources.AdminRevokeRole, 
+            Models.RolesPermissionsResources.AdminRevokeRole,
             Models.RolesPermissionsResources.AdminViewUsersRoles,
             Models.RolesPermissionsResources.AdminAssignPermission,
             Models.RolesPermissionsResources.AdminRevokePermission,
             Models.RolesPermissionsResources.AdminViewRolesPermissionsResources,
             Models.RolesPermissionsResources.AdminEditRoles,
-            Models.RolesPermissionsResources.AdminViewRoles, 
+            Models.RolesPermissionsResources.AdminViewRoles,
             Models.RolesPermissionsResources.AdminCreateRoles,
             Models.RolesPermissionsResources.AdminDeleteRoles,
-            Models.RolesPermissionsResources.AdminViewResources, 
+            Models.RolesPermissionsResources.AdminViewResources,
             Models.RolesPermissionsResources.AdminViewPermissions);
-
+        context.RefreshTokens.AddRange(
+            Models.RefreshTokens.TestUserRefreshTokenRevoked,
+            Models.RefreshTokens.TestUserExpiredRefreshToken
+        );
         context.SaveChanges();
     }
 }
