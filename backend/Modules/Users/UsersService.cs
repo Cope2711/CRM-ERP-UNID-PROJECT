@@ -55,19 +55,19 @@ public class UsersService : IUsersService
         bool hasChanges = false;
 
         // Update user
-        if (updateUserDto.UserFirstName != null)
+        if (updateUserDto.UserFirstName != null && updateUserDto.UserFirstName != user.UserFirstName)
         {
             user.UserFirstName = updateUserDto.UserFirstName;
             hasChanges = true;
         }
 
-        if (updateUserDto.UserLastName != null)
+        if (updateUserDto.UserLastName != null && updateUserDto.UserLastName != user.UserLastName)
         {
             user.UserLastName = updateUserDto.UserLastName;
             hasChanges = true;
         }
 
-        if (updateUserDto.UserUserName != null)
+        if (updateUserDto.UserUserName != null && updateUserDto.UserEmail != user.UserUserName)
         {
             if (await ExistUserByUserName(updateUserDto.UserUserName))
             {
@@ -82,7 +82,7 @@ public class UsersService : IUsersService
             hasChanges = true;
         }
         
-        if (updateUserDto.UserEmail != null)
+        if (updateUserDto.UserEmail != null && updateUserDto.UserEmail != user.UserEmail)
         {
             // Check if the email is already in use
             if (await ExistUserByEmail(updateUserDto.UserEmail))

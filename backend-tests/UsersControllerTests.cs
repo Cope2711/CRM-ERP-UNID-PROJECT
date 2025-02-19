@@ -74,6 +74,8 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             var response = await _client.PatchAsJsonAsync($"/api/users/update", updateUserDto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
+        
+        
     }
 
     public class ChangePasswordTests : UsersControllerTests
