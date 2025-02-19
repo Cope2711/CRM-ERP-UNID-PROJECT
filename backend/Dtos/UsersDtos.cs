@@ -61,8 +61,8 @@ public class UpdateUserDto
 public class LoginUserDto
 {
     [MaxLength(50)] [Required] public string UserUserName { get; set; }
-
     [MaxLength(255)] [Required] public string UserPassword { get; set; }
+    [MaxLength(255)] [Required] public string DeviceId { get; set; }
 }
 
 public class ChangePasswordDto

@@ -35,21 +35,21 @@ public static class Models
         {
             UserId = Guid.Parse("172422a0-5164-4470-acae-72022d3820b1"), UserUserName = "admin",
             UserFirstName = "Admin", UserLastName = "User", UserEmail = "admin@admin.com",
-            UserPassword = PasswordHelper.HashPassword("123456"), IsActive = true
+            UserPassword = HasherHelper.HashString("123456"), IsActive = true
         };
 
         public static readonly User InactiveTestUser = new User
         {
             UserId = Guid.Parse("2c0180d4-040c-4c00-b8f9-31f7a1e72259"), UserUserName = "test-user",
             UserFirstName = "Test", UserLastName = "User", UserEmail = "test-user@test.com",
-            UserPassword = PasswordHelper.HashPassword("123456"), IsActive = false
+            UserPassword = HasherHelper.HashString("123456"), IsActive = false
         };
         
         public static readonly User TestUser = new User
         {
             UserId = Guid.Parse("2c0180d4-040c-4c00-b8f9-31f7a1e72258"), UserUserName = "test-user2",
             UserFirstName = "Test2", UserLastName = "User2", UserEmail = "test-user2@test.com",
-            UserPassword = PasswordHelper.HashPassword("123456"), IsActive = true
+            UserPassword = HasherHelper.HashString("123456"), IsActive = true
         };
     }
 
@@ -188,24 +188,6 @@ public static class Models
 
     public static class RolesPermissionsResources
     {
-        /*-- Insertar Permisos a los Roles
-INSERT INTO RolesPermissionsResources (RolePermissionId, RoleId, PermissionId, ResourceId)
-VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
-       (NEWID(), @RoleId_Admin, @PermissionId_DeactivateUser, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Users),
-       (NEWID(), @RoleId_Admin, @PermissionId_AssignRole, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_RevokeRole, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_UsersRoles),
-       (NEWID(), @RoleId_Admin, @PermissionId_AssignPermission, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_RevokePermission, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_RolesPermissionsResources),
-       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Roles),
-       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Roles),
-       (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Roles),
-       (NEWID(), @RoleId_Admin, @PermissionId_Delete, @ResourceId_Roles),
-       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Resources),
-       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Permissions)*/
         public static readonly RolePermissionResource AdminViewUsers = new RolePermissionResource
         {
             RolePermissionId = Guid.NewGuid(),
@@ -340,6 +322,27 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
             RoleId = Roles.Admin.RoleId,
             PermissionId = Permissions.View.PermissionId,
             ResourceId = Resources.Permissions.ResourceId
+        };
+    }
+
+    public static class RefreshTokens
+    {
+        public static readonly RefreshToken TestUserRefreshTokenRevoked = new RefreshToken
+        {
+            UserId = Models.Users.TestUser.UserId,
+            Token = "zVrwFaCSNYH12C2a3jbb/ejmKloVSnJgYwJNeQsW/xs=",
+            DeviceId = "1",
+            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            RevokedAt = DateTime.UtcNow
+        };
+        
+        public static readonly RefreshToken TestUserExpiredRefreshToken = new RefreshToken
+        {
+            UserId = Models.Users.TestUser.UserId,
+            Token = "zVrwFcCSNYH12C2a3jbb/ejmKloVSnJgYwJNeQsW/xs=",
+            DeviceId = "1",
+            ExpiresAt = DateTime.UtcNow.AddHours(-1),
+            RevokedAt = null
         };
     }
 }

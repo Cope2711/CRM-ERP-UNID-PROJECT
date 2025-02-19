@@ -4,6 +4,7 @@ public interface IMailService
 {
     Task SendRecoverPasswordMailAsync(string email, string token);
     Task SendReactivateAccountMailAsync(string email);
+    Task SendNewDeviceLoggedInMailAsync();
 }
 
 public class MailService : IMailService
@@ -12,6 +13,11 @@ public class MailService : IMailService
     public MailService()
     {
         
+    }
+
+    public async Task SendNewDeviceLoggedInMailAsync()
+    {
+        return;
     }
     
     public async Task SendRecoverPasswordMailAsync(string email, string token)

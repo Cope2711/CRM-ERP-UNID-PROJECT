@@ -131,7 +131,7 @@ public class UsersService : IUsersService
         }
 
         // Check password
-        if (PasswordHelper.VerifyPassword(changePasswordDto.ActualPassword, user.UserPassword) == false)
+        if (HasherHelper.VerifyHash(changePasswordDto.ActualPassword, user.UserPassword) == false)
         {
             _logger.LogInformation(
                 "User with Id {AuthenticatedUserId} requested ChangePassword but the actual password is not correct",
@@ -140,7 +140,7 @@ public class UsersService : IUsersService
         }
 
         // Change password
-        user.UserPassword = PasswordHelper.HashPassword(changePasswordDto.NewPassword);
+        user.UserPassword = HasherHelper.HashString(changePasswordDto.NewPassword);
 
         // Save changes
         await this._usersRepository.SaveChangesAsync();
@@ -268,7 +268,7 @@ public class UsersService : IUsersService
             UserFirstName = createUserDto.UserFirstName,
             UserLastName = createUserDto.UserLastName,
             UserEmail = createUserDto.UserEmail,
-            UserPassword = PasswordHelper.HashPassword(createUserDto.UserPassword),
+            UserPassword = HasherHelper.HashString(createUserDto.UserPassword),
             IsActive = createUserDto.IsActive
         };
 

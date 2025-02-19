@@ -81,7 +81,8 @@ CREATE TABLE RefreshTokens
 (
     RefreshTokenId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
     UserId         UNIQUEIDENTIFIER     NOT NULL,
-    Token          NVARCHAR(200) UNIQUE NOT NULL,
+    Token          NVARCHAR(255) UNIQUE NOT NULL,
+    DeviceId       NVARCHAR(255)        NOT NULL,
     ExpiresAt      DATETIME             NOT NULL,
     RevokedAt      DATETIME             NULL,
     FOREIGN KEY (UserId) REFERENCES Users (UserId) ON DELETE CASCADE
