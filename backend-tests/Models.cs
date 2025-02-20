@@ -139,6 +139,13 @@ public static class Models
             PermissionName = "Deactivate_User",
             PermissionDescription = "Deactivate user"
         };
+        
+        public static readonly Permission ActivateUser = new Permission
+        {
+            PermissionId = Guid.Parse("a43b1178-931e-4eed-9742-30af024ec05b"),
+            PermissionName = "Activate_User",
+            PermissionDescription = "Activate user"
+        };
     }
 
     public static class Resources
@@ -201,6 +208,14 @@ public static class Models
             RolePermissionId = Guid.NewGuid(),
             RoleId = Roles.Admin.RoleId,
             PermissionId = Permissions.DeactivateUser.PermissionId,
+            ResourceId = null
+        };
+        
+        public static readonly RolePermissionResource AdminActivateUser = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.ActivateUser.PermissionId,
             ResourceId = null
         };
 

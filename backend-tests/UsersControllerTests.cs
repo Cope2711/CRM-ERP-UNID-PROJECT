@@ -115,6 +115,42 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         }
     }
 
+    public class ActivateUserTests : UsersControllerTests
+    {
+        public ActivateUserTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
+
+        public static IEnumerable<object[]> ActivateUserTestData()
+        {
+            yield return new object[] // If the user does not exist
+            {
+                new UserIdDto {UserId = Guid.NewGuid()},
+                HttpStatusCode.NotFound
+            };
+            
+            yield return new object[] // If the user is already active
+            {
+                new UserIdDto {UserId = Models.Users.TestUser.UserId},
+                HttpStatusCode.BadRequest
+            };
+            
+            yield return new object[] // If the user is inactive
+            {
+                new UserIdDto {UserId = Models.Users.InactiveTestUser.UserId},
+                HttpStatusCode.OK
+            };
+        }
+
+        [Theory]
+        [MemberData(nameof(ActivateUserTestData))]
+        public async Task ActivateUser_ReturnsExpectedResult(UserIdDto userIdDto, HttpStatusCode expectedStatusCode)
+        {
+            var response = await _client.PatchAsJsonAsync($"/api/users/activate", userIdDto);
+            response.StatusCode.Should().Be(expectedStatusCode);
+        }
+    }
+    
     public class DeactivateUserTests : UsersControllerTests
     {
         public DeactivateUserTests(CustomWebApiFactory factory) : base(factory)
@@ -125,7 +161,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new object[]
             {
-                new DeactivateUserDto
+                new UserIdDto
                 {
                     UserId = Models.Users.InactiveTestUser.UserId
                 },
@@ -134,7 +170,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
 
             yield return new object[]
             {
-                new DeactivateUserDto
+                new UserIdDto
                 {
                     UserId = Guid.NewGuid()
                 },
@@ -144,10 +180,10 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(DeactiveUserTestData))]
-        public async Task DeactiveUser_ReturnsExpectedResult(DeactivateUserDto deactivateUserDto,
+        public async Task DeactiveUser_ReturnsExpectedResult(UserIdDto userIdDto,
             HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PutAsJsonAsync("/api/users/deactivate", deactivateUserDto);
+            var response = await _client.PatchAsJsonAsync("/api/users/deactivate", userIdDto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }

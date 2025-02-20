@@ -103,11 +103,19 @@ public class UsersController : ControllerBase
         return Ok(await this._usersService.GetByUserName(username) != null);
     }
     
-    [HttpPut("deactivate")]
+    [HttpPatch("deactivate")]
     [PermissionAuthorize("Deactivate_User")]
-    public async Task<ActionResult<UserDto>> DeactivateUser([FromBody] DeactivateUserDto deactivateUserDto)
+    public async Task<ActionResult<UserDto>> DeactivateUser([FromBody] UserIdDto userIdDto)
     {
-        User user = await this._usersService.DeactivateUserAsync(deactivateUserDto.UserId);     
+        User user = await this._usersService.DeactivateUserAsync(userIdDto.UserId);     
+        return Ok(Mapper.UserToUserDto(user));
+    }
+
+    [HttpPatch("activate")]
+    [PermissionAuthorize("Activate_User")]
+    public async Task<ActionResult<UserDto>> ActivateUser([FromBody] UserIdDto userIdDto)
+    {
+        User user = await this._usersService.ActivateUserAsync(userIdDto.UserId);
         return Ok(Mapper.UserToUserDto(user));
     }
     

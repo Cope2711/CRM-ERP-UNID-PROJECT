@@ -20,6 +20,7 @@ public interface IUsersService
     Task<User> DeactivateUserAsync(Guid id);
     Task<User> ChangePasswordAsync(Guid userId, ChangePasswordDto changePasswordDto);
     Task<User> UpdateAsync(UpdateUserDto updateUserDto);
+    Task<User> ActivateUserAsync(Guid id);
 }
 
 public class UsersService : IUsersService
@@ -29,21 +30,23 @@ public class UsersService : IUsersService
     private readonly IGenericServie<User> _genericService;
     private readonly ILogger<UsersService> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IMailService _mailService;
 
     private Guid AuthenticatedUserId =>
         Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
                    Guid.Empty.ToString());
 
     public UsersService(IUsersRepository usersRepository, IGenericServie<User> genericService,
-        ITokenService tokenService, ILogger<UsersService> logger, IHttpContextAccessor httpContextAccessor)
+        ITokenService tokenService, ILogger<UsersService> logger, IHttpContextAccessor httpContextAccessor, IMailService mailService)
     {
         _usersRepository = usersRepository;
         _genericService = genericService;
         _tokenService = tokenService;
         _logger = logger;
         _httpContextAccessor = httpContextAccessor;
+        _mailService = mailService;
     }
-
+    
     public async Task<User> UpdateAsync(UpdateUserDto updateUserDto)
     {
         _logger.LogInformation("User with Id {AuthenticatedUserId} requested UpdateUser with UserId {TargetUserId}",
@@ -152,6 +155,36 @@ public class UsersService : IUsersService
         return user;
     }
 
+    public async Task<User> ActivateUserAsync(Guid id)
+    {
+        _logger.LogInformation("User with Id {AuthenticatedUserId} requested ActivateUser for UserId {TargetUserId}",
+            AuthenticatedUserId, id);
+        
+        // Get the user
+        User user = await this.GetByIdThrowsNotFoundAsync(id);
+
+        if (user.IsActive == true)
+        {
+            _logger.LogInformation(
+                "User with Id {AuthenticatedUserId} requested ActivateUser for UserId {TargetUserId} but the user is already active",
+                AuthenticatedUserId, id);
+            throw new BadRequestException(message: "The user is already active.", field: "IsActive");
+        }
+        
+        user.IsActive = true;
+
+        // Save changes
+        await this._usersRepository.SaveChangesAsync();
+
+        await _mailService.SendReactivateAccountMailAsync(user.UserEmail);
+        
+        _logger.LogInformation(
+            "User with Id {AuthenticatedUserId} requested ActivateUser for UserId {TargetUserId} and the user was activated",
+            AuthenticatedUserId, id);
+        
+        return user;
+    }
+    
     public async Task<User> DeactivateUserAsync(Guid id)
     {
         using var transaction = await _usersRepository.BeginTransactionAsync();

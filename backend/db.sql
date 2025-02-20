@@ -127,6 +127,7 @@ DECLARE @PermissionId_AssignPermission UNIQUEIDENTIFIER = '554b4b5a-cae7-414c-91
 DECLARE @PermissionId_RevokePermission UNIQUEIDENTIFIER = '9037e10c-38ea-40a6-b364-d68f86203c11';
 DECLARE @PermissionId_Delete UNIQUEIDENTIFIER = '722399bc-76f4-4bfa-950d-85e8b93f7af5';
 DECLARE @PermissionId_DeactivateUser UNIQUEIDENTIFIER = '10d321bd-b667-40c9-adb0-50e62d37c4cc';
+DECLARE @PermissionId_ActivateUser UNIQUEIDENTIFIER = 'a43b1178-931e-4eed-9742-30af024ec05b';
 
 INSERT INTO Permissions (PermissionId, PermissionName, PermissionDescription)
 VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
@@ -138,7 +139,8 @@ VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
        (@PermissionId_AssignPermission, 'Assign_Permission', 'Assign permission to role'),
        (@PermissionId_RevokePermission, 'Revoke_Permission', 'Revoke permission to role'),
        (@PermissionId_Delete, 'Delete', 'Delete objects'),
-       (@PermissionId_DeactivateUser, 'Deactivate_User', 'Deactivate user')
+       (@PermissionId_DeactivateUser, 'Deactivate_User', 'Deactivate user'),
+        (@PermissionId_ActivateUser, 'Activate_User', 'Activate user')
 
 -- Insertar Recursos
 DECLARE @ResourceId_Users UNIQUEIDENTIFIER = 'd161ec8c-7c31-4eb4-a331-82ef9e45903e';
@@ -174,7 +176,8 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Roles),
        (NEWID(), @RoleId_Admin, @PermissionId_Delete, @ResourceId_Roles),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Resources),
-       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Permissions)
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Permissions),
+       (NEWID(), @RoleId_Admin, @PermissionId_ActivateUser, NULL)
 
 
 -- Consultas para verificar la inserción de datos
