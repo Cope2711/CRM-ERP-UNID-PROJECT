@@ -27,7 +27,7 @@ public class CreateUserDto
     [Required] public Guid RoleId { get; set; }
 }
 
-public class DeactivateUserDto
+public class UserIdDto
 {
     [Required] [GuidNotEmpty] public Guid UserId { get; set; }
 }

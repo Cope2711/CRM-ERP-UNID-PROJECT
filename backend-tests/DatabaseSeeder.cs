@@ -29,7 +29,8 @@ public class DatabaseSeeder
             Models.Permissions.AssignPermission,
             Models.Permissions.RevokePermission,
             Models.Permissions.Delete,
-            Models.Permissions.DeactivateUser);
+            Models.Permissions.DeactivateUser,
+            Models.Permissions.ActivateUser);
         context.Resources.AddRange(
             Models.Resources.Users,
             Models.Resources.Roles,
@@ -53,7 +54,8 @@ public class DatabaseSeeder
             Models.RolesPermissionsResources.AdminCreateRoles,
             Models.RolesPermissionsResources.AdminDeleteRoles,
             Models.RolesPermissionsResources.AdminViewResources,
-            Models.RolesPermissionsResources.AdminViewPermissions);
+            Models.RolesPermissionsResources.AdminViewPermissions,
+            Models.RolesPermissionsResources.AdminActivateUser);
         context.RefreshTokens.AddRange(
             Models.RefreshTokens.TestUserRefreshTokenRevoked,
             Models.RefreshTokens.TestUserExpiredRefreshToken
