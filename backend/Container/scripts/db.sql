@@ -1,9 +1,30 @@
-﻿-- Eliminar la base de datos si existe 
--- DROP DATABASE IF EXISTS ERPCRMUNID;
+﻿-- Crear la base de datos si no existe
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'ERPCRMUNID')
+    BEGIN
+        CREATE DATABASE ERPCRMUNID;
+    END
+GO
 
--- Crear la base de datos
--- CREATE DATABASE ERPCRMUNID;
 USE ERPCRMUNID;
+GO
+
+-- Crear un usuario de SQL Server
+IF NOT EXISTS (SELECT name FROM sys.syslogins WHERE name = 'erp_user')
+    BEGIN
+        CREATE LOGIN erp_user WITH PASSWORD = 'YourStrongPassword123!';
+    END
+GO
+
+-- Crear un usuario dentro de la base de datos y asignar permisos
+USE ERPCRMUNID;
+GO
+
+IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'erp_user')
+    BEGIN
+        CREATE USER erp_user FOR LOGIN erp_user;
+        ALTER ROLE db_owner ADD MEMBER erp_user;
+    END
+GO
 
 -- Eliminar tablas si existen
 DROP TABLE IF EXISTS TestTable;
