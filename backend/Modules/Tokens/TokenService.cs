@@ -4,6 +4,8 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using CRM_ERP_UNID.Data.Models;
+using CRM_ERP_UNID.Exceptions;
+using CRM_ERP_UNID.Helpers;
 
 namespace CRM_ERP_UNID.Modules;
 
@@ -30,10 +32,22 @@ public class TokenService : ITokenService
         _httpContextAccessor = httpContextAccessor;
     }
 
+    public async Task ValidateNumsOfDevices(Guid userId)
+    {
+        int numberOfDevices = await _tokensRepository.GetActiveDevicesCount(userId);
+        if (numberOfDevices > 3)
+            throw new UnauthorizedException(message: "Max number of devices reached", reason: "MaxNumberOfDevices");
+    }
+    
+    public async Task<bool> IsNewDevice(Guid userId, string deviceId)
+    {
+        return await _tokensRepository.IsNewDevice(userId, deviceId);
+    }
+    
     public string GenerateAccessToken(User user)
     {
         _logger.LogInformation("User with Id {AuthenticatedUserId} requested GenerateAccessToken", AuthenticatedUserId);
-        
+
         var rolesIds = user.UserRoles.Select(ur => ur.Role.RoleId).ToList();
 
         var claims = new List<Claim>
@@ -54,66 +68,83 @@ public class TokenService : ITokenService
             signingCredentials: creds
         );
 
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested GenerateAccessToken and the access token was generated", AuthenticatedUserId);
-        
+        _logger.LogInformation(
+            "User with Id {AuthenticatedUserId} requested GenerateAccessToken and the access token was generated",
+            AuthenticatedUserId);
+
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public async Task<RefreshToken> GenerateAndStoreRefreshTokenAsync(Guid userId)
+    public async Task<RefreshToken> GenerateAndStoreRefreshTokenAsync(Guid userId, string deviceId)
     {
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested GenerateAndStoreRefreshTokenAsync", AuthenticatedUserId);
-        
+        _logger.LogInformation("User with Id {AuthenticatedUserId} requested GenerateAndStoreRefreshTokenAsync",
+            AuthenticatedUserId);
+
         string refreshToken = GenerateSecureToken();
 
         RefreshToken refreshTokenModel = new RefreshToken
         {
             UserId = userId,
             Token = refreshToken,
+            DeviceId = HasherHelper.HashDeviceIdForStorage(deviceId),
             ExpiresAt = DateTime.UtcNow.AddMinutes(2),
         };
 
         this._tokensRepository.AddRefreshToken(refreshTokenModel);
         await this._tokensRepository.SaveChangesAsync();
 
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested GenerateAndStoreRefreshTokenAsync and the refresh token was generated", AuthenticatedUserId);
-        
+        _logger.LogInformation(
+            "User with Id {AuthenticatedUserId} requested GenerateAndStoreRefreshTokenAsync and the refresh token was generated",
+            AuthenticatedUserId);
+
         return refreshTokenModel;
     }
 
-    public async Task<RefreshToken?> GetRefreshTokenByRefreshToken(string refreshToken)
+    public async Task<RefreshToken> GetRefreshTokenByRefreshTokenThrowsNotFound(string refreshToken)
     {
-        return await _genericService.GetFirstAsync(rt => rt.Token, refreshToken);
+        RefreshToken? refreshTokenObject = await _genericService.GetFirstAsync(rt => rt.Token, refreshToken);
+
+        if (refreshTokenObject == null)
+            throw new NotFoundException("Refresh token not found", field: "RefreshToken");
+        
+        return refreshTokenObject;
     }
 
     public async Task<RefreshToken> RevokeRefreshTokenByObject(RefreshToken refreshToken)
     {
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested RevokeRefreshTokenByObject for RefreshTokenId {TargetRefreshTokenId}", AuthenticatedUserId, refreshToken.RefreshTokenId);
-        
+        _logger.LogInformation(
+            "User with Id {AuthenticatedUserId} requested RevokeRefreshTokenByObject for RefreshTokenId {TargetRefreshTokenId}",
+            AuthenticatedUserId, refreshToken.RefreshTokenId);
+
         refreshToken.RevokedAt = DateTime.Now;
         await this._tokensRepository.SaveChangesAsync();
-        
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested RevokeRefreshTokenByObject for RefreshTokenId {TargetRefreshTokenId} and the refresh token was revoked", AuthenticatedUserId, refreshToken.RefreshTokenId);
-        
+
+        _logger.LogInformation(
+            "User with Id {AuthenticatedUserId} requested RevokeRefreshTokenByObject for RefreshTokenId {TargetRefreshTokenId} and the refresh token was revoked",
+            AuthenticatedUserId, refreshToken.RefreshTokenId);
+
         return refreshToken;
     }
 
     public async Task RevokeRefreshsTokensByUserId(Guid userId)
     {
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested RevokeRefreshsTokensByUserId for UserId {TargetUserId}", AuthenticatedUserId, userId);
+        _logger.LogInformation(
+            "User with Id {AuthenticatedUserId} requested RevokeRefreshsTokensByUserId for UserId {TargetUserId}",
+            AuthenticatedUserId, userId);
         await this._tokensRepository.RevokeTokensByUserIdAsync(userId);
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested RevokeRefreshsTokensByUserId for UserId {TargetUserId} and the refresh tokens were revoked", AuthenticatedUserId, userId);
+        _logger.LogInformation(
+            "User with Id {AuthenticatedUserId} requested RevokeRefreshsTokensByUserId for UserId {TargetUserId} and the refresh tokens were revoked",
+            AuthenticatedUserId, userId);
     }
 
     private string GenerateSecureToken()
     {
-        // Generar un buffer aleatorio seguro de 32 bytes
-        var randomNumber = new byte[32];
+        var randomNumber = new byte[64];
         using (var rng = RandomNumberGenerator.Create())
         {
             rng.GetBytes(randomNumber);
         }
 
-        // Codificar el buffer en una cadena Base64
         return Convert.ToBase64String(randomNumber);
     }
 }

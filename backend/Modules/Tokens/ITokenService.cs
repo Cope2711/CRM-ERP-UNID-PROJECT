@@ -5,8 +5,10 @@ namespace CRM_ERP_UNID.Modules;
 public interface ITokenService
 {
     string GenerateAccessToken(User user);
-    Task<RefreshToken> GenerateAndStoreRefreshTokenAsync(Guid userId);
-    Task<RefreshToken?> GetRefreshTokenByRefreshToken(string refreshToken);
+    Task<RefreshToken> GenerateAndStoreRefreshTokenAsync(Guid userId, string deviceId);
+    Task<RefreshToken> GetRefreshTokenByRefreshTokenThrowsNotFound(string refreshToken);
     Task<RefreshToken> RevokeRefreshTokenByObject(RefreshToken refreshToken);
     Task RevokeRefreshsTokensByUserId(Guid userId);
+    Task<bool> IsNewDevice(Guid userId, string deviceId);
+    Task ValidateNumsOfDevices(Guid userId);
 }

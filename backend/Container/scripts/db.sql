@@ -1,9 +1,30 @@
-﻿-- Eliminar la base de datos si existe 
--- DROP DATABASE IF EXISTS ERPCRMUNID;
+﻿-- Crear la base de datos si no existe
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'ERPCRMUNID')
+    BEGIN
+        CREATE DATABASE ERPCRMUNID;
+    END
+GO
 
--- Crear la base de datos
--- CREATE DATABASE ERPCRMUNID;
 USE ERPCRMUNID;
+GO
+
+-- Crear un usuario de SQL Server
+IF NOT EXISTS (SELECT name FROM sys.syslogins WHERE name = 'erp_user')
+    BEGIN
+        CREATE LOGIN erp_user WITH PASSWORD = 'YourStrongPassword123!';
+    END
+GO
+
+-- Crear un usuario dentro de la base de datos y asignar permisos
+USE ERPCRMUNID;
+GO
+
+IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'erp_user')
+    BEGIN
+        CREATE USER erp_user FOR LOGIN erp_user;
+        ALTER ROLE db_owner ADD MEMBER erp_user;
+    END
+GO
 
 -- Eliminar tablas si existen
 DROP TABLE IF EXISTS TestTable;
@@ -81,7 +102,8 @@ CREATE TABLE RefreshTokens
 (
     RefreshTokenId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
     UserId         UNIQUEIDENTIFIER     NOT NULL,
-    Token          NVARCHAR(200) UNIQUE NOT NULL,
+    Token          NVARCHAR(255) UNIQUE NOT NULL,
+    DeviceId       NVARCHAR(255)        NOT NULL,
     ExpiresAt      DATETIME             NOT NULL,
     RevokedAt      DATETIME             NULL,
     FOREIGN KEY (UserId) REFERENCES Users (UserId) ON DELETE CASCADE
@@ -126,6 +148,7 @@ DECLARE @PermissionId_AssignPermission UNIQUEIDENTIFIER = '554b4b5a-cae7-414c-91
 DECLARE @PermissionId_RevokePermission UNIQUEIDENTIFIER = '9037e10c-38ea-40a6-b364-d68f86203c11';
 DECLARE @PermissionId_Delete UNIQUEIDENTIFIER = '722399bc-76f4-4bfa-950d-85e8b93f7af5';
 DECLARE @PermissionId_DeactivateUser UNIQUEIDENTIFIER = '10d321bd-b667-40c9-adb0-50e62d37c4cc';
+DECLARE @PermissionId_ActivateUser UNIQUEIDENTIFIER = 'a43b1178-931e-4eed-9742-30af024ec05b';
 
 INSERT INTO Permissions (PermissionId, PermissionName, PermissionDescription)
 VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
@@ -137,7 +160,8 @@ VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
        (@PermissionId_AssignPermission, 'Assign_Permission', 'Assign permission to role'),
        (@PermissionId_RevokePermission, 'Revoke_Permission', 'Revoke permission to role'),
        (@PermissionId_Delete, 'Delete', 'Delete objects'),
-       (@PermissionId_DeactivateUser, 'Deactivate_User', 'Deactivate user')
+       (@PermissionId_DeactivateUser, 'Deactivate_User', 'Deactivate user'),
+        (@PermissionId_ActivateUser, 'Activate_User', 'Activate user')
 
 -- Insertar Recursos
 DECLARE @ResourceId_Users UNIQUEIDENTIFIER = 'd161ec8c-7c31-4eb4-a331-82ef9e45903e';
@@ -173,7 +197,8 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Roles),
        (NEWID(), @RoleId_Admin, @PermissionId_Delete, @ResourceId_Roles),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Resources),
-       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Permissions)
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Permissions),
+       (NEWID(), @RoleId_Admin, @PermissionId_ActivateUser, NULL)
 
 
 -- Consultas para verificar la inserción de datos

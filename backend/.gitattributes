@@ -1,0 +1,2 @@
+# Forzar los archivos .sh a usar saltos de línea de Unix (LF)
+*.sh text eol=lf

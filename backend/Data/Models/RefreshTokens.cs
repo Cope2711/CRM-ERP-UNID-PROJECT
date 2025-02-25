@@ -12,6 +12,8 @@ public class RefreshToken
 
     [Required] [MaxLength(200)] public string Token { get; set; }
 
+    [Required] [MaxLength(255)] public string DeviceId { get; set; }
+    
     [Required] public DateTime ExpiresAt { get; set; }
 
     public DateTime? RevokedAt { get; set; }
