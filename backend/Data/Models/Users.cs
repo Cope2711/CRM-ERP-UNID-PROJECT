@@ -32,9 +32,5 @@ public class User
     
     [Required]
     public bool IsActive { get; set; }
-
-    public Guid RoleId { get; set; }
-
-    [ForeignKey("RoleId")]
-    public Role Role { get; set; }
+    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

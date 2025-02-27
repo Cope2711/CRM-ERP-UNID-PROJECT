@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using CRM_ERP_UNID.Attributes;
 
 namespace CRM_ERP_UNID.Dtos;
 
@@ -15,11 +16,21 @@ public class GetAllDto
 
     public bool Descending { get; set; }
 
-    [MaxLength(250, ErrorMessage = "SearchTerm cannot exceed 250 characters.")]
-    public string? SearchTerm { get; set; }
+    public List<FilterDto>? Filters { get; set; }
+}
 
-    [MaxLength(250, ErrorMessage = "SearchColumn cannot exceed 250 characters.")]
-    public string? SearchColumn { get; set; }
+public class FilterDto
+{
+    [Required(ErrorMessage = "Column is required.")]
+    [MaxLength(250, ErrorMessage = "Column cannot exceed 250 characters.")]
+    public string? Column { get; set; }
+    
+    [Required(ErrorMessage = "Operator is required.")]
+    [ValidOperator]
+    public string? Operator { get; set; }
+    
+    [Required(ErrorMessage = "Value is required.")]
+    public string? Value { get; set; }
 }
 
 public class GetAllResponseDto<T>

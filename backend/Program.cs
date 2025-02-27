@@ -1,27 +1,42 @@
-using CRM_ERP_UNID.Controllers;
 using CRM_ERP_UNID.Extensions;
+using CRM_ERP_UNID.Modules;
 using Hellang.Middleware.ProblemDetails;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.Test.json", optional: true, reloadOnChange: true)
-    .AddEnvironmentVariables();
+if (!builder.Environment.IsEnvironment("Test"))
+{
+    builder.Configuration
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddJsonFile($"appsettings.Test.json", optional: true, reloadOnChange: true)
+        .AddEnvironmentVariables();
+
+    builder.Host.UseSerilog();
+}
 
 // Add services to the container.
+builder.Services.AddScoped<IRolesPermissionsResourcesRepository, RolesPermissionsResourcesResourcesRepository>();
+builder.Services.AddScoped<IRolesPermissionsResourcesService, RolesPermissionsResourcesService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITokensRepository, TokensRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
-builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IResourceService, ResourceService>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IUsersRolesRepository, UsersRolesRepository>();
+builder.Services.AddScoped<IUsersRolesService, UsersRolesService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+builder.Services.AddScoped(typeof(IGenericServie<>), typeof(GenericService<>));
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IMailService, MailService>();
 
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
