@@ -11,7 +11,7 @@ public interface IUsersRolesService
     Task<UserRole> GetByUserIdAndRoleIdThrowsNotFoundAsync(Guid userId, Guid roleId);
     
     /// <summary>
-    /// Retrieves the user-role association for the specified user and role, and throws an exception if not found.
+    /// Retrieves the user role association for the specified user and role, and throws an exception if not found.
     /// </summary>
     /// <param name="userId">The unique identifier of the user.</param>
     /// <param name="roleId">The unique identifier of the role.</param>
