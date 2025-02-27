@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using CRM_ERP_UNID.Attributes;
-using CRM_ERP_UNID.Data.Models;
 
 namespace CRM_ERP_UNID.Dtos;
 
@@ -34,7 +33,19 @@ public class RolePermissionResourceDto
     public string? ResourceDescription { get; set; }
 }
 
-public class PermissionResourceAndRoleDto
+public class RolePermissionResourceResponseStatusDto : ResponseStatusDto
+{
+    public required PermissionResourceAndRoleIdsDto PermissionResourceAndRoleIds { get; set; }
+}
+
+public class PermissionsResourcesAndRolesIdsDto
+{
+    [Required]
+    [RangeListLength(1, 50)] 
+    public required List<PermissionResourceAndRoleIdsDto> PermissionResourceAndRoleIds { get; set; }
+}
+
+public class PermissionResourceAndRoleIdsDto
 {
     [GuidNotEmpty]
     public Guid RoleId { get; set; }

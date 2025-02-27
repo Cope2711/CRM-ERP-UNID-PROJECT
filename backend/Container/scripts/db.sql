@@ -122,20 +122,25 @@ VALUES (@RoleId_Admin, 'Admin', 'Admin role'),
 -- Insertar Usuarios
 DECLARE @UserId_Admin UNIQUEIDENTIFIER = '172422a0-5164-4470-acae-72022d3820b1';
 DECLARE @UserId_Test UNIQUEIDENTIFIER = '2c0180d4-040c-4c00-b8f9-31f7a1e72259';
+DECLARE @UserId_TestDeactivated UNIQUEIDENTIFIER = '6a820228-e221-4e80-9b0a-b8eda7042f30';
 
 INSERT INTO Users (UserId, UserUserName, UserFirstName, UserLastName, UserEmail, UserPassword, IsActive)
 VALUES (@UserId_Admin, 'admin', 'Admin', 'User', 'admin@admin.com',
         '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 1),
        (@UserId_Test, 'test-user', 'Test', 'User', 'test-user@test.com',
-        '$2b$12$H4hFo5E9XkP5vwsWfvBi8ea.uh1Vz/5RrG0k3Wu3CC5Y1DuhLK3We', 1);
+        '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 1),
+    (@UserId_TestDeactivated, 'test-user-deactivated', 'TestDeactivated', 'User', 'test-user-deactivated@test.com',
+     '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 0)
 
 -- Insertar UsersRoles
 DECLARE @UserRoleId_Admin UNIQUEIDENTIFIER = '842193b4-5048-4cd9-be60-b7ca34319286';
 DECLARE @UserRoleId_Test UNIQUEIDENTIFIER = 'fe904dcf-eeb1-4a71-a229-71185cc15453';
+DECLARE @UserRoleId_TestDeactivated UNIQUEIDENTIFIER = 'fe904dcf-eeb1-4a71-a229-71185cc15450';
 
 INSERT INTO UsersRoles (UserRoleId, UserId, RoleId)
 VALUES (@UserRoleId_Admin, @UserId_Admin, @RoleId_Admin),
-       (@UserRoleId_Test, @UserId_Test, @RoleId_User);
+       (@UserRoleId_Test, @UserId_Test, @RoleId_User),
+       (@UserRoleId_TestDeactivated, @UserId_TestDeactivated, @RoleId_User)
 
 -- Insertar Permisos
 DECLARE @PermissionId_View UNIQUEIDENTIFIER = '7521ffd2-80e6-4970-8ab3-0d454a377d22';
@@ -155,8 +160,8 @@ VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
        (@PermissionId_ViewReports, 'View_Reports', 'Access to view reports'),
        (@PermissionId_EditContent, 'Edit_Content', 'Permission to edit content'),
        (@PermissionId_Create, 'Create', 'Create objects'),
-       (@PermissionId_AssignRole, 'Assign_Role_To_User', 'Assign role to user'),
-       (@PermissionId_RevokeRole, 'Revoke_Role_To_User', 'Revoke role to user'),
+       (@PermissionId_AssignRole, 'Assign_Role', 'Assign role to user'),
+       (@PermissionId_RevokeRole, 'Revoke_Role', 'Revoke role to user'),
        (@PermissionId_AssignPermission, 'Assign_Permission', 'Assign permission to role'),
        (@PermissionId_RevokePermission, 'Revoke_Permission', 'Revoke permission to role'),
        (@PermissionId_Delete, 'Delete', 'Delete objects'),
