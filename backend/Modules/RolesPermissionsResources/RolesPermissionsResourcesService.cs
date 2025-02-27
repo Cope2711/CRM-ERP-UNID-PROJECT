@@ -10,11 +10,62 @@ public interface IRolesPermissionsResourcesService
 {
     Task<bool> ArePermissionNameResourceNameAssignedToRoleIdAsync(Guid roleId, string permissionName,
         string? resourceName = null);
-
+    
+    /// <summary>
+    /// Checks if a permission identified by its name, along with an optional resource name, is assigned to the specified role.
+    /// </summary>
+    /// <param name="roleId">The unique identifier of the role.</param>
+    /// <param name="permissionName">The name of the permission.</param>
+    /// <param name="resourceName">The optional name of the resource. Can be null.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains true if the permission (and resource, if provided) is assigned to the role; otherwise, false.
+    /// </returns>
     Task<bool> ArePermissionIdResourceIdAssignedToRoleIdAsync(Guid roleId, Guid permissionId, Guid? resourceId = null);
+    
+    /// <summary>
+    /// Checks if a permission identified by its ID, along with an optional resource ID, is assigned to the specified role.
+    /// </summary>
+    /// <param name="roleId">The unique identifier of the role.</param>
+    /// <param name="permissionId">The unique identifier of the permission.</param>
+    /// <param name="resourceId">The optional unique identifier of the resource. Can be null.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains true if the permission (and resource, if provided) is assigned to the role; otherwise, false.
+    /// </returns>
     Task<RolePermissionResource> AssignPermissionToRoleAsync(PermissionResourceAndRoleDto permissionResourceAndRoleDto);
+    
+    /// <summary>
+    /// Assigns a permission (and optionally a resource) to a role.
+    /// </summary>
+    /// <param name="permissionResourceAndRoleDto">
+    /// A DTO containing the permission, resource, and role details.
+    /// </param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains the created role-permission-resource association.
+    /// </returns>
     Task<RolePermissionResource> RevokePermissionToRoleAsync(PermissionResourceAndRoleDto permissionResourceAndRoleDto);
+    
+    /// <summary>
+    /// Revokes a permission (and optionally a resource) from a role.
+    /// </summary>
+    /// <param name="PermissionResourceAndRoleDto">
+    /// A DTO containing the permission, resource, and role details.
+    /// </param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains the role-permission-resource association that was removed.
+    /// </returns>
     Task<GetAllResponseDto<RolePermissionResource>> GetAllAsync(GetAllDto getAllDto);
+    /// <summary>
+    /// Retrieves all role-permission-resource associations based on the specified filtering and pagination parameters.
+    /// </summary>
+    /// <param name="getAllDto">A DTO containing filtering and pagination parameters.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a response DTO with the list of role-permission-resource associations along with associated metadata.
+    /// </returns>
 }
 
 public class RolesPermissionsResourcesService : IRolesPermissionsResourcesService

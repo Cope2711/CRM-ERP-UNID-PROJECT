@@ -9,10 +9,30 @@ namespace CRM_ERP_UNID.Modules;
 public interface IAuthService
 {
     Task<TokenDto> Login(LoginUserDto loginUserDto);
+    
+    /// <summary>
+    /// Authenticates a user and generates access and refresh tokens.
+    /// </summary>
+    /// <param name="LoginUserDto" >The DTO containing the user's login credentials.</param>
+    /// <returns>A DTO containing the generated access and refresh tokens.</returns>
+    /// <exception cref="UnauthorizedException">Thrown when the login credentials are invalid.</exception>
     Task<TokenDto> RefreshTokenAsync(string refreshTokenString);
+    
+    /// <summary>
+    /// Generates a new access token using a valid refresh token.
+    /// </summary>
+    /// <param name="refreshTokenString">The refresh token string.</param>
+    /// <returns>A DTO containing the new access token and refresh token.</returns>
+    /// <exception cref="UnauthorizedException">Thrown when the refresh token is invalid or expired.</exception>
     Task<RefreshToken?> Logout(string refreshTokenString);
+    
+    /// <summary>
+    /// Logs out the user by revoking the provided refresh token.
+    /// </summary>
+    /// <param name="refreshTokenString">The refresh token string to be revoked.</param>
+    /// <returns>The revoked refresh token if the operation is successful; otherwise, null.</returns>
 }
-
+    
 public class AuthService : IAuthService
 {
     private readonly IUsersService _usersService;

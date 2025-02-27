@@ -7,19 +7,91 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CRM_ERP_UNID.Modules;
 
-public interface IUsersService
+public interface IUsersService 
 {
     Task<GetAllResponseDto<User>> GetAll(GetAllDto getAllDto);
+    
+    /// <summary> 
+    /// Recibe the userId and returns the User object if exists
+    /// </summary>
+    /// <param name="id">UserId</param>
+    /// <returns>User</returns>
+    /// <exception cref="NotFoundException">If not exist a user with the id.</exception>>
     Task<User> GetByIdThrowsNotFoundAsync(Guid id);
+    
+    /// <summary>
+    /// Retrieves a user by their unique identifier and throws an exception if the user is not found.
+    /// </summary>
+    /// <param name="id">The unique identifier of the user.</param>
+    /// <returns>The user with the specified identifier.</returns>
+    /// <exception cref="NotFoundException">Thrown when no user with the given identifier is found.</exception>
     Task<User?> GetByUserName(string userName);
+    
+    /// <summary>
+    /// Retrieves a user by their username.
+    /// </summary>
+    /// <param name="userName">The username of the user to retrieve.</param>
+    /// <returns>The user with the specified username, or null if not found.</returns>
     Task<User?> GetByEmail(string email);
+    
+    /// <summary>
+    /// Retrieves a user by their email address.
+    /// </summary>
+    /// <param name="email">The email address of the user to retrieve.</param>
+    /// <returns>The user with the specified email, or null if not found.</returns>
     Task<bool> ExistUserByUserName(string userName);
+    
+    /// <summary>
+    /// Checks whether a user exists with the specified username.
+    /// </summary>
+    /// <param name="userName">The username to check for existence.</param>
+    /// <returns>True if a user with the specified username exists; otherwise, false.</returns>
     Task<bool> ExistUserByEmail(string email);
+    
+    /// <summary>
+    /// Checks whether a user exists with the specified email address.
+    /// </summary>
+    /// <param name="email">The email address to check for existence.</param>
+    /// <returns>True if a user with the specified email exists; otherwise, false.</returns>
     Task<User?> Create(CreateUserDto createUserDto);
+    
+    /// <summary>
+    /// Creates a new user with the provided details.
+    /// </summary>
+    /// <param name="createUserDto">The DTO containing the details required to create a new user.</param>
+    /// <returns>
+    /// The newly created user, or null if the creation failed.
+    /// </returns>
     Task<User> GetByUserNameThrowsNotFound(string userName);
+    
+    /// <summary>
+    /// Retrieves a user by their username and throws an exception if the user is not found.
+    /// </summary>
+    /// <param name="userName">The username of the user to retrieve.</param>
+    /// <returns>The user with the specified username.</returns>
+    /// <exception cref="NotFoundException">Thrown when no user with the given username is found.</exception>
     Task<User> DeactivateUserAsync(Guid id);
+    
+    /// <summary>
+    /// Deactivates a user by their unique identifier.
+    /// </summary>
+    /// <param name="id">The unique identifier of the user to deactivate.</param>
+    /// <returns>The deactivated user.</returns>
     Task<User> ChangePasswordAsync(Guid userId, ChangePasswordDto changePasswordDto);
+    
+    /// <summary>
+    /// Changes the password for the specified user.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user whose password is to be changed.</param>
+    /// <param name="changePasswordDto">The DTO containing the current and new passwords.</param>
+    /// <returns>The updated user with the new password.</returns>
     Task<User> UpdateAsync(UpdateUserDto updateUserDto);
+    
+    /// <summary>
+    /// Updates the details of an existing user.
+    /// </summary>
+    /// <param name="updateUserDto">The DTO containing the updated user details.</param>
+    /// <returns>The updated user.</returns>
 }
 
 public class UsersService : IUsersService
@@ -43,7 +115,11 @@ public class UsersService : IUsersService
         _logger = logger;
         _httpContextAccessor = httpContextAccessor;
     }
-
+    /// <summary>
+    /// Updates the user information.
+    /// </summary>
+    /// <param name="updateUserDto">Data transfer object containing user update information.</param>
+    /// <returns>Updated user.</returns>
     public async Task<User> UpdateAsync(UpdateUserDto updateUserDto)
     {
         _logger.LogInformation("User with Id {AuthenticatedUserId} requested UpdateUser with UserId {TargetUserId}",
@@ -114,7 +190,12 @@ public class UsersService : IUsersService
         
         return user;
     }
-
+    /// <summary>
+    /// Changes the password of a user.
+    /// </summary>
+    /// <param name="userId">ID of the user.</param>
+    /// <param name="changePasswordDto">DTO containing current and new password.</param>
+    /// <returns>Updated user with the new password.</returns>
     public async Task<User> ChangePasswordAsync(Guid userId, ChangePasswordDto changePasswordDto)
     {
         _logger.LogInformation("User with Id {AuthenticatedUserId} requested ChangePassword", AuthenticatedUserId);

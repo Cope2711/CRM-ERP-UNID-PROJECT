@@ -8,8 +8,19 @@ namespace CRM_ERP_UNID.Modules;
 public interface IUsersRepository
 {
     void Add(User user);
+    
+    /// <summary>
+    /// Adds a new user to the repository.
+    /// </summary>
+    /// <param name="user">The user entity to add.</param>
     Task SaveChangesAsync();
+    
+    /// <summary>
+    /// Persists all changes made in the repository to the underlying data store asynchronously.
+    /// </summary>
+    /// <returns>A task representing the asynchronous save operation.</returns>
     Task<IDbContextTransaction> BeginTransactionAsync();
+    
 }
 
 public class UsersRepository : IUsersRepository

@@ -8,14 +8,65 @@ namespace CRM_ERP_UNID.Modules;
 public interface IRoleService
 {
     Task<GetAllResponseDto<Role>> GetAllAsync(GetAllDto getAllDto);
+    
+    /// <summary>
+    /// Retrieves all roles based on the specified filtering and pagination parameters.
+    /// </summary>
+    /// <param name="getAllDto">The DTO containing filtering and pagination parameters.</param>
+    /// <returns>A response DTO containing the list of roles along with associated metadata.</returns>
     Task<Role> GetByIdThrowsNotFoundAsync(Guid id);
+    
+    /// <summary>
+    /// Retrieves a role by its unique identifier and throws an exception if the role is not found.
+    /// </summary>
+    /// <param name="id">The unique identifier of the role.</param>
+    /// <returns>The role with the specified identifier.</returns>
+    /// <exception cref="NotFoundException">Thrown when no role with the given identifier is found.</exception>
     Task<Role> CreateRoleAsync(CreateRoleDto createRoleDto);
+    
+    /// <summary>
+    /// Creates a new role using the provided data.
+    /// </summary>
+    /// <param name="createRoleDto">The DTO containing the data required to create a new role.</param>
+    /// <returns>The newly created role.</returns>
     Task<Role> UpdateAsync(UpdateRoleDto updateRoleDto);
+    
+    /// <summary>
+    /// Updates an existing role using the provided data.
+    /// </summary>
+    /// <param name="updateRoleDto">The DTO containing the data required to update the role.</param>
+    /// <returns>The updated role.</returns>
     Task<Role> GetByNameThrowsNotFoundAsync(string roleName);
+    
+    /// <summary>
+    /// Retrieves a role by its name and throws an exception if the role is not found.
+    /// </summary>
+    /// <param name="roleName">The name of the role.</param>
+    /// <returns>The role with the specified name.</returns>
+    /// <exception cref="NotFoundException">Thrown when no role with the specified name is found.</exception>
     Task<Role> DeleteById(Guid id);
+    
+    /// <summary>
+    /// Deletes a role by its unique identifier.
+    /// </summary>
+    /// <param name="id">The unique identifier of the role to delete.</param>
+    /// <returns>The deleted role.</returns>
     Task<Role?> GetByNameAsync(string roleName);
+    
+    /// <summary>
+    /// Retrieves a role by its name.
+    /// </summary>
+    /// <param name="roleName">The name of the role.</param>
+    /// <returns>The role with the specified name, or null if not found.</returns>
     Task<bool> ExistRoleNameAsync(string roleName);
+    
+    /// <summary>
+    /// Checks whether a role with the specified name exists.
+    /// </summary>
+    /// <param name="roleName">The name of the role to check.</param>
+    /// <returns>True if a role with the specified name exists; otherwise, false.</returns>
 }
+
 
 public class RoleService : IRoleService
 {

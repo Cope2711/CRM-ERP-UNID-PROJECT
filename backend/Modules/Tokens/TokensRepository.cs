@@ -7,8 +7,24 @@ namespace CRM_ERP_UNID.Modules;
 public interface ITokensRepository
 {
     Task RevokeTokensByUserIdAsync(Guid userId);
+    
+    /// <summary>
+    /// Revokes all tokens associated with the specified user.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user whose tokens are to be revoked.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     void AddRefreshToken(RefreshToken refreshToken);
+    
+    /// <summary>
+    /// Adds a new refresh token to the repository.
+    /// </summary>
+    /// <param name="refreshToken">The refresh token to add.</param>
     Task SaveChangesAsync();
+    
+    /// <summary>
+    /// Persists all changes made in the repository to the data store.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous save operation.</returns>
 }
 
 public class TokensRepository : ITokensRepository

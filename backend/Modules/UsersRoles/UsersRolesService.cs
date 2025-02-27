@@ -9,10 +9,48 @@ namespace CRM_ERP_UNID.Modules;
 public interface IUsersRolesService
 {
     Task<UserRole> GetByUserIdAndRoleIdThrowsNotFoundAsync(Guid userId, Guid roleId);
+    
+    /// <summary>
+    /// Retrieves the user-role association for the specified user and role, and throws an exception if not found.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="roleId">The unique identifier of the role.</param>
+    /// <returns>The user-role association.</returns>
+    /// <exception cref="NotFoundException">Thrown when no association for the specified user and role is found.</exception>
     Task<UserRole> AssignRoleToUserAsync(UserAndRoleDto userAndRoleDto);
+    
+    /// <summary>
+    /// Assigns a role to a user using the provided details.
+    /// </summary>
+    /// <param name="userAndRoleDto">A DTO containing the user and role details.</param>
+    /// <returns>The newly created user-role association.</returns>
     Task<UserRole> RevokeRoleToUserAsync(UserAndRoleDto userAndRoleDto);
+    
+    /// <summary>
+    /// Revokes a role from a user using the provided details.
+    /// </summary>
+    /// <param name="userAndRoleDto">A DTO containing the user and role details.</param>
+    /// <returns>The user-role association that was revoked.</returns>
     Task<bool> IsRoleAssignedToUserAsync(Guid userId, Guid roleId);
+    
+    /// <summary>
+    /// Checks whether a specific role is assigned to a user.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="roleId">The unique identifier of the role.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. 
+    /// The task result contains true if the role is assigned to the user; otherwise, false.
+    /// </returns>
     Task<GetAllResponseDto<UserRole>> GetAllAsync(GetAllDto getAllDto);
+    
+    /// <summary>
+    /// Retrieves all user-role associations based on the specified filtering and pagination parameters.
+    /// </summary>
+    /// <param name="getAllDto">A DTO containing filtering and pagination parameters.</param>
+    /// <returns>
+    /// A response DTO containing the list of user-role associations along with associated metadata.
+    /// </returns>
 }
 
 public class UsersRolesService : IUsersRolesService
