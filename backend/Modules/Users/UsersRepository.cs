@@ -10,6 +10,8 @@ public interface IUsersRepository
     void Add(User user);
     Task SaveChangesAsync();
     Task<IDbContextTransaction> BeginTransactionAsync();
+    Task<User?> GetByEmailAsync(string email);
+    Task<User> GetByIdAsync(Guid userId);
 }
 
 public class UsersRepository : IUsersRepository
@@ -21,6 +23,11 @@ public class UsersRepository : IUsersRepository
         this._context = context;
     }
 
+    public async Task<User> GetByIdAsync(Guid userId)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.UserId == userId);
+    }
     public void Add(User user)
     {
         this._context.Users.Add(user);
@@ -30,7 +37,13 @@ public class UsersRepository : IUsersRepository
     {
        return await this._context.Database.BeginTransactionAsync();
     }
+    //recover Password
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.UserEmail == email);
+    }
     
+    // end recover password
     public async Task SaveChangesAsync()
     {
         await this._context.SaveChangesAsync();

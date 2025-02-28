@@ -33,6 +33,7 @@ DROP TABLE IF EXISTS UsersRoles;
 DROP TABLE IF EXISTS RefreshTokens;
 DROP TABLE IF EXISTS Users;
 DROP TABLE IF EXISTS Resources;
+DROP TABLE IF EXISTS PasswordResets;
 DROP TABLE IF EXISTS Roles;
 DROP TABLE IF EXISTS Permissions;
 
@@ -57,6 +58,17 @@ CREATE TABLE Permissions
     PermissionDescription VARCHAR(255) NULL
 );
 
+CREATE TABLE PasswordResets
+(
+    ResetId UNIQUEIDENTIFIER PRIMARY KEY NOT NULL, -- Clave primaria
+    UserId UNIQUEIDENTIFIER NULL, -- Clave foránea 
+    ResetToken NVARCHAR(MAX) NOT NULL, -- Token de restablecimiento
+    ResetTokenExpiry DATETIME2(7) NOT NULL, -- Fecha de expiración del token
+
+    -- relación con la tabla de usuarios
+    CONSTRAINT FK_PasswordResets_Users FOREIGN KEY (UserId)
+        REFERENCES Users(UserId) 
+);
 
 CREATE TABLE Roles
 (

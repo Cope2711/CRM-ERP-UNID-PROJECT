@@ -331,5 +331,113 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             refreshTokenResponse.Should().NotBeNull();
             refreshTokenResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
+        
+        
+    }
+      public class RequestResetTests : AuthControllerTests
+    {
+        public RequestResetTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
+
+        [Fact]
+        public async Task RequestResetAsync_WhenEmailIsValid_ReturnsOk()
+        {
+            // Arrange
+            var request = new RequestPasswordResetDto
+            {
+                Email = "admin@admin.com" // Correo electrónico válido
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/auth/request-reset", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseMessage = await response.Content.ReadAsStringAsync();
+            responseMessage.Should().Contain("se ah enviado correctamente");
+        }
+
+        [Fact]
+        public async Task RequestResetAsync_WhenEmailIsInvalid_ReturnsBadRequest()
+        {
+            // Arrange
+            var request = new RequestPasswordResetDto
+            {
+                Email = "invalid-email@example.com" // Correo electrónico inválido
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/auth/request-reset", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseMessage = await response.Content.ReadAsStringAsync();
+            responseMessage.Should().Contain("No se pudo procesar la solicitud");
+        }
+    }
+
+    public class ResetPasswordTests : AuthControllerTests
+    {
+        public ResetPasswordTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
+
+        [Fact]
+        public async Task ResetPassword_WhenTokenIsValid_ReturnsOk()
+        {
+            // Arrange
+            var request = new ResetPasswordDto
+            {
+                Token = "valid-token", // Token válido
+                NewPassword = "newPassword123"
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseMessage = await response.Content.ReadAsStringAsync();
+            responseMessage.Should().Contain("Contraseña restablecida correctamente");
+        }
+
+        [Fact]
+        public async Task ResetPassword_WhenTokenIsInvalid_ReturnsBadRequest()
+        {
+            // Arrange
+            var request = new ResetPasswordDto
+            {
+                Token = "invalid-token", // Token inválido
+                NewPassword = "newPassword123"
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseMessage = await response.Content.ReadAsStringAsync();
+            responseMessage.Should().Contain("Token no válido o expirado");
+        }
+
+        [Fact]
+        public async Task ResetPassword_WhenTokenIsExpired_ReturnsBadRequest()
+        {
+            // Arrange
+            var request = new ResetPasswordDto
+            {
+                Token = "expired-token", // Token expirado
+                NewPassword = "newPassword123"
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseMessage = await response.Content.ReadAsStringAsync();
+            responseMessage.Should().Contain("Token no válido o expirado");
+        }
     }
 }
