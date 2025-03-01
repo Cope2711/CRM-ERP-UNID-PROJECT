@@ -10,6 +10,7 @@ public interface IPermissionService
     Task<GetAllResponseDto<Permission>> GetAllAsync(GetAllDto getAllDto);
     Task<Permission> GetByIdThrowsNotFoundAsync(Guid id);
     Task<Permission?> GetByNameAsync(string permissionName);
+    Task<bool> ExistById(Guid id);
 }
 
 public class PermissionService : IPermissionService
@@ -36,5 +37,10 @@ public class PermissionService : IPermissionService
     public async Task<Permission?> GetByNameAsync(string permissionName)
     {
         return await _genericService.GetFirstAsync(p => p.PermissionName, permissionName);
+    }
+
+    public async Task<bool> ExistById(Guid id)
+    {
+        return await _genericService.ExistsAsync(p => p.PermissionId, id);
     }
 }

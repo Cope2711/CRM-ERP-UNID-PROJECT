@@ -4,6 +4,11 @@ namespace CRM_ERP_UNID.Dtos;
 
 using System.ComponentModel.DataAnnotations;
 
+public class UserResponseStatusDto : ResponseStatusDto
+{
+    public required Guid UserId { get; set; }
+}
+
 public class CreateUserDto
 {
     [MaxLength(50)] [Required] public string UserUserName { get; set; }
@@ -27,9 +32,12 @@ public class CreateUserDto
     [Required] public Guid RoleId { get; set; }
 }
 
-public class UserIdDto
+public class UsersIdsDto
 {
-    [Required] [GuidNotEmpty] public Guid UserId { get; set; }
+    [Required] 
+    [RangeListLength(1, 15)]
+    [GuidNotEmpty]  
+    public List<Guid> UsersIds { get; set; }
 }
 
 public class UserDto

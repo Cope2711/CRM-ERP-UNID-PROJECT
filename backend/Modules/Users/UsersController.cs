@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -14,7 +13,6 @@ namespace CRM_ERP_UNID.Modules;
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _usersService;
-    private Guid UserId => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Guid.Empty.ToString());
     
     public UsersController(IUsersService usersService)
     {
@@ -50,11 +48,6 @@ public class UsersController : ControllerBase
         
         
         GetAllResponseDto<User> getAllResponseDto = await _usersService.GetAll(getAllDto);
-
-        if (getAllResponseDto == null)
-        {
-            return BadRequest("Some problems ocurred getting the users :(");
-        }
         
         GetAllResponseDto<UserDto> getAllResponseDtoDto = new GetAllResponseDto<UserDto>();
         getAllResponseDtoDto.TotalItems = getAllResponseDto.TotalItems;
@@ -93,7 +86,7 @@ public class UsersController : ControllerBase
     [PermissionAuthorize("View", "Users")]
     public async Task<ActionResult<bool>> ExistUserByEmail([FromQuery] string email)
     {
-        return Ok(await this._usersService.GetByEmail(email) != null);
+        return Ok(await this._usersService.ExistByEmail(email));
     }
     
     [HttpGet("exist-user-by-username")]
@@ -105,24 +98,24 @@ public class UsersController : ControllerBase
     
     [HttpPatch("deactivate")]
     [PermissionAuthorize("Deactivate_User")]
-    public async Task<ActionResult<UserDto>> DeactivateUser([FromBody] UserIdDto userIdDto)
+    public async Task<ActionResult<ResponsesDto<UserResponseStatusDto>>> DeactivateUser([FromBody] UsersIdsDto usersIdsDto)
     {
-        User user = await this._usersService.DeactivateUserAsync(userIdDto.UserId);     
-        return Ok(Mapper.UserToUserDto(user));
+        ResponsesDto<UserResponseStatusDto> deactivateUsersResponseDto = await this._usersService.DeactivateUsersAsync(usersIdsDto);     
+        return Ok(deactivateUsersResponseDto);
     }
-
+    
     [HttpPatch("activate")]
     [PermissionAuthorize("Activate_User")]
-    public async Task<ActionResult<UserDto>> ActivateUser([FromBody] UserIdDto userIdDto)
+    public async Task<ActionResult<ResponsesDto<UserResponseStatusDto>>> ActivateUser([FromBody] UsersIdsDto usersIdsDto)
     {
-        User user = await this._usersService.ActivateUserAsync(userIdDto.UserId);
-        return Ok(Mapper.UserToUserDto(user));
+        ResponsesDto<UserResponseStatusDto> activateUsersResponseDto = await this._usersService.ActivateUsersAsync(usersIdsDto);
+        return Ok(activateUsersResponseDto);
     }
     
     [HttpPut("change-password")]
     public async Task<ActionResult<UserDto>> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
     {
-        User user = await this._usersService.ChangePasswordAsync(UserId, changePasswordDto);
+        User user = await this._usersService.ChangePasswordAsync(changePasswordDto);
         return Ok(Mapper.UserToUserDto(user));
     }
     

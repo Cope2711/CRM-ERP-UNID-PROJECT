@@ -8,6 +8,7 @@ public interface IResourceService
     Task<GetAllResponseDto<Resource>> GetAllAsync(GetAllDto getAllDto);
     Task<Resource> GetByIdThrowsNotFoundAsync(Guid id);
     Task<Resource> GetByNameThrowsNotFoundAsync(string resourceName);
+    Task<bool> ExistById(Guid id);
 }
 
 public class ResourceService : IResourceService
@@ -32,5 +33,10 @@ public class ResourceService : IResourceService
     public async Task<Resource> GetByNameThrowsNotFoundAsync(string resourceName)
     {
         return await _genericService.GetFirstThrowsNotFoundAsync(r => r.ResourceName, resourceName);
+    }
+
+    public async Task<bool> ExistById(Guid id)
+    {
+        return await _genericService.ExistsAsync(r => r.ResourceId, id);
     }
 }
