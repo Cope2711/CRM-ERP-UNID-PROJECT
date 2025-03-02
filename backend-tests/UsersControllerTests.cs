@@ -3,6 +3,7 @@ using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
 using CRM_ERP_UNID_TESTS;
+using CRM_ERP_UNID.Constants;
 
 [Collection("Tests")]
 public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
@@ -121,33 +122,32 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         {
         }
 
-        public static IEnumerable<object[]> ActivateUserTestData()
+        [Fact]
+        public async Task Activate_Test()
         {
-            yield return new object[] // If the user does not exist
+            // Arrange
+            UsersIdsDto usersIdsDto = new UsersIdsDto
             {
-                new UserIdDto {UserId = Guid.NewGuid()},
-                HttpStatusCode.NotFound
+                UsersIds = new List<Guid>
+                {
+                    Models.Users.InactiveTestUser.UserId,
+                    Models.Users.TestUser.UserId,
+                    Guid.NewGuid()
+                }
             };
             
-            yield return new object[] // If the user is already active
-            {
-                new UserIdDto {UserId = Models.Users.TestUser.UserId},
-                HttpStatusCode.BadRequest
-            };
-            
-            yield return new object[] // If the user is inactive
-            {
-                new UserIdDto {UserId = Models.Users.InactiveTestUser.UserId},
-                HttpStatusCode.OK
-            };
-        }
+            // Act
+            var response = await _client.PatchAsJsonAsync("/api/users/activate", usersIdsDto);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        [Theory]
-        [MemberData(nameof(ActivateUserTestData))]
-        public async Task ActivateUser_ReturnsExpectedResult(UserIdDto userIdDto, HttpStatusCode expectedStatusCode)
-        {
-            var response = await _client.PatchAsJsonAsync($"/api/users/activate", userIdDto);
-            response.StatusCode.Should().Be(expectedStatusCode);
+            ResponsesDto<UserResponseStatusDto>? activateUsersResponseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<UserResponseStatusDto>>();
+            
+            // Assert
+            activateUsersResponseDto.Should().NotBeNull();
+            activateUsersResponseDto.Success.Count.Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotFound).Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.AlreadyProcessed).Should().Be(1);
         }
     }
     
@@ -157,34 +157,32 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         {
         }
 
-        public static IEnumerable<object[]> DeactiveUserTestData()
+        [Fact]
+        public async Task Deactivate_Test()
         {
-            yield return new object[]
+            // Arrange
+            UsersIdsDto usersIdsDto = new UsersIdsDto
             {
-                new UserIdDto
+                UsersIds = new List<Guid>
                 {
-                    UserId = Models.Users.InactiveTestUser.UserId
-                },
-                HttpStatusCode.BadRequest
+                    Models.Users.InactiveTestUser.UserId,
+                    Models.Users.TestUser.UserId,
+                    Guid.NewGuid()
+                }
             };
+            
+            // Act
+            var response = await _client.PatchAsJsonAsync("/api/users/deactivate", usersIdsDto);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            yield return new object[]
-            {
-                new UserIdDto
-                {
-                    UserId = Guid.NewGuid()
-                },
-                HttpStatusCode.NotFound
-            };
-        }
-
-        [Theory]
-        [MemberData(nameof(DeactiveUserTestData))]
-        public async Task DeactiveUser_ReturnsExpectedResult(UserIdDto userIdDto,
-            HttpStatusCode expectedStatusCode)
-        {
-            var response = await _client.PatchAsJsonAsync("/api/users/deactivate", userIdDto);
-            response.StatusCode.Should().Be(expectedStatusCode);
+            ResponsesDto<UserResponseStatusDto>? activateUsersResponseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<UserResponseStatusDto>>();
+            
+            // Assert
+            activateUsersResponseDto.Should().NotBeNull();
+            activateUsersResponseDto.Success.Count.Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotFound).Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.AlreadyProcessed).Should().Be(1);
         }
     }
 

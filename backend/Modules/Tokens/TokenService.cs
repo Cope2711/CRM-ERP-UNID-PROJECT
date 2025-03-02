@@ -46,7 +46,9 @@ public class TokenService : ITokenService
     
     public string GenerateAccessToken(User user)
     {
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested GenerateAccessToken", AuthenticatedUserId);
+        Guid authenticatedUserId = AuthenticatedUserId;
+        
+        _logger.LogInformation("User with Id {authenticatedUserId} requested GenerateAccessToken", authenticatedUserId);
 
         var rolesIds = user.UserRoles.Select(ur => ur.Role.RoleId).ToList();
 
@@ -69,16 +71,18 @@ public class TokenService : ITokenService
         );
 
         _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested GenerateAccessToken and the access token was generated",
-            AuthenticatedUserId);
+            "User with Id {authenticatedUserId} requested GenerateAccessToken and the access token was generated",
+            authenticatedUserId);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     public async Task<RefreshToken> GenerateAndStoreRefreshTokenAsync(Guid userId, string deviceId)
     {
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested GenerateAndStoreRefreshTokenAsync",
-            AuthenticatedUserId);
+        Guid authenticatedUserId = AuthenticatedUserId;
+        
+        _logger.LogInformation("User with Id {authenticatedUserId} requested GenerateAndStoreRefreshTokenAsync",
+            authenticatedUserId);
 
         string refreshToken = GenerateSecureToken();
 
@@ -94,8 +98,8 @@ public class TokenService : ITokenService
         await this._tokensRepository.SaveChangesAsync();
 
         _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested GenerateAndStoreRefreshTokenAsync and the refresh token was generated",
-            AuthenticatedUserId);
+            "User with Id {authenticatedUserId} requested GenerateAndStoreRefreshTokenAsync and the refresh token was generated",
+            authenticatedUserId);
 
         return refreshTokenModel;
     }
@@ -112,29 +116,33 @@ public class TokenService : ITokenService
 
     public async Task<RefreshToken> RevokeRefreshTokenByObject(RefreshToken refreshToken)
     {
+        Guid authenticatedUserId = AuthenticatedUserId;
+        
         _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested RevokeRefreshTokenByObject for RefreshTokenId {TargetRefreshTokenId}",
-            AuthenticatedUserId, refreshToken.RefreshTokenId);
+            "User with Id {authenticatedUserId} requested RevokeRefreshTokenByObject for RefreshTokenId {TargetRefreshTokenId}",
+            authenticatedUserId, refreshToken.RefreshTokenId);
 
         refreshToken.RevokedAt = DateTime.Now;
         await this._tokensRepository.SaveChangesAsync();
 
         _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested RevokeRefreshTokenByObject for RefreshTokenId {TargetRefreshTokenId} and the refresh token was revoked",
-            AuthenticatedUserId, refreshToken.RefreshTokenId);
+            "User with Id {authenticatedUserId} requested RevokeRefreshTokenByObject for RefreshTokenId {TargetRefreshTokenId} and the refresh token was revoked",
+            authenticatedUserId, refreshToken.RefreshTokenId);
 
         return refreshToken;
     }
 
     public async Task RevokeRefreshsTokensByUserId(Guid userId)
     {
+        Guid authenticatedUserId = AuthenticatedUserId;
+        
         _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested RevokeRefreshsTokensByUserId for UserId {TargetUserId}",
-            AuthenticatedUserId, userId);
+            "User with Id {authenticatedUserId} requested RevokeRefreshsTokensByUserId for UserId {TargetUserId}",
+            authenticatedUserId, userId);
         await this._tokensRepository.RevokeTokensByUserIdAsync(userId);
         _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested RevokeRefreshsTokensByUserId for UserId {TargetUserId} and the refresh tokens were revoked",
-            AuthenticatedUserId, userId);
+            "User with Id {authenticatedUserId} requested RevokeRefreshsTokensByUserId for UserId {TargetUserId} and the refresh tokens were revoked",
+            authenticatedUserId, userId);
     }
 
     private string GenerateSecureToken()

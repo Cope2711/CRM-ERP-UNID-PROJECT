@@ -19,20 +19,21 @@ public class UsersRolesController : ControllerBase
         _usersRolesService = usersRolesService;
     }
     
-    [HttpPost("assign-role")]
+    
+    [HttpPost("assign-roles")]
     [PermissionAuthorize("Assign_Role")]
-    public async Task<ActionResult<RolePermissionResourceDto>> AssignRole([FromBody] UserAndRoleDto userAndRoleDto)
+    public async Task<ActionResult<ResponsesDto<UserAndRoleResponseStatusDto>>> AssignRoles([FromBody] UsersAndRolesDtos usersAndRolesDto)
     {
-        UserRole userRole = await _usersRolesService.AssignRoleToUserAsync(userAndRoleDto);
-        return Ok(Mapper.UserRoleToUserRoleDto(userRole));
+        ResponsesDto<UserAndRoleResponseStatusDto> usersAndRolesResponsesDto = await _usersRolesService.AssignRolesToUsersAsync(usersAndRolesDto);
+        return Ok(usersAndRolesResponsesDto);
     }
     
-    [HttpDelete("revoke-role")]
+    [HttpDelete("revoke-roles")]
     [PermissionAuthorize("Revoke_Role")]
-    public async Task<ActionResult<UserRoleDto>> RevokeRole([FromBody] UserAndRoleDto userAndRoleDto)
+    public async Task<ActionResult<ResponsesDto<UserAndRoleResponseStatusDto>>> RevokeRoles([FromBody] UsersAndRolesDtos usersAndRolesDto)
     {
-        UserRole userRole = await _usersRolesService.RevokeRoleToUserAsync(userAndRoleDto);
-        return Ok(Mapper.UserRoleToUserRoleDto(userRole));
+        ResponsesDto<UserAndRoleResponseStatusDto> usersAndRolesResponsesDto = await _usersRolesService.RevokeRolesToUsersAsync(usersAndRolesDto);
+        return Ok(usersAndRolesResponsesDto);
     }
     
     [HttpGet("get-all")]

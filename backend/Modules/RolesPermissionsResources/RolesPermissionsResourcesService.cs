@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
@@ -12,8 +13,12 @@ public interface IRolesPermissionsResourcesService
         string? resourceName = null);
 
     Task<bool> ArePermissionIdResourceIdAssignedToRoleIdAsync(Guid roleId, Guid permissionId, Guid? resourceId = null);
-    Task<RolePermissionResource> AssignPermissionToRoleAsync(PermissionResourceAndRoleDto permissionResourceAndRoleDto);
-    Task<RolePermissionResource> RevokePermissionToRoleAsync(PermissionResourceAndRoleDto permissionResourceAndRoleDto);
+
+    Task<ResponsesDto<RolePermissionResourceResponseStatusDto>> AssignPermissionsToRolesAsync(
+        PermissionsResourcesAndRolesIdsDto permissionsResourcesAndRolesIdsDto);
+
+    Task<ResponsesDto<RolePermissionResourceResponseStatusDto>> RevokePermissionsToRolesAsync(PermissionsResourcesAndRolesIdsDto permissionsResourcesAndRolesIdsDto);
+
     Task<GetAllResponseDto<RolePermissionResource>> GetAllAsync(GetAllDto getAllDto);
 }
 
@@ -89,74 +94,123 @@ public class RolesPermissionsResourcesService : IRolesPermissionsResourcesServic
         return rolePermissionResource;
     }
 
-    public async Task<RolePermissionResource> RevokePermissionToRoleAsync(
-        PermissionResourceAndRoleDto permissionResourceAndRoleDto)
+    public async Task<ResponsesDto<RolePermissionResourceResponseStatusDto>> RevokePermissionsToRolesAsync(
+        PermissionsResourcesAndRolesIdsDto permissionsResourcesAndRolesIdsDto)
     {
-        _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested RevokePermissionToRoleAsync for RoleId {TargetRoleId}, PermissionId {TargetPermissionId} and ResourceId {TargetResourceId}",
-            AuthenticatedUserId, permissionResourceAndRoleDto.RoleId, permissionResourceAndRoleDto.PermissionId,
-            permissionResourceAndRoleDto.ResourceId);
-
-        // Is already assigned?
-        RolePermissionResource rolePermissionResource =
-            await GetByRoleIdPermissionIdResourceIdThrowsNotFoundAsync(permissionResourceAndRoleDto.RoleId,
-                permissionResourceAndRoleDto.PermissionId, permissionResourceAndRoleDto.ResourceId);
-
-        // Remove from database
-        _rolesPermissionsResourcesRepository.Remove(rolePermissionResource);
-        await _rolesPermissionsResourcesRepository.SaveChangesAsync();
+        Guid authenticatedUserId = AuthenticatedUserId;
+        ResponsesDto<RolePermissionResourceResponseStatusDto> responsesDto = new();
 
         _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested RevokePermissionToRoleAsync for RoleId {TargetRoleId}, PermissionId {TargetPermissionId} and ResourceId {TargetResourceId} and the permission was revoked",
-            AuthenticatedUserId, permissionResourceAndRoleDto.RoleId, permissionResourceAndRoleDto.PermissionId,
-            permissionResourceAndRoleDto.ResourceId);
+            "User with Id {authenticatedUserId} requested RevokePermissionToRoleAsync with the object {permissionsResourcesAndRolesIdsDto}",
+            authenticatedUserId, permissionsResourcesAndRolesIdsDto);
 
-        return rolePermissionResource;
+        foreach (PermissionResourceAndRoleIdsDto permissionResourceAndRoleIdsDto in permissionsResourcesAndRolesIdsDto
+            .PermissionResourceAndRoleIds)
+        {
+            RolePermissionResource? rolePermissionResource =
+                await GetByRoleIdPermissionIdResourceIdAsync(permissionResourceAndRoleIdsDto.RoleId,
+                    permissionResourceAndRoleIdsDto.PermissionId, permissionResourceAndRoleIdsDto.ResourceId);
+            
+            if (rolePermissionResource == null)
+            {
+                responsesDto.Failed.Add(new RolePermissionResourceResponseStatusDto {
+                    PermissionResourceAndRoleIds = permissionResourceAndRoleIdsDto,
+                    Status = ResponseStatus.NotFound,
+                    Field = "PermissionId",
+                    Message = "Permission not found"
+                }); continue;
+            }
+            
+            // Remove from database
+            _rolesPermissionsResourcesRepository.Remove(rolePermissionResource);
+            await _rolesPermissionsResourcesRepository.SaveChangesAsync();
+            
+            responsesDto.Success.Add(new RolePermissionResourceResponseStatusDto
+            {
+                PermissionResourceAndRoleIds = permissionResourceAndRoleIdsDto,
+                Status = ResponseStatus.Success,
+                Message = "Success"
+            });
+        }
+        
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} requested AssignPermissionToRoleAsync and the result was {responsesDto}",
+            authenticatedUserId, responsesDto);
+
+        return responsesDto;
     }
 
-    public async Task<RolePermissionResource> AssignPermissionToRoleAsync(
-        PermissionResourceAndRoleDto permissionResourceAndRoleDto)
+    public async Task<ResponsesDto<RolePermissionResourceResponseStatusDto>> AssignPermissionsToRolesAsync(
+            PermissionsResourcesAndRolesIdsDto permissionsResourcesAndRolesIdsDto)
     {
-        _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested AssignPermissionToRoleAsync for RoleId {TargetRoleId}, PermissionId {TargetPermissionId} and ResourceId {TargetResourceId}",
-            AuthenticatedUserId, permissionResourceAndRoleDto.RoleId, permissionResourceAndRoleDto.PermissionId,
-            permissionResourceAndRoleDto.ResourceId);
+        Guid authenticatedUserId = AuthenticatedUserId;
+        ResponsesDto<RolePermissionResourceResponseStatusDto> responsesDto = new();
 
-        // Is already assigned?
-        if (await ArePermissionIdResourceIdAssignedToRoleIdAsync(permissionResourceAndRoleDto.RoleId,
-                permissionResourceAndRoleDto.PermissionId, permissionResourceAndRoleDto.ResourceId))
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} requested AssignPermissionToRoleAsync with the object {permissionsResourcesAndRolesIdsDto}",
+            authenticatedUserId, permissionsResourcesAndRolesIdsDto);
+
+        foreach (PermissionResourceAndRoleIdsDto permissionResourceAndRoleIdsDto in permissionsResourcesAndRolesIdsDto
+                     .PermissionResourceAndRoleIds)
         {
-            _logger.LogError(
-                "User with Id {AuthenticatedUserId} requested AssignPermissionToRoleAsync for RoleId {TargetRoleId}, PermissionId {TargetPermissionId} and ResourceId {TargetResourceId} but the permission is already assigned",
-                AuthenticatedUserId, permissionResourceAndRoleDto.RoleId, permissionResourceAndRoleDto.PermissionId,
-                permissionResourceAndRoleDto.ResourceId);
+            if (await ArePermissionIdResourceIdAssignedToRoleIdAsync(permissionResourceAndRoleIdsDto.RoleId,
+                    permissionResourceAndRoleIdsDto.PermissionId, permissionResourceAndRoleIdsDto.ResourceId)) {
+                responsesDto.Failed.Add(new RolePermissionResourceResponseStatusDto {
+                    PermissionResourceAndRoleIds = permissionResourceAndRoleIdsDto,
+                    Status = ResponseStatus.AlreadyProcessed,
+                    Message = "Already assigned"
+                }); continue;
+            }
+
+            if (!await _roleService.ExistById(permissionResourceAndRoleIdsDto.RoleId)) {
+                responsesDto.Failed.Add(new RolePermissionResourceResponseStatusDto {
+                    PermissionResourceAndRoleIds = permissionResourceAndRoleIdsDto,
+                    Status = ResponseStatus.NotFound,
+                    Field = "RoleId",
+                    Message = "Role not found"
+                }); continue;
+            }
+
+            if (!await _permissionService.ExistById(permissionResourceAndRoleIdsDto.PermissionId)) {
+                responsesDto.Failed.Add(new RolePermissionResourceResponseStatusDto {
+                    PermissionResourceAndRoleIds = permissionResourceAndRoleIdsDto,
+                    Status = ResponseStatus.NotFound,
+                    Field = "PermissionId",
+                    Message = "Permission not found"
+                }); continue;
+            }
+
+            if (permissionResourceAndRoleIdsDto.ResourceId != null && !await _resourceService.ExistById(permissionResourceAndRoleIdsDto.ResourceId.Value)) {
+                responsesDto.Failed.Add(new RolePermissionResourceResponseStatusDto {
+                    PermissionResourceAndRoleIds = permissionResourceAndRoleIdsDto,
+                    Status = ResponseStatus.NotFound,
+                    Field = "ResourceId",
+                    Message = "Resource not found"
+                }); continue;
+            }
+
+            RolePermissionResource rolePermissionResource = new RolePermissionResource
+            {
+                RoleId = permissionResourceAndRoleIdsDto.RoleId,
+                PermissionId = permissionResourceAndRoleIdsDto.PermissionId,
+                ResourceId = permissionResourceAndRoleIdsDto.ResourceId
+            };
+
+            _rolesPermissionsResourcesRepository.Add(rolePermissionResource);
+            await _rolesPermissionsResourcesRepository.SaveChangesAsync();
             
-            throw new UniqueConstraintViolationException("This permission is already assigned to the role.",
-                field: "PermissionId");
+            responsesDto.Success.Add(new RolePermissionResourceResponseStatusDto
+            {
+                PermissionResourceAndRoleIds = permissionResourceAndRoleIdsDto,
+                Status = ResponseStatus.Success,
+                Message = "Success"
+            });
         }
 
-        // Exist source and target?
-        await _roleService.GetByIdThrowsNotFoundAsync(permissionResourceAndRoleDto.RoleId);
-        await _permissionService.GetByIdThrowsNotFoundAsync(permissionResourceAndRoleDto.PermissionId);
-        if (permissionResourceAndRoleDto.ResourceId != null)
-            await _resourceService.GetByIdThrowsNotFoundAsync(permissionResourceAndRoleDto.ResourceId.Value);
-
-        // Add to database
-        RolePermissionResource rolePermissionResource = new RolePermissionResource
-        {
-            RoleId = permissionResourceAndRoleDto.RoleId,
-            PermissionId = permissionResourceAndRoleDto.PermissionId,
-            ResourceId = permissionResourceAndRoleDto.ResourceId
-        };
-
-        _rolesPermissionsResourcesRepository.Add(rolePermissionResource);
-        await _rolesPermissionsResourcesRepository.SaveChangesAsync();
-
         _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested AssignPermissionToRoleAsync for RoleId {TargetRoleId}, PermissionId {TargetPermissionId} and ResourceId {TargetResourceId} and the permission was assigned",
-            AuthenticatedUserId, permissionResourceAndRoleDto.RoleId, permissionResourceAndRoleDto.PermissionId,
-            permissionResourceAndRoleDto.ResourceId);
+            "User with Id {authenticatedUserId} requested AssignPermissionToRoleAsync and the result was {responsesDto}",
+            authenticatedUserId, responsesDto);
 
-        return rolePermissionResource;
+        return responsesDto;
     }
 }

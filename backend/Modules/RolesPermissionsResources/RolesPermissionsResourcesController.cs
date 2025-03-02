@@ -10,7 +10,7 @@ namespace CRM_ERP_UNID.Modules;
 [ApiController]
 [Route("api/roles-permissions")]
 [Authorize]
-public class RolesPermissionsResourcesController : ControllerBase
+public class RolesPermissionsResourcesController : ControllerBase 
 {
     private readonly IRolesPermissionsResourcesService _rolesPermissionsResourcesService;
     
@@ -19,20 +19,20 @@ public class RolesPermissionsResourcesController : ControllerBase
         _rolesPermissionsResourcesService = rolesPermissionsResourcesService;
     }
 
-    [HttpPost("assign-permission")]
+    [HttpPost("assign-permissions")]
     [PermissionAuthorize("Assign_Permission")]
-    public async Task<ActionResult<RolePermissionResourceDto>> AssignPermissionToRole([FromBody] PermissionResourceAndRoleDto permissionResourceAndRoleDto)
+    public async Task<ActionResult<ResponsesDto<RolePermissionResourceResponseStatusDto>>> AssignPermissionsToRoles([FromBody] PermissionsResourcesAndRolesIdsDto permissionsResourcesAndRolesIdsDto)
     {
-        RolePermissionResource rolePermissionResource = await _rolesPermissionsResourcesService.AssignPermissionToRoleAsync(permissionResourceAndRoleDto);
-        return Ok(Mapper.RolePermissionResourceToRolePermissionResourceDto(rolePermissionResource));
+        ResponsesDto<RolePermissionResourceResponseStatusDto> responsesDto = await _rolesPermissionsResourcesService.AssignPermissionsToRolesAsync(permissionsResourcesAndRolesIdsDto);
+        return Ok(responsesDto);
     }
     
-    [HttpDelete("revoke-permission")]
+    [HttpDelete("revoke-permissions")]
     [PermissionAuthorize("Revoke_Permission")]
-    public async Task<ActionResult<RolePermissionResourceDto>> RevokePermissionToRole([FromBody] PermissionResourceAndRoleDto permissionResourceAndRoleDto)
+    public async Task<ActionResult<ResponsesDto<RolePermissionResourceResponseStatusDto>>> RevokePermissionsToRoles([FromBody] PermissionsResourcesAndRolesIdsDto permissionsResourcesAndRolesIdsDto)
     {
-        RolePermissionResource rolePermissionResource = await _rolesPermissionsResourcesService.RevokePermissionToRoleAsync(permissionResourceAndRoleDto);
-        return Ok(Mapper.RolePermissionResourceToRolePermissionResourceDto(rolePermissionResource));
+        ResponsesDto<RolePermissionResourceResponseStatusDto> responsesDto = await _rolesPermissionsResourcesService.RevokePermissionsToRolesAsync(permissionsResourcesAndRolesIdsDto);
+        return Ok(responsesDto);
     }
     
     [HttpPost("get-all")]

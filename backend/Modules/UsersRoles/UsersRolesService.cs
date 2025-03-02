@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
@@ -9,8 +10,9 @@ namespace CRM_ERP_UNID.Modules;
 public interface IUsersRolesService
 {
     Task<UserRole> GetByUserIdAndRoleIdThrowsNotFoundAsync(Guid userId, Guid roleId);
-    Task<UserRole> AssignRoleToUserAsync(UserAndRoleDto userAndRoleDto);
-    Task<UserRole> RevokeRoleToUserAsync(UserAndRoleDto userAndRoleDto);
+    Task<UserRole?> GetByUserIdAndRoleId(Guid userId, Guid roleId);
+    Task<ResponsesDto<UserAndRoleResponseStatusDto>> AssignRolesToUsersAsync(UsersAndRolesDtos usersAndRolesDto);
+    Task<ResponsesDto<UserAndRoleResponseStatusDto>> RevokeRolesToUsersAsync(UsersAndRolesDtos usersAndRolesDto);
     Task<bool> IsRoleAssignedToUserAsync(Guid userId, Guid roleId);
     Task<GetAllResponseDto<UserRole>> GetAllAsync(GetAllDto getAllDto);
 }
@@ -24,8 +26,10 @@ public class UsersRolesService : IUsersRolesService
     private readonly ILogger<UsersRolesService> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    private Guid AuthenticatedUserId => Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Guid.Empty.ToString());
-    
+    private Guid AuthenticatedUserId =>
+        Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                   Guid.Empty.ToString());
+
     public UsersRolesService(IUsersRolesRepository usersRolesRepository, IRoleService roleService,
         IUsersService userService, IGenericServie<UserRole> genericService, ILogger<UsersRolesService> logger,
         IHttpContextAccessor httpContextAccessor)
@@ -46,13 +50,15 @@ public class UsersRolesService : IUsersRolesService
 
     public async Task<UserRole> GetByUserIdAndRoleIdThrowsNotFoundAsync(Guid userId, Guid roleId)
     {
-        UserRole? userRole = await _usersRolesRepository.GetByUserIdAndRoleIdAsync(userId, roleId);
+        UserRole? userRole = await GetByUserIdAndRoleId(userId, roleId);
         if (userRole == null)
-        {
             throw new NotFoundException("This role is not assigned to the user.", field: "RoleId");
-        }
-
         return userRole;
+    }
+
+    public async Task<UserRole?> GetByUserIdAndRoleId(Guid userId, Guid roleId)
+    {
+        return await _usersRolesRepository.GetByUserIdAndRoleIdAsync(userId, roleId);
     }
 
     public async Task<bool> IsRoleAssignedToUserAsync(Guid userId, Guid roleId)
@@ -60,50 +66,117 @@ public class UsersRolesService : IUsersRolesService
         return await _usersRolesRepository.IsRoleAssignedToUserAsync(userId, roleId);
     }
 
-    public async Task<UserRole> RevokeRoleToUserAsync(UserAndRoleDto userAndRoleDto)
+    public async Task<ResponsesDto<UserAndRoleResponseStatusDto>> RevokeRolesToUsersAsync(UsersAndRolesDtos usersAndRolesDto)
     {
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested RevokeRoleToUser for UserId {TargetUserId} and RoleId {TargetRoleId}", AuthenticatedUserId, userAndRoleDto.UserId, userAndRoleDto.RoleId);
-        
-        // Is already assigned?
-        UserRole userRole = await GetByUserIdAndRoleIdThrowsNotFoundAsync(userAndRoleDto.UserId, userAndRoleDto.RoleId);
+        Guid authenticatedUserId = AuthenticatedUserId;
+        ResponsesDto<UserAndRoleResponseStatusDto> responseDto = new();
 
-        // Remove from database
-        _usersRolesRepository.Remove(userRole);
-        await _usersRolesRepository.SaveChangesAsync();
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} requested RevokeRolesToUsers with the object {UsersAndRolesDto}",
+            authenticatedUserId, usersAndRolesDto);
 
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested RevokeRoleToUser for UserId {TargetUserId} and RoleId {TargetRoleId} and the role was revoked", AuthenticatedUserId, userAndRoleDto.UserId, userAndRoleDto.RoleId);
-        
-        return userRole;
-    }
-
-    public async Task<UserRole> AssignRoleToUserAsync(UserAndRoleDto userAndRoleDto)
-    {
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested AssignRoleToUser for UserId {TargetUserId} and RoleId {TargetRoleId}", AuthenticatedUserId, userAndRoleDto.UserId, userAndRoleDto.RoleId);
-        
-        // Is already assigned?
-        if (await IsRoleAssignedToUserAsync(userAndRoleDto.UserId, userAndRoleDto.RoleId))
+        foreach (UserAndRoleIdDto userAndRoleIdDto in usersAndRolesDto.UserAndRoleId)
         {
-            _logger.LogInformation("User with Id {AuthenticatedUserId} requested AssignRoleToUser for UserId {TargetUserId} and RoleId {TargetRoleId} but the role is already assigned", AuthenticatedUserId, userAndRoleDto.UserId, userAndRoleDto.RoleId);
-            throw new UniqueConstraintViolationException("This role is already assigned to the user.",
-                field: "RoleId");
+            UserRole? userRole = await GetByUserIdAndRoleId(userAndRoleIdDto.UserId, userAndRoleIdDto.RoleId);
+
+            if (userRole == null)
+            {
+                responseDto.Failed.Add(new UserAndRoleResponseStatusDto
+                {
+                    UserAndRoleId = userAndRoleIdDto,
+                    Status = ResponseStatus.NotFound,
+                    Field = "UserRole",
+                    Message = "Relation not exists"
+                });
+                continue;
+            }
+
+            _usersRolesRepository.Remove(userRole);
+            await _usersRolesRepository.SaveChangesAsync();
+
+            responseDto.Success.Add(new UserAndRoleResponseStatusDto
+            {
+                UserAndRoleId = userAndRoleIdDto,
+                Status = ResponseStatus.Success,
+                Message = "Role revoked"
+            });
         }
 
-        // Exist source and target?
-        await _userService.GetByIdThrowsNotFoundAsync(userAndRoleDto.UserId);
-        await _roleService.GetByIdThrowsNotFoundAsync(userAndRoleDto.RoleId);
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} requested RevokeRolesToUsers and the result was {responseDto}",
+            authenticatedUserId, responseDto);
 
-        // Add to database
-        UserRole userRole = new UserRole
+        return responseDto;
+    }
+
+    public async Task<ResponsesDto<UserAndRoleResponseStatusDto>> AssignRolesToUsersAsync(UsersAndRolesDtos usersAndRolesDto)
+    {
+        Guid authenticatedUserId = AuthenticatedUserId;
+        ResponsesDto<UserAndRoleResponseStatusDto> responseDto = new();
+
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} requested AssignRolesToUsers with the object {UsersAndRolesDto}",
+            authenticatedUserId, usersAndRolesDto);
+
+        foreach (UserAndRoleIdDto userAndRoleIdDto in usersAndRolesDto.UserAndRoleId)
         {
-            UserId = userAndRoleDto.UserId,
-            RoleId = userAndRoleDto.RoleId
-        };
+            if (await IsRoleAssignedToUserAsync(userAndRoleIdDto.UserId, userAndRoleIdDto.RoleId))
+            {
+                responseDto.Failed.Add(new UserAndRoleResponseStatusDto
+                {
+                    UserAndRoleId = userAndRoleIdDto,
+                    Status = ResponseStatus.AlreadyProcessed,
+                    Message = "Role already assigned to user"
+                });
+                continue;
+            }
 
-        _usersRolesRepository.Add(userRole);
-        await _usersRolesRepository.SaveChangesAsync();
+            if (!await _userService.ExistById(userAndRoleIdDto.UserId))
+            {
+                responseDto.Failed.Add(new UserAndRoleResponseStatusDto
+                {
+                    UserAndRoleId = userAndRoleIdDto,
+                    Status = ResponseStatus.NotFound,
+                    Field = "UserId",
+                    Message = "User not exist"
+                });
+                continue;
+            }
 
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested AssignRoleToUser for UserId {TargetUserId} and RoleId {TargetRoleId} and the role was assigned", AuthenticatedUserId, userAndRoleDto.UserId, userAndRoleDto.RoleId);
-        
-        return userRole;
+            if (!await _roleService.ExistById(userAndRoleIdDto.RoleId))
+            {
+                responseDto.Failed.Add(new UserAndRoleResponseStatusDto
+                {
+                    UserAndRoleId = userAndRoleIdDto,
+                    Status = ResponseStatus.NotFound,
+                    Field = "RoleId",
+                    Message = "Role not exist"
+                });
+                continue;
+            }
+
+            // Add to database
+            UserRole userRole = new UserRole
+            {
+                UserId = userAndRoleIdDto.UserId,
+                RoleId = userAndRoleIdDto.RoleId
+            };
+
+            _usersRolesRepository.Add(userRole);
+            await _usersRolesRepository.SaveChangesAsync();
+
+            responseDto.Success.Add(new UserAndRoleResponseStatusDto
+            {
+                UserAndRoleId = userAndRoleIdDto,
+                Status = ResponseStatus.Success,
+                Message = "RoleAssigned"
+            });
+        }
+
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} requested AssignRolesToUsers and the result was: {responseDto}",
+            authenticatedUserId, responseDto);
+
+        return responseDto;
     }
 }

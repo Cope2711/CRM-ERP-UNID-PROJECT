@@ -15,6 +15,8 @@ public interface IRoleService
     Task<Role> DeleteById(Guid id);
     Task<Role?> GetByNameAsync(string roleName);
     Task<bool> ExistRoleNameAsync(string roleName);
+    Task<bool> ExistByIdThrowsNotFoundAsync(Guid id);
+    Task<bool> ExistById(Guid id);
 }
 
 public class RoleService : IRoleService
@@ -44,16 +46,18 @@ public class RoleService : IRoleService
     
     public async Task<Role> DeleteById(Guid id)
     {
-        _logger.LogInformation("User with Id {AuthenticatedUserId} requested DeleteById for RoleId {TargetRoleId}",
-            AuthenticatedUserId, id);
+        Guid authenticatedUserId = AuthenticatedUserId;
+        
+        _logger.LogInformation("User with Id {authenticatedUserId} requested DeleteById for RoleId {TargetRoleId}",
+            authenticatedUserId, id);
 
         Role role = await GetByIdThrowsNotFoundAsync(id);
         _roleRepository.Remove(role);
         await _roleRepository.SaveChangesAsync();
 
         _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested DeleteById for RoleId {TargetRoleId} and the role was deleted",
-            AuthenticatedUserId, id);
+            "User with Id {authenticatedUserId} requested DeleteById for RoleId {TargetRoleId} and the role was deleted",
+            authenticatedUserId, id);
 
         return role;
     }
@@ -71,16 +75,18 @@ public class RoleService : IRoleService
 
     public async Task<Role> CreateRoleAsync(CreateRoleDto createRoleDto)
     {
+        Guid authenticatedUserId = AuthenticatedUserId;
+        
         _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested CreateRoleAsync for RoleName {TargetRoleName}",
-            AuthenticatedUserId, createRoleDto.RoleName);
+            "User with Id {authenticatedUserId} requested CreateRoleAsync for RoleName {TargetRoleName}",
+            authenticatedUserId, createRoleDto.RoleName);
 
         // Exist roleName?
         if (await GetByNameAsync(createRoleDto.RoleName) != null)
         {
             _logger.LogError(
-                "User with Id {AuthenticatedUserId} requested CreateRoleAsync for RoleName {TargetRoleName} but the rolename already exists",
-                AuthenticatedUserId, createRoleDto.RoleName);
+                "User with Id {authenticatedUserId} requested CreateRoleAsync for RoleName {TargetRoleName} but the rolename already exists",
+                authenticatedUserId, createRoleDto.RoleName);
 
             throw new UniqueConstraintViolationException(
                 $"A role with the name '{createRoleDto.RoleName}' already exists.",
@@ -97,14 +103,16 @@ public class RoleService : IRoleService
         await _roleRepository.SaveChangesAsync();
 
         _logger.LogInformation(
-            "User with Id {AuthenticatedUserId} requested CreateRoleAsync for RoleName {TargetRoleName} and the role was created",
-            AuthenticatedUserId, createRoleDto.RoleName);
+            "User with Id {authenticatedUserId} requested CreateRoleAsync for RoleName {TargetRoleName} and the role was created",
+            authenticatedUserId, createRoleDto.RoleName);
         
         return newRole;
     }
 
     public async Task<Role> UpdateAsync(UpdateRoleDto updateRoleDto)
     {
+        Guid authenticatedUserId = AuthenticatedUserId;
+        
         Role role = await GetByIdThrowsNotFoundAsync(updateRoleDto.RoleId);
 
         if (updateRoleDto.RoleName != null)
@@ -112,8 +120,8 @@ public class RoleService : IRoleService
             if (await ExistRoleNameAsync(updateRoleDto.RoleName))
             {
                 _logger.LogError(
-                    "User with Id {AuthenticatedUserId} requested UpdateAsync for RoleId {TargetRoleId} but the rolename already exists",
-                    AuthenticatedUserId, updateRoleDto.RoleId);
+                    "User with Id {authenticatedUserId} requested UpdateAsync for RoleId {TargetRoleId} but the rolename already exists",
+                    authenticatedUserId, updateRoleDto.RoleId);
                 
                 throw new UniqueConstraintViolationException(
                     $"A role with the name '{updateRoleDto.RoleName}' already exists.",
@@ -127,8 +135,9 @@ public class RoleService : IRoleService
 
         _roleRepository.Update(role);
         await _roleRepository.SaveChangesAsync();
-
-        
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} requested UpdateAsync for RoleId {TargetRoleId} and the role was updated",
+            authenticatedUserId, updateRoleDto.RoleId);
         return role;
     }
 
@@ -141,4 +150,20 @@ public class RoleService : IRoleService
     {
         return await _genericService.GetFirstAsync(r => r.RoleName, roleName);
     }
+
+    public async Task<bool> ExistByIdThrowsNotFoundAsync(Guid id)
+    {
+        if (!await ExistById(id))
+        {
+            throw new NotFoundException(message: $"Role with id: {id} not exist", field: "RoleId");
+        }
+
+        return true;
+    }
+
+    public async Task<bool> ExistById(Guid id)
+    {
+        return await _genericService.ExistsAsync(r => r.RoleId, id);
+    }
+
 }

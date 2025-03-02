@@ -50,3 +50,16 @@ public class GetAllResponseDto<T>
     [Range(1, int.MaxValue, ErrorMessage = "TotalPages must be at least 1.")]
     public int TotalPages { get; set; }
 }
+
+public class ResponsesDto<T>
+{
+    public List<T> Success { get; set; } = new();
+    public List<T> Failed { get; set; } = new();
+}
+
+public class ResponseStatusDto
+{
+    public required string Status { get; set; }
+    public string? Message { get; set; }
+    public string? Field { get; set; }
+}
