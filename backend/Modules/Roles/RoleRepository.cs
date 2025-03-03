@@ -12,23 +12,18 @@ public interface IRoleRepository
     void Add(Role role);
 }
 
-public class RoleRepository : IRoleRepository
+public class RoleRepository(
+    AppDbContext _context
+    ) : IRoleRepository
 {
-    private readonly AppDbContext _context;
-
-    public RoleRepository(AppDbContext context)
-    {
-        _context = context;
-    }
-
     public void Add(Role role)
-    {
-        this._context.Roles.Add(role);
+    { 
+        _context.Roles.Add(role);
     }
 
     public async Task SaveChangesAsync()
     {
-        await this._context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
     
     public void Update(Role role)

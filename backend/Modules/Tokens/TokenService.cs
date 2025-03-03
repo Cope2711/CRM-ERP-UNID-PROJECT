@@ -9,29 +9,14 @@ using CRM_ERP_UNID.Helpers;
 
 namespace CRM_ERP_UNID.Modules;
 
-public class TokenService : ITokenService
+public class TokenService(
+    IConfiguration _configuration,
+    ITokensRepository _tokensRepository,
+    IGenericServie<RefreshToken> _genericService,
+    ILogger<TokenService> _logger,
+    IHttpContextAccessor _httpContextAccessor
+) : ITokenService
 {
-    private readonly ITokensRepository _tokensRepository;
-    private readonly IConfiguration _configuration;
-    private readonly IGenericServie<RefreshToken> _genericService;
-    private readonly ILogger<TokenService> _logger;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    private Guid AuthenticatedUserId =>
-        Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
-                   Guid.Empty.ToString());
-
-    public TokenService(IConfiguration configuration, ITokensRepository tokensRepository,
-        IGenericServie<RefreshToken> genericService, ILogger<TokenService> logger,
-        IHttpContextAccessor httpContextAccessor)
-    {
-        this._configuration = configuration;
-        this._tokensRepository = tokensRepository;
-        _genericService = genericService;
-        _logger = logger;
-        _httpContextAccessor = httpContextAccessor;
-    }
-
     public async Task ValidateNumsOfDevices(Guid userId)
     {
         int numberOfDevices = await _tokensRepository.GetActiveDevicesCount(userId);
@@ -46,7 +31,7 @@ public class TokenService : ITokenService
     
     public string GenerateAccessToken(User user)
     {
-        Guid authenticatedUserId = AuthenticatedUserId;
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         
         _logger.LogInformation("User with Id {authenticatedUserId} requested GenerateAccessToken", authenticatedUserId);
 
@@ -56,7 +41,8 @@ public class TokenService : ITokenService
         {
             new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new Claim(ClaimTypes.Name, user.UserUserName),
-            new Claim(ClaimTypes.Role, string.Join(",", rolesIds))
+            new Claim(ClaimTypes.Role, string.Join(",", rolesIds)),
+            new Claim("RolePriorities", string.Join(",", user.UserRoles.Select(ur => ur.Role.RolePriority)))
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
@@ -79,7 +65,7 @@ public class TokenService : ITokenService
 
     public async Task<RefreshToken> GenerateAndStoreRefreshTokenAsync(Guid userId, string deviceId)
     {
-        Guid authenticatedUserId = AuthenticatedUserId;
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         
         _logger.LogInformation("User with Id {authenticatedUserId} requested GenerateAndStoreRefreshTokenAsync",
             authenticatedUserId);
@@ -94,8 +80,8 @@ public class TokenService : ITokenService
             ExpiresAt = DateTime.UtcNow.AddMinutes(2),
         };
 
-        this._tokensRepository.AddRefreshToken(refreshTokenModel);
-        await this._tokensRepository.SaveChangesAsync();
+        _tokensRepository.AddRefreshToken(refreshTokenModel);
+        await _tokensRepository.SaveChangesAsync();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested GenerateAndStoreRefreshTokenAsync and the refresh token was generated",
@@ -116,14 +102,14 @@ public class TokenService : ITokenService
 
     public async Task<RefreshToken> RevokeRefreshTokenByObject(RefreshToken refreshToken)
     {
-        Guid authenticatedUserId = AuthenticatedUserId;
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested RevokeRefreshTokenByObject for RefreshTokenId {TargetRefreshTokenId}",
             authenticatedUserId, refreshToken.RefreshTokenId);
 
         refreshToken.RevokedAt = DateTime.Now;
-        await this._tokensRepository.SaveChangesAsync();
+        await _tokensRepository.SaveChangesAsync();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested RevokeRefreshTokenByObject for RefreshTokenId {TargetRefreshTokenId} and the refresh token was revoked",
@@ -132,14 +118,14 @@ public class TokenService : ITokenService
         return refreshToken;
     }
 
-    public async Task RevokeRefreshsTokensByUserId(Guid userId)
+    public async Task RevokeRefreshTokensByUserId(Guid userId)
     {
-        Guid authenticatedUserId = AuthenticatedUserId;
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested RevokeRefreshsTokensByUserId for UserId {TargetUserId}",
             authenticatedUserId, userId);
-        await this._tokensRepository.RevokeTokensByUserIdAsync(userId);
+        await _tokensRepository.RevokeTokensByUserIdAsync(userId);
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested RevokeRefreshsTokensByUserId for UserId {TargetUserId} and the refresh tokens were revoked",
             authenticatedUserId, userId);

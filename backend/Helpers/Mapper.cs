@@ -34,9 +34,15 @@ public static class Mapper
             Roles = user.UserRoles.Select(ur => new RoleDto
             {
                 RoleId = ur.RoleId,
+                RolePriority = ur.Role.RolePriority,
                 RoleName = ur.Role.RoleName
             }).ToList()
         };
+    }
+    
+    public static double[] UserToUserRolesPriority(User user)
+    {
+        return user.UserRoles.Select(ur => ur.Role.RolePriority).ToArray();
     }
     
     public static RoleDto RoleToRoleDto(Role role)
@@ -45,6 +51,7 @@ public static class Mapper
         {
             RoleId = role.RoleId,
             RoleName = role.RoleName,
+            RolePriority = role.RolePriority,
             RoleDescription = role.RoleDescription
         };
     }

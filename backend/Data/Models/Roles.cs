@@ -13,6 +13,9 @@ public class Role
     [MaxLength(50)] 
     public required string RoleName { get; set; }
     
+    [Required]
+    public required double RolePriority { get; set; }
+    
     [MaxLength(255)] 
     public string? RoleDescription { get; set; }
     

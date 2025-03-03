@@ -11,6 +11,7 @@ public static class Models
         {
             RoleId = Guid.Parse("aad0f879-79bf-42b5-b829-3e14b9ef0e4b"),
             RoleName = "Admin",
+            RolePriority = 10f,
             RoleDescription = "Admin role"
         };
 
@@ -18,6 +19,7 @@ public static class Models
         {
             RoleId = Guid.Parse("523a8c97-735e-41f7-b4b2-16f92791adf5"),
             RoleName = "User",
+            RolePriority = 5f,
             RoleDescription = "User role"
         };
 
@@ -25,7 +27,16 @@ public static class Models
         {
             RoleId = Guid.Parse("d9b540dd-7e8e-4aa8-a97c-3cdf3a4b08d4"),
             RoleName = "Guest",
+            RolePriority = 4.5f,
             RoleDescription = "Guest role"
+        };
+        
+        public static readonly Role HighestPriority = new Role
+        {
+            RoleId = Guid.Parse("d9b540dd-7e8e-4aa8-a97c-3cdf3a4b28d0"),
+            RoleName = "Highest Priority",
+            RolePriority = 100f,
+            RoleDescription = "Role with highest priority for tests"
         };
     }
 
@@ -51,6 +62,20 @@ public static class Models
             UserFirstName = "Test2", UserLastName = "User2", UserEmail = "test-user2@test.com",
             UserPassword = HasherHelper.HashString("123456"), IsActive = true
         };
+        
+        public static readonly User HighestPriorityUser = new User
+        {
+            UserId = Guid.Parse("2c0180d4-040c-4c00-b8f9-31f7a1e71638"), UserUserName = "highest-priority",
+            UserFirstName = "Highest", UserLastName = "Priority", UserEmail = "highest-priority@test.com",
+            UserPassword = HasherHelper.HashString("123456"), IsActive = true
+        };
+        
+        public static readonly User DeactivateHighestPriorityUser = new User
+        {
+            UserId = Guid.Parse("2c0986d4-040c-4c00-b8f9-31f7a1e71638"), UserUserName = "deactivate-highest-priority",
+            UserFirstName = "Highest", UserLastName = "Priority", UserEmail = "highest-priority@test.com",
+            UserPassword = HasherHelper.HashString("123456"), IsActive = false
+        };
     }
 
     public static class UsersRoles
@@ -63,8 +88,20 @@ public static class Models
 
         public static readonly UserRole TestUserRoleUser = new UserRole
         {
-            UserRoleId = Guid.Parse("fe904dcf-eeb1-4a71-a229-71185cc15453"), UserId = Users.InactiveTestUser.UserId,
+            UserRoleId = Guid.Parse("fe904dcf-eeb1-4a71-a229-71185cc15453"), UserId = Users.TestUser.UserId,
             RoleId = Roles.User.RoleId
+        };
+        
+        public static readonly UserRole HighestPriorityUserRoleHighestPriority = new UserRole
+        {
+            UserRoleId = Guid.Parse("fe904dcf-eeb1-4a71-a229-71185cc15017"), UserId = Users.HighestPriorityUser.UserId,
+            RoleId = Roles.HighestPriority.RoleId
+        };
+        
+        public static readonly UserRole DeactivateHighestPriorityUserRoleHighestPriority = new UserRole
+        {
+            UserRoleId = Guid.Parse("fe000dcf-eeb1-4a71-a229-71185cc15017"), UserId = Users.DeactivateHighestPriorityUser.UserId,
+            RoleId = Roles.HighestPriority.RoleId
         };
     }
 

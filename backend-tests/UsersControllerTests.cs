@@ -65,6 +65,17 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
                 },
                 HttpStatusCode.Conflict
             };
+            
+            // When user has highest priority
+            yield return new object[]
+            {
+                new UpdateUserDto
+                {
+                    UserId = Models.Users.HighestPriorityUser.UserId,
+                    UserEmail = "asdsa@gmail.com"
+                },
+                HttpStatusCode.Forbidden
+            };
         }
 
         [Theory]
@@ -130,9 +141,10 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 UsersIds = new List<Guid>
                 {
-                    Models.Users.InactiveTestUser.UserId,
+                    Models.Users.InactiveTestUser.UserId, // Success
                     Models.Users.TestUser.UserId,
-                    Guid.NewGuid()
+                    Guid.NewGuid(),
+                    Models.Users.DeactivateHighestPriorityUser.UserId
                 }
             };
             
@@ -148,6 +160,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             activateUsersResponseDto.Success.Count.Should().Be(1);
             activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotFound).Should().Be(1);
             activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.AlreadyProcessed).Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotEnoughPriority).Should().Be(1);
         }
     }
     
@@ -165,9 +178,10 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 UsersIds = new List<Guid>
                 {
-                    Models.Users.InactiveTestUser.UserId,
-                    Models.Users.TestUser.UserId,
-                    Guid.NewGuid()
+                    Models.Users.InactiveTestUser.UserId, 
+                    Models.Users.TestUser.UserId, // Success
+                    Guid.NewGuid(),
+                    Models.Users.HighestPriorityUser.UserId
                 }
             };
             
@@ -183,6 +197,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             activateUsersResponseDto.Success.Count.Should().Be(1);
             activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotFound).Should().Be(1);
             activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.AlreadyProcessed).Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotEnoughPriority).Should().Be(1);
         }
     }
 

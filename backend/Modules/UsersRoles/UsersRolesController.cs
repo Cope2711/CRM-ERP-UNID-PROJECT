@@ -21,7 +21,7 @@ public class UsersRolesController : ControllerBase
     
     
     [HttpPost("assign-roles")]
-    [PermissionAuthorize("Assign_Role")]
+    [PermissionAuthorize("Assign_Role")] 
     public async Task<ActionResult<ResponsesDto<UserAndRoleResponseStatusDto>>> AssignRoles([FromBody] UsersAndRolesDtos usersAndRolesDto)
     {
         ResponsesDto<UserAndRoleResponseStatusDto> usersAndRolesResponsesDto = await _usersRolesService.AssignRolesToUsersAsync(usersAndRolesDto);

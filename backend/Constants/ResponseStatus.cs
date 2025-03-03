@@ -6,4 +6,5 @@ public static class ResponseStatus
     public const string NotFound = "NotFound";
     public const string Failed = "Failed";
     public const string Success = "Success";
+    public const string NotEnoughPriority = "NotEnoughPriority";
 }
