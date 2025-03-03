@@ -28,8 +28,6 @@ public class CreateUserDto
     public string UserPassword { get; set; }
 
     [Required] public bool IsActive { get; set; } = true;
-
-    [Required] public Guid RoleId { get; set; }
 }
 
 public class UsersIdsDto

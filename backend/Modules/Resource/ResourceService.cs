@@ -11,15 +11,10 @@ public interface IResourceService
     Task<bool> ExistById(Guid id);
 }
 
-public class ResourceService : IResourceService
+public class ResourceService(
+    IGenericServie<Resource> _genericService
+) : IResourceService
 {
-    private readonly IGenericServie<Resource> _genericService;
-    
-    public ResourceService(IGenericServie<Resource> genericService)
-    {
-        _genericService = genericService;
-    }
-
     public async Task<GetAllResponseDto<Resource>> GetAllAsync(GetAllDto getAllDto)
     {
         return await _genericService.GetAllAsync(getAllDto);
@@ -29,7 +24,7 @@ public class ResourceService : IResourceService
     {
         return await _genericService.GetByIdThrowsNotFoundAsync(id);
     }
-    
+
     public async Task<Resource> GetByNameThrowsNotFoundAsync(string resourceName)
     {
         return await _genericService.GetFirstThrowsNotFoundAsync(r => r.ResourceName, resourceName);

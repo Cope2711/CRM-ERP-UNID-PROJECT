@@ -33,13 +33,7 @@ public class RoleController : ControllerBase
     {
         Role role = await _roleService.GetByIdThrowsNotFoundAsync(id);
 
-        RoleDto roleDto = new RoleDto
-        {
-            RoleId = role.RoleId,
-            RoleName = role.RoleName,
-        };
-
-        return Ok(roleDto);
+        return Ok(Mapper.RoleToRoleDto(role));
     }
 
     [HttpGet("get-by-name")]
@@ -48,13 +42,7 @@ public class RoleController : ControllerBase
     {
         Role role = await _roleService.GetByNameThrowsNotFoundAsync(roleName);
 
-        RoleDto roleDto = new RoleDto
-        {
-            RoleId = role.RoleId,
-            RoleName = role.RoleName,
-        };
-
-        return Ok(roleDto);
+        return Ok(Mapper.RoleToRoleDto(role));
     }
     
     [HttpPost("get-all")]

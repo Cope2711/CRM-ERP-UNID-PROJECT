@@ -11,14 +11,19 @@ public class DatabaseSeeder
         context.Roles.AddRange(
             Models.Roles.Admin,
             Models.Roles.User,
-            Models.Roles.Guest);
+            Models.Roles.Guest,
+            Models.Roles.HighestPriority);
         context.Users.AddRange(
             Models.Users.Admin,
             Models.Users.InactiveTestUser,
-            Models.Users.TestUser);
+            Models.Users.TestUser,
+            Models.Users.HighestPriorityUser,
+            Models.Users.DeactivateHighestPriorityUser);
         context.UsersRoles.AddRange(
             Models.UsersRoles.AdminUserRoleAdmin,
-            Models.UsersRoles.TestUserRoleUser);
+            Models.UsersRoles.TestUserRoleUser,
+            Models.UsersRoles.HighestPriorityUserRoleHighestPriority,
+            Models.UsersRoles.DeactivateHighestPriorityUserRoleHighestPriority);
         context.Permissions.AddRange(
             Models.Permissions.View,
             Models.Permissions.ViewReports,

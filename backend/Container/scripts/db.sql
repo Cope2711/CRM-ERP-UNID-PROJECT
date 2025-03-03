@@ -1,5 +1,7 @@
 ﻿-- Crear la base de datos si no existe
-IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'ERPCRMUNID')
+IF NOT EXISTS (SELECT name
+               FROM sys.databases
+               WHERE name = 'ERPCRMUNID')
     BEGIN
         CREATE DATABASE ERPCRMUNID;
     END
@@ -9,7 +11,9 @@ USE ERPCRMUNID;
 GO
 
 -- Crear un usuario de SQL Server
-IF NOT EXISTS (SELECT name FROM sys.syslogins WHERE name = 'erp_user')
+IF NOT EXISTS (SELECT name
+               FROM sys.syslogins
+               WHERE name = 'erp_user')
     BEGIN
         CREATE LOGIN erp_user WITH PASSWORD = 'YourStrongPassword123!';
     END
@@ -19,7 +23,9 @@ GO
 USE ERPCRMUNID;
 GO
 
-IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'erp_user')
+IF NOT EXISTS (SELECT name
+               FROM sys.database_principals
+               WHERE name = 'erp_user')
     BEGIN
         CREATE USER erp_user FOR LOGIN erp_user;
         ALTER ROLE db_owner ADD MEMBER erp_user;
@@ -62,6 +68,7 @@ CREATE TABLE Roles
 (
     RoleId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
     RoleName        VARCHAR(50)  NOT NULL,
+    RolePriority    FLOAT      NOT NULL,
     RoleDescription VARCHAR(255) NULL
 );
 
@@ -114,10 +121,10 @@ DECLARE @RoleId_Admin UNIQUEIDENTIFIER = 'aad0f879-79bf-42b5-b829-3e14b9ef0e4b';
 DECLARE @RoleId_User UNIQUEIDENTIFIER = '523a8c97-735e-41f7-b4b2-16f92791adf5';
 DECLARE @RoleId_Guest UNIQUEIDENTIFIER = 'd9b540dd-7e8e-4aa8-a97c-3cdf3a4b08d4';
 
-INSERT INTO Roles (RoleId, RoleName, RoleDescription)
-VALUES (@RoleId_Admin, 'Admin', 'Admin role'),
-       (@RoleId_User, 'User', 'User role'),
-       (@RoleId_Guest, 'Guest', 'Guest role');
+INSERT INTO Roles (RoleId, RoleName, RolePriority, RoleDescription)
+VALUES (@RoleId_Admin, 'Admin', 10, 'Admin role'),
+       (@RoleId_User, 'User', 5, 'User role'),
+       (@RoleId_Guest, 'Guest', 4.5, 'Guest role');
 
 -- Insertar Usuarios
 DECLARE @UserId_Admin UNIQUEIDENTIFIER = '172422a0-5164-4470-acae-72022d3820b1';
@@ -129,8 +136,8 @@ VALUES (@UserId_Admin, 'admin', 'Admin', 'User', 'admin@admin.com',
         '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 1),
        (@UserId_Test, 'test-user', 'Test', 'User', 'test-user@test.com',
         '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 1),
-    (@UserId_TestDeactivated, 'test-user-deactivated', 'TestDeactivated', 'User', 'test-user-deactivated@test.com',
-     '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 0)
+       (@UserId_TestDeactivated, 'test-user-deactivated', 'TestDeactivated', 'User', 'test-user-deactivated@test.com',
+        '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 0)
 
 -- Insertar UsersRoles
 DECLARE @UserRoleId_Admin UNIQUEIDENTIFIER = '842193b4-5048-4cd9-be60-b7ca34319286';
@@ -166,7 +173,7 @@ VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
        (@PermissionId_RevokePermission, 'Revoke_Permission', 'Revoke permission to role'),
        (@PermissionId_Delete, 'Delete', 'Delete objects'),
        (@PermissionId_DeactivateUser, 'Deactivate_User', 'Deactivate user'),
-        (@PermissionId_ActivateUser, 'Activate_User', 'Activate user')
+       (@PermissionId_ActivateUser, 'Activate_User', 'Activate user')
 
 -- Insertar Recursos
 DECLARE @ResourceId_Users UNIQUEIDENTIFIER = 'd161ec8c-7c31-4eb4-a331-82ef9e45903e';
@@ -203,8 +210,10 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_Delete, @ResourceId_Roles),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Resources),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Permissions),
-       (NEWID(), @RoleId_Admin, @PermissionId_ActivateUser, NULL)
-
+       (NEWID(), @RoleId_Admin, @PermissionId_ActivateUser, NULL),
+       (NEWID(), @RoleId_User, @PermissionId_EditContent, @ResourceId_Users),
+       (NEWID(), @ROleId_User, @PermissionId_RevokeRole, NULL),
+       (NEWID(), @ROleId_User, @PermissionId_RevokePermission, NULL)
 
 -- Consultas para verificar la inserción de datos
 SELECT *

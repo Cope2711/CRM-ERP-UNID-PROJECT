@@ -23,15 +23,10 @@ public interface IGenericServie<T> where T : class
         Func<IQueryable<T>, IQueryable<T>> queryModifier = null);
 }
 
-public class GenericService<T> : IGenericServie<T> where T : class
+public class GenericService<T>(
+    IGenericRepository<T> _genericRepository
+    ) : IGenericServie<T> where T : class
 {
-    private readonly IGenericRepository<T> _genericRepository;
-
-    public GenericService(IGenericRepository<T> genericRepository)
-    {
-        _genericRepository = genericRepository;
-    }
-
     public async Task<T?> GetById(Guid id, Func<IQueryable<T>, IQueryable<T>>? include = null)
     {
         return await _genericRepository.GetByIdAsync(id, include);

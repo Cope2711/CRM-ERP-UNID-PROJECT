@@ -8,7 +8,7 @@ public interface ITokenService
     Task<RefreshToken> GenerateAndStoreRefreshTokenAsync(Guid userId, string deviceId);
     Task<RefreshToken> GetRefreshTokenByRefreshTokenThrowsNotFound(string refreshToken);
     Task<RefreshToken> RevokeRefreshTokenByObject(RefreshToken refreshToken);
-    Task RevokeRefreshsTokensByUserId(Guid userId);
+    Task RevokeRefreshTokensByUserId(Guid userId);
     Task<bool> IsNewDevice(Guid userId, string deviceId);
     Task ValidateNumsOfDevices(Guid userId);
 }

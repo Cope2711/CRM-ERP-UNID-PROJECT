@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
-using CRM_ERP_UNID.Constants;
+﻿using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
+using CRM_ERP_UNID.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_ERP_UNID.Modules;
@@ -17,31 +17,16 @@ public interface IUsersRolesService
     Task<GetAllResponseDto<UserRole>> GetAllAsync(GetAllDto getAllDto);
 }
 
-public class UsersRolesService : IUsersRolesService
+public class UsersRolesService(
+    IUsersRolesRepository _usersRolesRepository,
+    IRoleService _roleService,
+    IUsersService _userService,
+    IGenericServie<UserRole> _genericService,
+    ILogger<UsersRolesService> _logger,
+    IHttpContextAccessor _httpContextAccessor,
+    IPriorityValidationService _priorityValidationService
+) : IUsersRolesService
 {
-    private readonly IUsersRolesRepository _usersRolesRepository;
-    private readonly IRoleService _roleService;
-    private readonly IUsersService _userService;
-    private readonly IGenericServie<UserRole> _genericService;
-    private readonly ILogger<UsersRolesService> _logger;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    private Guid AuthenticatedUserId =>
-        Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
-                   Guid.Empty.ToString());
-
-    public UsersRolesService(IUsersRolesRepository usersRolesRepository, IRoleService roleService,
-        IUsersService userService, IGenericServie<UserRole> genericService, ILogger<UsersRolesService> logger,
-        IHttpContextAccessor httpContextAccessor)
-    {
-        _usersRolesRepository = usersRolesRepository;
-        _roleService = roleService;
-        _userService = userService;
-        _genericService = genericService;
-        _logger = logger;
-        _httpContextAccessor = httpContextAccessor;
-    }
-
     public async Task<GetAllResponseDto<UserRole>> GetAllAsync(GetAllDto getAllDto)
     {
         return await _genericService.GetAllAsync(getAllDto,
@@ -68,7 +53,7 @@ public class UsersRolesService : IUsersRolesService
 
     public async Task<ResponsesDto<UserAndRoleResponseStatusDto>> RevokeRolesToUsersAsync(UsersAndRolesDtos usersAndRolesDto)
     {
-        Guid authenticatedUserId = AuthenticatedUserId;
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         ResponsesDto<UserAndRoleResponseStatusDto> responseDto = new();
 
         _logger.LogInformation(
@@ -81,14 +66,26 @@ public class UsersRolesService : IUsersRolesService
 
             if (userRole == null)
             {
-                responseDto.Failed.Add(new UserAndRoleResponseStatusDto
+                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotFound,
+                    "UserRole", "Relation not exists"); continue;
+            }
+
+            // User has enough priority to revoke this role from this user?
+            Role role = await _roleService.GetByIdThrowsNotFoundAsync(userAndRoleIdDto.RoleId);
+            if (!_priorityValidationService.ValidateRolePriority(role))
+            {
+                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotEnoughPriority,
+                    "RoleId", "Not have enough priority to modify that role"); continue;
+            }
+            
+            if (authenticatedUserId != userAndRoleIdDto.UserId)
+            {
+                User user = await _userService.GetByIdThrowsNotFoundAsync(userAndRoleIdDto.UserId);
+                if (!_priorityValidationService.ValidateUserPriority(user))
                 {
-                    UserAndRoleId = userAndRoleIdDto,
-                    Status = ResponseStatus.NotFound,
-                    Field = "UserRole",
-                    Message = "Relation not exists"
-                });
-                continue;
+                    AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotEnoughPriority,
+                        "UserId", "Not have enough priority to modify that user"); continue;
+                }
             }
 
             _usersRolesRepository.Remove(userRole);
@@ -111,7 +108,7 @@ public class UsersRolesService : IUsersRolesService
 
     public async Task<ResponsesDto<UserAndRoleResponseStatusDto>> AssignRolesToUsersAsync(UsersAndRolesDtos usersAndRolesDto)
     {
-        Guid authenticatedUserId = AuthenticatedUserId;
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         ResponsesDto<UserAndRoleResponseStatusDto> responseDto = new();
 
         _logger.LogInformation(
@@ -122,37 +119,35 @@ public class UsersRolesService : IUsersRolesService
         {
             if (await IsRoleAssignedToUserAsync(userAndRoleIdDto.UserId, userAndRoleIdDto.RoleId))
             {
-                responseDto.Failed.Add(new UserAndRoleResponseStatusDto
-                {
-                    UserAndRoleId = userAndRoleIdDto,
-                    Status = ResponseStatus.AlreadyProcessed,
-                    Message = "Role already assigned to user"
-                });
-                continue;
+                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.AlreadyProcessed,
+                    "RoleId", "Role already assigned to user"); continue;
             }
 
-            if (!await _userService.ExistById(userAndRoleIdDto.UserId))
+            Role? role = await _roleService.GetById(userAndRoleIdDto.RoleId);
+            User? user = await _userService.GetById(userAndRoleIdDto.UserId);
+
+            if (user == null)
             {
-                responseDto.Failed.Add(new UserAndRoleResponseStatusDto
-                {
-                    UserAndRoleId = userAndRoleIdDto,
-                    Status = ResponseStatus.NotFound,
-                    Field = "UserId",
-                    Message = "User not exist"
-                });
-                continue;
+                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotFound,
+                    "UserId", "User not exist"); continue;
             }
 
-            if (!await _roleService.ExistById(userAndRoleIdDto.RoleId))
+            if (role == null)
             {
-                responseDto.Failed.Add(new UserAndRoleResponseStatusDto
-                {
-                    UserAndRoleId = userAndRoleIdDto,
-                    Status = ResponseStatus.NotFound,
-                    Field = "RoleId",
-                    Message = "Role not exist"
-                });
-                continue;
+                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotFound,
+                    "RoleId", "Role not exist"); continue;
+            }
+            
+            if (!_priorityValidationService.ValidateRolePriority(role))
+            {
+                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotEnoughPriority,
+                    "RoleId", "Not have enough priority to modify that role"); continue;
+            }
+            
+            if (authenticatedUserId != userAndRoleIdDto.UserId && !_priorityValidationService.ValidateUserPriority(user))
+            {
+                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotEnoughPriority,
+                    "UserId", "Not have enough priority to modify that user"); continue;
             }
 
             // Add to database
@@ -178,5 +173,16 @@ public class UsersRolesService : IUsersRolesService
             authenticatedUserId, responseDto);
 
         return responseDto;
+    }
+
+    private void AddFailedResponseDto(ResponsesDto<UserAndRoleResponseStatusDto> responseDto,
+        UserAndRoleIdDto userAndRoleIdDto, string status, string field, string message)
+    {
+        responseDto.Failed.Add(new UserAndRoleResponseStatusDto{
+            UserAndRoleId = userAndRoleIdDto,
+            Status = status,
+            Field = field,
+            Message = message
+        });
     }
 }
