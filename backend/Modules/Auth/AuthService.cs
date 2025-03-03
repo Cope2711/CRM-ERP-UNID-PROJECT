@@ -11,6 +11,7 @@ public interface IAuthService
     Task<TokenDto> Login(LoginUserDto loginUserDto);
     Task<TokenDto> RefreshTokenAsync(RefreshTokenEntryDto refreshTokenEntryDto);
     Task<RefreshToken?> Logout(string refreshTokenString);
+    
 }
 
 public class AuthService : IAuthService
@@ -20,7 +21,7 @@ public class AuthService : IAuthService
     private readonly IMailService _mailService;
     private readonly ILogger<AuthService> _logger;
     
-    public AuthService(IUsersService usersService, ITokenService tokenService, ILogger<AuthService> logger, IMailService mailService)
+    public AuthService(IUsersService usersService, ITokenService tokenService, ILogger<AuthService> logger, IMailService mailService,IUsersRepository usersRepository)
     {
         _usersService = usersService;
         _tokenService = tokenService;
@@ -111,4 +112,5 @@ public class AuthService : IAuthService
             throw new UnauthorizedException(message: "Refresh token has been revoked.", reason: "RevokedToken");
         }
     }
+    
 }

@@ -33,4 +33,7 @@ public class User
     [Required]
     public bool IsActive { get; set; }
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    
+    public DateTime? CreatedDate { get; set; }
+    public DateTime? UpdatedDate { get; set; } 
 }

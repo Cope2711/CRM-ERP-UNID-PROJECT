@@ -6,16 +6,47 @@ using Microsoft.AspNetCore.Mvc;
 namespace CRM_ERP_UNID.Modules;
 
 [ApiController]
+
+
+
 [Route("api/auth")]
 [Authorize]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IPasswordResetService _passwordResetService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IMailService mailService,IPasswordResetService passwordResetService)
     {
         this._authService = authService;
+        this._passwordResetService = passwordResetService;
+        
     }
+
+    [AllowAnonymous]
+    [HttpPost("request-reset")]
+    public async Task<ActionResult> RequestResetAsync([FromBody] RequestPasswordResetDto request)
+    {
+       
+        
+        var result = await _passwordResetService.RequestPasswordResetAsync(request.Email);
+        if(!result)
+            return BadRequest("No se pudo procesar la solicitud.");
+        return Ok("se ah enviado correctamente");
+    }
+
+    [AllowAnonymous]
+    [HttpPost("reset-password")]
+    public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordDto request)
+    {
+        
+
+        var result = await _passwordResetService.ResetPasswordAsync(request.Token, request.NewPassword);
+        if (!result)
+            return BadRequest("Token no válido o expirado.");
+        return Ok("Contraseña restablecida correctamente.");
+    }
+    
 
     [AllowAnonymous]
     [HttpPost("login")]
