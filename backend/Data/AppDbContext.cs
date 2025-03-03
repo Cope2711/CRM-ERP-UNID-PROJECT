@@ -9,7 +9,7 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<PasswordReset?> PasswordResets { get; set; }
+    public DbSet<PasswordRecoveryToken> PasswordRecoveryTokens { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<Permission> Permissions { get; set; }
@@ -17,5 +17,4 @@ public class AppDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Resource> Resources { get; set; }
     public DbSet<UserRole> UsersRoles { get; set; }
-    public object PasswordRecoveryTokens { get; set; }
 }

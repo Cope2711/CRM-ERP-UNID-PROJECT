@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CRM_ERP_UNID.Data.Models;
 
-[Table("PasswordResets")]
-public class PasswordReset
+[Table("PasswordRecoveryTokens")]
+public class PasswordRecoveryToken
 {
     [Key]
     public Guid ResetId { get; set; } = Guid.NewGuid();

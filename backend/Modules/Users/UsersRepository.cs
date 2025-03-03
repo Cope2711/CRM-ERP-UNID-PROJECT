@@ -1,5 +1,6 @@
 ﻿using CRM_ERP_UNID.Data;
 using CRM_ERP_UNID.Data.Models;
+using CRM_ERP_UNID.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -11,22 +12,17 @@ public interface IUsersRepository
     Task SaveChangesAsync();
     Task<IDbContextTransaction> BeginTransactionAsync();
     Task<User?> GetByEmailAsync(string email);
-    Task<User> GetByIdAsync(Guid userId);
+    
 }
+
 
 public class UsersRepository : IUsersRepository
 {
     private readonly AppDbContext _context;
-
+    
     public UsersRepository(AppDbContext context)
     {
         this._context = context;
-    }
-
-    public async Task<User> GetByIdAsync(Guid userId)
-    {
-        return await _context.Users
-            .FirstOrDefaultAsync(u => u.UserId == userId);
     }
     public void Add(User user)
     {
@@ -48,4 +44,6 @@ public class UsersRepository : IUsersRepository
     {
         await this._context.SaveChangesAsync();
     }
+
+    
 }

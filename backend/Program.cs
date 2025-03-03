@@ -1,6 +1,5 @@
 using CRM_ERP_UNID.Extensions;
 using CRM_ERP_UNID.Modules;
-using CRM_ERP_UNID.Modules.RecoverPassword;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
@@ -37,7 +36,8 @@ builder.Services.AddScoped(typeof(IGenericServie<>), typeof(GenericService<>));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
-builder.Services.AddScoped<PasswordResetService>();
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
+
 
 
 

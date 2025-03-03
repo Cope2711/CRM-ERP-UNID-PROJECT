@@ -1,20 +1,22 @@
 ﻿using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
-using CRM_ERP_UNID.Modules.RecoverPassword;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CRM_ERP_UNID.Modules;
 
 [ApiController]
+
+
+
 [Route("api/auth")]
 [Authorize]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
-    private readonly PasswordResetService _passwordResetService;
+    private readonly IPasswordResetService _passwordResetService;
 
-    public AuthController(IAuthService authService, IMailService mailService,PasswordResetService passwordResetService)
+    public AuthController(IAuthService authService, IMailService mailService,IPasswordResetService passwordResetService)
     {
         this._authService = authService;
         this._passwordResetService = passwordResetService;
@@ -25,8 +27,7 @@ public class AuthController : ControllerBase
     [HttpPost("request-reset")]
     public async Task<ActionResult> RequestResetAsync([FromBody] RequestPasswordResetDto request)
     {
-        if(!ModelState.IsValid)
-            return BadRequest(ModelState);// error de validacion
+       
         
         var result = await _passwordResetService.RequestPasswordResetAsync(request.Email);
         if(!result)
@@ -38,8 +39,7 @@ public class AuthController : ControllerBase
     [HttpPost("reset-password")]
     public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordDto request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        
 
         var result = await _passwordResetService.ResetPasswordAsync(request.Token, request.NewPassword);
         if (!result)
