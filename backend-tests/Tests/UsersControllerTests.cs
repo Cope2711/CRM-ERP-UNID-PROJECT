@@ -3,18 +3,68 @@ using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
 using CRM_ERP_UNID_TESTS;
+using CRM_ERP_UNID_TESTS.Dtos;
+using CRM_ERP_UNID_TESTS.TestsBase;
 using CRM_ERP_UNID.Constants;
 
 [Collection("Tests")]
 public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
 {
     private readonly HttpClient _client;
+    private static readonly string Endpoint = "/api/users";
 
     public UsersControllerTests(CustomWebApiFactory factory)
     {
         _client = factory.CreateClientWithBearerToken();
     }
 
+    public class GetUserByTests : GetByTestsBase, IClassFixture<CustomWebApiFactory>
+    {
+        public GetUserByTests(CustomWebApiFactory factory) :
+            base(factory.CreateClientWithBearerToken(), $"{Endpoint}/get-by", new DoubleBasicStructuresDto
+            {
+                DoubleBasicStructureDtos = new List<DoubleBasicStructureDto>
+                {
+                    new DoubleBasicStructureDto
+                    {
+                        ValidValue = Models.Users.Admin.UserUserName,
+                        FieldName = "username"  
+                    },
+                    new DoubleBasicStructureDto
+                    {
+                        ValidValue = Models.Users.Admin.UserId.ToString(),
+                        FieldName = "id"
+                    }
+                }
+            })
+        {
+        }
+    }
+
+    
+    public class ExistUserByTests : ExistByTestsBase, IClassFixture<CustomWebApiFactory>
+    {
+        public ExistUserByTests(CustomWebApiFactory factory) :
+            base(factory.CreateClientWithBearerToken(), $"{Endpoint}/exist-user-by", new DoubleBasicStructuresDto
+            {
+                DoubleBasicStructureDtos = new List<DoubleBasicStructureDto>
+                {
+                    new DoubleBasicStructureDto
+                    {
+                        ValidValue = Models.Users.Admin.UserUserName,
+                        FieldName = "username"
+                    },
+                    new DoubleBasicStructureDto
+                    {
+                        ValidValue = Models.Users.Admin.UserEmail,
+                        FieldName = "email"
+                    }
+                }
+            })
+        {
+        }
+    }
+    
     public class UpdateUserTests : UsersControllerTests
     {
         public UpdateUserTests(CustomWebApiFactory factory) : base(factory)
@@ -83,7 +133,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         public async Task UpdateUser_ReturnsExpectedResult(UpdateUserDto updateUserDto,
             HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"/api/users/update", updateUserDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update", updateUserDto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
         
@@ -122,7 +172,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         public async Task ChangePassword_ReturnsExpectedResult(ChangePasswordDto changePasswordDto,
             HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PutAsJsonAsync($"/api/users/change-password", changePasswordDto);
+            var response = await _client.PutAsJsonAsync($"{Endpoint}/change-password", changePasswordDto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
@@ -149,7 +199,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             };
             
             // Act
-            var response = await _client.PatchAsJsonAsync("/api/users/activate", usersIdsDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/activate", usersIdsDto);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             ResponsesDto<UserResponseStatusDto>? activateUsersResponseDto =
@@ -186,7 +236,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             };
             
             // Act
-            var response = await _client.PatchAsJsonAsync("/api/users/deactivate", usersIdsDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/deactivate", usersIdsDto);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             ResponsesDto<UserResponseStatusDto>? activateUsersResponseDto =
@@ -260,89 +310,8 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         public async Task CreateUser_ReturnsExpectedResult(CreateUserDto createUserDto,
             HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PostAsJsonAsync("/api/users/create", createUserDto);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/create", createUserDto);
             response.StatusCode.Should().Be(expectedStatusCode);
-        }
-    }
-
-    public class GetUserByIdTests : UsersControllerTests
-    {
-        public GetUserByIdTests(CustomWebApiFactory factory) : base(factory)
-        {
-        }
-
-        public static IEnumerable<object[]> GetUserTestData()
-        {
-            yield return new object[] { Guid.NewGuid(), HttpStatusCode.NotFound };
-            yield return new object[] { Models.Users.Admin.UserId, HttpStatusCode.OK };
-        }
-
-        [Theory]
-        [MemberData(nameof(GetUserTestData))]
-        public async Task GetUserById_ReturnsExpectedResult(Guid userId, HttpStatusCode expectedStatusCode)
-        {
-            var response = await _client.GetAsync($"/api/users/get-by-id?id={userId}");
-            response.StatusCode.Should().Be(expectedStatusCode);
-        }
-    }
-
-    public class GetUserByUsernameTests : UsersControllerTests
-    {
-        public GetUserByUsernameTests(CustomWebApiFactory factory) : base(factory)
-        {
-        }
-
-        public static IEnumerable<object[]> GetUserByUsernameTestData()
-        {
-            yield return new object[] { Models.Users.Admin.UserUserName, HttpStatusCode.OK };
-            yield return new object[] { "non-existent-username", HttpStatusCode.NotFound };
-        }
-
-        [Theory]
-        [MemberData(nameof(GetUserByUsernameTestData))]
-        public async Task GetUserByUsername_ReturnsExpectedResult(string username, HttpStatusCode expectedStatusCode)
-        {
-            var response = await _client.GetAsync($"/api/users/get-by-username?username={username}");
-            response.StatusCode.Should().Be(expectedStatusCode);
-        }
-    }
-
-    public class ExistUserBy : UsersControllerTests
-    {
-        public ExistUserBy(CustomWebApiFactory factory) : base(factory)
-        {
-        }
-
-        public static IEnumerable<object[]> ExistUserByEmailTestData()
-        {
-            yield return new object[] { Models.Users.Admin.UserEmail, HttpStatusCode.OK, true };
-            yield return new object[] { "non-existent-email@email.com", HttpStatusCode.OK, false };
-        }
-
-        [Theory]
-        [MemberData(nameof(ExistUserByEmailTestData))]
-        public async Task ExistUserByEmail_ReturnsExpectedResult(string email, HttpStatusCode expectedStatusCode,
-            bool expectedResult)
-        {
-            var response = await _client.GetAsync($"/api/users/exist-user-by-email?email={email}");
-            response.StatusCode.Should().Be(expectedStatusCode);
-            response.Content.ReadAsStringAsync()?.Result.ToLower().Should().Be(expectedResult.ToString().ToLower());
-        }
-
-        public static IEnumerable<object[]> ExistUserByUsernameTestData()
-        {
-            yield return new object[] { Models.Users.Admin.UserUserName, HttpStatusCode.OK, true };
-            yield return new object[] { "non-existent-username", HttpStatusCode.OK, false };
-        }
-
-        [Theory]
-        [MemberData(nameof(ExistUserByUsernameTestData))]
-        public async Task ExistUserByUsername_ReturnsExpectedResult(string username, HttpStatusCode expectedStatusCode,
-            bool expectedResult)
-        {
-            var response = await _client.GetAsync($"/api/users/exist-user-by-username?username={username}");
-            response.StatusCode.Should().Be(expectedStatusCode);
-            response.Content.ReadAsStringAsync()?.Result.ToLower().Should().Be(expectedResult.ToString().ToLower());
         }
     }
 }
