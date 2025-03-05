@@ -407,7 +407,7 @@ public static class Models
             ResetId = Guid.NewGuid(),
             UserId = Models.Users.TestUser.UserId,
             ResetToken = "valid-reset-token",
-            ExpiresAt = DateTime.UtcNow.AddHours(1)
+            ExpiresAt = DateTime.UtcNow.AddDays(1)
         };
 
         public static PasswordRecoveryToken TestExpiredTokenAsynk = new PasswordRecoveryToken

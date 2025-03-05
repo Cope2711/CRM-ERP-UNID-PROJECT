@@ -1,11 +1,8 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using CRM_ERP_UNID_TESTS;
-using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
-
-namespace Tests;
 
 [Collection("Tests")]
 public class AuthControllerTests : IClassFixture<CustomWebApiFactory>

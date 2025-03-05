@@ -7,7 +7,6 @@ public class DatabaseSeeder
 {
     public static void Seed(AppDbContext context)
     {
-      
         context.Roles.AddRange(
             Models.Roles.Admin,
             Models.Roles.User,
@@ -63,12 +62,10 @@ public class DatabaseSeeder
             Models.RolesPermissionsResources.AdminActivateUser);
         context.RefreshTokens.AddRange(
             Models.RefreshTokens.TestUserRefreshTokenRevoked,
-            Models.RefreshTokens.TestUserExpiredRefreshToken
-        );
+            Models.RefreshTokens.TestUserExpiredRefreshToken);
         context.PasswordRecoveryTokens.AddRange(
             Models.PasswordRecoveryTokens.TestValidTokenAsynk,
-            Models.PasswordRecoveryTokens.TestExpiredTokenAsynk
-            );
+            Models.PasswordRecoveryTokens.TestExpiredTokenAsynk);
         context.SaveChanges();
     }
 }
