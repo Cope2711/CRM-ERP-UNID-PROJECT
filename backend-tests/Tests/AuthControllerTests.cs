@@ -8,6 +8,7 @@ using FluentAssertions;
 public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 {
     private readonly HttpClient _client;
+    private static readonly string Endpoint = "/api/auth";
 
     public AuthControllerTests(CustomWebApiFactory factory)
     {
@@ -60,7 +61,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
         [MemberData(nameof(LoginTestData))]
         public async Task Login_ReturnsExpectedResult(LoginUserDto loginUserDto, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PostAsJsonAsync("/api/auth/login", loginUserDto);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/login", loginUserDto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
 
@@ -76,7 +77,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
                     DeviceId = device.ToString()
                 };
                 
-                var response = await _client.PostAsJsonAsync("/api/auth/login", loginUserDto);
+                var response = await _client.PostAsJsonAsync($"{Endpoint}/login", loginUserDto);
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
             }
             
@@ -87,7 +88,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
                 DeviceId = "1231241241241"
             };
                 
-            var response2 = await _client.PostAsJsonAsync("/api/auth/login", loginUserDtoFinal);
+            var response2 = await _client.PostAsJsonAsync($"{Endpoint}/login", loginUserDtoFinal);
             response2.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
     }
@@ -111,7 +112,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var response = await _client.PostAsJsonAsync("/api/auth/login", loginUserDto);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/login", loginUserDto);
 
             // Assert
             response.Should().NotBeNull();
@@ -130,7 +131,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var refreshTokenResponse = await _client.PostAsJsonAsync("/api/auth/refresh-token", refreshTokenEntryDto);
+            var refreshTokenResponse = await _client.PostAsJsonAsync($"{Endpoint}/refresh-token", refreshTokenEntryDto);
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
@@ -154,7 +155,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var response = await _client.PostAsJsonAsync("/api/auth/login", loginUserDto);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/login", loginUserDto);
 
             // Assert
             response.Should().NotBeNull();
@@ -173,7 +174,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var refreshTokenResponse = await _client.PostAsJsonAsync("/api/auth/refresh-token", refreshTokenEntryDto);
+            var refreshTokenResponse = await _client.PostAsJsonAsync($"{Endpoint}/refresh-token", refreshTokenEntryDto);
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
@@ -191,7 +192,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var refreshTokenResponse = await _client.PostAsJsonAsync("/api/auth/logout", refreshTokenEntryDto);
+            var refreshTokenResponse = await _client.PostAsJsonAsync($"{Endpoint}/logout", refreshTokenEntryDto);
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
@@ -209,7 +210,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var refreshTokenResponse = await _client.PostAsJsonAsync("/api/auth/logout", refreshTokenEntryDto);
+            var refreshTokenResponse = await _client.PostAsJsonAsync($"{Endpoint}/logout", refreshTokenEntryDto);
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
@@ -227,7 +228,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var refreshTokenResponse = await _client.PostAsJsonAsync("/api/auth/logout", refreshTokenEntryDto);
+            var refreshTokenResponse = await _client.PostAsJsonAsync($"{Endpoint}/logout", refreshTokenEntryDto);
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
@@ -245,7 +246,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
         public async Task Logout_WhenRefreshTokenIsValid_ReturnsTokenDto()
         {
             // Logg in
-            var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", new LoginUserDto
+            var loginResponse = await _client.PostAsJsonAsync($"{Endpoint}/login", new LoginUserDto
             {
                 UserUserName = Models.Users.TestUser.UserUserName,
                 UserPassword = "123456",
@@ -261,7 +262,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             tokenDto.RefreshToken.Should().NotBeNullOrEmpty();
 
             // Logout
-            var logoutResponse = await _client.PostAsJsonAsync("/api/auth/logout", new RefreshTokenEntryDto
+            var logoutResponse = await _client.PostAsJsonAsync($"{Endpoint}/logout", new RefreshTokenEntryDto
             {
                 RefreshToken = tokenDto.RefreshToken,
                 DeviceId = "1"
@@ -287,7 +288,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var refreshTokenResponse = await _client.PostAsJsonAsync("/api/auth/logout", refreshTokenEntryDto);
+            var refreshTokenResponse = await _client.PostAsJsonAsync($"{Endpoint}/logout", refreshTokenEntryDto);
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
@@ -305,7 +306,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var refreshTokenResponse = await _client.PostAsJsonAsync("/api/auth/logout", refreshTokenEntryDto);
+            var refreshTokenResponse = await _client.PostAsJsonAsync($"{Endpoint}/logout", refreshTokenEntryDto);
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
@@ -323,7 +324,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var refreshTokenResponse = await _client.PostAsJsonAsync("/api/auth/logout", refreshTokenEntryDto);
+            var refreshTokenResponse = await _client.PostAsJsonAsync($"{Endpoint}/logout", refreshTokenEntryDto);
 
             // Assert
             refreshTokenResponse.Should().NotBeNull();
@@ -348,7 +349,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var response = await _client.PostAsJsonAsync("/api/auth/request-reset", request);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/request-reset", request);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -364,7 +365,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var response = await _client.PostAsJsonAsync("/api/auth/request-reset", request);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/request-reset", request);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -389,7 +390,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
                 ConfirmPassword = "123458888"
             };
             //act
-            var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/reset-password", request);
             //assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
@@ -407,7 +408,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/reset-password", request);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -427,7 +428,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/reset-password", request);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -446,7 +447,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             };
 
             // Act
-            var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/reset-password", request);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);

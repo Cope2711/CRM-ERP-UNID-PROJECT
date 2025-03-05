@@ -19,7 +19,7 @@ public class RoleController : ControllerBase
         _roleService = roleService;
     }
 
-    [HttpPut("update")]
+    [HttpPatch("update")]
     [PermissionAuthorize("Edit_Content", "Roles")]
     public async Task<ActionResult<RoleDto>> Update([FromBody] UpdateRoleDto updateRoleDto)
     {
@@ -36,11 +36,11 @@ public class RoleController : ControllerBase
         return Ok(Mapper.RoleToRoleDto(role));
     }
 
-    [HttpGet("get-by-name")]
+    [HttpGet("get-by-rolename")]
     [PermissionAuthorize("View", "Roles")]
-    public async Task<ActionResult<RoleDto>> GetByName([FromQuery] string roleName)
+    public async Task<ActionResult<RoleDto>> GetByName([FromQuery] string rolename)
     {
-        Role role = await _roleService.GetByNameThrowsNotFoundAsync(roleName);
+        Role role = await _roleService.GetByNameThrowsNotFoundAsync(rolename);
 
         return Ok(Mapper.RoleToRoleDto(role));
     }

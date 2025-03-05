@@ -113,7 +113,7 @@ public class UsersRolesService(
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested AssignRolesToUsers with the object {UsersAndRolesDto}",
-            authenticatedUserId, usersAndRolesDto);
+            authenticatedUserId, usersAndRolesDto); 
 
         foreach (UserAndRoleIdDto userAndRoleIdDto in usersAndRolesDto.UserAndRoleId)
         {

@@ -138,14 +138,14 @@ public static class Models
         public static readonly Permission AssignRole = new Permission
         {
             PermissionId = Guid.Parse("5c748c35-a4f5-48d6-a320-32287c8649a9"),
-            PermissionName = "Assign_Role_To_User",
+            PermissionName = "Assign_Role",
             PermissionDescription = "Assign role to user"
         };
         
         public static readonly Permission RevokeRole = new Permission
         {
             PermissionId = Guid.Parse("47a2f03a-5f0b-4d73-b535-200a643e7849"),
-            PermissionName = "Revoke_Role_To_User",
+            PermissionName = "Revoke_Role",
             PermissionDescription = "Revoke role to user"
         };
         

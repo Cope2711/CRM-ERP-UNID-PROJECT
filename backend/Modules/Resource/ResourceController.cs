@@ -27,11 +27,11 @@ public class ResourceController : ControllerBase
         return Ok(Mapper.ResourceToResourceDto(resource));
     }
 
-    [HttpGet("get-by-name")]
+    [HttpGet("get-by-resourcename")]
     [PermissionAuthorize("View", "Resources")]
-    public async Task<ActionResult<ResourceDto>> GetByName([FromQuery] string resourceName)
+    public async Task<ActionResult<ResourceDto>> GetByName([FromQuery] string resourcename)
     {
-        Resource resource = await _resourceService.GetByNameThrowsNotFoundAsync(resourceName);
+        Resource resource = await _resourceService.GetByNameThrowsNotFoundAsync(resourcename);
         return Ok(Mapper.ResourceToResourceDto(resource));
     }
 

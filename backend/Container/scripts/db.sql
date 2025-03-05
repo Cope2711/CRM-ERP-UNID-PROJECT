@@ -39,6 +39,7 @@ CREATE TABLE Users
     CreatedDate   DATETIME         DEFAULT GETDATE(),
     UpdatedDate   DATETIME         DEFAULT GETDATE(),
 );
+
 DROP TABLE IF EXISTS TestTable;
 CREATE TABLE TestTable
 (
@@ -53,6 +54,7 @@ CREATE TABLE Resources
     ResourceName        VARCHAR(50) NOT NULL UNIQUE,
     ResourceDescription VARCHAR(255)
 );
+
 DROP TABLE IF EXISTS Permissions;
 CREATE TABLE Permissions
 (
@@ -60,6 +62,7 @@ CREATE TABLE Permissions
     PermissionName        VARCHAR(100) NOT NULL,
     PermissionDescription VARCHAR(255) NULL
 );
+
 DROP TABLE IF EXISTS Roles;
 CREATE TABLE Roles
 (
@@ -68,6 +71,7 @@ CREATE TABLE Roles
     RolePriority    FLOAT      NOT NULL,
     RoleDescription VARCHAR(255) NULL
 );
+
 DROP TABLE IF EXISTS RolesPermissionsResources;
 CREATE TABLE RolesPermissionsResources
 (
@@ -89,6 +93,7 @@ CREATE TABLE UsersRoles
     FOREIGN KEY (UserId) REFERENCES Users (UserId) ON DELETE CASCADE,
     FOREIGN KEY (RoleId) REFERENCES Roles (RoleId) ON DELETE CASCADE
 );
+
 DROP TABLE IF EXISTS RefreshTokens;
 CREATE TABLE RefreshTokens
 (
@@ -100,6 +105,7 @@ CREATE TABLE RefreshTokens
     RevokedAt      DATETIME             NULL,
     FOREIGN KEY (UserId) REFERENCES Users (UserId) ON DELETE CASCADE
 );
+
 DROP TABLE IF EXISTS PasswordRecoveryTokens;
 CREATE TABLE PasswordRecoveryTokens
 (
@@ -225,3 +231,5 @@ SELECT *
 FROM RolesPermissionsResources;
 SELECT *
 FROM RefreshTokens;
+SELECT *
+FROM PasswordRecoveryTokens;
