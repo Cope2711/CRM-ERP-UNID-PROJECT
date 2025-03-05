@@ -19,7 +19,10 @@ public class PasswordRecoveryToken
 
     // Fecha de expiración del token
     [Required]
-    public DateTime ResetTokenExpiry { get; set; }
+    public DateTime ExpiresAt { get; set; }
+    
+    [Required]
+    public DateTime CreatedAt { get; set; }
 
     // Relación con la tabla Users (opcional, dependiendo de tu ORM)
     public User User { get; set; }

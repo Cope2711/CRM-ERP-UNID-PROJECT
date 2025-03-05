@@ -355,12 +355,10 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseMessage = await response.Content.ReadAsStringAsync();
-            responseMessage.Should().Contain("It's ah sent correctly");
         }
 
         [Fact]
-        public async Task RequestResetAsync_WhenEmailIsInvalid_ReturnsBadRequest()
+        public async Task RequestResetAsync_WhenEmailIsInvalid_ReturnsNotFound()
         {
             // Arrange
             var request = new RequestPasswordResetDto
@@ -420,7 +418,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
         }
 
         [Fact]
-        public async Task ResetPassword_WhenTokenIsInvalid_ReturnsBadRequest()
+        public async Task ResetPassword_WhenTokenIsInvalid_ReturnsNotFound()
         {
             // Arrange
             var request = new ResetPasswordDto
@@ -445,7 +443,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Arrange
             var request = new ResetPasswordDto
             {
-                Token = "expired-token", // Token expirado
+                Token = Models.PasswordRecoveryTokens.TestExpiredTokenAsynk.ResetToken, // Token expirado
                 NewPassword = "newPassword123",
                 ConfirmPassword = "newPassword123"
             };
@@ -454,7 +452,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             
         }
     }

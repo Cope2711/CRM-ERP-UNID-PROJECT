@@ -8,7 +8,6 @@ namespace CRM_ERP_UNID.Modules;
 public interface IPasswordResetRepository
 {
     Task AddAsync(PasswordRecoveryToken? passwordReset);
-    Task<PasswordRecoveryToken> GetByTokenThrowsNotFoundAsync(string token);
     Task DeleteAsync(PasswordRecoveryToken? passwordReset);
     Task SaveAsync();
 }
@@ -27,19 +26,6 @@ public class PasswordResetRepository : IPasswordResetRepository
         await _context.PasswordRecoveryTokens.AddAsync(passwordReset);
     }
     
-    public async Task<PasswordRecoveryToken> GetByTokenThrowsNotFoundAsync(string token)
-    {
-        var passwordReset = await _context.PasswordRecoveryTokens
-            .FirstOrDefaultAsync(pr => pr.ResetToken == token);
-
-        if (passwordReset == null)
-        {
-            throw new NotFoundException("Password reset token not found.", field:"PasswordRecoveryTokens");
-        }
-
-        return passwordReset;
-    }
-
     public async Task DeleteAsync(PasswordRecoveryToken? passwordReset)
     {
         _context.PasswordRecoveryTokens.Remove(passwordReset);

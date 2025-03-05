@@ -105,7 +105,8 @@ CREATE TABLE PasswordRecoveryTokens
     ResetId UNIQUEIDENTIFIER PRIMARY KEY NOT NULL, -- Clave primaria
     UserId UNIQUEIDENTIFIER NOT  NULL, -- Clave foránea 
     ResetToken NVARCHAR(MAX) NOT NULL, -- Token de restablecimiento
-    ResetTokenExpiry DATETIME2(0) NOT NULL, -- Fecha de expiración del token
+    ExpiresAt DATETIME2(0) NOT NULL, -- Fecha de expiración del token
+    CreatedAt DATETIME2(0) NOT NULL 
 
     -- relación con la tabla de usuarios
     CONSTRAINT FK_PasswordResets_Users FOREIGN KEY (UserId)

@@ -1,6 +1,5 @@
 ﻿using CRM_ERP_UNID_TESTS;
 using CRM_ERP_UNID.Data;
-using CRM_ERP_UNID.Data.Models;
 
 namespace Tests;
 
@@ -62,7 +61,8 @@ public class DatabaseSeeder
             Models.RefreshTokens.TestUserExpiredRefreshToken
         );
         context.PasswordRecoveryTokens.AddRange(
-            Models.PasswordRecoveryTokens.TestValidTokenAsynk
+            Models.PasswordRecoveryTokens.TestValidTokenAsynk,
+            Models.PasswordRecoveryTokens.TestExpiredTokenAsynk
             );
         context.SaveChanges();
     }

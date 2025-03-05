@@ -13,22 +13,20 @@ public interface IPasswordResetService
 
 public class PasswordResetService : IPasswordResetService
 {
-    private readonly IUsersRepository _usersRepository;
+   
     private readonly IPasswordResetRepository _passwordResetRepository;
     private readonly IMailService _mailService;
-    private readonly IGenericServie<User> _genericService;
+    private readonly IGenericServie<PasswordRecoveryToken> _genericService;
     private readonly IUsersService _usersService;
 
     public PasswordResetService(
-        IUsersRepository usersRepository,
         IPasswordResetRepository passwordResetRepository,
         IMailService mailService,
-        IGenericServie<User> genericServie,
+        IGenericServie<PasswordRecoveryToken> genericServie,
         IUsersService usersService
 )
-
 {
-        _usersRepository = usersRepository;
+        
         _passwordResetRepository = passwordResetRepository;
         _mailService = mailService;
         _genericService = genericServie;
@@ -37,17 +35,14 @@ public class PasswordResetService : IPasswordResetService
 
     public async Task<bool> RequestPasswordResetAsync(string email)
     {
-        var user = await _usersRepository.GetByEmailAsync(email);
-        if (user == null)
-        {
-            throw new NotFoundException($"No se encontró un usuario con el email {email}.", field:"email");
-        }
+        var user = await _usersService.GetByEmailThrowsNotFoundAsync(email);
 
         var passwordReset = new PasswordRecoveryToken
         {
             UserId = user.UserId,
             ResetToken = GenerateResetToken(),
-            ResetTokenExpiry = DateTime.UtcNow.AddHours(1),
+            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            CreatedAt = DateTime.UtcNow
         };
         
         await _passwordResetRepository.AddAsync(passwordReset);
@@ -59,10 +54,8 @@ public class PasswordResetService : IPasswordResetService
 
     public async Task<bool> ResetPasswordAsync(string token, string newPassword, string confirmPassword)
     {
-
-        
-        var passwordReset = await _passwordResetRepository.GetByTokenThrowsNotFoundAsync(token);
-        if (passwordReset.ResetTokenExpiry < DateTime.UtcNow)
+        var passwordReset = await GetByTokenThrowsNotFoundAsync(token);
+        if (passwordReset.ExpiresAt < DateTime.UtcNow)
         {
             throw new BadRequestException("Password reset token has expired.", reason:"TokenExpired");
         }
@@ -71,13 +64,9 @@ public class PasswordResetService : IPasswordResetService
         {
             throw new BadRequestException("Passwords do not match.", reason:"PasswordDoesNotMatch.");
         }
-
         
-
         var user = await _usersService.GetByIdThrowsNotFoundAsync(id:passwordReset.UserId);
-       
-
-
+        
         user.UserPassword = HasherHelper.HashString(newPassword);
         user.UpdatedDate = DateTime.UtcNow;
         await _passwordResetRepository.DeleteAsync(passwordReset);
@@ -85,7 +74,12 @@ public class PasswordResetService : IPasswordResetService
         return true;
     }
 
-    public async Task<User> GetByIdThrowsNotFoundAsync(Guid id)
+    public async Task<PasswordRecoveryToken> GetByTokenThrowsNotFoundAsync(string token)
+    {
+        return await _genericService.GetFirstThrowsNotFoundAsync(prt => prt.ResetToken, token);
+    }
+    
+    public async Task<PasswordRecoveryToken> GetByIdThrowsNotFoundAsync(Guid id)
     {
         return await _genericService.GetByIdThrowsNotFoundAsync(id);
     }

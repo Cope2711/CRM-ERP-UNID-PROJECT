@@ -11,8 +11,6 @@ public interface IUsersRepository
     void Add(User user);
     Task SaveChangesAsync();
     Task<IDbContextTransaction> BeginTransactionAsync();
-    Task<User?> GetByEmailAsync(string email);
-    
 }
 
 
@@ -32,11 +30,6 @@ public class UsersRepository : IUsersRepository
     public async Task<IDbContextTransaction> BeginTransactionAsync()
     {
        return await this._context.Database.BeginTransactionAsync();
-    }
-    //recover Password
-    public async Task<User?> GetByEmailAsync(string email)
-    {
-        return await _context.Users.FirstOrDefaultAsync(u => u.UserEmail == email);
     }
     
     // end recover password

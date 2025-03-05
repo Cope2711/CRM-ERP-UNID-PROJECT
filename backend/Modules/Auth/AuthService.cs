@@ -21,7 +21,7 @@ public class AuthService : IAuthService
     private readonly IMailService _mailService;
     private readonly ILogger<AuthService> _logger;
     
-    public AuthService(IUsersService usersService, ITokenService tokenService, ILogger<AuthService> logger, IMailService mailService,IUsersRepository usersRepository)
+    public AuthService(IUsersService usersService, ITokenService tokenService, ILogger<AuthService> logger, IMailService mailService)
     {
         _usersService = usersService;
         _tokenService = tokenService;

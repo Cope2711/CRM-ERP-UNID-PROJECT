@@ -13,10 +13,8 @@ public interface IUsersService
     Task<GetAllResponseDto<User>> GetAll(GetAllDto getAllDto);
     Task<User> GetByIdThrowsNotFoundAsync(Guid id);
     Task<User?> GetByUserName(string userName);
-    Task<User?> GetByEmail(string email);
-    Task<bool> ExistByIdThrowsNotFound(Guid id);
+    Task<User> GetByEmailThrowsNotFoundAsync(string email);
     Task<bool> ExistById(Guid id);
-    Task<bool> ExistByUserName(string userName);
     Task<bool> ExistByEmail(string email);
     Task<User?> Create(CreateUserDto createUserDto);
     Task<User> GetByUserNameThrowsNotFound(string userName);
@@ -379,5 +377,10 @@ public class UsersService : IUsersService
     public async Task<User?> GetByEmail(string email)
     {
         return await _genericService.GetFirstAsync(u => u.UserEmail, email);
+    }
+    
+    public async Task<User> GetByEmailThrowsNotFoundAsync(string email)
+    {
+        return await _genericService.GetFirstThrowsNotFoundAsync(u => u.UserEmail, email);
     }
 }
