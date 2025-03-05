@@ -5,11 +5,13 @@ public interface IMailService
     Task SendRecoverPasswordMailAsync(string email, string token);
     Task SendReactivateAccountMailAsync(string email);
     Task SendNewDeviceLoggedInMailAsync();
+    Task SendEmailAsync(string to, string subject, string body);
 }
 
 public class MailService : IMailService
 {
-
+    public List<(string Email, string Subject, string Message)> SentEmails { get; } = new();
+    
     public MailService()
     {
         
@@ -19,7 +21,14 @@ public class MailService : IMailService
     {
         return;
     }
-    
+
+    public Task SendEmailAsync(string to, string subject, string body)
+    {
+        // Simula el envío de un correo electrónico
+        SentEmails.Add((to, subject, body));
+        return Task.CompletedTask;
+    }
+
     public async Task SendRecoverPasswordMailAsync(string email, string token)
     {
         return;

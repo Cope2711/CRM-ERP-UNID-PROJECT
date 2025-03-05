@@ -1,6 +1,7 @@
 using CRM_ERP_UNID.Extensions;
 using CRM_ERP_UNID.Modules;
 using Hellang.Middleware.ProblemDetails;
+using Microsoft.AspNetCore.Identity;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +36,11 @@ builder.Services.AddScoped(typeof(IGenericServie<>), typeof(GenericService<>));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IPriorityValidationService, PriorityValidationService>();
 builder.Services.AddScoped<IMailService, MailService>();
+builder.Services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
+
+
+
 
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();

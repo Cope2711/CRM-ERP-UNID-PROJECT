@@ -10,6 +10,7 @@ public interface IAuthService
     Task<TokenDto> Login(LoginUserDto loginUserDto);
     Task<TokenDto> RefreshTokenAsync(RefreshTokenEntryDto refreshTokenEntryDto);
     Task<RefreshToken?> Logout(string refreshTokenString);
+    
 }
 
 public class AuthService(
@@ -102,4 +103,5 @@ public class AuthService(
             throw new UnauthorizedException(message: "Refresh token has been revoked.", reason: "RevokedToken");
         }
     }
+    
 }

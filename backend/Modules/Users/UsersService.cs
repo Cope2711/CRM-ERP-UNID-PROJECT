@@ -14,10 +14,8 @@ public interface IUsersService
     Task<User> GetByIdThrowsNotFoundAsync(Guid id);
     Task<User?> GetById(Guid id);
     Task<User?> GetByUserName(string userName);
-    Task<User?> GetByEmail(string email);
-    Task<bool> ExistByIdThrowsNotFound(Guid id);
+    Task<User> GetByEmailThrowsNotFoundAsync(string email);
     Task<bool> ExistById(Guid id);
-    Task<bool> ExistByUserName(string userName);
     Task<bool> ExistByEmail(string email);
     Task<User?> Create(CreateUserDto createUserDto);
     Task<User> GetByUserNameThrowsNotFound(string userName);
@@ -319,6 +317,11 @@ public class UsersService(
         return await _genericService.GetFirstAsync(u => u.UserEmail, email);
     }
     
+    public async Task<User> GetByEmailThrowsNotFoundAsync(string email)
+    {
+        return await _genericService.GetFirstThrowsNotFoundAsync(u => u.UserEmail, email);
+    }
+
     private void AddFailedResponseDto(ResponsesDto<UserResponseStatusDto> responseDto, Guid id, string status,
         string field, string message)
     {
