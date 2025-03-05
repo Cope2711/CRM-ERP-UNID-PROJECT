@@ -8,7 +8,6 @@ GO
 USE ERPCRMUNID;
 GO
 
-
 -- Crear un usuario de SQL Server
 IF NOT EXISTS (SELECT name FROM sys.syslogins WHERE name = 'erp_user')
     BEGIN
@@ -17,6 +16,7 @@ IF NOT EXISTS (SELECT name FROM sys.syslogins WHERE name = 'erp_user')
 GO
 
 -- Crear un usuario dentro de la base de datos y asignar permisos
+USE ERPCRMUNID;
 GO
 
 IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'erp_user')
@@ -65,6 +65,7 @@ CREATE TABLE Roles
 (
     RoleId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
     RoleName        VARCHAR(50)  NOT NULL,
+    RolePriority    FLOAT      NOT NULL,
     RoleDescription VARCHAR(255) NULL
 );
 DROP TABLE IF EXISTS RolesPermissionsResources;
@@ -119,10 +120,10 @@ DECLARE @RoleId_Admin UNIQUEIDENTIFIER = 'aad0f879-79bf-42b5-b829-3e14b9ef0e4b';
 DECLARE @RoleId_User UNIQUEIDENTIFIER = '523a8c97-735e-41f7-b4b2-16f92791adf5';
 DECLARE @RoleId_Guest UNIQUEIDENTIFIER = 'd9b540dd-7e8e-4aa8-a97c-3cdf3a4b08d4';
 
-INSERT INTO Roles (RoleId, RoleName, RoleDescription)
-VALUES (@RoleId_Admin, 'Admin', 'Admin role'),
-       (@RoleId_User, 'User', 'User role'),
-       (@RoleId_Guest, 'Guest', 'Guest role');
+INSERT INTO Roles (RoleId, RoleName, RolePriority, RoleDescription)
+VALUES (@RoleId_Admin, 'Admin', 10, 'Admin role'),
+       (@RoleId_User, 'User', 5, 'User role'),
+       (@RoleId_Guest, 'Guest', 4.5, 'Guest role');
 
 -- Insertar Usuarios
 DECLARE @UserId_Admin UNIQUEIDENTIFIER = '172422a0-5164-4470-acae-72022d3820b1';
@@ -171,7 +172,7 @@ VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
        (@PermissionId_RevokePermission, 'Revoke_Permission', 'Revoke permission to role'),
        (@PermissionId_Delete, 'Delete', 'Delete objects'),
        (@PermissionId_DeactivateUser, 'Deactivate_User', 'Deactivate user'),
-       (@PermissionId_ActivateUser, 'Activate_User', 'Activate user')
+        (@PermissionId_ActivateUser, 'Activate_User', 'Activate user')
 
 -- Insertar Recursos
 DECLARE @ResourceId_Users UNIQUEIDENTIFIER = 'd161ec8c-7c31-4eb4-a331-82ef9e45903e';
@@ -208,8 +209,10 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_Delete, @ResourceId_Roles),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Resources),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Permissions),
-       (NEWID(), @RoleId_Admin, @PermissionId_ActivateUser, NULL)
-
+       (NEWID(), @RoleId_Admin, @PermissionId_ActivateUser, NULL),
+       (NEWID(), @RoleId_User, @PermissionId_EditContent, @ResourceId_Users),
+       (NEWID(), @ROleId_User, @PermissionId_RevokeRole, NULL),
+       (NEWID(), @ROleId_User, @PermissionId_RevokePermission, NULL)
 
 -- Consultas para verificar la inserción de datos
 SELECT *

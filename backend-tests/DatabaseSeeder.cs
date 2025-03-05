@@ -7,18 +7,22 @@ public class DatabaseSeeder
 {
     public static void Seed(AppDbContext context)
     {
-      
         context.Roles.AddRange(
             Models.Roles.Admin,
             Models.Roles.User,
-            Models.Roles.Guest);
+            Models.Roles.Guest,
+            Models.Roles.HighestPriority);
         context.Users.AddRange(
             Models.Users.Admin,
             Models.Users.InactiveTestUser,
-            Models.Users.TestUser);
+            Models.Users.TestUser,
+            Models.Users.HighestPriorityUser,
+            Models.Users.DeactivateHighestPriorityUser);
         context.UsersRoles.AddRange(
             Models.UsersRoles.AdminUserRoleAdmin,
-            Models.UsersRoles.TestUserRoleUser);
+            Models.UsersRoles.TestUserRoleUser,
+            Models.UsersRoles.HighestPriorityUserRoleHighestPriority,
+            Models.UsersRoles.DeactivateHighestPriorityUserRoleHighestPriority);
         context.Permissions.AddRange(
             Models.Permissions.View,
             Models.Permissions.ViewReports,
@@ -58,12 +62,10 @@ public class DatabaseSeeder
             Models.RolesPermissionsResources.AdminActivateUser);
         context.RefreshTokens.AddRange(
             Models.RefreshTokens.TestUserRefreshTokenRevoked,
-            Models.RefreshTokens.TestUserExpiredRefreshToken
-        );
+            Models.RefreshTokens.TestUserExpiredRefreshToken);
         context.PasswordRecoveryTokens.AddRange(
             Models.PasswordRecoveryTokens.TestValidTokenAsynk,
-            Models.PasswordRecoveryTokens.TestExpiredTokenAsynk
-            );
+            Models.PasswordRecoveryTokens.TestExpiredTokenAsynk);
         context.SaveChanges();
     }
 }

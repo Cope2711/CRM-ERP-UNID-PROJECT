@@ -37,9 +37,7 @@ public class AuthController : ControllerBase
     [HttpPost("reset-password")]
     public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordDto request)
     {
-        
-
-        var result = await _passwordResetService.ResetPasswordAsync(request.Token, request.NewPassword, request.ConfirmPassword);
+        var result = await _passwordResetService.ResetPasswordAsync(request);
         if (!result)
             return BadRequest("Invalid or expired token.");
         return Ok("Password reset successfully.");

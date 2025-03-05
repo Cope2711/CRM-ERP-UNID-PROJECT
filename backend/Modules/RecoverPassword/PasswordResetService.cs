@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using CRM_ERP_UNID.Data.Models;
+using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
 
@@ -8,7 +9,7 @@ namespace CRM_ERP_UNID.Modules;
 public interface IPasswordResetService
 {
     Task<bool> RequestPasswordResetAsync(string email);
-    Task<bool> ResetPasswordAsync(string token, string newPassword, string confirmPassword);
+    Task<bool> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
 }
 
 public class PasswordResetService : IPasswordResetService
@@ -52,24 +53,23 @@ public class PasswordResetService : IPasswordResetService
         return true;
     }
 
-    public async Task<bool> ResetPasswordAsync(string token, string newPassword, string confirmPassword)
+    public async Task<bool> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
     {
-        var passwordReset = await GetByTokenThrowsNotFoundAsync(token);
+        var passwordReset = await GetByTokenThrowsNotFoundAsync(resetPasswordDto.Token);
         if (passwordReset.ExpiresAt < DateTime.UtcNow)
         {
             throw new BadRequestException("Password reset token has expired.", reason:"TokenExpired");
         }
         
-        if (newPassword != confirmPassword)
+        if (resetPasswordDto.NewPassword != resetPasswordDto.ConfirmPassword)
         {
             throw new BadRequestException("Passwords do not match.", reason:"PasswordDoesNotMatch.");
         }
         
         var user = await _usersService.GetByIdThrowsNotFoundAsync(id:passwordReset.UserId);
         
-        user.UserPassword = HasherHelper.HashString(newPassword);
+        user.UserPassword = HasherHelper.HashString(resetPasswordDto.NewPassword);
         user.UpdatedDate = DateTime.UtcNow;
-        await _passwordResetRepository.DeleteAsync(passwordReset);
         await _passwordResetRepository.SaveAsync();
         return true;
     }

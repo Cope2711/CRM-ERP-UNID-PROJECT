@@ -12,6 +12,7 @@ public interface IUsersService
 {
     Task<GetAllResponseDto<User>> GetAll(GetAllDto getAllDto);
     Task<User> GetByIdThrowsNotFoundAsync(Guid id);
+    Task<User?> GetById(Guid id);
     Task<User?> GetByUserName(string userName);
     Task<User> GetByEmailThrowsNotFoundAsync(string email);
     Task<bool> ExistById(Guid id);
@@ -24,99 +25,50 @@ public interface IUsersService
     Task<ResponsesDto<UserResponseStatusDto>> ActivateUsersAsync(UsersIdsDto usersIdsDto);
 }
 
-public class UsersService : IUsersService
+public class UsersService(
+    IUsersRepository _usersRepository,
+    IGenericServie<User> _genericService,
+    ITokenService _tokenService, 
+    ILogger<UsersService> _logger, 
+    IHttpContextAccessor _httpContextAccessor,
+    IMailService _mailService, 
+    IPriorityValidationService _priorityValidationService
+    ) : IUsersService
 {
-    private readonly IUsersRepository _usersRepository;
-    private readonly ITokenService _tokenService;
-    private readonly IGenericServie<User> _genericService;
-    private readonly ILogger<UsersService> _logger;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMailService _mailService;
-
-    private Guid AuthenticatedUserId =>
-        Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
-                   Guid.Empty.ToString());
-
-    public UsersService(IUsersRepository usersRepository, IGenericServie<User> genericService,
-        ITokenService tokenService, ILogger<UsersService> logger, IHttpContextAccessor httpContextAccessor,
-        IMailService mailService)
-    {
-        _usersRepository = usersRepository;
-        _genericService = genericService;
-        _tokenService = tokenService;
-        _logger = logger;
-        _httpContextAccessor = httpContextAccessor;
-        _mailService = mailService;
-    }
-
     public async Task<User> UpdateAsync(UpdateUserDto updateUserDto)
     {
-        Guid authenticatedUserId = AuthenticatedUserId;
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 
-        _logger.LogInformation("User with Id {authenticatedUserId} requested UpdateUser with UserId {TargetUserId}",
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} requested UpdateUser with UserId {TargetUserId}",
             authenticatedUserId, updateUserDto.UserId);
 
-        // Get the user
-        User user = await this.GetByIdThrowsNotFoundAsync(updateUserDto.UserId);
+        User user = await GetByIdThrowsNotFoundAsync(updateUserDto.UserId);
 
-        bool hasChanges = false;
+        if (authenticatedUserId != updateUserDto.UserId)
+            _priorityValidationService.ValidateUserPriorityThrowsForbiddenException(user);
 
-        // Update user
-        if (updateUserDto.UserFirstName != null && updateUserDto.UserFirstName != user.UserFirstName)
+        bool hasChanges = ModelsHelper.UpdateModel(user, updateUserDto, async (field, value) =>
         {
-            user.UserFirstName = updateUserDto.UserFirstName;
-            hasChanges = true;
-        }
-
-        if (updateUserDto.UserLastName != null && updateUserDto.UserLastName != user.UserLastName)
-        {
-            user.UserLastName = updateUserDto.UserLastName;
-            hasChanges = true;
-        }
-
-        if (updateUserDto.UserUserName != null && updateUserDto.UserUserName != user.UserUserName)
-        {
-            if (await ExistByUserName(updateUserDto.UserUserName))
+            return field switch
             {
-                _logger.LogError(
-                    "User with Id {authenticatedUserId} requested UpdateUser but the user with username {UserUserName} already exists",
-                    authenticatedUserId, updateUserDto.UserUserName);
-                throw new UniqueConstraintViolationException(
-                    message: $"User with username {updateUserDto.UserUserName} already exists", field: "UserUserName");
-            }
-
-            user.UserUserName = updateUserDto.UserUserName;
-            hasChanges = true;
-        }
-
-        if (updateUserDto.UserEmail != null && updateUserDto.UserEmail != user.UserEmail)
-        {
-            // Check if the email is already in use
-            if (await ExistByEmail(updateUserDto.UserEmail))
-            {
-                _logger.LogError(
-                    "User with Id {authenticatedUserId} requested UpdateUser but the user with email {UserEmail} already exists",
-                    authenticatedUserId, updateUserDto.UserEmail);
-                throw new UniqueConstraintViolationException(
-                    message: $"User with email {updateUserDto.UserEmail} already exists", field: "UserEmail");
-            }
-
-            user.UserEmail = updateUserDto.UserEmail;
-            hasChanges = true;
-        }
+                nameof(updateUserDto.UserEmail) => await ExistByEmail((string)value),
+                nameof(updateUserDto.UserUserName) => await ExistByUserName((string)value),
+                _ => false
+            };
+        });
 
         if (hasChanges)
         {
             _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateUser and the user was updated with Id {UpdatedUserId}",
+                "User with Id {authenticatedUserId} updated User with Id {UpdatedUserId}",
                 authenticatedUserId, user.UserId);
-            await this._usersRepository.SaveChangesAsync();
         }
         else
         {
             _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateUser and the user was not updated with Id {UpdatedUserId}",
-                authenticatedUserId, updateUserDto.UserId);
+                "User with Id {authenticatedUserId} requested UpdateUser but no changes were made",
+                authenticatedUserId);
         }
 
         return user;
@@ -124,7 +76,7 @@ public class UsersService : IUsersService
 
     public async Task<User> ChangePasswordAsync(ChangePasswordDto changePasswordDto)
     {
-        Guid authenticatedUserId = AuthenticatedUserId;
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 
         _logger.LogInformation("User with Id {authenticatedUserId} requested ChangePassword", authenticatedUserId);
 
@@ -152,7 +104,7 @@ public class UsersService : IUsersService
         user.UserPassword = HasherHelper.HashString(changePasswordDto.NewPassword);
 
         // Save changes
-        await this._usersRepository.SaveChangesAsync();
+        await _usersRepository.SaveChangesAsync();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested ChangePassword and the password was changed",
@@ -163,7 +115,7 @@ public class UsersService : IUsersService
 
     public async Task<ResponsesDto<UserResponseStatusDto>> ActivateUsersAsync(UsersIdsDto usersIdsDto)
     {
-        Guid authenticatedUserId = AuthenticatedUserId;
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         ResponsesDto<UserResponseStatusDto> responseDto = new();
 
         _logger.LogInformation(
@@ -175,29 +127,21 @@ public class UsersService : IUsersService
             User? user = await GetById(id);
             if (user == null)
             {
-                responseDto.Failed.Add(new UserResponseStatusDto
-                {
-                    UserId = id,
-                    Status = ResponseStatus.NotFound,
-                    Field = "UserId",
-                    Message = "User not found"
-                });
-                continue;
+                AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound, "UserId", "User not found"); continue;
             }
 
             if (user.IsActive)
             {
-                responseDto.Failed.Add(new UserResponseStatusDto
-                {
-                    UserId = id,
-                    Status = ResponseStatus.AlreadyProcessed,
-                    Message = "User already activated"
-                });
-                continue;
+                AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed, "UserId", "User already activated"); continue;
             }
-
+            
+            if (authenticatedUserId != user.UserId && !_priorityValidationService.ValidateUserPriority(user))
+            {
+                AddFailedResponseDto(responseDto, id, ResponseStatus.NotEnoughPriority, "UserId", "Not have enough priority to activate that user"); continue;
+            }
+            
             user.IsActive = true;
-            await this._usersRepository.SaveChangesAsync();
+            await _usersRepository.SaveChangesAsync();
             responseDto.Success.Add(new UserResponseStatusDto
             {
                 UserId = id,
@@ -216,7 +160,7 @@ public class UsersService : IUsersService
 
     public async Task<ResponsesDto<UserResponseStatusDto>> DeactivateUsersAsync(UsersIdsDto usersIdsDto)
     {
-        Guid authenticatedUserId = AuthenticatedUserId;
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         ResponsesDto<UserResponseStatusDto> responseDto = new();
 
         using var transaction = await _usersRepository.BeginTransactionAsync();
@@ -228,29 +172,21 @@ public class UsersService : IUsersService
                 User? user = await GetById(id);
                 if (user == null)
                 {
-                    responseDto.Failed.Add(new UserResponseStatusDto
-                    {
-                        UserId = id,
-                        Status = ResponseStatus.NotFound,
-                        Field = "UserId",
-                        Message = "User not found"
-                    });
-                    continue;
+                    AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound, "UserId", "User not found"); continue;
                 }
 
                 if (!user.IsActive)
                 {
-                    responseDto.Failed.Add(new UserResponseStatusDto
-                    {
-                        UserId = id,
-                        Status = ResponseStatus.AlreadyProcessed,
-                        Message = "User was already deactivated"
-                    });
-                    continue;
+                    AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed, "UserId", "User was already deactivated"); continue;
+                }
+                
+                if (authenticatedUserId != user.UserId && !_priorityValidationService.ValidateUserPriority(user))
+                {
+                    AddFailedResponseDto(responseDto, id, ResponseStatus.NotEnoughPriority, "UserId", "Not have enough priority to deactivate that user"); continue;
                 }
 
                 user.IsActive = false;
-                await _tokenService.RevokeRefreshsTokensByUserId(id);
+                await _tokenService.RevokeRefreshTokensByUserId(id);
                 await _usersRepository.SaveChangesAsync();
 
                 responseDto.Success.Add(new UserResponseStatusDto
@@ -280,10 +216,11 @@ public class UsersService : IUsersService
 
     public async Task<User?> Create(CreateUserDto createUserDto)
     {
-        Guid authenticatedUserId = AuthenticatedUserId;
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 
         _logger.LogInformation("User with Id {authenticatedUserId} requested CreateUser with UserName {UserUserName}",
             authenticatedUserId, createUserDto.UserUserName);
+        
         if (await ExistByUserName(createUserDto.UserUserName))
         {
             _logger.LogError(
@@ -312,8 +249,8 @@ public class UsersService : IUsersService
             IsActive = createUserDto.IsActive
         };
 
-        this._usersRepository.Add(user);
-        await this._usersRepository.SaveChangesAsync();
+        _usersRepository.Add(user);
+        await _usersRepository.SaveChangesAsync();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested CreateUser and the user was created with Id {CreatedUserId}",
@@ -330,7 +267,8 @@ public class UsersService : IUsersService
 
     public async Task<User?> GetById(Guid id)
     {
-        return await _genericService.GetById(id, query => query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role));
+        return await _genericService.GetById(id, 
+            query => query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role));
     }
 
     public async Task<User> GetByIdThrowsNotFoundAsync(Guid id)
@@ -382,5 +320,17 @@ public class UsersService : IUsersService
     public async Task<User> GetByEmailThrowsNotFoundAsync(string email)
     {
         return await _genericService.GetFirstThrowsNotFoundAsync(u => u.UserEmail, email);
+    }
+
+    private void AddFailedResponseDto(ResponsesDto<UserResponseStatusDto> responseDto, Guid id, string status,
+        string field, string message)
+    {
+        responseDto.Failed.Add(new UserResponseStatusDto
+        {
+            UserId = id,
+            Status = status,
+            Field = field,
+            Message = message
+        });
     }
 }
