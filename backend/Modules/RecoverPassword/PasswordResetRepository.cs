@@ -34,7 +34,7 @@ public class PasswordResetRepository : IPasswordResetRepository
 
         if (passwordReset == null)
         {
-            throw new NotFoundException("Token de restablecimiento de contraseña no encontrado.", field:"PasswordRecoveryTokens");
+            throw new NotFoundException("Password reset token not found.", field:"PasswordRecoveryTokens");
         }
 
         return passwordReset;

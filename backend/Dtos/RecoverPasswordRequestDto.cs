@@ -22,6 +22,5 @@ public class ResetPasswordDto
     public string NewPassword { get; set; }
 
     [Required(ErrorMessage = "La confirmación de la contraseña es obligatoria.")]
-    [Compare("NewPassword", ErrorMessage = "Las contraseñas no coinciden.")]
     public string ConfirmPassword { get; set; }
 }

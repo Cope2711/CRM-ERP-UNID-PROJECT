@@ -27,12 +27,10 @@ public class AuthController : ControllerBase
     [HttpPost("request-reset")]
     public async Task<ActionResult> RequestResetAsync([FromBody] RequestPasswordResetDto request)
     {
-       
-        
         var result = await _passwordResetService.RequestPasswordResetAsync(request.Email);
         if(!result)
-            return BadRequest("No se pudo procesar la solicitud.");
-        return Ok("se ah enviado correctamente");
+            return BadRequest("The request could not be processed.d.");
+        return Ok("It's ah sent correctly");
     }
 
     [AllowAnonymous]
@@ -41,10 +39,10 @@ public class AuthController : ControllerBase
     {
         
 
-        var result = await _passwordResetService.ResetPasswordAsync(request.Token, request.NewPassword);
+        var result = await _passwordResetService.ResetPasswordAsync(request.Token, request.NewPassword, request.ConfirmPassword);
         if (!result)
-            return BadRequest("Token no válido o expirado.");
-        return Ok("Contraseña restablecida correctamente.");
+            return BadRequest("Invalid or expired token.");
+        return Ok("Password reset successfully.");
     }
     
 

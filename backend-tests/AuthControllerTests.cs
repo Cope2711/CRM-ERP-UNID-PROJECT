@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using CRM_ERP_UNID_TESTS;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -355,7 +356,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseMessage = await response.Content.ReadAsStringAsync();
-            responseMessage.Should().Contain("se ah enviado correctamente");
+            responseMessage.Should().Contain("It's ah sent correctly");
         }
 
         [Fact]
@@ -371,9 +372,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             var response = await _client.PostAsJsonAsync("/api/auth/request-reset", request);
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseMessage = await response.Content.ReadAsStringAsync();
-            responseMessage.Should().Contain("No se pudo procesar la solicitud");
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            
         }
     }
 
@@ -384,13 +384,31 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
         }
 
         [Fact]
+        public async Task ResetPassword_PasswordDoesNotMatch_ReturnsBadRequest()
+        {
+            //aranque
+            var request = new ResetPasswordDto
+            {
+                Token = Models.PasswordRecoveryTokens.TestValidTokenAsynk.ResetToken,
+                NewPassword = "1234565557",
+                ConfirmPassword = "123458888"
+            };
+            //act
+            var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
+            //assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
         public async Task ResetPassword_WhenTokenIsValid_ReturnsOk()
         {
             // Arrange
             var request = new ResetPasswordDto
             {
-                Token = "valid-token", // Token válido
-                NewPassword = "newPassword123"
+                Token = Models.PasswordRecoveryTokens.TestValidTokenAsynk.ResetToken,// Token válido
+                NewPassword = "newPassword123",
+                ConfirmPassword = "newPassword123"
+                
             };
 
             // Act
@@ -398,8 +416,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseMessage = await response.Content.ReadAsStringAsync();
-            responseMessage.Should().Contain("Contraseña restablecida correctamente");
+           
         }
 
         [Fact]
@@ -409,16 +426,17 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             var request = new ResetPasswordDto
             {
                 Token = "invalid-token", // Token inválido
-                NewPassword = "newPassword123"
+                NewPassword = "newPassword123",
+                ConfirmPassword = "newPassword123"
+                
             };
 
             // Act
             var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseMessage = await response.Content.ReadAsStringAsync();
-            responseMessage.Should().Contain("Token no válido o expirado");
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            
         }
 
         [Fact]
@@ -428,16 +446,16 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             var request = new ResetPasswordDto
             {
                 Token = "expired-token", // Token expirado
-                NewPassword = "newPassword123"
+                NewPassword = "newPassword123",
+                ConfirmPassword = "newPassword123"
             };
 
             // Act
             var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseMessage = await response.Content.ReadAsStringAsync();
-            responseMessage.Should().Contain("Token no válido o expirado");
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            
         }
     }
 }

@@ -50,7 +50,7 @@ public static class ProblemDetailsExtensions
                 Title = "Bad Request",
                 Status = StatusCodes.Status400BadRequest,
                 Detail = ex.Message,
-                Extensions = { { "field", ex.Field } }
+                Extensions = { { "field", ex.Field },{ "reason", ex.Reason } }
             });
             
             options.MapToStatusCode<NotImplementedException>(StatusCodes.Status501NotImplemented);

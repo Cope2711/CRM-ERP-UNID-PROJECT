@@ -103,7 +103,7 @@ DROP TABLE IF EXISTS PasswordRecoveryTokens;
 CREATE TABLE PasswordRecoveryTokens
 (
     ResetId UNIQUEIDENTIFIER PRIMARY KEY NOT NULL, -- Clave primaria
-    UserId UNIQUEIDENTIFIER NULL, -- Clave foránea 
+    UserId UNIQUEIDENTIFIER NOT  NULL, -- Clave foránea 
     ResetToken NVARCHAR(MAX) NOT NULL, -- Token de restablecimiento
     ResetTokenExpiry DATETIME2(0) NOT NULL, -- Fecha de expiración del token
 

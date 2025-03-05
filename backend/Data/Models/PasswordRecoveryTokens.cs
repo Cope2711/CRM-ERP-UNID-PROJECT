@@ -10,12 +10,15 @@ public class PasswordRecoveryToken
     public Guid ResetId { get; set; } = Guid.NewGuid();
 
     // Clave foránea (UserId) que referencia a la tabla Users
+    [Required]
     public Guid UserId { get; set; }
 
     // Token de restablecimiento de contraseña
+    [Required]
     public string ResetToken { get; set; }
 
     // Fecha de expiración del token
+    [Required]
     public DateTime ResetTokenExpiry { get; set; }
 
     // Relación con la tabla Users (opcional, dependiendo de tu ORM)

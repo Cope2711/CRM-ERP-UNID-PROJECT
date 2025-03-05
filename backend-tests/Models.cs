@@ -360,4 +360,20 @@ public static class Models
             RevokedAt = null
         };
     }
+
+    public static class PasswordRecoveryTokens
+    {
+
+
+        public static PasswordRecoveryToken TestValidTokenAsynk = new PasswordRecoveryToken
+        {
+            ResetId = Guid.NewGuid(),
+            UserId = Models.Users.TestUser.UserId,
+            ResetToken = "valid-reset-token",
+            ResetTokenExpiry = DateTime.UtcNow.AddHours(1)
+        };
+
+    }
+
+
 }

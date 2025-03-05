@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
@@ -7,7 +8,7 @@ namespace CRM_ERP_UNID.Modules;
 public interface IPasswordResetService
 {
     Task<bool> RequestPasswordResetAsync(string email);
-    Task<bool> ResetPasswordAsync(string token, string newPassword);
+    Task<bool> ResetPasswordAsync(string token, string newPassword, string confirmPassword);
 }
 
 public class PasswordResetService : IPasswordResetService
@@ -16,12 +17,14 @@ public class PasswordResetService : IPasswordResetService
     private readonly IPasswordResetRepository _passwordResetRepository;
     private readonly IMailService _mailService;
     private readonly IGenericServie<User> _genericService;
+    private readonly IUsersService _usersService;
 
     public PasswordResetService(
         IUsersRepository usersRepository,
         IPasswordResetRepository passwordResetRepository,
         IMailService mailService,
-        IGenericServie<User> genericServie
+        IGenericServie<User> genericServie,
+        IUsersService usersService
 )
 
 {
@@ -29,6 +32,7 @@ public class PasswordResetService : IPasswordResetService
         _passwordResetRepository = passwordResetRepository;
         _mailService = mailService;
         _genericService = genericServie;
+        _usersService = usersService;
     }
 
     public async Task<bool> RequestPasswordResetAsync(string email)
@@ -53,19 +57,25 @@ public class PasswordResetService : IPasswordResetService
         return true;
     }
 
-    public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+    public async Task<bool> ResetPasswordAsync(string token, string newPassword, string confirmPassword)
     {
+
+        
         var passwordReset = await _passwordResetRepository.GetByTokenThrowsNotFoundAsync(token);
         if (passwordReset.ResetTokenExpiry < DateTime.UtcNow)
         {
-            throw new BadRequestException("El token de restablecimiento de contraseña ha expirado.");
+            throw new BadRequestException("Password reset token has expired.", reason:"TokenExpired");
+        }
+        
+        if (newPassword != confirmPassword)
+        {
+            throw new BadRequestException("Passwords do not match.", reason:"PasswordDoesNotMatch.");
         }
 
-        var user = await _genericService.GetByIdThrowsNotFoundAsync(passwordReset.UserId);
-        if (user == null)
-        {
-            throw new NotFoundException("El usuario asociado al token no fue encontrado.", field:"Userid");
-        }
+        
+
+        var user = await _usersService.GetByIdThrowsNotFoundAsync(id:passwordReset.UserId);
+       
 
 
         user.UserPassword = HasherHelper.HashString(newPassword);
