@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using CRM_ERP_UNID_TESTS;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -330,6 +331,129 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Assert
             refreshTokenResponse.Should().NotBeNull();
             refreshTokenResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+        
+        
+    }
+      public class RequestResetTests : AuthControllerTests
+    {
+        public RequestResetTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
+
+        [Fact]
+        public async Task RequestResetAsync_WhenEmailIsValid_ReturnsOk()
+        {
+            // Arrange
+            var request = new RequestPasswordResetDto
+            {
+                Email = "admin@admin.com" // Correo electrónico válido
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/auth/request-reset", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task RequestResetAsync_WhenEmailIsInvalid_ReturnsNotFound()
+        {
+            // Arrange
+            var request = new RequestPasswordResetDto
+            {
+                Email = "invalid-email@example.com" // Correo electrónico inválido
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/auth/request-reset", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            
+        }
+    }
+
+    public class ResetPasswordTests : AuthControllerTests
+    {
+        public ResetPasswordTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
+
+        [Fact]
+        public async Task ResetPassword_PasswordDoesNotMatch_ReturnsBadRequest()
+        {
+            //aranque
+            var request = new ResetPasswordDto
+            {
+                Token = Models.PasswordRecoveryTokens.TestValidTokenAsynk.ResetToken,
+                NewPassword = "1234565557",
+                ConfirmPassword = "123458888"
+            };
+            //act
+            var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
+            //assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task ResetPassword_WhenTokenIsValid_ReturnsOk()
+        {
+            // Arrange
+            var request = new ResetPasswordDto
+            {
+                Token = Models.PasswordRecoveryTokens.TestValidTokenAsynk.ResetToken,// Token válido
+                NewPassword = "newPassword123",
+                ConfirmPassword = "newPassword123"
+                
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+           
+        }
+
+        [Fact]
+        public async Task ResetPassword_WhenTokenIsInvalid_ReturnsNotFound()
+        {
+            // Arrange
+            var request = new ResetPasswordDto
+            {
+                Token = "invalid-token", // Token inválido
+                NewPassword = "newPassword123",
+                ConfirmPassword = "newPassword123"
+                
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            
+        }
+
+        [Fact]
+        public async Task ResetPassword_WhenTokenIsExpired_ReturnsBadRequest()
+        {
+            // Arrange
+            var request = new ResetPasswordDto
+            {
+                Token = Models.PasswordRecoveryTokens.TestExpiredTokenAsynk.ResetToken, // Token expirado
+                NewPassword = "newPassword123",
+                ConfirmPassword = "newPassword123"
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/auth/reset-password", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            
         }
     }
 }

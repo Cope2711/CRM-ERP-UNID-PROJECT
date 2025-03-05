@@ -8,6 +8,7 @@ GO
 USE ERPCRMUNID;
 GO
 
+
 -- Crear un usuario de SQL Server
 IF NOT EXISTS (SELECT name FROM sys.syslogins WHERE name = 'erp_user')
     BEGIN
@@ -16,7 +17,6 @@ IF NOT EXISTS (SELECT name FROM sys.syslogins WHERE name = 'erp_user')
 GO
 
 -- Crear un usuario dentro de la base de datos y asignar permisos
-USE ERPCRMUNID;
 GO
 
 IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'erp_user')
@@ -26,56 +26,7 @@ IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'erp_user')
     END
 GO
 
--- Eliminar tablas si existen
-DROP TABLE IF EXISTS TestTable;
-DROP TABLE IF EXISTS RolesPermissionsResources;
-DROP TABLE IF EXISTS UsersRoles;
-DROP TABLE IF EXISTS RefreshTokens;
 DROP TABLE IF EXISTS Users;
-DROP TABLE IF EXISTS Resources;
-DROP TABLE IF EXISTS Roles;
-DROP TABLE IF EXISTS Permissions;
-
-CREATE TABLE TestTable
-(
-    TestTableID   UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    TestTableCamp VARCHAR(50) NOT NULL
-);
-
-
-CREATE TABLE Resources
-(
-    ResourceId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    ResourceName        VARCHAR(50) NOT NULL UNIQUE,
-    ResourceDescription VARCHAR(255)
-);
-
-CREATE TABLE Permissions
-(
-    PermissionId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    PermissionName        VARCHAR(100) NOT NULL,
-    PermissionDescription VARCHAR(255) NULL
-);
-
-
-CREATE TABLE Roles
-(
-    RoleId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    RoleName        VARCHAR(50)  NOT NULL,
-    RoleDescription VARCHAR(255) NULL
-);
-
-CREATE TABLE RolesPermissionsResources
-(
-    RolePermissionId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    RoleId           UNIQUEIDENTIFIER NOT NULL,
-    PermissionId     UNIQUEIDENTIFIER NOT NULL,
-    ResourceId       UNIQUEIDENTIFIER,
-    FOREIGN KEY (RoleId) REFERENCES Roles (RoleId) ON DELETE CASCADE,
-    FOREIGN KEY (PermissionId) REFERENCES Permissions (PermissionId) ON DELETE CASCADE,
-    FOREIGN KEY (ResourceId) REFERENCES Resources (ResourceId) ON DELETE CASCADE
-);
-
 CREATE TABLE Users
 (
     UserId        UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -88,7 +39,47 @@ CREATE TABLE Users
     CreatedDate   DATETIME         DEFAULT GETDATE(),
     UpdatedDate   DATETIME         DEFAULT GETDATE(),
 );
+DROP TABLE IF EXISTS TestTable;
+CREATE TABLE TestTable
+(
+    TestTableID   UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    TestTableCamp VARCHAR(50) NOT NULL
+);
 
+DROP TABLE IF EXISTS Resources;
+CREATE TABLE Resources
+(
+    ResourceId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    ResourceName        VARCHAR(50) NOT NULL UNIQUE,
+    ResourceDescription VARCHAR(255)
+);
+DROP TABLE IF EXISTS Permissions;
+CREATE TABLE Permissions
+(
+    PermissionId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    PermissionName        VARCHAR(100) NOT NULL,
+    PermissionDescription VARCHAR(255) NULL
+);
+DROP TABLE IF EXISTS Roles;
+CREATE TABLE Roles
+(
+    RoleId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    RoleName        VARCHAR(50)  NOT NULL,
+    RoleDescription VARCHAR(255) NULL
+);
+DROP TABLE IF EXISTS RolesPermissionsResources;
+CREATE TABLE RolesPermissionsResources
+(
+    RolePermissionId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    RoleId           UNIQUEIDENTIFIER NOT NULL,
+    PermissionId     UNIQUEIDENTIFIER NOT NULL,
+    ResourceId       UNIQUEIDENTIFIER,
+    FOREIGN KEY (RoleId) REFERENCES Roles (RoleId) ON DELETE CASCADE,
+    FOREIGN KEY (PermissionId) REFERENCES Permissions (PermissionId) ON DELETE CASCADE,
+    FOREIGN KEY (ResourceId) REFERENCES Resources (ResourceId) ON DELETE CASCADE
+);
+
+DROP TABLE IF EXISTS UsersRoles;
 CREATE TABLE UsersRoles
 (
     UserRoleId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -97,7 +88,7 @@ CREATE TABLE UsersRoles
     FOREIGN KEY (UserId) REFERENCES Users (UserId) ON DELETE CASCADE,
     FOREIGN KEY (RoleId) REFERENCES Roles (RoleId) ON DELETE CASCADE
 );
-
+DROP TABLE IF EXISTS RefreshTokens;
 CREATE TABLE RefreshTokens
 (
     RefreshTokenId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -107,6 +98,20 @@ CREATE TABLE RefreshTokens
     ExpiresAt      DATETIME             NOT NULL,
     RevokedAt      DATETIME             NULL,
     FOREIGN KEY (UserId) REFERENCES Users (UserId) ON DELETE CASCADE
+);
+DROP TABLE IF EXISTS PasswordRecoveryTokens;
+CREATE TABLE PasswordRecoveryTokens
+(
+    ResetId UNIQUEIDENTIFIER PRIMARY KEY NOT NULL, -- Clave primaria
+    UserId UNIQUEIDENTIFIER NOT  NULL, -- Clave foránea 
+    ResetToken NVARCHAR(MAX) NOT NULL, -- Token de restablecimiento
+    ExpiresAt DATETIME2(0) NOT NULL, -- Fecha de expiración del token
+    CreatedAt DATETIME2(0) NOT NULL 
+
+    -- relación con la tabla de usuarios
+    CONSTRAINT FK_PasswordResets_Users FOREIGN KEY (UserId)
+        REFERENCES Users(UserId)
+        ON DELETE CASCADE
 );
 
 -- Insertar Roles
@@ -129,8 +134,8 @@ VALUES (@UserId_Admin, 'admin', 'Admin', 'User', 'admin@admin.com',
         '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 1),
        (@UserId_Test, 'test-user', 'Test', 'User', 'test-user@test.com',
         '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 1),
-    (@UserId_TestDeactivated, 'test-user-deactivated', 'TestDeactivated', 'User', 'test-user-deactivated@test.com',
-     '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 0)
+       (@UserId_TestDeactivated, 'test-user-deactivated', 'TestDeactivated', 'User', 'test-user-deactivated@test.com',
+        '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 0)
 
 -- Insertar UsersRoles
 DECLARE @UserRoleId_Admin UNIQUEIDENTIFIER = '842193b4-5048-4cd9-be60-b7ca34319286';
@@ -166,7 +171,7 @@ VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
        (@PermissionId_RevokePermission, 'Revoke_Permission', 'Revoke permission to role'),
        (@PermissionId_Delete, 'Delete', 'Delete objects'),
        (@PermissionId_DeactivateUser, 'Deactivate_User', 'Deactivate user'),
-        (@PermissionId_ActivateUser, 'Activate_User', 'Activate user')
+       (@PermissionId_ActivateUser, 'Activate_User', 'Activate user')
 
 -- Insertar Recursos
 DECLARE @ResourceId_Users UNIQUEIDENTIFIER = 'd161ec8c-7c31-4eb4-a331-82ef9e45903e';
