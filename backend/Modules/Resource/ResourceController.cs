@@ -24,7 +24,7 @@ public class ResourceController : ControllerBase
     public async Task<ActionResult<ResourceDto>> GetById([FromQuery] Guid id)
     {
         Resource resource = await _resourceService.GetByIdThrowsNotFoundAsync(id);
-        return Ok(Mapper.ResourceToResourceDto(resource));
+        return Ok(resource.ToDto());
     }
 
     [HttpGet("get-by-resourcename")]
@@ -32,7 +32,7 @@ public class ResourceController : ControllerBase
     public async Task<ActionResult<ResourceDto>> GetByName([FromQuery] string resourcename)
     {
         Resource resource = await _resourceService.GetByNameThrowsNotFoundAsync(resourcename);
-        return Ok(Mapper.ResourceToResourceDto(resource));
+        return Ok(resource.ToDto());
     }
 
     [HttpPost("get-all")]
@@ -48,7 +48,7 @@ public class ResourceController : ControllerBase
         GetAllResponseDto<Resource> getAllResponseDto = await _resourceService.GetAllAsync(getAllDto);
         GetAllResponseDto<ResourceDto> getAllResponseDtoDto = new GetAllResponseDto<ResourceDto>
         {
-            Data = getAllResponseDto.Data.Select(Mapper.ResourceToResourceDto).ToList(),
+            Data = getAllResponseDto.Data.Select(r => r.ToDto()).ToList(),
             TotalItems = getAllResponseDto.TotalItems,
             PageNumber = getAllResponseDto.PageNumber,
             PageSize = getAllResponseDto.PageSize,

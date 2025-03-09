@@ -4,15 +4,6 @@ using CRM_ERP_UNID.Helpers;
 
 namespace CRM_ERP_UNID.Modules;
 
-public interface IPriorityValidationService
-{
-    bool ValidateRolePriority(Role role);
-    bool ValidateUserPriority(User user);
-    void ValidateRolePriorityThrowsForbiddenException(Role role);
-    void ValidateUserPriorityThrowsForbiddenException(User user);
-    void ValidatePriorityThrowsForbiddenException(params double[] rolePriorities);
-}
-
 public class PriorityValidationService(
     IHttpContextAccessor _httpContextAccessor
 ) : IPriorityValidationService
@@ -21,7 +12,7 @@ public class PriorityValidationService(
         => ValidatePriorityWithoutException(role.RolePriority);
 
     public bool ValidateUserPriority(User user) 
-        => ValidatePriorityWithoutException(Mapper.UserToUserRolesPriority(user));
+        => ValidatePriorityWithoutException(user.ToUserRolesPriority());
 
     public void ValidateRolePriorityThrowsForbiddenException(Role role)
     {
@@ -30,7 +21,7 @@ public class PriorityValidationService(
     
     public void ValidateUserPriorityThrowsForbiddenException(User user)
     {
-        ValidatePriorityThrowsForbiddenException(Mapper.UserToUserRolesPriority(user));
+        ValidatePriorityThrowsForbiddenException(user.ToUserRolesPriority());
     }
     
     public void ValidatePriorityThrowsForbiddenException(params double[] rolePriorities)

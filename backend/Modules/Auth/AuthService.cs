@@ -1,3 +1,4 @@
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
@@ -5,16 +6,8 @@ using CRM_ERP_UNID.Helpers;
 
 namespace CRM_ERP_UNID.Modules;
 
-public interface IAuthService
-{
-    Task<TokenDto> Login(LoginUserDto loginUserDto);
-    Task<TokenDto> RefreshTokenAsync(RefreshTokenEntryDto refreshTokenEntryDto);
-    Task<RefreshToken?> Logout(string refreshTokenString);
-    
-}
-
 public class AuthService(
-    IUsersService _usersService,
+    IUsersQueryService _usersQueryService,
     ITokenService _tokenService,
     IMailService _mailService,
     ILogger<AuthService> _logger
@@ -29,13 +22,13 @@ public class AuthService(
         if (HasherHelper.VerifyDeviceId(refreshToken.DeviceId, refreshTokenEntryDto.DeviceId) == false)
         {
             await _tokenService.RevokeRefreshTokensByUserId(refreshToken.UserId);
-            throw new UnauthorizedException(message: "Device not authorizated to refresh the token.", reason: "WrongDeviceId");
+            throw new UnauthorizedException(message: "Device not authorizated to refresh the token.", reason: Reasons.WrongDeviceId);
         }
         
         ValidateRefreshToken(refreshToken);
 
         // Get the user
-        User user = await _usersService.GetByIdThrowsNotFoundAsync(refreshToken.UserId);
+        User user = await _usersQueryService.GetByIdThrowsNotFoundAsync(refreshToken.UserId);
 
         // Create the new Token Data
         TokenDto newTokenDto = new TokenDto
@@ -52,13 +45,13 @@ public class AuthService(
         _logger.LogInformation("User with UserName {UserUserName} requested Login", loginUserDto.UserUserName);
         
         // Exist User
-        User? user = await _usersService.GetByUserNameThrowsNotFound(loginUserDto.UserUserName);
+        User? user = await _usersQueryService.GetByUserNameThrowsNotFound(loginUserDto.UserUserName);
 
         // Correct password?
         if (!HasherHelper.VerifyHash(loginUserDto.UserPassword, user.UserPassword))
         {
             _logger.LogError("User with UserName {UserUserName} requested Login but the password is incorrect", loginUserDto.UserUserName);
-            throw new UnauthorizedException(message: "The password is incorrect.", reason: "IncorrectPassword");
+            throw new UnauthorizedException(message: "The password is incorrect.", reason: Reasons.WrongPassword);
         }
 
         await _tokenService.ValidateNumsOfDevices(user.UserId);
@@ -95,12 +88,12 @@ public class AuthService(
     {
         if (refreshToken.ExpiresAt < DateTime.UtcNow)
         {
-            throw new UnauthorizedException(message: "Refresh token has expired.", reason: "ExpiredToken");
+            throw new UnauthorizedException(message: "Refresh token has expired.", reason: Reasons.ExpiredToken);
         }
 
         if (refreshToken.RevokedAt != null)
         {
-            throw new UnauthorizedException(message: "Refresh token has been revoked.", reason: "RevokedToken");
+            throw new UnauthorizedException(message: "Refresh token has been revoked.", reason: Reasons.RevokedToken);
         }
     }
     
