@@ -1,6 +1,5 @@
 ﻿using CRM_ERP_UNID.Data;
 using CRM_ERP_UNID.Data.Models;
-using CRM_ERP_UNID.Dtos;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_ERP_UNID.Modules;
@@ -15,11 +14,11 @@ public interface IRolesPermissionsResourcesRepository
     void Remove(RolePermissionResource rolePermissionResource);
 }
 
-public class RolesPermissionsResourcesResourcesRepository : IRolesPermissionsResourcesRepository
+public class RolesPermissionsResourcesRepository : IRolesPermissionsResourcesRepository
 {
     private readonly AppDbContext _context;
 
-    public RolesPermissionsResourcesResourcesRepository(AppDbContext context)
+    public RolesPermissionsResourcesRepository(AppDbContext context)
     {
         _context = context;
     }

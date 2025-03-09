@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CRM_ERP_UNID.Dtos;
 
-// DTO para solicitar el token
 public class RequestPasswordResetDto
 {
     [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
@@ -11,7 +10,6 @@ public class RequestPasswordResetDto
 
 }
 
-// DTO para reiniciar la contraseña
 public class ResetPasswordDto
 {
     [Required(ErrorMessage = "El token es obligatorio.")]

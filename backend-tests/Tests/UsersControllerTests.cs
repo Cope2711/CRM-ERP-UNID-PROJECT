@@ -189,7 +189,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             // Arrange
             UsersIdsDto usersIdsDto = new UsersIdsDto
             {
-                UsersIds = new List<Guid>
+                Ids = new List<Guid>
                 {
                     Models.Users.InactiveTestUser.UserId, // Success
                     Models.Users.TestUser.UserId,
@@ -226,7 +226,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             // Arrange
             UsersIdsDto usersIdsDto = new UsersIdsDto
             {
-                UsersIds = new List<Guid>
+                Ids = new List<Guid>
                 {
                     Models.Users.InactiveTestUser.UserId, 
                     Models.Users.TestUser.UserId, // Success
