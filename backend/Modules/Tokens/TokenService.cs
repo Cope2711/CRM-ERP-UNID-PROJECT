@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
@@ -12,7 +13,7 @@ namespace CRM_ERP_UNID.Modules;
 public class TokenService(
     IConfiguration _configuration,
     ITokensRepository _tokensRepository,
-    IGenericServie<RefreshToken> _genericService,
+    IGenericService<RefreshToken> _genericService,
     ILogger<TokenService> _logger,
     IHttpContextAccessor _httpContextAccessor
 ) : ITokenService
@@ -21,7 +22,7 @@ public class TokenService(
     {
         int numberOfDevices = await _tokensRepository.GetActiveDevicesCount(userId);
         if (numberOfDevices > 3)
-            throw new UnauthorizedException(message: "Max number of devices reached", reason: "MaxNumberOfDevices");
+            throw new UnauthorizedException(message: "Max number of devices reached", reason: Reasons.MaxNumberOfDevices);
     }
     
     public async Task<bool> IsNewDevice(Guid userId, string deviceId)
@@ -95,7 +96,7 @@ public class TokenService(
         RefreshToken? refreshTokenObject = await _genericService.GetFirstAsync(rt => rt.Token, refreshToken);
 
         if (refreshTokenObject == null)
-            throw new NotFoundException("Refresh token not found", field: "RefreshToken");
+            throw new NotFoundException("Refresh token not found", field: Fields.RefreshTokens.RefreshTokenField);
         
         return refreshTokenObject;
     }

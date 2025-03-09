@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CRM_ERP_UNID.Dtos;
 
 namespace CRM_ERP_UNID.Data.Models;
 
@@ -23,4 +24,23 @@ public class RolePermissionResource
     public Guid? ResourceId { get; set; }
 
     public Resource? Resource { get; set; }
+}
+
+public static class RolePermissionResourceExtensions
+{
+    public static RolePermissionResourceDto ToDto(this RolePermissionResource rolePermissionResource)
+    {
+        return new RolePermissionResourceDto
+        {
+            RoleId = rolePermissionResource.RoleId,
+            RoleName = rolePermissionResource.Role.RoleName,
+            RoleDescription = rolePermissionResource.Role.RoleDescription,
+            PermissionId = rolePermissionResource.PermissionId,
+            PermissionName = rolePermissionResource.Permission.PermissionName,
+            PermissionDescription = rolePermissionResource.Permission.PermissionDescription,
+            ResourceId = rolePermissionResource.ResourceId,
+            ResourceName = rolePermissionResource.Resource?.ResourceName,
+            ResourceDescription = rolePermissionResource.Resource?.ResourceDescription
+        };
+    }
 }

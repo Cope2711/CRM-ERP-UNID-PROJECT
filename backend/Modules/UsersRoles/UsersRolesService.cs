@@ -7,24 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CRM_ERP_UNID.Modules;
 
-public interface IUsersRolesService
-{
-    Task<UserRole> GetByUserIdAndRoleIdThrowsNotFoundAsync(Guid userId, Guid roleId);
-    Task<UserRole?> GetByUserIdAndRoleId(Guid userId, Guid roleId);
-    Task<ResponsesDto<UserAndRoleResponseStatusDto>> AssignRolesToUsersAsync(UsersAndRolesDtos usersAndRolesDto);
-    Task<ResponsesDto<UserAndRoleResponseStatusDto>> RevokeRolesToUsersAsync(UsersAndRolesDtos usersAndRolesDto);
-    Task<bool> IsRoleAssignedToUserAsync(Guid userId, Guid roleId);
-    Task<GetAllResponseDto<UserRole>> GetAllAsync(GetAllDto getAllDto);
-}
-
 public class UsersRolesService(
+    IUsersQueryService _usersQueryService,
     IUsersRolesRepository _usersRolesRepository,
-    IRoleService _roleService,
-    IUsersService _userService,
-    IGenericServie<UserRole> _genericService,
+    IGenericService<UserRole> _genericService,
     ILogger<UsersRolesService> _logger,
     IHttpContextAccessor _httpContextAccessor,
-    IPriorityValidationService _priorityValidationService
+    IPriorityValidationService _priorityValidationService,
+    IRolesQueryService _rolesQueryService
 ) : IUsersRolesService
 {
     public async Task<GetAllResponseDto<UserRole>> GetAllAsync(GetAllDto getAllDto)
@@ -37,7 +27,7 @@ public class UsersRolesService(
     {
         UserRole? userRole = await GetByUserIdAndRoleId(userId, roleId);
         if (userRole == null)
-            throw new NotFoundException("This role is not assigned to the user.", field: "RoleId");
+            throw new NotFoundException("This role is not assigned to the user.", field: Fields.Roles.RoleId);
         return userRole;
     }
 
@@ -67,24 +57,24 @@ public class UsersRolesService(
             if (userRole == null)
             {
                 AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotFound,
-                    "UserRole", "Relation not exists"); continue;
+                    Fields.UsersRoles.UserRoleId, "Relation not exists"); continue;
             }
 
             // User has enough priority to revoke this role from this user?
-            Role role = await _roleService.GetByIdThrowsNotFoundAsync(userAndRoleIdDto.RoleId);
+            Role role = await _rolesQueryService.GetByIdThrowsNotFoundAsync(userAndRoleIdDto.RoleId);
             if (!_priorityValidationService.ValidateRolePriority(role))
             {
                 AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotEnoughPriority,
-                    "RoleId", "Not have enough priority to modify that role"); continue;
+                    Fields.Roles.RoleId, "Not have enough priority to modify that role"); continue;
             }
             
             if (authenticatedUserId != userAndRoleIdDto.UserId)
             {
-                User user = await _userService.GetByIdThrowsNotFoundAsync(userAndRoleIdDto.UserId);
+                User user = await _usersQueryService.GetByIdThrowsNotFoundAsync(userAndRoleIdDto.UserId);
                 if (!_priorityValidationService.ValidateUserPriority(user))
                 {
                     AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotEnoughPriority,
-                        "UserId", "Not have enough priority to modify that user"); continue;
+                        Fields.Users.UserId, "Not have enough priority to modify that user"); continue;
                 }
             }
 
@@ -120,34 +110,34 @@ public class UsersRolesService(
             if (await IsRoleAssignedToUserAsync(userAndRoleIdDto.UserId, userAndRoleIdDto.RoleId))
             {
                 AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.AlreadyProcessed,
-                    "RoleId", "Role already assigned to user"); continue;
+                    Fields.Roles.RoleId, "Role already assigned to user"); continue;
             }
 
-            Role? role = await _roleService.GetById(userAndRoleIdDto.RoleId);
-            User? user = await _userService.GetById(userAndRoleIdDto.UserId);
+            Role? role = await _rolesQueryService.GetById(userAndRoleIdDto.RoleId);
+            User? user = await _usersQueryService.GetById(userAndRoleIdDto.UserId);
 
             if (user == null)
             {
                 AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotFound,
-                    "UserId", "User not exist"); continue;
+                    Fields.Users.UserId, "User not exist"); continue;
             }
 
             if (role == null)
             {
                 AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotFound,
-                    "RoleId", "Role not exist"); continue;
+                    Fields.Roles.RoleId, "Role not exist"); continue;
             }
             
             if (!_priorityValidationService.ValidateRolePriority(role))
             {
                 AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotEnoughPriority,
-                    "RoleId", "Not have enough priority to modify that role"); continue;
+                    Fields.Roles.RoleId, "Not have enough priority to modify that role"); continue;
             }
             
             if (authenticatedUserId != userAndRoleIdDto.UserId && !_priorityValidationService.ValidateUserPriority(user))
             {
                 AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotEnoughPriority,
-                    "UserId", "Not have enough priority to modify that user"); continue;
+                    Fields.Users.UserId, "Not have enough priority to modify that user"); continue;
             }
 
             // Add to database

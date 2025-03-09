@@ -3,13 +3,13 @@ using CRM_ERP_UNID.Attributes;
 
 namespace CRM_ERP_UNID.Dtos;
 
-public class RolePermissionResourceDto
+public abstract class BaseRolePermissionResourceDto
 {
     [GuidNotEmpty(ErrorMessage = "The role id cannot be empty.")]
     public Guid RoleId { get; set; }
     
     [MaxLength(50)]
-    public string RoleName { get; set; }
+    public string? RoleName { get; set; }
     
     [MaxLength(255)]
     public string? RoleDescription { get; set; }
@@ -18,7 +18,7 @@ public class RolePermissionResourceDto
     public Guid PermissionId { get; set; }
     
     [MaxLength(100)]
-    public string PermissionName { get; set; }
+    public string? PermissionName { get; set; }
     
     [MaxLength(255)]
     public string? PermissionDescription { get; set; }
@@ -32,6 +32,8 @@ public class RolePermissionResourceDto
     [MaxLength(255)]
     public string? ResourceDescription { get; set; }
 }
+
+public class RolePermissionResourceDto : BaseRolePermissionResourceDto { }
 
 public class RolePermissionResourceResponseStatusDto : ResponseStatusDto
 {

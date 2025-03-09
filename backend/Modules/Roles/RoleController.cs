@@ -10,41 +10,37 @@ namespace CRM_ERP_UNID.Modules;
 [ApiController]
 [Authorize]
 [Route("api/roles")]
-public class RoleController : ControllerBase
+public class RoleController(
+    IRolesManagementService _rolesManagementService,
+    IRolesQueryService _rolesQueryService
+) : ControllerBase
 {
-    private readonly IRoleService _roleService;
-
-    public RoleController(IRoleService roleService)
-    {
-        _roleService = roleService;
-    }
-
     [HttpPatch("update")]
     [PermissionAuthorize("Edit_Content", "Roles")]
     public async Task<ActionResult<RoleDto>> Update([FromBody] UpdateRoleDto updateRoleDto)
     {
-        Role role = await _roleService.UpdateAsync(updateRoleDto);
-        return Ok(Mapper.RoleToRoleDto(role));
+        Role role = await _rolesManagementService.UpdateAsync(updateRoleDto);
+        return Ok(role.ToDto());
     }
 
     [HttpGet("get-by-id")]
     [PermissionAuthorize("View", "Roles")]
     public async Task<ActionResult<RoleDto>> GetById([FromQuery] Guid id)
     {
-        Role role = await _roleService.GetByIdThrowsNotFoundAsync(id);
+        Role role = await _rolesQueryService.GetByIdThrowsNotFoundAsync(id);
 
-        return Ok(Mapper.RoleToRoleDto(role));
+        return Ok(role.ToDto());
     }
 
     [HttpGet("get-by-rolename")]
     [PermissionAuthorize("View", "Roles")]
     public async Task<ActionResult<RoleDto>> GetByName([FromQuery] string rolename)
     {
-        Role role = await _roleService.GetByNameThrowsNotFoundAsync(rolename);
+        Role role = await _rolesQueryService.GetByNameThrowsNotFoundAsync(rolename);
 
-        return Ok(Mapper.RoleToRoleDto(role));
+        return Ok(role.ToDto());
     }
-    
+
     [HttpPost("get-all")]
     [PermissionAuthorize("View", "Roles")]
     public async Task<ActionResult<GetAllResponseDto<RoleDto>>> GetAll([FromBody] GetAllDto getAllDto)
@@ -55,16 +51,16 @@ public class RoleController : ControllerBase
         if (getAllDto.Filters != null)
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Role));
 
-        GetAllResponseDto<Role> getAllResponseDto = await _roleService.GetAllAsync(getAllDto);
+        GetAllResponseDto<Role> getAllResponseDto = await _rolesQueryService.GetAllAsync(getAllDto);
         GetAllResponseDto<RoleDto> getAllResponseDtoDto = new GetAllResponseDto<RoleDto>
         {
-            Data = getAllResponseDto.Data.Select(Mapper.RoleToRoleDto).ToList(),
+            Data = getAllResponseDto.Data.Select(r => r.ToDto()).ToList(),
             TotalItems = getAllResponseDto.TotalItems,
             PageNumber = getAllResponseDto.PageNumber,
             PageSize = getAllResponseDto.PageSize,
             TotalPages = getAllResponseDto.TotalPages
         };
-        
+
         return Ok(getAllResponseDtoDto);
     }
 
@@ -72,15 +68,15 @@ public class RoleController : ControllerBase
     [PermissionAuthorize("Create", "Roles")]
     public async Task<ActionResult<RoleDto>> CreateRole([FromBody] CreateRoleDto createRoleDto)
     {
-        Role newRole = await _roleService.CreateRoleAsync(createRoleDto);
+        Role newRole = await _rolesManagementService.CreateRoleAsync(createRoleDto);
         return CreatedAtAction(nameof(GetAll), new { id = newRole.RoleId }, newRole);
     }
-    
+
     [HttpDelete("delete-by-id")]
     [PermissionAuthorize("Delete", "Roles")]
     public async Task<ActionResult<RoleDto>> DeleteById([FromQuery] Guid id)
     {
-        Role role = await _roleService.DeleteById(id);
-        return Ok(Mapper.RoleToRoleDto(role));
+        Role role = await _rolesManagementService.DeleteById(id);
+        return Ok(role.ToDto());
     }
 }

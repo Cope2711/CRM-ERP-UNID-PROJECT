@@ -3,13 +3,11 @@ using CRM_ERP_UNID.Attributes;
 
 namespace CRM_ERP_UNID.Dtos;
 
-public class CreateRoleDto
+public abstract class BaseRoleDto
 {
-    [Required]
     [MaxLength(50)]
     public required string RoleName { get; set; }
-
-    [Required]
+    
     [Range(0, 1000)]
     public required double RolePriority { get; set; }
     
@@ -17,19 +15,11 @@ public class CreateRoleDto
     public string? RoleDescription { get; set; }
 }
 
-public class RoleDto
+public class CreateRoleDto : BaseRoleDto { }
+
+public class RoleDto : BaseRoleDto
 {
     public Guid RoleId { get; set; }
-    
-    [MaxLength(50)]
-    public required string RoleName { get; set; }
-    
-    [Required]
-    [Range(0, 1000)]
-    public required double RolePriority { get; set; }
-    
-    [MaxLength(255)]
-    public string? RoleDescription { get; set; }
     public List<PermissionDto>? Permissions { get; set; }
 }
 

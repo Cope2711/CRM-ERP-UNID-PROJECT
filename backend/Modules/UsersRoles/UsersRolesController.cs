@@ -52,7 +52,7 @@ public class UsersRolesController : ControllerBase
         getAllResponseDtoDto.TotalPages = getAllResponseDto.TotalPages;
         getAllResponseDtoDto.PageNumber = getAllResponseDto.PageNumber;
         getAllResponseDtoDto.PageSize = getAllResponseDto.PageSize;
-        getAllResponseDtoDto.Data = getAllResponseDto.Data.Select(Mapper.UserRoleToUserRoleDto).ToList();
+        getAllResponseDtoDto.Data = getAllResponseDto.Data.Select(ur => ur.ToDto()).ToList();
         
         return Ok(getAllResponseDtoDto);
     }
