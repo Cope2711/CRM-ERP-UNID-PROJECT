@@ -38,7 +38,7 @@ public class UsersRolesController : ControllerBase
     
     [HttpGet("get-all")]
     [PermissionAuthorize("View", "UsersRoles")]
-    public async Task<ActionResult<GetAllResponseDto<UserRoleDto>>> GetAll([FromBody] GetAllDto getAllDto)
+    public async Task<ActionResult<GetAllResponseDto<UserRole>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(UserRole));
@@ -47,13 +47,7 @@ public class UsersRolesController : ControllerBase
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(UserRole));
         
         GetAllResponseDto<UserRole> getAllResponseDto = await _usersRolesService.GetAllAsync(getAllDto);
-        GetAllResponseDto<UserRoleDto> getAllResponseDtoDto = new GetAllResponseDto<UserRoleDto>();
-        getAllResponseDtoDto.TotalItems = getAllResponseDto.TotalItems;
-        getAllResponseDtoDto.TotalPages = getAllResponseDto.TotalPages;
-        getAllResponseDtoDto.PageNumber = getAllResponseDto.PageNumber;
-        getAllResponseDtoDto.PageSize = getAllResponseDto.PageSize;
-        getAllResponseDtoDto.Data = getAllResponseDto.Data.Select(ur => ur.ToDto()).ToList();
         
-        return Ok(getAllResponseDtoDto);
+        return Ok(getAllResponseDto);
     }
 }

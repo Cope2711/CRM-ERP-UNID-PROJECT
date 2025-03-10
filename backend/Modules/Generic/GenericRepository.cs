@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data;
 using CRM_ERP_UNID.Dtos;
@@ -14,16 +16,15 @@ public interface IGenericRepository<T> where T : class
 
     Task<T?> GetFirstAsync(Expression<Func<T, object>> fieldSelector, object value,
         Func<IQueryable<T>, IQueryable<T>> include = null);
-    
+
     Task<bool> ExistsAsync(Expression<Func<T, object>> fieldSelector, object value);
 
-    Task<List<T>> GetAllAsync(GetAllDto getAllDto, Func<IQueryable<T>, IQueryable<T>> queryModifier = null);
+    Task<List<Dictionary<string, object>>> GetAllAsync(GetAllDto getAllDto, Func<IQueryable<T>, IQueryable<T>> queryModifier = null);
 
     Task<int> GetTotalItemsAsync(GetAllDto getAllDto);
 
     PropertyInfo? GetKeyProperty();
 }
-
 
 public class GenericRepository<T> : IGenericRepository<T> where T : class
 {
@@ -44,7 +45,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
         return await queryable.AnyAsync(e => EF.Property<object>(e, fieldName).Equals(value));
     }
-    
+
     public async Task<T?> GetByIdAsync(Guid id, Func<IQueryable<T>, IQueryable<T>> include = null)
     {
         IQueryable<T> queryable = _dbSet.AsQueryable();
@@ -76,7 +77,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
         return Expression.Lambda<Func<T, bool>>(equals, parameter);
     }
-    
+
     public async Task<T?> GetFirstAsync(
         Expression<Func<T, object>> fieldSelector,
         object value,
@@ -97,26 +98,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
         return await queryable.FirstOrDefaultAsync(e => EF.Property<object>(e, fieldName).Equals(value));
     }
-
-    public async Task<List<T>> GetAllAsync(GetAllDto getAllDto, Func<IQueryable<T>, IQueryable<T>> queryModifier = null)
-    {
-        IQueryable<T> queryable = _dbSet.AsQueryable();
-
-        if (queryModifier != null)
-        {
-            queryable = queryModifier(queryable);
-        }
-
-        // Aplica filtros dinámicos
-        queryable = ApplyFilters(queryable, getAllDto.Filters);
-        
-        // Aplica el ordenamiento
-        queryable = ApplyOrdering(queryable, getAllDto.OrderBy, getAllDto.Descending);
-
-        // Aplica la paginación
-        return await ApplyPagination(queryable, getAllDto.PageNumber, getAllDto.PageSize).ToListAsync();
-    }
-
+    
     public async Task<int> GetTotalItemsAsync(GetAllDto getAllDto)
     {
         IQueryable<T> query = _dbSet.AsQueryable();
@@ -130,56 +112,120 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             .FirstOrDefault(p => p.GetCustomAttributes(typeof(KeyAttribute), false).Any());
     }
 
-    private static IQueryable<T> ApplyFilters<T>(IQueryable<T> query, List<FilterDto>? filters)
-{
-    if (filters == null || !filters.Any()) return query;
-
-    ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
-    Expression? finalExpression = null;
-
-    foreach (var filter in filters)
+    public async Task<List<Dictionary<string, object>>> GetAllAsync(GetAllDto getAllDto, Func<IQueryable<T>, IQueryable<T>> queryModifier = null)
     {
-        var property = typeof(T).GetProperty(filter.Column,
-            BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+        IQueryable<T> queryable = _dbSet.AsQueryable();
 
-        if (property == null) continue;
-
-        Type propertyType = property.PropertyType;
-        Type underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
-
-        object? filterValue = string.IsNullOrEmpty(filter.Value) ? null : Convert.ChangeType(filter.Value, underlyingType);
-        Expression left = Expression.Property(parameter, property);
-        Expression right = Expression.Constant(filterValue, propertyType);
-
-        Expression? comparison = filter.Operator switch
+        if (queryModifier != null)
         {
-            FilterOperators.Equal => Expression.Equal(left, right),
-            FilterOperators.NotEqual => Expression.NotEqual(left, right),
-            FilterOperators.GreaterThan => Expression.GreaterThan(left, right),
-            FilterOperators.LessThan => Expression.LessThan(left, right),
-            FilterOperators.GreaterThanOrEqual => Expression.GreaterThanOrEqual(left, right),
-            FilterOperators.LessThanOrEqual => Expression.LessThanOrEqual(left, right),
-            FilterOperators.Like or FilterOperators.Contains => Expression.Call(left, typeof(string).GetMethod("Contains", new[] { typeof(string) })!, right),
-            FilterOperators.StartsWith => Expression.Call(left, typeof(string).GetMethod("StartsWith", new[] { typeof(string) })!, right),
-            FilterOperators.EndsWith => Expression.Call(left, typeof(string).GetMethod("EndsWith", new[] { typeof(string) })!, right),
-            FilterOperators.In when filterValue is not null =>
-                Expression.Call(Expression.Constant(filterValue), typeof(List<>).MakeGenericType(propertyType).GetMethod("Contains", new[] { propertyType })!, left),
-            _ => null
-        };
+            queryable = queryModifier(queryable);
+        }
 
-        if (comparison == null) continue;
+        // Aplica filtros dinámicos
+        queryable = ApplyFilters(queryable, getAllDto.Filters);
 
-        finalExpression = finalExpression == null ? comparison : Expression.AndAlso(finalExpression, comparison);
+        // Aplica el ordenamiento
+        queryable = ApplyOrdering(queryable, getAllDto.OrderBy, getAllDto.Descending);
+
+        // Aplica la paginación
+        queryable = ApplyPagination(queryable, getAllDto.PageNumber, getAllDto.PageSize);
+
+        // Aplica selección de campos
+        var selectedQuery = ApplySelects(queryable, getAllDto.Selects);
+
+        return await selectedQuery.ToListAsync();
     }
 
-    if (finalExpression != null)
+
+    private static IQueryable<Dictionary<string, object>> ApplySelects<T>(IQueryable<T> query, List<string> selects)
     {
-        var lambda = Expression.Lambda<Func<T, bool>>(finalExpression, parameter);
-        query = query.Where(lambda);
+        if (selects == null || !selects.Any()) return query.Select(e => typeof(T).GetProperties()
+            .ToDictionary(p => p.Name, p => (object)p.GetValue(e, null) ?? DBNull.Value));
+
+        var parameter = Expression.Parameter(typeof(T), "e");
+    
+        var bindings = selects
+            .Select(column =>
+            {
+                var property = typeof(T).GetProperty(column, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                return property != null ? new { Column = column, Expression = Expression.Property(parameter, property) } : null;
+            })
+            .Where(x => x != null)
+            .ToList();
+
+        if (!bindings.Any()) return query.Select(e => new Dictionary<string, object>());
+
+        var newExpression = Expression.New(typeof(Dictionary<string, object>));
+    
+        var addMethod = typeof(Dictionary<string, object>).GetMethod("Add");
+    
+        var memberInit = Expression.ListInit(newExpression, bindings.Select(b =>
+            Expression.ElementInit(addMethod, Expression.Constant(b.Column), Expression.Convert(b.Expression, typeof(object)))));
+
+        var lambda = Expression.Lambda<Func<T, Dictionary<string, object>>>(memberInit, parameter);
+
+        return query.Select(lambda);
     }
 
-    return query;
-}
+
+    
+    private static IQueryable<T> ApplyFilters<T>(IQueryable<T> query, List<FilterDto>? filters)
+    {
+        if (filters == null || !filters.Any()) return query;
+
+        ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
+        Expression? finalExpression = null;
+
+        foreach (var filter in filters)
+        {
+            var property = typeof(T).GetProperty(filter.Column,
+                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+
+            if (property == null) continue;
+
+            Type propertyType = property.PropertyType;
+            Type underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
+
+            object? filterValue = string.IsNullOrEmpty(filter.Value)
+                ? null
+                : Convert.ChangeType(filter.Value, underlyingType);
+            Expression left = Expression.Property(parameter, property);
+            Expression right = Expression.Constant(filterValue, propertyType);
+
+            Expression? comparison = filter.Operator switch
+            {
+                FilterOperators.Equal => Expression.Equal(left, right),
+                FilterOperators.NotEqual => Expression.NotEqual(left, right),
+                FilterOperators.GreaterThan => Expression.GreaterThan(left, right),
+                FilterOperators.LessThan => Expression.LessThan(left, right),
+                FilterOperators.GreaterThanOrEqual => Expression.GreaterThanOrEqual(left, right),
+                FilterOperators.LessThanOrEqual => Expression.LessThanOrEqual(left, right),
+                FilterOperators.Like or FilterOperators.Contains => Expression.Call(left,
+                    typeof(string).GetMethod("Contains", new[] { typeof(string) })!, right),
+                FilterOperators.StartsWith => Expression.Call(left,
+                    typeof(string).GetMethod("StartsWith", new[] { typeof(string) })!, right),
+                FilterOperators.EndsWith => Expression.Call(left,
+                    typeof(string).GetMethod("EndsWith", new[] { typeof(string) })!, right),
+                FilterOperators.In when filterValue is not null =>
+                    Expression.Call(Expression.Constant(filterValue),
+                        typeof(List<>).MakeGenericType(propertyType).GetMethod("Contains", new[] { propertyType })!,
+                        left),
+                _ => null
+            };
+
+            if (comparison == null) continue;
+
+            finalExpression = finalExpression == null ? comparison : Expression.AndAlso(finalExpression, comparison);
+        }
+
+        if (finalExpression != null)
+        {
+            var lambda = Expression.Lambda<Func<T, bool>>(finalExpression, parameter);
+            query = query.Where(lambda);
+        }
+
+        return query;
+    }
 
 
     private IQueryable<T> ApplyOrdering(IQueryable<T> queryable, string? orderBy, bool descending)

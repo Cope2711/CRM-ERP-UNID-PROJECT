@@ -43,7 +43,7 @@ public class RoleController(
 
     [HttpPost("get-all")]
     [PermissionAuthorize("View", "Roles")]
-    public async Task<ActionResult<GetAllResponseDto<RoleDto>>> GetAll([FromBody] GetAllDto getAllDto)
+    public async Task<ActionResult<GetAllResponseDto<Role>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Role));
@@ -52,16 +52,8 @@ public class RoleController(
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Role));
 
         GetAllResponseDto<Role> getAllResponseDto = await _rolesQueryService.GetAllAsync(getAllDto);
-        GetAllResponseDto<RoleDto> getAllResponseDtoDto = new GetAllResponseDto<RoleDto>
-        {
-            Data = getAllResponseDto.Data.Select(r => r.ToDto()).ToList(),
-            TotalItems = getAllResponseDto.TotalItems,
-            PageNumber = getAllResponseDto.PageNumber,
-            PageSize = getAllResponseDto.PageSize,
-            TotalPages = getAllResponseDto.TotalPages
-        };
 
-        return Ok(getAllResponseDtoDto);
+        return Ok(getAllResponseDto);
     }
 
     [HttpPost("create")]

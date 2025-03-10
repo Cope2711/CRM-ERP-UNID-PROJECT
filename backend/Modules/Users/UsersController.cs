@@ -34,25 +34,19 @@ public class UsersController(
 
     [HttpPost("get-all")]
     [PermissionAuthorize("View", "Users")]
-    public async Task<ActionResult<GetAllResponseDto<UserDto>>> GetAll([FromBody] GetAllDto getAllDto)
+    public async Task<ActionResult<GetAllResponseDto<User>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(User));
 
         if (getAllDto.Filters != null)
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(User));
-
+        
+        CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Selects, typeof(User));
 
         GetAllResponseDto<User> getAllResponseDto = await _usersQueryService.GetAll(getAllDto);
 
-        GetAllResponseDto<UserDto> getAllResponseDtoDto = new GetAllResponseDto<UserDto>();
-        getAllResponseDtoDto.TotalItems = getAllResponseDto.TotalItems;
-        getAllResponseDtoDto.TotalPages = getAllResponseDto.TotalPages;
-        getAllResponseDtoDto.PageNumber = getAllResponseDto.PageNumber;
-        getAllResponseDtoDto.PageSize = getAllResponseDto.PageSize;
-        getAllResponseDtoDto.Data = getAllResponseDto.Data.Select(u => u.ToDto()).ToList();
-
-        return Ok(getAllResponseDtoDto);
+        return Ok(getAllResponseDto);
     }
 
     [HttpGet("get-by-username")]

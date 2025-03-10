@@ -37,4 +37,22 @@ public class CustomValidators
             );
         }
     }
+    
+    public static void ValidateModelContainsColumnsNames(List<string> columnsNames, Type entityType)
+    {
+        var validProperties = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Select(p => p.Name)
+            .ToList();
+
+
+        foreach (var column in columnsNames)
+        {
+            if (!validProperties.Contains(column))
+            {
+                throw new BadRequestException(
+                    $"The field must match a valid column: {string.Join(", ", validProperties)}."
+                );
+            }
+        }
+    }
 }

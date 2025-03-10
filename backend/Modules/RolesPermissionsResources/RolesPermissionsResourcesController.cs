@@ -36,7 +36,7 @@ public class RolesPermissionsResourcesController(
 
     [HttpPost("get-all")]
     [PermissionAuthorize("View", "RolesPermissionsResources")]
-    public async Task<ActionResult<GetAllResponseDto<RolePermissionResourceDto>>> GetAll([FromBody] GetAllDto getAllDto)
+    public async Task<ActionResult<GetAllResponseDto<RolePermissionResource>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(RolePermissionResource));
@@ -47,14 +47,6 @@ public class RolesPermissionsResourcesController(
         GetAllResponseDto<RolePermissionResource> getAllResponseDto =
             await _rolesPermissionsResourcesService.GetAllAsync(getAllDto);
 
-        GetAllResponseDto<RolePermissionResourceDto> getAllResponseDtoDto =
-            new GetAllResponseDto<RolePermissionResourceDto>();
-        getAllResponseDtoDto.TotalItems = getAllResponseDto.TotalItems;
-        getAllResponseDtoDto.TotalPages = getAllResponseDto.TotalPages;
-        getAllResponseDtoDto.PageNumber = getAllResponseDto.PageNumber;
-        getAllResponseDtoDto.PageSize = getAllResponseDto.PageSize;
-        getAllResponseDtoDto.Data = getAllResponseDto.Data.Select(rp => rp.ToDto()).ToList();
-
-        return Ok(getAllResponseDtoDto);
+        return Ok(getAllResponseDto);
     }
 }

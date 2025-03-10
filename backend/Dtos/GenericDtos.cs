@@ -17,6 +17,10 @@ public class GetAllDto
     public bool Descending { get; set; }
 
     public List<FilterDto>? Filters { get; set; }
+    
+    [Required(ErrorMessage = "Search is required.")]
+    [RangeListLength(1, 100, ErrorMessage = "Selects cannot exceed 100 characters.")]
+    public required List<string> Selects { get; set; }
 }
 
 public class FilterDto
@@ -36,7 +40,7 @@ public class FilterDto
 public class GetAllResponseDto<T>
 {
     [Required(ErrorMessage = "Data is required.")]
-    public List<T> Data { get; set; } = new List<T>();
+    public List<Dictionary<string, object>> Data { get; set; } = new List<Dictionary<string, object>>();
 
     [Range(0, int.MaxValue, ErrorMessage = "TotalItems cannot be negative.")]
     public int TotalItems { get; set; }

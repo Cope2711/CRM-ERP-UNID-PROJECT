@@ -16,7 +16,7 @@ public class PermissionController(
 {
     [HttpPost("get-all")]
     [PermissionAuthorize("View", "Permissions")]
-    public async Task<ActionResult<GetAllResponseDto<PermissionDto>>> GetAll([FromBody] GetAllDto getAllDto)
+    public async Task<ActionResult<GetAllResponseDto<Permission>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Permission));
@@ -24,16 +24,8 @@ public class PermissionController(
         if (getAllDto.Filters != null)
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Permission));
         GetAllResponseDto<Permission> getAllResponseDto = await _permissionService.GetAllAsync(getAllDto);
-        GetAllResponseDto<PermissionDto> getAllResponseDtoDto = new GetAllResponseDto<PermissionDto>
-        {
-            Data = getAllResponseDto.Data.Select(p => p.ToDto()).ToList(),
-            TotalItems = getAllResponseDto.TotalItems,
-            PageNumber = getAllResponseDto.PageNumber,
-            PageSize = getAllResponseDto.PageSize,
-            TotalPages = getAllResponseDto.TotalPages
-        };
 
-        return Ok(getAllResponseDtoDto);
+        return Ok(getAllResponseDto);
     }
 
     [HttpGet("get-by-id")]

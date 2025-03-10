@@ -37,7 +37,7 @@ public class ResourceController : ControllerBase
 
     [HttpPost("get-all")]
     [PermissionAuthorize("View", "Resources")]
-    public async Task<ActionResult<GetAllResponseDto<ResourceDto>>> GetAll([FromBody] GetAllDto getAllDto)
+    public async Task<ActionResult<GetAllResponseDto<Resource>>> GetAll([FromBody] GetAllDto getAllDto)
     {
         if (getAllDto.OrderBy != null)
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Resource));
@@ -46,15 +46,7 @@ public class ResourceController : ControllerBase
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Resource));
 
         GetAllResponseDto<Resource> getAllResponseDto = await _resourceService.GetAllAsync(getAllDto);
-        GetAllResponseDto<ResourceDto> getAllResponseDtoDto = new GetAllResponseDto<ResourceDto>
-        {
-            Data = getAllResponseDto.Data.Select(r => r.ToDto()).ToList(),
-            TotalItems = getAllResponseDto.TotalItems,
-            PageNumber = getAllResponseDto.PageNumber,
-            PageSize = getAllResponseDto.PageSize,
-            TotalPages = getAllResponseDto.TotalPages
-        };
 
-        return Ok(getAllResponseDtoDto);
+        return Ok(getAllResponseDto);
     }
 }

@@ -72,7 +72,6 @@ public class GenericService<T>(
 
         response.TotalPages = (int)Math.Ceiling((double)response.TotalItems / getAllDto.PageSize);
         response.Data = await _genericRepository.GetAllAsync(getAllDto);
-
         return response;
     }
 }
