@@ -64,8 +64,8 @@ public class DatabaseSeeder
             Models.RefreshTokens.TestUserRefreshTokenRevoked,
             Models.RefreshTokens.TestUserExpiredRefreshToken);
         context.PasswordRecoveryTokens.AddRange(
-            Models.PasswordRecoveryTokens.TestValidTokenAsynk,
-            Models.PasswordRecoveryTokens.TestExpiredTokenAsynk);
+            Models.PasswordRecoveryTokens.TestValidTokenAsync,
+            Models.PasswordRecoveryTokens.TestExpiredTokenAsync);
         context.SaveChanges();
     }
 }
