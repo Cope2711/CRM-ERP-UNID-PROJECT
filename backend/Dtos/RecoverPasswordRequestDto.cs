@@ -14,6 +14,10 @@ public class ResetPasswordDto
 {
     [Required(ErrorMessage = "El token es obligatorio.")]
     public string Token { get; set; }
+    
+    [Required(ErrorMessage = "The email is required.")]
+    [EmailAddress(ErrorMessage = "The email is not valid.")]
+    public string Email { get; set; }
 
     [Required(ErrorMessage = "La nueva contraseña es obligatoria.")]
     [MinLength(8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]

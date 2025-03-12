@@ -41,7 +41,7 @@ public class UsersController(
 
         if (getAllDto.Filters != null)
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(User));
-        
+
         CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Selects, typeof(User));
 
         GetAllResponseDto<User> getAllResponseDto = await _usersQueryService.GetAll(getAllDto);
