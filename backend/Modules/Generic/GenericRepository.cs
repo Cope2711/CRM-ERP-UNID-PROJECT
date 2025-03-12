@@ -257,3 +257,4 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return queryable.Skip((pageNumber - 1) * pageSize).Take(pageSize);
     }
 }
+/// come cola
