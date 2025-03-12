@@ -76,18 +76,18 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
                     UserPassword = "123456",
                     DeviceId = device.ToString()
                 };
-                
+
                 var response = await _client.PostAsJsonAsync($"{Endpoint}/login", loginUserDto);
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
             }
-            
+
             LoginUserDto loginUserDtoFinal = new LoginUserDto
             {
                 UserUserName = Models.Users.Admin.UserUserName,
                 UserPassword = "123456",
                 DeviceId = "1231241241241"
             };
-                
+
             var response2 = await _client.PostAsJsonAsync($"{Endpoint}/login", loginUserDtoFinal);
             response2.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
@@ -98,8 +98,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
         public RefreshTokenTests(CustomWebApiFactory factory) : base(factory)
         {
         }
-        
-        
+
+
         [Fact]
         public async Task RefreshToken_WhenRefreshTokenIsValid_ReturnsTokenDto()
         {
@@ -180,7 +180,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             refreshTokenResponse.Should().NotBeNull();
             refreshTokenResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
-        
+
         [Fact]
         public async Task RefreshToken_WhenRefreshTokenIsInvalid_ReturnsNotFound()
         {
@@ -330,46 +330,42 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             refreshTokenResponse.Should().NotBeNull();
             refreshTokenResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
-        
-        
     }
-      public class RequestResetTests : AuthControllerTests
+
+    public class RequestResetTests : AuthControllerTests
     {
         public RequestResetTests(CustomWebApiFactory factory) : base(factory)
         {
         }
 
-        [Fact]
-        public async Task RequestResetAsync_WhenEmailIsValid_ReturnsOk()
+        public static IEnumerable<object[]> RequestResetTestData()
         {
-            // Arrange
-            var request = new RequestPasswordResetDto
+            yield return new object[]
             {
-                Email = "admin@admin.com" // Correo electrónico válido
+                new RequestPasswordResetDto
+                {
+                    Email = "admin@admin.com" // Correo electrónico válido
+                },
+                HttpStatusCode.OK
             };
-
-            // Act
-            var response = await _client.PostAsJsonAsync($"{Endpoint}/request-reset", request);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-        }
-
-        [Fact]
-        public async Task RequestResetAsync_WhenEmailIsInvalid_ReturnsNotFound()
-        {
-            // Arrange
-            var request = new RequestPasswordResetDto
-            {
-                Email = "invalid-email@example.com" // Correo electrónico inválido
-            };
-
-            // Act
-            var response = await _client.PostAsJsonAsync($"{Endpoint}/request-reset", request);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             
+            yield return new object[]
+            {
+                new RequestPasswordResetDto
+                {
+                    Email = "invalid-email@example.com" // Correo electrónico inválido
+                },
+                HttpStatusCode.NotFound
+            };
+        }
+        
+        [Theory]
+        [MemberData(nameof(RequestResetTestData))]
+        public async Task RequestResetAsync_ReturnsExpectedResult(RequestPasswordResetDto requestPasswordResetDto,
+            HttpStatusCode expectedStatusCode)
+        {
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/request-reset", requestPasswordResetDto);
+            response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
 
@@ -379,79 +375,68 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
         {
         }
 
-        [Fact]
-        public async Task ResetPassword_PasswordDoesNotMatch_ReturnsBadRequest()
+        public static IEnumerable<object[]> ResetPasswordTestData()
         {
-            //aranque
-            var request = new ResetPasswordDto
+            yield return new object[]
             {
-                Token = Models.PasswordRecoveryTokens.TestValidTokenAsynk.ResetToken,
-                NewPassword = "1234565557",
-                ConfirmPassword = "123458888"
+                // Password does not match
+                new ResetPasswordDto
+                {
+                    Token = Models.PasswordRecoveryTokens.TestValidTokenAsync.ResetToken,
+                    Email = Models.Users.TestUser.UserEmail,
+                    NewPassword = "1234565557",
+                    ConfirmPassword = "123458888"
+                },
+                HttpStatusCode.BadRequest
             };
-            //act
-            var response = await _client.PostAsJsonAsync($"{Endpoint}/reset-password", request);
-            //assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Fact]
-        public async Task ResetPassword_WhenTokenIsValid_ReturnsOk()
-        {
-            // Arrange
-            var request = new ResetPasswordDto
-            {
-                Token = Models.PasswordRecoveryTokens.TestValidTokenAsynk.ResetToken,// Token válido
-                NewPassword = "newPassword123",
-                ConfirmPassword = "newPassword123"
-                
-            };
-
-            // Act
-            var response = await _client.PostAsJsonAsync($"{Endpoint}/reset-password", request);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-           
-        }
-
-        [Fact]
-        public async Task ResetPassword_WhenTokenIsInvalid_ReturnsNotFound()
-        {
-            // Arrange
-            var request = new ResetPasswordDto
-            {
-                Token = "invalid-token", // Token inválido
-                NewPassword = "newPassword123",
-                ConfirmPassword = "newPassword123"
-                
-            };
-
-            // Act
-            var response = await _client.PostAsJsonAsync($"{Endpoint}/reset-password", request);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             
-        }
-
-        [Fact]
-        public async Task ResetPassword_WhenTokenIsExpired_ReturnsBadRequest()
-        {
-            // Arrange
-            var request = new ResetPasswordDto
+            // All ok :)
+            yield return new object[]
             {
-                Token = Models.PasswordRecoveryTokens.TestExpiredTokenAsynk.ResetToken, // Token expirado
-                NewPassword = "newPassword123",
-                ConfirmPassword = "newPassword123"
+                new ResetPasswordDto
+                {
+                    Token = Models.PasswordRecoveryTokens.TestValidTokenAsync.ResetToken, // Token válido
+                    Email = Models.Users.TestUser.UserEmail,
+                    NewPassword = "newPassword123",
+                    ConfirmPassword = "newPassword123"
+                },
+                HttpStatusCode.OK
             };
-
-            // Act
-            var response = await _client.PostAsJsonAsync($"{Endpoint}/reset-password", request);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             
+            // Token not found
+            yield return new object[]
+            {
+                new ResetPasswordDto
+                {
+                    Token = "invalid-token", // Token inválido
+                    Email = Models.Users.TestUser.UserEmail,
+                    NewPassword = "newPassword123",
+                    ConfirmPassword = "newPassword123"
+                },
+                HttpStatusCode.NotFound
+            };
+            
+            // Token expired
+            yield return new object[]
+            {
+                new ResetPasswordDto
+                {
+                    Token = Models.PasswordRecoveryTokens.TestExpiredTokenAsync.ResetToken, // Token expirado
+                    Email = Models.Users.TestUser.UserEmail,
+                    NewPassword = "newPassword123",
+                    ConfirmPassword = "newPassword123"
+                },
+                HttpStatusCode.BadRequest
+            };
+        }
+        
+        [Theory]
+        [MemberData(nameof(ResetPasswordTestData))]
+        public async Task ResetPassword_ReturnsExpectedResult(ResetPasswordDto resetPasswordDto,
+            HttpStatusCode expectedStatusCode)
+        {
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/reset-password", resetPasswordDto);
+            response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
 }

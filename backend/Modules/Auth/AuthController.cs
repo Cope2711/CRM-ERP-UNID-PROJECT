@@ -16,7 +16,7 @@ public class AuthController : ControllerBase
     private readonly IAuthService _authService;
     private readonly IPasswordResetService _passwordResetService;
 
-    public AuthController(IAuthService authService, IMailService mailService,IPasswordResetService passwordResetService)
+    public AuthController(IAuthService authService, IPasswordResetService passwordResetService)
     {
         this._authService = authService;
         this._passwordResetService = passwordResetService;

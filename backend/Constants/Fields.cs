@@ -50,4 +50,13 @@ public static class Fields
         public const string UserId = nameof(UserRole.UserId);
         public const string RoleId = nameof(UserRole.RoleId);
     }
+    
+    public static class PasswordRecoveryTokens
+    {
+        public const string ResetId = nameof(PasswordRecoveryToken.ResetId);
+        public const string UserId = nameof(PasswordRecoveryToken.UserId);
+        public const string ResetToken = nameof(PasswordRecoveryToken.ResetToken);
+        public const string ExpiresAt = nameof(PasswordRecoveryToken.ExpiresAt);
+        public const string CreatedAt = nameof(PasswordRecoveryToken.CreatedAt);
+    }
 }

@@ -34,7 +34,7 @@ public class PasswordResetService(
 
     public async Task<bool> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
     {
-        var passwordReset = await GetByTokenThrowsNotFoundAsync(resetPasswordDto.Token);
+        PasswordRecoveryToken passwordReset = await GetByTokenAndEmailThrowsNotFoundAsync(resetPasswordDto.Token, resetPasswordDto.Email);
         if (passwordReset.ExpiresAt < DateTime.UtcNow)
         {
             throw new BadRequestException("Password reset token has expired.", reason: Reasons.ExpiredToken);
@@ -53,9 +53,12 @@ public class PasswordResetService(
         return true;
     }
 
-    public async Task<PasswordRecoveryToken> GetByTokenThrowsNotFoundAsync(string token)
+    public async Task<PasswordRecoveryToken> GetByTokenAndEmailThrowsNotFoundAsync(string token, string email)
     {
-        return await _genericService.GetFirstThrowsNotFoundAsync(prt => prt.ResetToken, token);
+        PasswordRecoveryToken? passwordReset = await _passwordResetRepository.GetByTokenAndEmailThrowsNotFoundAsync(token, email);
+        if (passwordReset == null)
+            throw new NotFoundException("Password reset token or email not found.", field: Fields.PasswordRecoveryTokens.ResetToken);
+        return passwordReset;
     }
 
     public async Task<PasswordRecoveryToken> GetByIdThrowsNotFoundAsync(Guid id)
@@ -71,7 +74,7 @@ public class PasswordResetService(
 
     private async Task SendPasswordResetEmailAsync(string email, string resetToken)
     {
-        var resetLink = $"https://tudominio.com/reset-password?token={resetToken}";
+        var resetLink = $"https://tudominio.com/reset-password?token={resetToken}?email={email}";
         var emailBody = $@"
             <h1>Restablecimiento de contraseña</h1>
             <p>Para restablecer tu contraseña, haz clic en el siguiente enlace:</p>

@@ -402,7 +402,7 @@ public static class Models
     {
 
 
-        public static PasswordRecoveryToken TestValidTokenAsynk = new PasswordRecoveryToken
+        public static PasswordRecoveryToken TestValidTokenAsync = new PasswordRecoveryToken
         {
             ResetId = Guid.NewGuid(),
             UserId = Models.Users.TestUser.UserId,
@@ -410,7 +410,7 @@ public static class Models
             ExpiresAt = DateTime.UtcNow.AddDays(1)
         };
 
-        public static PasswordRecoveryToken TestExpiredTokenAsynk = new PasswordRecoveryToken
+        public static PasswordRecoveryToken TestExpiredTokenAsync = new PasswordRecoveryToken
         {
             ResetId = Guid.NewGuid(),
             UserId = Models.Users.TestUser.UserId,
