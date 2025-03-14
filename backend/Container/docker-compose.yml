@@ -1,0 +1,15 @@
+version: "3.7"
+services:
+  sql-server-db:
+    container_name: erp-unid-db
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "p@ssw0rd"
+      ACCEPT_EULA: "Y"
+      MSSQL_COLLATION: "Finnish_Swedish_CI_AS"
+    volumes:
+      - ./scripts/db.sql:/db.sql
+      - ./scripts/entrypoint.sh:/entrypoint.sh
+    command: ["/bin/bash", "/entrypoint.sh"]

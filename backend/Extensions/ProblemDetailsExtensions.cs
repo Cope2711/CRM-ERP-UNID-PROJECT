@@ -37,12 +37,20 @@ public static class ProblemDetailsExtensions
                 Extensions = { { "reason", ex.Reason } }
             });
 
+            options.Map<ForbiddenException>(ex => new ProblemDetails
+            {
+                Title = "Forbidden",
+                Status = StatusCodes.Status403Forbidden,
+                Detail = ex.Message,
+                Extensions = { { "permission", ex.Permission }, { "resource", ex.Resource } }
+            });
+            
             options.Map<BadRequestException>(ex => new ProblemDetails
             {
                 Title = "Bad Request",
                 Status = StatusCodes.Status400BadRequest,
                 Detail = ex.Message,
-                Extensions = { { "field", ex.Field } }
+                Extensions = { { "field", ex.Field },{ "reason", ex.Reason } }
             });
             
             options.MapToStatusCode<NotImplementedException>(StatusCodes.Status501NotImplemented);

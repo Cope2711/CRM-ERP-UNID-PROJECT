@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using CRM_ERP_UNID.Attributes;
 
 namespace CRM_ERP_UNID.Dtos;
 
@@ -15,17 +16,31 @@ public class GetAllDto
 
     public bool Descending { get; set; }
 
-    [MaxLength(250, ErrorMessage = "SearchTerm cannot exceed 250 characters.")]
-    public string? SearchTerm { get; set; }
+    public List<FilterDto>? Filters { get; set; }
+    
+    [Required(ErrorMessage = "Search is required.")]
+    [RangeListLength(1, 100, ErrorMessage = "Selects cannot exceed 100 characters.")]
+    public required List<string> Selects { get; set; }
+}
 
-    [MaxLength(250, ErrorMessage = "SearchColumn cannot exceed 250 characters.")]
-    public string? SearchColumn { get; set; }
+public class FilterDto
+{
+    [Required(ErrorMessage = "Column is required.")]
+    [MaxLength(250, ErrorMessage = "Column cannot exceed 250 characters.")]
+    public string? Column { get; set; }
+    
+    [Required(ErrorMessage = "Operator is required.")]
+    [ValidOperator]
+    public string? Operator { get; set; }
+    
+    [Required(ErrorMessage = "Value is required.")]
+    public string? Value { get; set; }
 }
 
 public class GetAllResponseDto<T>
 {
     [Required(ErrorMessage = "Data is required.")]
-    public List<T> Data { get; set; } = new List<T>();
+    public List<Dictionary<string, object>> Data { get; set; } = new List<Dictionary<string, object>>();
 
     [Range(0, int.MaxValue, ErrorMessage = "TotalItems cannot be negative.")]
     public int TotalItems { get; set; }
@@ -38,4 +53,17 @@ public class GetAllResponseDto<T>
 
     [Range(1, int.MaxValue, ErrorMessage = "TotalPages must be at least 1.")]
     public int TotalPages { get; set; }
+}
+
+public class ResponsesDto<T>
+{
+    public List<T> Success { get; set; } = new();
+    public List<T> Failed { get; set; } = new();
+}
+
+public class ResponseStatusDto
+{
+    public required string Status { get; set; }
+    public string? Message { get; set; }
+    public string? Field { get; set; }
 }
