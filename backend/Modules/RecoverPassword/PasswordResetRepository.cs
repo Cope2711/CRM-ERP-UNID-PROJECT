@@ -8,7 +8,6 @@ public interface IPasswordResetRepository
 {
     Task<PasswordRecoveryToken?> GetByTokenAndEmailThrowsNotFoundAsync(string token, string email);
     Task AddAsync(PasswordRecoveryToken? passwordReset);
-    Task DeleteAsync(PasswordRecoveryToken? passwordReset);
     Task SaveAsync();
 }
 
@@ -29,11 +28,6 @@ public class PasswordResetRepository : IPasswordResetRepository
     public async Task AddAsync(PasswordRecoveryToken? passwordReset)
     {
         await _context.PasswordRecoveryTokens.AddAsync(passwordReset);
-    }
-    
-    public async Task DeleteAsync(PasswordRecoveryToken? passwordReset)
-    {
-        _context.PasswordRecoveryTokens.Remove(passwordReset);
     }
 
     public async Task SaveAsync()

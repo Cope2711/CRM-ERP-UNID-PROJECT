@@ -1,4 +1,6 @@
 using CRM_ERP_UNID.Modules;
+using CRM_ERP_UNID.Modules.Brands;
+using CRM_ERP_UNID.Modules.Products;
 
 namespace CRM_ERP_UNID.Extensions
 {
@@ -28,6 +30,11 @@ namespace CRM_ERP_UNID.Extensions
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
             services.AddScoped<IPasswordResetService, PasswordResetService>();
+            services.AddScoped<IProductsManagementService, ProductsManagementService>();
+            services.AddScoped<IProductsQueryService, ProductsQueryService>();
+            services.AddScoped<IBrandsService, BrandsService>();
+            services.AddScoped<IBrandsRepository, BrandsRepository>();
+            services.AddScoped<IProductsRepository, ProductsRepository>();
         }
     }
 }
