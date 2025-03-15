@@ -5,9 +5,11 @@ using CRM_ERP_UNID.Exceptions;
 namespace CRM_ERP_UNID.Modules;
 
 public class GenericService<T>(
-    IGenericRepository<T> _genericRepository
-    ) : IGenericService<T> where T : class
+    IGenericRepository<T> _genericRepository) : IGenericService<T> where T : class
 {
+    private IGenericService<T> _genericServiceImplementation;
+    private IGenericService<T> _genericServiceImplementation1;
+
     public async Task<T?> GetById(Guid id, Func<IQueryable<T>, IQueryable<T>>? include = null)
     {
         return await _genericRepository.GetByIdAsync(id, include);
@@ -59,19 +61,50 @@ public class GenericService<T>(
         return entity;
     }
 
+   
+
     public async Task<GetAllResponseDto<T>> GetAllAsync(
         GetAllDto getAllDto,
-        Func<IQueryable<T>, IQueryable<T>> queryModifier = null)
+        Func<IQueryable<T>, IQueryable<T>> queryModifier = null,
+        List<string>? camposPermitidos = null)
     {
-        GetAllResponseDto<T> response = new GetAllResponseDto<T>
+        GetAllResponseDto<T> response = new GetAllResponseDto<T>     
         {
             TotalItems = await _genericRepository.GetTotalItemsAsync(getAllDto),
             PageNumber = getAllDto.PageNumber,
             PageSize = getAllDto.PageSize
         };
-
+        
         response.TotalPages = (int)Math.Ceiling((double)response.TotalItems / getAllDto.PageSize);
-        response.Data = await _genericRepository.GetAllAsync(getAllDto);
+        var data = await _genericRepository.GetAllAsync(getAllDto);
+
+        // Campos restringidos insertale mas no se cuales xde
+        var camposRestringidos = new HashSet<string> { "UserPassword" };
+
+        // Si se proporcionan campos permitidos, filtrar los campos restringidos
+        if (camposPermitidos != null)
+        {
+            camposPermitidos = camposPermitidos.Except(camposRestringidos).ToList();
+        }
+
+        var filteredData = new List<Dictionary<string, object>>();
+        foreach (var item in data)
+        {
+            var newItem = new Dictionary<string, object>();
+            foreach (var prop in typeof(T).GetProperties())
+            {
+                if ((camposPermitidos == null || camposPermitidos.Contains(prop.Name)) && 
+                    !camposRestringidos.Contains(prop.Name) && 
+                    !string.IsNullOrEmpty(prop.Name) &&
+                    item is IDictionary<string, object> expandoDict && expandoDict.ContainsKey(prop.Name))
+                {
+                    newItem[prop.Name] = expandoDict[prop.Name];
+                }
+            }
+            filteredData.Add(newItem);
+        }
+        //datos filtrados a la respuesta
+        response.Data = filteredData;
         return response;
     }
 }
