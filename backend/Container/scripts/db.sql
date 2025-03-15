@@ -26,6 +26,33 @@ IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'erp_user')
     END
 GO
 
+DROP TABLE IF EXISTS Brands;
+CREATE TABLE Brands
+(
+    BrandId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    BrandName VARCHAR(50) NOT NULL UNIQUE,
+    BrandDescription VARCHAR(255) NULL,
+    IsActive BIT DEFAULT 1,
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    UpdatedDate DATETIME DEFAULT GETDATE()
+);
+
+DROP TABLE IF EXISTS Products;
+CREATE TABLE Products
+(
+    ProductId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    ProductName VARCHAR(50) NOT NULL,
+    ProductPrice DECIMAL(10,2) NOT NULL,
+    ProductDescription VARCHAR(255) NULL,
+    IsActive BIT DEFAULT 1,
+    BrandId UNIQUEIDENTIFIER NOT NULL,
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    UpdatedDate DATETIME DEFAULT GETDATE(),
+    
+    CONSTRAINT FK_Products_Brands FOREIGN KEY (BrandId)
+        REFERENCES Brands (BrandId) ON DELETE CASCADE
+);
+
 DROP TABLE IF EXISTS Users;
 CREATE TABLE Users
 (
@@ -187,6 +214,8 @@ DECLARE @ResourceId_Permissions UNIQUEIDENTIFIER = '09e63ef5-71ca-4dcb-8f69-4997
 DECLARE @ResourceId_UsersRoles UNIQUEIDENTIFIER = '85fac418-d875-4f3c-8094-c2d614a58f15';
 DECLARE @ResourceId_RolesPermissionsResources UNIQUEIDENTIFIER = '67f53f8f-1848-4156-8ee9-ec9e02bd5836';
 DECLARE @ResourceId_Resources UNIQUEIDENTIFIER = '6193cd07-1a2c-4a7e-95e0-00bb27dbf7c3';
+DECLARE @ResourceId_Products UNIQUEIDENTIFIER = '6e62f20f-39ca-4a21-a52d-126c59ccb338';
+DECLARE @ResourceId_Brands UNIQUEIDENTIFIER = '708eb498-6ad5-447c-ba76-13cba1f08dc7';
 
 INSERT INTO Resources (ResourceId, ResourceName, ResourceDescription)
 VALUES (@ResourceId_Users, 'Users', 'Users module'),
@@ -194,7 +223,9 @@ VALUES (@ResourceId_Users, 'Users', 'Users module'),
        (@ResourceId_Permissions, 'Permissions', 'Permissions module'),
        (@ResourceId_UsersRoles, 'UsersRoles', 'Users roles module'),
        (@ResourceId_RolesPermissionsResources, 'RolesPermissionsResources', 'Roles permissions resources module'),
-       (@ResourceId_Resources, 'Resources', 'Resources module')
+       (@ResourceId_Resources, 'Resources', 'Resources module'),
+       (@ResourceId_Products, 'Products', 'Products module'),
+       (@ResourceId_Brands, 'Brands', 'Brands module')
 
 -- Insertar Permisos a los Roles
 INSERT INTO RolesPermissionsResources (RolePermissionId, RoleId, PermissionId, ResourceId)
@@ -218,7 +249,54 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_ActivateUser, NULL),
        (NEWID(), @RoleId_User, @PermissionId_EditContent, @ResourceId_Users),
        (NEWID(), @ROleId_User, @PermissionId_RevokeRole, NULL),
-       (NEWID(), @ROleId_User, @PermissionId_RevokePermission, NULL)
+       (NEWID(), @ROleId_User, @PermissionId_RevokePermission, NULL),
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Products),
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Brands),
+       (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Brands),
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Brands),
+       (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Products),
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Products)
+
+-- Insertar ejemplos de marcas
+DECLARE @BrandId_Apple UNIQUEIDENTIFIER = 'c3146b6f-b50f-4b26-8e77-827fc538b7d1';
+DECLARE @BrandId_Samsung UNIQUEIDENTIFIER = '809fb57d-ff80-496f-88c3-7b50f0d9b55d';
+DECLARE @BrandId_Nike UNIQUEIDENTIFIER = '5b23b9a8-bd17-4b2a-8e61-b9863a8f77b5';
+
+INSERT INTO Brands (BrandId, BrandName, BrandDescription, IsActive)
+VALUES
+    (@BrandId_Apple, 'Apple', 'Apple Inc. - Premium electronics', 1),
+    (@BrandId_Samsung, 'Samsung', 'Samsung Electronics - Leading technology company', 1),
+    (@BrandId_Nike, 'Nike', 'Nike Inc. - Sportswear and equipment', 1);
+
+-- Insertar ejemplos de productos
+DECLARE @ProductId_iPhone13 UNIQUEIDENTIFIER = '5b22cc12-191b-4fe9-9878-bbc1575fa8a7';
+DECLARE @ProductId_MacBookPro UNIQUEIDENTIFIER = '420a7d01-dd70-417f-872f-aa9f1e1df436';
+DECLARE @ProductId_iPadPro UNIQUEIDENTIFIER = 'f96bf5e4-9579-404e-9350-087b1ef1305e';
+DECLARE @ProductId_GalaxyS21 UNIQUEIDENTIFIER = '3179499a-621c-4c07-8acb-e7a057cf4753';
+DECLARE @ProductId_GalaxyTabS7 UNIQUEIDENTIFIER = 'b342289c-c165-4b85-ab6d-2b030f68b171';
+DECLARE @ProductId_SamsungQLEDTV UNIQUEIDENTIFIER = 'aa93da89-ba99-4b47-823c-26c5332f6600';
+DECLARE @ProductId_NikeAirMax270 UNIQUEIDENTIFIER = 'de30da34-c216-488e-8b3b-3cba0fb71baa';
+DECLARE @ProductId_NikeZoomX UNIQUEIDENTIFIER = 'e9ade468-590a-4c0e-bfbe-91ab9dbb6830';
+DECLARE @ProductId_NikeDriFitTShirt UNIQUEIDENTIFIER = 'ac99dcd4-b451-416d-bb12-59b706c5db30';
+
+INSERT INTO Products (ProductId, ProductName, ProductPrice, ProductDescription, IsActive, BrandId)  
+VALUES
+    -- Productos de Apple
+    (@ProductId_iPhone13, 'iPhone 13', 999.99, 'Latest iPhone model', 1, @BrandId_Apple),
+    (@ProductId_MacBookPro, 'MacBook Pro', 1999.99, 'High-performance laptop', 1, @BrandId_Apple),
+    (@ProductId_iPadPro, 'iPad Pro', 799.99, 'Powerful tablet for work and entertainment', 1, @BrandId_Apple),
+
+    -- Productos de Samsung
+    (@ProductId_GalaxyS21, 'Galaxy S21', 899.99, 'Samsung flagship phone', 1, @BrandId_Samsung),
+    (@ProductId_GalaxyTabS7, 'Galaxy Tab S7', 649.99, 'High-end Android tablet', 1, @BrandId_Samsung),
+    (@ProductId_SamsungQLEDTV, 'Samsung QLED TV', 1500.00, 'Smart TV with stunning display', 1, @BrandId_Samsung),
+
+    -- Productos de Nike
+    (@ProductId_NikeAirMax270, 'Nike Air Max 270', 120.00, 'Comfortable running shoes', 1, @BrandId_Nike),
+    (@ProductId_NikeZoomX, 'Nike ZoomX Vaporfly Next%', 250.00, 'High-performance running shoes', 1, @BrandId_Nike),
+    (@ProductId_NikeDriFitTShirt, 'Nike Dri-FIT T-shirt', 30.00, 'Breathable athletic shirt', 1, @BrandId_Nike);
+
+
 
 -- Consultas para verificar la inserción de datos
 SELECT *
@@ -233,3 +311,7 @@ SELECT *
 FROM RefreshTokens;
 SELECT *
 FROM PasswordRecoveryTokens;
+Select * 
+from Brands;
+Select * 
+from Products;

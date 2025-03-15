@@ -17,4 +17,6 @@ public class AppDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Resource> Resources { get; set; }
     public DbSet<UserRole> UsersRoles { get; set; }
+    public DbSet<Brand> Brands { get; set; }
+    public DbSet<Product> Products { get; set; }
 }

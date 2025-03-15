@@ -97,7 +97,6 @@ public class RolesManagementService(
 
         if (hasChanges)
         {
-            _roleRepository.Update(role);
             await _roleRepository.SaveChangesAsync();
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for RoleId {TargetRoleId} and the role was updated",

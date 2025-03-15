@@ -59,4 +59,22 @@ public static class Fields
         public const string ExpiresAt = nameof(PasswordRecoveryToken.ExpiresAt);
         public const string CreatedAt = nameof(PasswordRecoveryToken.CreatedAt);
     }
+    
+    public static class Brands
+    {
+        public const string BrandId = nameof(Brand.BrandId);
+        public const string BrandName = nameof(Brand.BrandName);
+        public const string BrandDescription = nameof(Brand.BrandDescription);
+        public const string IsActive = nameof(Brand.IsActive);
+    }
+    
+    public static class Products
+    {
+        public const string ProductId = nameof(Product.ProductId);
+        public const string ProductName = nameof(Product.ProductName);
+        public const string ProductPrice = nameof(Product.ProductPrice);
+        public const string ProductDescription = nameof(Product.ProductDescription);
+        public const string IsActive = nameof(Product.IsActive);
+        public const string BrandId = nameof(Product.BrandId);
+    }
 }
