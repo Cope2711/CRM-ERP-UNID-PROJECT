@@ -242,6 +242,13 @@ public static class Models
             ResourceName = "Brands",
             ResourceDescription = "Brands module"
         };
+        
+        public static readonly Resource InventoryResource = new Resource
+        {
+            ResourceId = Guid.Parse("b0f8c2e0-f5a1-4a3e-b5e5-c4e8f0f9c7b7"),
+            ResourceName = "Inventory",
+            ResourceDescription = "Inventory module"
+        };
     }
 
     public static class RolesPermissionsResources
@@ -437,6 +444,30 @@ public static class Models
             PermissionId = Permissions.EditContent.PermissionId,
             ResourceId = Resources.ProductsResource.ResourceId
         };
+        
+        public static readonly RolePermissionResource AdminCreateInventory = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.Create.PermissionId,
+            ResourceId = Resources.InventoryResource.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminEditInventory = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.EditContent.PermissionId,
+            ResourceId = Resources.InventoryResource.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminViewInventory = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.View.PermissionId,
+            ResourceId = Resources.InventoryResource.ResourceId
+        };
     }
 
     public static class RefreshTokens
@@ -596,6 +627,89 @@ public static class Models
             ProductDescription = "Breathable athletic shirt",
             IsActive = true,
             BrandId = Brands.Nike.BrandId
+        };
+    }
+
+    public static class InventoryModels
+    {
+        public static readonly Inventory iPhone13Inventory = new Inventory
+        {
+            InventoryId = Guid.Parse("a1f2e9ca-c431-4e79-aa8a-bb1cbbc5e052"),
+            ProductId = Products.iPhone13.ProductId,
+            Quantity = 10,
+            IsActive = true,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
+        };
+
+        public static readonly Inventory MacBookProInventory = new Inventory
+        {
+            InventoryId = Guid.Parse("6a0e1a69-bdc2-435e-8593-3f1fb792fae3"),
+            ProductId = Products.MacBookPro.ProductId,
+            Quantity = 20,
+            IsActive = true,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
+        };
+
+        public static readonly Inventory iPadProInventory = new Inventory
+        {
+            InventoryId = Guid.Parse("822c5560-71a2-4641-902f-b35d7b7c77a8"),
+            ProductId = Products.iPadPro.ProductId,
+            Quantity = 30,
+            IsActive = true,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
+        };
+
+        public static readonly Inventory GalaxyS21Inventory = new Inventory
+        {
+            InventoryId = Guid.Parse("39ecd16c-be8d-4699-afc1-e6283fd668fc"),
+            ProductId = Products.GalaxyS21.ProductId,
+            Quantity = 40,
+            IsActive = true,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
+        };
+
+        public static readonly Inventory GalaxyTabS7Inventory = new Inventory
+        {
+            InventoryId = Guid.Parse("8467ee64-c785-4106-8073-22ddbd891c9c"),
+            ProductId = Products.GalaxyTabS7.ProductId,
+            Quantity = 50,
+            IsActive = true,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
+        };
+
+        public static readonly Inventory SamsungQLEDTVInventory = new Inventory
+        {
+            InventoryId = Guid.Parse("922e4874-a46f-452f-8f61-46d87ddd8b06"),
+            ProductId = Products.SamsungQLEDTV.ProductId,
+            Quantity = 60,
+            IsActive = true,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
+        };
+
+        public static readonly Inventory NikeAirMax270Inventory = new Inventory
+        {
+            InventoryId = Guid.Parse("71b94117-8ba4-40bb-bd6f-53965ad9edc2"),
+            ProductId = Products.NikeAirMax270.ProductId,
+            Quantity = 70,
+            IsActive = true,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
+        };
+
+        public static readonly Inventory NikeZoomXInventory = new Inventory
+        {
+            InventoryId = Guid.Parse("b11b2d59-00bc-49c0-90e4-fc599a04a0d0"),
+            ProductId = Products.NikeZoomX.ProductId,
+            Quantity = 80,
+            IsActive = true,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
         };
     }
 }

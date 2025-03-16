@@ -77,4 +77,12 @@ public static class Fields
         public const string IsActive = nameof(Product.IsActive);
         public const string BrandId = nameof(Product.BrandId);
     }
+    
+    public static class InventoryFields
+    {
+        public const string InventoryId = nameof(InventoryFields.InventoryId);
+        public const string ProductId = nameof(InventoryFields.ProductId);
+        public const string Quantity = nameof(InventoryFields.Quantity);
+        public const string IsActive = nameof(InventoryFields.IsActive);
+    }
 }
