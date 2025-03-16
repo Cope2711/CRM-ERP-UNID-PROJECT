@@ -43,7 +43,8 @@ public class DatabaseSeeder
             Models.Resources.RolesPermissionsResources,
             Models.Resources.ResourcesResource,
             Models.Resources.ProductsResource,
-            Models.Resources.BrandsResource);
+            Models.Resources.BrandsResource,
+            Models.Resources.InventoryResource);
         context.RolesPermissionsResources.AddRange(Models.RolesPermissionsResources.AdminViewUsers,
             Models.RolesPermissionsResources.AdminDeactivateUser,
             Models.RolesPermissionsResources.AdminEditContentUsers,
@@ -67,7 +68,10 @@ public class DatabaseSeeder
             Models.RolesPermissionsResources.AdminCreateBrands,
             Models.RolesPermissionsResources.AdminEditBrands,
             Models.RolesPermissionsResources.AdminCreateProducts,
-            Models.RolesPermissionsResources.AdminEditProducts);
+            Models.RolesPermissionsResources.AdminEditProducts,
+            Models.RolesPermissionsResources.AdminCreateInventory,
+            Models.RolesPermissionsResources.AdminEditInventory,
+            Models.RolesPermissionsResources.AdminViewInventory);
         context.RefreshTokens.AddRange(
             Models.RefreshTokens.TestUserRefreshTokenRevoked,
             Models.RefreshTokens.TestUserExpiredRefreshToken);
@@ -88,6 +92,16 @@ public class DatabaseSeeder
             Models.Products.NikeAirMax270,
             Models.Products.NikeZoomX,
             Models.Products.NikeDriFitTShirt);
-        context.SaveChanges();
+        context.Inventory.AddRange(
+            Models.InventoryModels.iPhone13Inventory,
+            Models.InventoryModels.MacBookProInventory,
+            Models.InventoryModels.iPadProInventory,
+            Models.InventoryModels.GalaxyS21Inventory,
+            Models.InventoryModels.GalaxyTabS7Inventory,
+            Models.InventoryModels.SamsungQLEDTVInventory,
+            Models.InventoryModels.NikeAirMax270Inventory,
+            Models.InventoryModels.NikeZoomXInventory);
+
+    context.SaveChanges();
     }
 }

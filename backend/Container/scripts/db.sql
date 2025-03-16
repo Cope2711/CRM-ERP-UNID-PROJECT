@@ -26,7 +26,19 @@ IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'erp_user')
     END
 GO
 
+DROP TABLE IF EXISTS Products;
+DROP TABLE IF EXISTS Inventory;
 DROP TABLE IF EXISTS Brands;
+DROP TABLE IF EXISTS UsersRoles;
+DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS TestTable;
+DROP TABLE IF EXISTS Resources;
+DROP TABLE IF EXISTS Permissions;
+DROP TABLE IF EXISTS Roles;
+DROP TABLE IF EXISTS RolesPermissionsResources;
+DROP TABLE IF EXISTS RefreshTokens;
+DROP TABLE IF EXISTS PasswordRecoveryTokens;
+
 CREATE TABLE Brands
 (
     BrandId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -37,7 +49,6 @@ CREATE TABLE Brands
     UpdatedDate DATETIME DEFAULT GETDATE()
 );
 
-DROP TABLE IF EXISTS Products;
 CREATE TABLE Products
 (
     ProductId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -48,12 +59,23 @@ CREATE TABLE Products
     BrandId UNIQUEIDENTIFIER NOT NULL,
     CreatedDate DATETIME DEFAULT GETDATE(),
     UpdatedDate DATETIME DEFAULT GETDATE(),
-    
+
     CONSTRAINT FK_Products_Brands FOREIGN KEY (BrandId)
         REFERENCES Brands (BrandId) ON DELETE CASCADE
 );
 
-DROP TABLE IF EXISTS Users;
+CREATE TABLE Inventory
+(
+    InventoryId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    ProductId UNIQUEIDENTIFIER NOT NULL,
+    Quantity INT NOT NULL,
+    IsActive BIT NOT NULL DEFAULT 1,
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    UpdatedDate DATETIME DEFAULT GETDATE()
+        CONSTRAINT FK_Inventory_Products FOREIGN KEY (ProductId)
+            REFERENCES Products (ProductId) ON DELETE CASCADE
+);
+
 CREATE TABLE Users
 (
     UserId        UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -67,14 +89,12 @@ CREATE TABLE Users
     UpdatedDate   DATETIME         DEFAULT GETDATE(),
 );
 
-DROP TABLE IF EXISTS TestTable;
 CREATE TABLE TestTable
 (
     TestTableID   UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
     TestTableCamp VARCHAR(50) NOT NULL
 );
 
-DROP TABLE IF EXISTS Resources;
 CREATE TABLE Resources
 (
     ResourceId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -82,7 +102,6 @@ CREATE TABLE Resources
     ResourceDescription VARCHAR(255)
 );
 
-DROP TABLE IF EXISTS Permissions;
 CREATE TABLE Permissions
 (
     PermissionId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -90,7 +109,6 @@ CREATE TABLE Permissions
     PermissionDescription VARCHAR(255) NULL
 );
 
-DROP TABLE IF EXISTS Roles;
 CREATE TABLE Roles
 (
     RoleId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -99,7 +117,6 @@ CREATE TABLE Roles
     RoleDescription VARCHAR(255) NULL
 );
 
-DROP TABLE IF EXISTS RolesPermissionsResources;
 CREATE TABLE RolesPermissionsResources
 (
     RolePermissionId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -111,7 +128,6 @@ CREATE TABLE RolesPermissionsResources
     FOREIGN KEY (ResourceId) REFERENCES Resources (ResourceId) ON DELETE CASCADE
 );
 
-DROP TABLE IF EXISTS UsersRoles;
 CREATE TABLE UsersRoles
 (
     UserRoleId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -121,7 +137,6 @@ CREATE TABLE UsersRoles
     FOREIGN KEY (RoleId) REFERENCES Roles (RoleId) ON DELETE CASCADE
 );
 
-DROP TABLE IF EXISTS RefreshTokens;
 CREATE TABLE RefreshTokens
 (
     RefreshTokenId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -133,7 +148,6 @@ CREATE TABLE RefreshTokens
     FOREIGN KEY (UserId) REFERENCES Users (UserId) ON DELETE CASCADE
 );
 
-DROP TABLE IF EXISTS PasswordRecoveryTokens;
 CREATE TABLE PasswordRecoveryTokens
 (
     ResetId UNIQUEIDENTIFIER PRIMARY KEY NOT NULL, -- Clave primaria
@@ -216,6 +230,7 @@ DECLARE @ResourceId_RolesPermissionsResources UNIQUEIDENTIFIER = '67f53f8f-1848-
 DECLARE @ResourceId_Resources UNIQUEIDENTIFIER = '6193cd07-1a2c-4a7e-95e0-00bb27dbf7c3';
 DECLARE @ResourceId_Products UNIQUEIDENTIFIER = '6e62f20f-39ca-4a21-a52d-126c59ccb338';
 DECLARE @ResourceId_Brands UNIQUEIDENTIFIER = '708eb498-6ad5-447c-ba76-13cba1f08dc7';
+DECLARE @ResourceId_Inventory UNIQUEIDENTIFIER = 'b0f8c2e0-f5a1-4a3e-b5e5-c4e8f0f9c7b7';
 
 INSERT INTO Resources (ResourceId, ResourceName, ResourceDescription)
 VALUES (@ResourceId_Users, 'Users', 'Users module'),
@@ -225,7 +240,8 @@ VALUES (@ResourceId_Users, 'Users', 'Users module'),
        (@ResourceId_RolesPermissionsResources, 'RolesPermissionsResources', 'Roles permissions resources module'),
        (@ResourceId_Resources, 'Resources', 'Resources module'),
        (@ResourceId_Products, 'Products', 'Products module'),
-       (@ResourceId_Brands, 'Brands', 'Brands module')
+       (@ResourceId_Brands, 'Brands', 'Brands module'),
+       (@ResourceId_Inventory, 'Inventory', 'Inventory module')
 
 -- Insertar Permisos a los Roles
 INSERT INTO RolesPermissionsResources (RolePermissionId, RoleId, PermissionId, ResourceId)
@@ -255,7 +271,10 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Brands),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Brands),
        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Products),
-       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Products)
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Products),
+       (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Inventory),
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Inventory),
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Inventory)
 
 -- Insertar ejemplos de marcas
 DECLARE @BrandId_Apple UNIQUEIDENTIFIER = 'c3146b6f-b50f-4b26-8e77-827fc538b7d1';
@@ -281,22 +300,38 @@ DECLARE @ProductId_NikeDriFitTShirt UNIQUEIDENTIFIER = 'ac99dcd4-b451-416d-bb12-
 
 INSERT INTO Products (ProductId, ProductName, ProductPrice, ProductDescription, IsActive, BrandId)  
 VALUES
-    -- Productos de Apple
     (@ProductId_iPhone13, 'iPhone 13', 999.99, 'Latest iPhone model', 1, @BrandId_Apple),
     (@ProductId_MacBookPro, 'MacBook Pro', 1999.99, 'High-performance laptop', 1, @BrandId_Apple),
     (@ProductId_iPadPro, 'iPad Pro', 799.99, 'Powerful tablet for work and entertainment', 1, @BrandId_Apple),
-
-    -- Productos de Samsung
     (@ProductId_GalaxyS21, 'Galaxy S21', 899.99, 'Samsung flagship phone', 1, @BrandId_Samsung),
     (@ProductId_GalaxyTabS7, 'Galaxy Tab S7', 649.99, 'High-end Android tablet', 1, @BrandId_Samsung),
     (@ProductId_SamsungQLEDTV, 'Samsung QLED TV', 1500.00, 'Smart TV with stunning display', 1, @BrandId_Samsung),
-
-    -- Productos de Nike
     (@ProductId_NikeAirMax270, 'Nike Air Max 270', 120.00, 'Comfortable running shoes', 1, @BrandId_Nike),
     (@ProductId_NikeZoomX, 'Nike ZoomX Vaporfly Next%', 250.00, 'High-performance running shoes', 1, @BrandId_Nike),
     (@ProductId_NikeDriFitTShirt, 'Nike Dri-FIT T-shirt', 30.00, 'Breathable athletic shirt', 1, @BrandId_Nike);
 
+-- Insertar ejemplos de inventario
+DECLARE @InventoryId_iPhone13 UNIQUEIDENTIFIER = 'a1f2e9ca-c431-4e79-aa8a-bb1cbbc5e052';
+DECLARE @InventoryId_MacBookPro UNIQUEIDENTIFIER = '6a0e1a69-bdc2-435e-8593-3f1fb792fae3';
+DECLARE @InventoryId_iPadPro UNIQUEIDENTIFIER = '822c5560-71a2-4641-902f-b35d7b7c77a8';
+DECLARE @InventoryId_GalaxyS21 UNIQUEIDENTIFIER = '39ecd16c-be8d-4699-afc1-e6283fd668fc';
+DECLARE @InventoryId_GalaxyTabS7 UNIQUEIDENTIFIER = '8467ee64-c785-4106-8073-22ddbd891c9c';
+DECLARE @InventoryId_SamsungQLEDTV UNIQUEIDENTIFIER = '922e4874-a46f-452f-8f61-46d87ddd8b06';
+DECLARE @InventoryId_NikeAirMax270 UNIQUEIDENTIFIER = '71b94117-8ba4-40bb-bd6f-53965ad9edc2';
+DECLARE @InventoryId_NikeZoomX UNIQUEIDENTIFIER = 'b11b2d59-00bc-49c0-90e4-fc599a04a0d0';
+DECLARE @InventoryId_NikeDriFitTShirt UNIQUEIDENTIFIER = '97b6bf38-c0c2-424f-a5b8-574be522502a';
 
+INSERT INTO Inventory (InventoryID, ProductID, Quantity, CreatedDate, UpdatedDate)
+VALUES
+    (@InventoryId_iPhone13, @ProductId_iPhone13, 10, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_MacBookPro, @ProductId_MacBookPro, 20, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_iPadPro, @ProductId_iPadPro, 30, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_GalaxyS21, @ProductId_GalaxyS21, 40, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_GalaxyTabS7, @ProductId_GalaxyTabS7, 50, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_SamsungQLEDTV, @ProductId_SamsungQLEDTV, 60, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_NikeAirMax270, @ProductId_NikeAirMax270, 70, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_NikeZoomX, @ProductId_NikeZoomX, 80, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_NikeDriFitTShirt, @ProductId_NikeDriFitTShirt, 90, GETUTCDATE(), GETUTCDATE());
 
 -- Consultas para verificar la inserción de datos
 SELECT *

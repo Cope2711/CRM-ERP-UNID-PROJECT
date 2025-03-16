@@ -35,6 +35,9 @@ namespace CRM_ERP_UNID.Extensions
             services.AddScoped<IBrandsService, BrandsService>();
             services.AddScoped<IBrandsRepository, BrandsRepository>();
             services.AddScoped<IProductsRepository, ProductsRepository>();
+            services.AddScoped<IInventoryManagementService, InventoryManagementService>();
+            services.AddScoped<IInventoryQueryService, InventoryQueryService>();
+            services.AddScoped<IInventoryRepository, InventoryRepository>();
         }
     }
 }

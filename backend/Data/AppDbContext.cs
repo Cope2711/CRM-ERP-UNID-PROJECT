@@ -19,4 +19,5 @@ public class AppDbContext : DbContext
     public DbSet<UserRole> UsersRoles { get; set; }
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Product> Products { get; set; }
+    public DbSet<Inventory> Inventory { get; set; }
 }
