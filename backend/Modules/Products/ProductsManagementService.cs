@@ -3,9 +3,8 @@ using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
-using CRM_ERP_UNID.Modules.Brands;
 
-namespace CRM_ERP_UNID.Modules.Products;
+namespace CRM_ERP_UNID.Modules;
 
 public class ProductsManagementService(
     IProductsQueryService _productsQueryService,

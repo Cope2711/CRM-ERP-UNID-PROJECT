@@ -1,6 +1,4 @@
 using CRM_ERP_UNID.Modules;
-using CRM_ERP_UNID.Modules.Brands;
-using CRM_ERP_UNID.Modules.Products;
 
 namespace CRM_ERP_UNID.Extensions
 {
@@ -38,6 +36,9 @@ namespace CRM_ERP_UNID.Extensions
             services.AddScoped<IInventoryManagementService, InventoryManagementService>();
             services.AddScoped<IInventoryQueryService, InventoryQueryService>();
             services.AddScoped<IInventoryRepository, InventoryRepository>();
+            services.AddScoped<IBranchesRepository, BranchesRepository>();
+            services.AddScoped<IBranchesQueryService, BranchesQueryService>();
+            services.AddScoped<IBranchesManagementService, BranchesManagementService>();
         }
     }
 }

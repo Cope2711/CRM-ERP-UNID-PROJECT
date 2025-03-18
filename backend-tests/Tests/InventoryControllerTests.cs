@@ -72,6 +72,19 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
                 },
                 HttpStatusCode.Conflict
             };
+            
+            // Returns NotFound for the InventoryId
+            yield return new object[]
+            {
+                new UpdateInventoryDto
+                {
+                    InventoryId = Guid.NewGuid(),
+                    ProductId = Models.InventoryModels.iPhone13Inventory.ProductId,
+                    Quantity = 20,
+                    IsActive = true
+                },
+                HttpStatusCode.NotFound
+            };
         }
 
         [Theory]

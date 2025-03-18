@@ -5,7 +5,7 @@ using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CRM_ERP_UNID.Modules.Products;
+namespace CRM_ERP_UNID.Modules;
 
 [ApiController]
 [Authorize]

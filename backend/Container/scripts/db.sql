@@ -26,6 +26,7 @@ IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'erp_user')
     END
 GO
 
+DROP TABLE IF EXISTS Branches;
 DROP TABLE IF EXISTS Products;
 DROP TABLE IF EXISTS Inventory;
 DROP TABLE IF EXISTS Brands;
@@ -38,6 +39,17 @@ DROP TABLE IF EXISTS Roles;
 DROP TABLE IF EXISTS RolesPermissionsResources;
 DROP TABLE IF EXISTS RefreshTokens;
 DROP TABLE IF EXISTS PasswordRecoveryTokens;
+
+CREATE TABLE Branches
+(
+    BranchId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    BranchName VARCHAR(100) UNIQUE NOT NULL,
+    BranchAddress VARCHAR(255) NOT NULL,
+    BranchPhone VARCHAR(20) NULL,
+    IsActive BIT DEFAULT 1,
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    UpdatedDate DATETIME DEFAULT GETDATE()
+);
 
 CREATE TABLE Brands
 (
@@ -231,6 +243,7 @@ DECLARE @ResourceId_Resources UNIQUEIDENTIFIER = '6193cd07-1a2c-4a7e-95e0-00bb27
 DECLARE @ResourceId_Products UNIQUEIDENTIFIER = '6e62f20f-39ca-4a21-a52d-126c59ccb338';
 DECLARE @ResourceId_Brands UNIQUEIDENTIFIER = '708eb498-6ad5-447c-ba76-13cba1f08dc7';
 DECLARE @ResourceId_Inventory UNIQUEIDENTIFIER = 'b0f8c2e0-f5a1-4a3e-b5e5-c4e8f0f9c7b7';
+DECLARE @ResourceId_Branches UNIQUEIDENTIFIER = '55dc724f-a1aa-4d73-a7ed-5bef93b72be9';
 
 INSERT INTO Resources (ResourceId, ResourceName, ResourceDescription)
 VALUES (@ResourceId_Users, 'Users', 'Users module'),
@@ -241,7 +254,8 @@ VALUES (@ResourceId_Users, 'Users', 'Users module'),
        (@ResourceId_Resources, 'Resources', 'Resources module'),
        (@ResourceId_Products, 'Products', 'Products module'),
        (@ResourceId_Brands, 'Brands', 'Brands module'),
-       (@ResourceId_Inventory, 'Inventory', 'Inventory module')
+       (@ResourceId_Inventory, 'Inventory', 'Inventory module'),
+       (@ResourceId_Branches, 'Branches', 'Branches module')
 
 -- Insertar Permisos a los Roles
 INSERT INTO RolesPermissionsResources (RolePermissionId, RoleId, PermissionId, ResourceId)
@@ -274,7 +288,10 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Products),
        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Inventory),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Inventory),
-       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Inventory)
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Inventory),
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Branches),
+       (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Branches),
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Branches)
 
 -- Insertar ejemplos de marcas
 DECLARE @BrandId_Apple UNIQUEIDENTIFIER = 'c3146b6f-b50f-4b26-8e77-827fc538b7d1';
@@ -333,6 +350,17 @@ VALUES
     (@InventoryId_NikeZoomX, @ProductId_NikeZoomX, 80, GETUTCDATE(), GETUTCDATE()),
     (@InventoryId_NikeDriFitTShirt, @ProductId_NikeDriFitTShirt, 90, GETUTCDATE(), GETUTCDATE());
 
+-- Insertar ejemplos de sucursales
+DECLARE @BranchId_HermosilloMiguelHidalgo UNIQUEIDENTIFIER = '4bf33a98-874d-4673-98bb-b958ddc68c94';
+DECLARE @BranchId_CampoReal UNIQUEIDENTIFIER = 'b0821f0a-20ab-4f64-8c00-5b95d331a836';
+DECLARE @BranchId_PuertoRico UNIQUEIDENTIFIER = 'b3a28df0-fd7d-405e-9820-3d0f137a9ff9';
+
+INSERT INTO Branches (BranchId, BranchName, BranchAddress, BranchPhone, IsActive)
+VALUES
+    (@BranchId_HermosilloMiguelHidalgo, 'Hermosillo Miguel Hidalgo', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1),
+    (@BranchId_CampoReal, 'Campo Real', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1),
+    (@BranchId_PuertoRico, 'Puerto Rico', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1);
+
 -- Consultas para verificar la inserción de datos
 SELECT *
 FROM Users;
@@ -350,3 +378,5 @@ Select *
 from Brands;
 Select * 
 from Products;
+Select *
+from Branches;

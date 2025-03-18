@@ -249,10 +249,41 @@ public static class Models
             ResourceName = "Inventory",
             ResourceDescription = "Inventory module"
         };
+        
+        public static readonly Resource BranchesResource = new Resource
+        {
+            ResourceId = Guid.Parse("55dc724f-a1aa-4d73-a7ed-5bef32b72be9"),
+            ResourceName = "Branches",
+            ResourceDescription = "Branches module"
+        };
     }
 
     public static class RolesPermissionsResources
     {
+        public static readonly RolePermissionResource AdminViewBranches = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.View.PermissionId,
+            ResourceId = Resources.BranchesResource.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminCreateBranches = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.Create.PermissionId,
+            ResourceId = Resources.BranchesResource.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminEditBranches = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.EditContent.PermissionId,
+            ResourceId = Resources.BranchesResource.ResourceId
+        }; 
+        
         public static readonly RolePermissionResource AdminViewUsers = new RolePermissionResource
         {
             RolePermissionId = Guid.NewGuid(),
@@ -707,6 +738,42 @@ public static class Models
             InventoryId = Guid.Parse("b11b2d59-00bc-49c0-90e4-fc599a04a0d0"),
             ProductId = Products.NikeZoomX.ProductId,
             Quantity = 80,
+            IsActive = true,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
+        };
+    }
+    
+    public static class BranchesController
+    {
+        public static readonly Branch HermosilloMiguelHidalgo = new Branch
+        {
+            BranchId = Guid.Parse("4bf33a98-874d-4673-98bb-b958ddc68c94"),
+            BranchName = "Hermosillo Miguel Hidalgo",
+            BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
+            BranchPhone = "666666666",
+            IsActive = true,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
+        };
+        
+        public static readonly Branch CampoReal = new Branch
+        {
+            BranchId = Guid.Parse("b0821f0a-20ab-4f64-8c00-5b95d331a836"),
+            BranchName = "Campo Real",
+            BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
+            BranchPhone = "55555555",
+            IsActive = true,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
+        };
+        
+        public static readonly Branch PuertoRico = new Branch
+        {   
+            BranchId = Guid.Parse("b3a28df0-fd7d-405e-9820-3d0f137a9ff9"),
+            BranchName = "Puerto Rico",
+            BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
+            BranchPhone = "44444444",
             IsActive = true,
             CreatedDate = DateTime.UtcNow,
             UpdatedDate = DateTime.UtcNow

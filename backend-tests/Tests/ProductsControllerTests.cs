@@ -113,6 +113,16 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
                 },
                 HttpStatusCode.Conflict
             };
+            
+            yield return new Object[] // Not found
+            {
+                new UpdateProductDto
+                {
+                    ProductId = Guid.NewGuid(),
+                    ProductName = Models.Products.iPadPro.ProductName,
+                },
+                HttpStatusCode.NotFound
+            };
         }
 
         [Theory]
