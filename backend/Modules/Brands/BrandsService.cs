@@ -4,7 +4,7 @@ using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
 
-namespace CRM_ERP_UNID.Modules.Brands;
+namespace CRM_ERP_UNID.Modules;
 
 public class BrandsService(
     IGenericService<Brand> _genericService,

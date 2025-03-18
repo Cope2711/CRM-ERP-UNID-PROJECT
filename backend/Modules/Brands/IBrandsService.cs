@@ -1,7 +1,7 @@
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 
-namespace CRM_ERP_UNID.Modules.Brands;
+namespace CRM_ERP_UNID.Modules;
 
 public interface IBrandsService
 {

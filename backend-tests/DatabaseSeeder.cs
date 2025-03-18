@@ -44,7 +44,8 @@ public class DatabaseSeeder
             Models.Resources.ResourcesResource,
             Models.Resources.ProductsResource,
             Models.Resources.BrandsResource,
-            Models.Resources.InventoryResource);
+            Models.Resources.InventoryResource,
+            Models.Resources.BranchesResource);
         context.RolesPermissionsResources.AddRange(Models.RolesPermissionsResources.AdminViewUsers,
             Models.RolesPermissionsResources.AdminDeactivateUser,
             Models.RolesPermissionsResources.AdminEditContentUsers,
@@ -71,7 +72,10 @@ public class DatabaseSeeder
             Models.RolesPermissionsResources.AdminEditProducts,
             Models.RolesPermissionsResources.AdminCreateInventory,
             Models.RolesPermissionsResources.AdminEditInventory,
-            Models.RolesPermissionsResources.AdminViewInventory);
+            Models.RolesPermissionsResources.AdminViewInventory,
+            Models.RolesPermissionsResources.AdminViewBranches,
+            Models.RolesPermissionsResources.AdminCreateBranches,
+            Models.RolesPermissionsResources.AdminEditBranches);
         context.RefreshTokens.AddRange(
             Models.RefreshTokens.TestUserRefreshTokenRevoked,
             Models.RefreshTokens.TestUserExpiredRefreshToken);
@@ -101,6 +105,10 @@ public class DatabaseSeeder
             Models.InventoryModels.SamsungQLEDTVInventory,
             Models.InventoryModels.NikeAirMax270Inventory,
             Models.InventoryModels.NikeZoomXInventory);
+        context.Branches.AddRange(
+            Models.BranchesController.HermosilloMiguelHidalgo,
+            Models.BranchesController.CampoReal,
+            Models.BranchesController.PuertoRico);
 
     context.SaveChanges();
     }

@@ -113,6 +113,18 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
                 },
                 HttpStatusCode.Conflict
             };
+            
+            yield return new Object[] // Not found
+            {
+                new UpdateBrandDto
+                {
+                    BrandId = Guid.NewGuid(),
+                    BrandName = Models.Brands.Apple.BrandName,
+                    BrandDescription = "Apples company",
+                    IsActive = true
+                },
+                HttpStatusCode.NotFound
+            };
         }
 
         [Theory]
