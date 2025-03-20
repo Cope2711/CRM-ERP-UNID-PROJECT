@@ -1,5 +1,7 @@
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
+using CRM_ERP_UNID.Exceptions;
 
 namespace CRM_ERP_UNID.Modules;
 
@@ -25,5 +27,17 @@ public class BranchesQueryService(
     public async Task<bool> ExistByName(string name)
     {
         return await _genericService.ExistsAsync(b => b.BranchName, name);
+    }
+    
+    public async Task<bool> ExistsByIdThrowsNotFound(Guid id)
+    {
+        bool exists = await _genericService.ExistsAsync(b => b.BranchId, id);
+
+        if (!exists)
+        {
+            throw new NotFoundException("Branch not found", Fields.Branches.BranchId);
+        }
+
+        return exists;
     }
 }

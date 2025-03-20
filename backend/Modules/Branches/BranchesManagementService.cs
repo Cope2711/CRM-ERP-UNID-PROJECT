@@ -26,7 +26,7 @@ public class BranchesManagementService(
             _logger.LogError(
                 "User with Id {authenticatedUserId} requested CreateAsync for BranchName {TargetBranchName} but the branchname already exists",
                 authenticatedUserId, createBranchDto.BranchName);
-            throw new UniqueConstraintViolationException("Branch with this name already exists", Fields.BranchesController.BranchName);
+            throw new UniqueConstraintViolationException("Branch with this name already exists", Fields.Branches.BranchName);
         }
 
         // Create branch

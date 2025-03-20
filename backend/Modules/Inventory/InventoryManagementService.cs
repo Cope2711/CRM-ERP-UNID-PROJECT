@@ -10,7 +10,8 @@ public class InventoryManagementService(
     IInventoryRepository _inventoryRepository,
     IInventoryQueryService _inventoryQueryService,
     ILogger<InventoryManagementService> _logger,
-    IHttpContextAccessor _httpContextAccessor
+    IHttpContextAccessor _httpContextAccessor,
+    IBranchesQueryService _branchesQueryService
 ) : IInventoryManagementService
 {
     public async Task<Inventory> Update(UpdateInventoryDto updateInventoryDto)
@@ -25,7 +26,10 @@ public class InventoryManagementService(
             switch (field)
             {
                 case nameof(updateInventoryDto.ProductId):
-                    return await _inventoryQueryService.ExistsByProductId((Guid)value);
+                    return await _inventoryQueryService.ExistProductInBranch((Guid)value, inventory.BranchId);
+                
+                case nameof(updateInventoryDto.BranchId):
+                    return await _inventoryQueryService.ExistProductInBranch(inventory.ProductId, (Guid)value);
 
                 default:
                     return false;
@@ -52,15 +56,16 @@ public class InventoryManagementService(
         _logger.LogInformation("User with id {UserId} is creating an inventory for product with id {ProductId}", authenticatedUserId, createInventoryDto.ProductId);
         
         // Exist product?
-        if (await _inventoryQueryService.ExistsByProductId(createInventoryDto.ProductId))
-        {
-            _logger.LogError("Product with id {ProductId} already exists in the inventory", createInventoryDto.ProductId);
-            throw new UniqueConstraintViolationException("This product already exists in the inventory", Fields.InventoryFields.ProductId);   
-        }
+        if(await _inventoryQueryService.ExistProductInBranch(createInventoryDto.ProductId, createInventoryDto.BranchId))
+            throw new UniqueConstraintViolationException("This product already exists in the inventory", Fields.InventoryFields.ProductId);
+        
+        // Exist branch?
+        await _branchesQueryService.ExistsByIdThrowsNotFound(createInventoryDto.BranchId);
         
         Inventory inventory = new()
         {
             ProductId = createInventoryDto.ProductId,
+            BranchId = createInventoryDto.BranchId,
             Quantity = createInventoryDto.Quantity,
             IsActive = createInventoryDto.IsActive ?? true
         };

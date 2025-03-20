@@ -1,11 +1,14 @@
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
+using CRM_ERP_UNID.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_ERP_UNID.Modules;
 
 public class InventoryQueryService(
-    IGenericService<Inventory> _genericService
+    IGenericService<Inventory> _genericService,
+    IInventoryRepository _inventoryRepository
     ) : IInventoryQueryService
 {
     public async Task<Inventory> GetByIdThrowsNotFoundAsync(Guid id)
@@ -13,19 +16,36 @@ public class InventoryQueryService(
         return await _genericService.GetByIdThrowsNotFoundAsync(id, query => query.Include(i => i.Product));
     }
     
-    public async Task<Inventory> GetByProductIdThrowsNotFoundAsync(Guid productId)
+    public async Task<Inventory> GetByProductIdInBranchIdThrowsNotFound(Guid productId, Guid branchId)
     {
-        return await _genericService.GetFirstThrowsNotFoundAsync(i => i.ProductId, productId, query => query.Include(i => i.Product));
+        Inventory? inventory = await _inventoryRepository.GetByProductIdInBranchId(productId, branchId);
+        
+        if (inventory == null)
+            throw new NotFoundException("Product not found", Fields.InventoryFields.ProductId);
+        
+        return inventory;
     }
     
     public async Task<GetAllResponseDto<Inventory>> GetAll(GetAllDto getAllDto)
     {
-        return await _genericService.GetAllAsync(getAllDto, query => query.Include(i => i.Product));
+        return await _genericService.GetAllAsync(getAllDto);
     }
     
-    public async Task<bool> ExistsByProductId(Guid productId)
+    public async Task<bool> ExistProductInBranch(Guid productId, Guid branchId)
     {
-        return await _genericService.ExistsAsync(i => i.ProductId, productId);
+        return await _inventoryRepository.ExistProductInBranch(productId, branchId);
+    }
+    
+    public async Task<bool> ExistProductInBranchThrowsUniqueConstraintViolation(Guid productId, Guid branchId)
+    {
+        bool exists = await ExistProductInBranch(productId, branchId);
+
+        if (!exists)
+        {
+            throw new UniqueConstraintViolationException("This product already exists in the inventory", Fields.InventoryFields.ProductId);   
+        }
+        
+        return exists;
     }
 }
 

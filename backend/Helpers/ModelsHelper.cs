@@ -15,6 +15,9 @@ public static class ModelsHelper
             var newValue = dtoProperty.GetValue(dto);
             if (newValue == null) continue;
 
+            if (dtoProperty.PropertyType == typeof(Guid) && (Guid)newValue == Guid.Empty)
+                continue;
+
             var modelProperty = typeof(TModel).GetProperty(dtoProperty.Name);
             if (modelProperty == null) continue;
 

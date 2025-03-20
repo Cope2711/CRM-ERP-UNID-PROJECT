@@ -9,4 +9,5 @@ public interface IBranchesQueryService
     Task<Branch> GetByNameThrowsNotFoundAsync(string name);
     Task<GetAllResponseDto<Branch>> GetAll(GetAllDto getAllDto);
     Task<bool> ExistByName(string name);
+    Task<bool> ExistsByIdThrowsNotFound(Guid id);
 }

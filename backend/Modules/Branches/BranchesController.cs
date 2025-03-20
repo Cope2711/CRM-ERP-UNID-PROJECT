@@ -10,7 +10,7 @@ namespace CRM_ERP_UNID.Modules;
 [ApiController]
 [Authorize]
 [Route("api/branches")]
-public class BranchesController(
+public class Branches(
     IBranchesQueryService _branchesQueryService,
     IBranchesManagementService _branchesManagementService
 ) : ControllerBase  

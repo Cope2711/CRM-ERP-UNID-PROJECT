@@ -8,13 +8,13 @@ using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
 [Collection("Tests")]
-public class BranchesControllerTests
+public class BranchesTests
     : IClassFixture<CustomWebApiFactory>
 {
     private readonly HttpClient _client;
     private static readonly string Endpoint = "/api/branches";
 
-    public BranchesControllerTests(CustomWebApiFactory factory)
+    public BranchesTests(CustomWebApiFactory factory)
     {
         _client = factory.CreateClientWithBearerToken();
     }
@@ -28,12 +28,12 @@ public class BranchesControllerTests
                 {
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.BranchesController.HermosilloMiguelHidalgo.BranchName,
+                        ValidValue = Models.Branches.HermosilloMiguelHidalgo.BranchName,
                         FieldName = "name"
                     },
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.BranchesController.HermosilloMiguelHidalgo.BranchId.ToString(),
+                        ValidValue = Models.Branches.HermosilloMiguelHidalgo.BranchId.ToString(),
                         FieldName = "id"
                     }
                 }
@@ -42,7 +42,7 @@ public class BranchesControllerTests
         }
     }
     
-    public class CreateBranchesTests : BranchesControllerTests
+    public class CreateBranchesTests : BranchesTests
     {
         public CreateBranchesTests(CustomWebApiFactory factory) : base(factory)
         {
@@ -66,7 +66,7 @@ public class BranchesControllerTests
             {
                 new CreateBranchDto
                 {
-                    BranchName = Models.BranchesController.HermosilloMiguelHidalgo.BranchName,
+                    BranchName = Models.Branches.HermosilloMiguelHidalgo.BranchName,
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
                     BranchPhone = "666666666",
                     IsActive = false
@@ -85,7 +85,7 @@ public class BranchesControllerTests
         }
     }
     
-    public class UpdateBranchTests : BranchesControllerTests
+    public class UpdateBranchTests : BranchesTests
     {
         public UpdateBranchTests(CustomWebApiFactory factory) : base(factory)
         {
@@ -97,7 +97,7 @@ public class BranchesControllerTests
             {
                 new UpdateBranchDto
                 {
-                    BranchId = Models.BranchesController.HermosilloMiguelHidalgo.BranchId,
+                    BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId,
                     BranchName = "Olivares de la Frontera",
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
                     BranchPhone = "666666666",
@@ -110,8 +110,8 @@ public class BranchesControllerTests
             {
                 new UpdateBranchDto
                 {
-                    BranchId = Models.BranchesController.HermosilloMiguelHidalgo.BranchId,
-                    BranchName = Models.BranchesController.CampoReal.BranchName,
+                    BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId,
+                    BranchName = Models.Branches.CampoReal.BranchName,
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
                     BranchPhone = "666666666",
                     IsActive = true
@@ -124,7 +124,7 @@ public class BranchesControllerTests
                 new UpdateBranchDto
                 {
                     BranchId = Guid.NewGuid(),
-                    BranchName = Models.BranchesController.CampoReal.BranchName,
+                    BranchName = Models.Branches.CampoReal.BranchName,
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
                     BranchPhone = "666666666",
                     IsActive = true

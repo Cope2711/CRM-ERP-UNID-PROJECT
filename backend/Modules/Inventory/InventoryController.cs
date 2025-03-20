@@ -26,9 +26,9 @@ public class InventoryController(
     
     [HttpGet("get-by-productId")]
     [PermissionAuthorize("View", "Inventory")]
-    public async Task<ActionResult<InventoryDto>> GetInventoryByProductId([FromQuery] Guid productId)
+    public async Task<ActionResult<InventoryDto>> GetInventoryByProductId([FromQuery] Guid productId, [FromQuery] Guid branchId)
     {
-        Inventory inventory = await _inventoryQueryService.GetByProductIdThrowsNotFoundAsync(productId);
+        Inventory inventory = await _inventoryQueryService.GetByProductIdInBranchIdThrowsNotFound(productId, branchId);
 
         return Ok(inventory.ToDto());
     }

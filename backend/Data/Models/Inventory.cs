@@ -9,16 +9,14 @@ public class Inventory
 {
     [Key]
     public Guid InventoryId { get; set; }
-    
-    public Guid ProductId { get; set; }
-    
-    public int Quantity { get; set; }
-    public bool IsActive { get; set; }
-    
+    public required Guid ProductId { get; set; }
+    public required Guid BranchId { get; set; }
+    public required int Quantity { get; set; }
+    public required bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime UpdatedDate { get; set; }
-    
     public Product? Product { get; set; }
+    public Branch? Branch { get; set; }
 }
 
 public static class InventoryExtensions
