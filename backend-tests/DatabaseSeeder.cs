@@ -96,19 +96,21 @@ public class DatabaseSeeder
             Models.Products.NikeAirMax270,
             Models.Products.NikeZoomX,
             Models.Products.NikeDriFitTShirt);
-        context.Inventory.AddRange(
-            Models.InventoryModels.iPhone13Inventory,
-            Models.InventoryModels.MacBookProInventory,
-            Models.InventoryModels.iPadProInventory,
-            Models.InventoryModels.GalaxyS21Inventory,
-            Models.InventoryModels.GalaxyTabS7Inventory,
-            Models.InventoryModels.SamsungQLEDTVInventory,
-            Models.InventoryModels.NikeAirMax270Inventory,
-            Models.InventoryModels.NikeZoomXInventory);
         context.Branches.AddRange(
-            Models.BranchesController.HermosilloMiguelHidalgo,
-            Models.BranchesController.CampoReal,
-            Models.BranchesController.PuertoRico);
+            Models.Branches.HermosilloMiguelHidalgo,
+            Models.Branches.CampoReal,
+            Models.Branches.PuertoRico);
+        context.Inventory.AddRange(
+            Models.InventoryModels.iPhone13InventoryHermosillo,
+            Models.InventoryModels.MacBookProInventoryHermosillo,
+            Models.InventoryModels.iPadProInventoryHermosillo,
+            Models.InventoryModels.GalaxyS21InventoryHermosillo,
+            Models.InventoryModels.iPadProInventoryCampoReal,
+            Models.InventoryModels.GalaxyS21InventoryCampoReal,
+            Models.InventoryModels.GalaxyTabS7InventoryCampoReal,
+            Models.InventoryModels.SamsungQLEDTVInventoryCampoReal,
+            Models.InventoryModels.NikeAirMax270InventoryCampoReal,
+            Models.InventoryModels.NikeZoomXInventoryCampoReal);
 
     context.SaveChanges();
     }

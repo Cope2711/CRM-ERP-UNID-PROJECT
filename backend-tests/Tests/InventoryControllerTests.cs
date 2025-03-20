@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using CRM_ERP_UNID_TESTS;
-using CRM_ERP_UNID_TESTS.Dtos;
-using CRM_ERP_UNID_TESTS.TestsBase;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -16,30 +14,79 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
     {
         _client = factory.CreateClientWithBearerToken();
     }
-    
-    public class GetInventoryByTests : GetByTestsBase, IClassFixture<CustomWebApiFactory>
+
+    public class GetByIdTests : InventoryControllerTests
     {
-        public GetInventoryByTests(CustomWebApiFactory factory) :
-            base(factory.CreateClientWithBearerToken(), $"{Endpoint}/get-by", new DoubleBasicStructuresDto
-            {
-                DoubleBasicStructureDtos = new List<DoubleBasicStructureDto>
-                {
-                    new DoubleBasicStructureDto
-                    {
-                        ValidValue = Models.InventoryModels.iPhone13Inventory.ProductId.ToString(),
-                        FieldName = "productId"
-                    },
-                    new DoubleBasicStructureDto
-                    {
-                        ValidValue = Models.InventoryModels.iPhone13Inventory.InventoryId.ToString(),
-                        FieldName = "id"
-                    }
-                }
-            })
+        public GetByIdTests(CustomWebApiFactory factory) : base(factory)
         {
         }
+
+        public static IEnumerable<object[]> GetByIdTestData()
+        {
+            yield return new object[]
+            {
+                Models.InventoryModels.iPhone13InventoryHermosillo.InventoryId,
+                HttpStatusCode.OK
+            };
+
+            yield return new object[]
+            {
+                Guid.NewGuid(),
+                HttpStatusCode.NotFound
+            };
+        }
+
+        [Theory]
+        [MemberData(nameof(GetByIdTestData))]
+        public async Task GetById_ReturnsExpectedResult(Guid id,
+            HttpStatusCode expectedStatusCode)
+        {
+            var response = await _client.GetAsync($"{Endpoint}/get-by-id?id={id}");
+            response.StatusCode.Should().Be(expectedStatusCode);
+        }
     }
-    
+
+    public class GetByProductIdInBranchIdTests : InventoryControllerTests
+    {
+        public GetByProductIdInBranchIdTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
+
+        public static IEnumerable<object[]> GetByProductIdInBranchIdTestData()
+        {
+            yield return new object[]
+            {
+                Models.InventoryModels.iPhone13InventoryHermosillo.ProductId,
+                Models.InventoryModels.iPhone13InventoryHermosillo.BranchId,
+                HttpStatusCode.OK
+            };
+
+            yield return new object[]
+            {
+                Models.InventoryModels.iPhone13InventoryHermosillo.ProductId,
+                Guid.NewGuid(),
+                HttpStatusCode.NotFound
+            };
+
+            yield return new object[]
+            {
+                Guid.NewGuid(),
+                Models.InventoryModels.iPhone13InventoryHermosillo.BranchId,
+                HttpStatusCode.NotFound
+            };
+        }
+
+        [Theory]
+        [MemberData(nameof(GetByProductIdInBranchIdTestData))]
+        public async Task GetByProductIdInBranchId_ReturnsExpectedResult(Guid productId, Guid branchId,
+            HttpStatusCode expectedStatusCode)
+        {
+            var response =
+                await _client.GetAsync($"{Endpoint}/get-by-productId?productId={productId}&branchId={branchId}");
+            response.StatusCode.Should().Be(expectedStatusCode);
+        }
+    }
+
     public class UpdateInventoryTests : InventoryControllerTests
     {
         public UpdateInventoryTests(CustomWebApiFactory factory) : base(factory)
@@ -52,10 +99,8 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new UpdateInventoryDto
                 {
-                    InventoryId = Models.InventoryModels.iPhone13Inventory.InventoryId,
-                    ProductId = Models.InventoryModels.iPhone13Inventory.ProductId,
+                    InventoryId = Models.InventoryModels.iPhone13InventoryHermosillo.InventoryId,
                     Quantity = 20,
-                    IsActive = true
                 },
                 HttpStatusCode.OK
             };
@@ -65,21 +110,29 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new UpdateInventoryDto
                 {
-                    InventoryId = Models.InventoryModels.GalaxyS21Inventory.InventoryId,
-                    ProductId = Models.Products.iPhone13.ProductId,
-                    Quantity = 20,
-                    IsActive = true
+                    InventoryId = Models.InventoryModels.iPhone13InventoryHermosillo.InventoryId,
+                    ProductId = Models.InventoryModels.GalaxyS21InventoryHermosillo.ProductId,
                 },
                 HttpStatusCode.Conflict
             };
-            
+
+            // Returns Conflict for the BranchID
+            yield return new object[]
+            {
+                new UpdateInventoryDto
+                {
+                    InventoryId = Models.InventoryModels.iPadProInventoryHermosillo.InventoryId,
+                    BranchId = Models.InventoryModels.iPadProInventoryCampoReal.BranchId,
+                },
+                HttpStatusCode.Conflict
+            };
+
             // Returns NotFound for the InventoryId
             yield return new object[]
             {
                 new UpdateInventoryDto
                 {
                     InventoryId = Guid.NewGuid(),
-                    ProductId = Models.InventoryModels.iPhone13Inventory.ProductId,
                     Quantity = 20,
                     IsActive = true
                 },
@@ -97,7 +150,7 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
         }
     }
 
-        public class CreateInventoryTests : InventoryControllerTests
+    public class CreateInventoryTests : InventoryControllerTests
     {
         public CreateInventoryTests(CustomWebApiFactory factory) : base(factory)
         {
@@ -110,7 +163,8 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
                 new CreateInventoryDto
                 {
                     ProductId = Models.Products.NikeDriFitTShirt.ProductId,
-                    Quantity = 10,
+                    BranchId = Models.Branches.PuertoRico.BranchId,
+                    Quantity = 1,
                     IsActive = true
                 },
                 HttpStatusCode.OK
@@ -121,7 +175,21 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new CreateInventoryDto
                 {
-                    ProductId = Models.InventoryModels.iPhone13Inventory.ProductId,
+                    ProductId = Models.InventoryModels.iPhone13InventoryHermosillo.ProductId,
+                    BranchId = Models.InventoryModels.iPhone13InventoryHermosillo.BranchId,
+                    Quantity = 5,
+                    IsActive = false
+                },
+                HttpStatusCode.Conflict
+            };
+
+            // Returns Conflict for the BranchID
+            yield return new object[]
+            {
+                new CreateInventoryDto
+                {
+                    ProductId = Models.Products.iPadPro.ProductId,
+                    BranchId = Models.InventoryModels.iPadProInventoryCampoReal.BranchId,
                     Quantity = 10,
                     IsActive = true
                 },

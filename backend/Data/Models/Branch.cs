@@ -18,12 +18,12 @@ public class Branch
     [StringLength(255)]
     public required string BranchAddress { get; set; }
     
-    [Required]
     [StringLength(20)]
-    public required string BranchPhone { get; set; }
+    public string? BranchPhone { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime UpdatedDate { get; set; }
+    public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
 }
 
 public static class BranchExtensions

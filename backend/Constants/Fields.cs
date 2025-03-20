@@ -4,7 +4,7 @@ namespace CRM_ERP_UNID.Constants;
 
 public static class Fields
 {
-    public static class BranchesController
+    public static class Branches
     {
         public const string BranchId = nameof(Branch.BranchId);
         public const string BranchName = nameof(Branch.BranchName);

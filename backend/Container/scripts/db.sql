@@ -26,9 +26,9 @@ IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'erp_user')
     END
 GO
 
+DROP TABLE IF EXISTS Inventory;
 DROP TABLE IF EXISTS Branches;
 DROP TABLE IF EXISTS Products;
-DROP TABLE IF EXISTS Inventory;
 DROP TABLE IF EXISTS Brands;
 DROP TABLE IF EXISTS UsersRoles;
 DROP TABLE IF EXISTS Users;
@@ -80,12 +80,15 @@ CREATE TABLE Inventory
 (
     InventoryId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
     ProductId UNIQUEIDENTIFIER NOT NULL,
+    BranchId UNIQUEIDENTIFIER NOT NULL,
     Quantity INT NOT NULL,
     IsActive BIT NOT NULL DEFAULT 1,
     CreatedDate DATETIME DEFAULT GETDATE(),
-    UpdatedDate DATETIME DEFAULT GETDATE()
-        CONSTRAINT FK_Inventory_Products FOREIGN KEY (ProductId)
-            REFERENCES Products (ProductId) ON DELETE CASCADE
+    UpdatedDate DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_Inventory_Products FOREIGN KEY (ProductId)
+        REFERENCES Products (ProductId) ON DELETE CASCADE,
+    CONSTRAINT FK_Inventory_Branches FOREIGN KEY (BranchId)
+        REFERENCES Branches (BranchId) ON DELETE CASCADE 
 );
 
 CREATE TABLE Users
@@ -327,29 +330,6 @@ VALUES
     (@ProductId_NikeZoomX, 'Nike ZoomX Vaporfly Next%', 250.00, 'High-performance running shoes', 1, @BrandId_Nike),
     (@ProductId_NikeDriFitTShirt, 'Nike Dri-FIT T-shirt', 30.00, 'Breathable athletic shirt', 1, @BrandId_Nike);
 
--- Insertar ejemplos de inventario
-DECLARE @InventoryId_iPhone13 UNIQUEIDENTIFIER = 'a1f2e9ca-c431-4e79-aa8a-bb1cbbc5e052';
-DECLARE @InventoryId_MacBookPro UNIQUEIDENTIFIER = '6a0e1a69-bdc2-435e-8593-3f1fb792fae3';
-DECLARE @InventoryId_iPadPro UNIQUEIDENTIFIER = '822c5560-71a2-4641-902f-b35d7b7c77a8';
-DECLARE @InventoryId_GalaxyS21 UNIQUEIDENTIFIER = '39ecd16c-be8d-4699-afc1-e6283fd668fc';
-DECLARE @InventoryId_GalaxyTabS7 UNIQUEIDENTIFIER = '8467ee64-c785-4106-8073-22ddbd891c9c';
-DECLARE @InventoryId_SamsungQLEDTV UNIQUEIDENTIFIER = '922e4874-a46f-452f-8f61-46d87ddd8b06';
-DECLARE @InventoryId_NikeAirMax270 UNIQUEIDENTIFIER = '71b94117-8ba4-40bb-bd6f-53965ad9edc2';
-DECLARE @InventoryId_NikeZoomX UNIQUEIDENTIFIER = 'b11b2d59-00bc-49c0-90e4-fc599a04a0d0';
-DECLARE @InventoryId_NikeDriFitTShirt UNIQUEIDENTIFIER = '97b6bf38-c0c2-424f-a5b8-574be522502a';
-
-INSERT INTO Inventory (InventoryID, ProductID, Quantity, CreatedDate, UpdatedDate)
-VALUES
-    (@InventoryId_iPhone13, @ProductId_iPhone13, 10, GETUTCDATE(), GETUTCDATE()),
-    (@InventoryId_MacBookPro, @ProductId_MacBookPro, 20, GETUTCDATE(), GETUTCDATE()),
-    (@InventoryId_iPadPro, @ProductId_iPadPro, 30, GETUTCDATE(), GETUTCDATE()),
-    (@InventoryId_GalaxyS21, @ProductId_GalaxyS21, 40, GETUTCDATE(), GETUTCDATE()),
-    (@InventoryId_GalaxyTabS7, @ProductId_GalaxyTabS7, 50, GETUTCDATE(), GETUTCDATE()),
-    (@InventoryId_SamsungQLEDTV, @ProductId_SamsungQLEDTV, 60, GETUTCDATE(), GETUTCDATE()),
-    (@InventoryId_NikeAirMax270, @ProductId_NikeAirMax270, 70, GETUTCDATE(), GETUTCDATE()),
-    (@InventoryId_NikeZoomX, @ProductId_NikeZoomX, 80, GETUTCDATE(), GETUTCDATE()),
-    (@InventoryId_NikeDriFitTShirt, @ProductId_NikeDriFitTShirt, 90, GETUTCDATE(), GETUTCDATE());
-
 -- Insertar ejemplos de sucursales
 DECLARE @BranchId_HermosilloMiguelHidalgo UNIQUEIDENTIFIER = '4bf33a98-874d-4673-98bb-b958ddc68c94';
 DECLARE @BranchId_CampoReal UNIQUEIDENTIFIER = 'b0821f0a-20ab-4f64-8c00-5b95d331a836';
@@ -359,7 +339,34 @@ INSERT INTO Branches (BranchId, BranchName, BranchAddress, BranchPhone, IsActive
 VALUES
     (@BranchId_HermosilloMiguelHidalgo, 'Hermosillo Miguel Hidalgo', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1),
     (@BranchId_CampoReal, 'Campo Real', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1),
-    (@BranchId_PuertoRico, 'Puerto Rico', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1);
+    (@BranchId_PuertoRico, 'Puerto Rico', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1); 
+
+-- Insertar ejemplos de inventario
+DECLARE @InventoryId_iPhone13Hermosillo UNIQUEIDENTIFIER = '3674ad48-1d4c-4492-b21e-a4263237f26f';
+DECLARE @InventoryId_MacBookProHermosillo UNIQUEIDENTIFIER = '5034a408-399e-4d0b-ade4-ff6157a2381a';
+DECLARE @InventoryId_iPadProHermosillo UNIQUEIDENTIFIER = 'b6ca588f-21c1-46b5-980d-79c10c074fb6';
+DECLARE @InventoryId_GalaxyS21Hermosillo UNIQUEIDENTIFIER = 'f0e79d04-a71c-4f98-b789-bb957a6d8bba';
+DECLARE @InventoryId_iPadProCampoReal UNIQUEIDENTIFIER = 'da8aabc1-fa09-43c0-8e27-17f1d839b653';
+DECLARE @InventoryId_GalaxyS21CampoReal UNIQUEIDENTIFIER = '9ca54354-1744-4a2d-b4d8-3d1baddd74d7';
+DECLARE @InventoryId_GalaxyTabS7CampoReal UNIQUEIDENTIFIER = '702949c9-bdd5-4720-96e4-f8593f9b7bc7';
+DECLARE @InventoryId_SamsungQLEDTVCampoReal UNIQUEIDENTIFIER = 'a5f0e332-e494-438c-8507-13e2e6f987d9';
+DECLARE @InventoryId_NikeAirMax270CampoReal UNIQUEIDENTIFIER = 'c90f6718-aace-4aa8-8d17-546c287980c2';
+DECLARE @InventoryId_NikeZoomXCampoReal UNIQUEIDENTIFIER = 'b857ab9e-5a6c-45c5-bfa9-100db2ac3d7f';
+DECLARE @InventoryId_NikeDriFitTShirtCampoReal UNIQUEIDENTIFIER = '695fad36-e817-4383-bea4-8ca68ae7b719';
+
+INSERT INTO Inventory (InventoryID, ProductID, BranchId, Quantity, CreatedDate, UpdatedDate)
+VALUES
+    (@InventoryId_iPhone13Hermosillo, @ProductId_iPhone13, @BranchId_HermosilloMiguelHidalgo, 10, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_MacBookProHermosillo, @ProductId_MacBookPro, @BranchId_HermosilloMiguelHidalgo, 20, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_iPadProHermosillo, @ProductId_iPadPro, @BranchId_HermosilloMiguelHidalgo, 30, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_GalaxyS21Hermosillo, @ProductId_GalaxyS21, @BranchId_HermosilloMiguelHidalgo, 40, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_iPadProCampoReal, @ProductId_iPadPro, @BranchId_CampoReal, 30, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_GalaxyS21CampoReal, @ProductId_GalaxyS21, @BranchId_CampoReal, 40, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_GalaxyTabS7CampoReal, @ProductId_GalaxyTabS7, @BranchId_CampoReal, 50, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_SamsungQLEDTVCampoReal, @ProductId_SamsungQLEDTV, @BranchId_CampoReal, 60, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_NikeAirMax270CampoReal, @ProductId_NikeAirMax270, @BranchId_CampoReal, 70, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_NikeZoomXCampoReal, @ProductId_NikeZoomX, @BranchId_CampoReal, 80, GETUTCDATE(), GETUTCDATE()),
+    (@InventoryId_NikeDriFitTShirtCampoReal, @ProductId_NikeDriFitTShirt, @BranchId_CampoReal, 90, GETUTCDATE(), GETUTCDATE());
 
 -- Consultas para verificar la inserción de datos
 SELECT *
