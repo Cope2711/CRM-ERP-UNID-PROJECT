@@ -104,6 +104,18 @@ CREATE TABLE Users
     UpdatedDate   DATETIME         DEFAULT GETDATE(),
 );
 
+CREATE TABLE UsersBranches
+(
+    UserBranchId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    UserId UNIQUEIDENTIFIER NOT NULL,
+    BranchId UNIQUEIDENTIFIER NOT NULL,
+    CONSTRAINT FK_UsersBranches_Users FOREIGN KEY (UserId)
+        REFERENCES Users (UserId) ON DELETE CASCADE,
+    CONSTRAINT FK_UsersBranches_Branches FOREIGN KEY (BranchId)
+        REFERENCES Branches (BranchId) ON DELETE CASCADE,
+    CONSTRAINT UQ_UsersBranches UNIQUE (UserId, BranchId)
+);
+
 CREATE TABLE TestTable
 (
     TestTableID   UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -200,6 +212,18 @@ VALUES (@UserId_Admin, 'admin', 'Admin', 'User', 'admin@admin.com',
        (@UserId_TestDeactivated, 'test-user-deactivated', 'TestDeactivated', 'User', 'test-user-deactivated@test.com',
         '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 0)
 
+-- Insertar ejemplos de sucursales
+DECLARE @BranchId_HermosilloMiguelHidalgo UNIQUEIDENTIFIER = '4bf33a98-874d-4673-98bb-b958ddc68c94';
+DECLARE @BranchId_CampoReal UNIQUEIDENTIFIER = 'b0821f0a-20ab-4f64-8c00-5b95d331a836';
+DECLARE @BranchId_PuertoRico UNIQUEIDENTIFIER = 'b3a28df0-fd7d-405e-9820-3d0f137a9ff9';
+
+INSERT INTO Branches (BranchId, BranchName, BranchAddress, BranchPhone, IsActive)
+VALUES
+    (@BranchId_HermosilloMiguelHidalgo, 'Hermosillo Miguel Hidalgo', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1),
+    (@BranchId_CampoReal, 'Campo Real', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1),
+    (@BranchId_PuertoRico, 'Puerto Rico', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1);
+
+
 -- Insertar UsersRoles
 DECLARE @UserRoleId_Admin UNIQUEIDENTIFIER = '842193b4-5048-4cd9-be60-b7ca34319286';
 DECLARE @UserRoleId_Test UNIQUEIDENTIFIER = 'fe904dcf-eeb1-4a71-a229-71185cc15453';
@@ -209,6 +233,17 @@ INSERT INTO UsersRoles (UserRoleId, UserId, RoleId)
 VALUES (@UserRoleId_Admin, @UserId_Admin, @RoleId_Admin),
        (@UserRoleId_Test, @UserId_Test, @RoleId_User),
        (@UserRoleId_TestDeactivated, @UserId_TestDeactivated, @RoleId_User)
+
+-- Insertar UsersBranches
+DECLARE @UserBranchId_AdminHermosillo UNIQUEIDENTIFIER = 'bd4e931d-09bd-42c2-9249-ccf22533136d';
+DECLARE @UserBranchId_AdminCampoReal UNIQUEIDENTIFIER = 'd6759449-fe42-4fff-ab94-38c575fcaa8c';
+DECLARE @UserBranchId_TestHermosillo UNIQUEIDENTIFIER = '7f26e050-0e3a-4b3e-90bd-8db17ee012cf';
+
+INSERT INTO UsersBranches (UserBranchId, UserId, BranchId)
+VALUES
+    (@UserBranchId_AdminHermosillo, @UserId_Admin, @BranchId_HermosilloMiguelHidalgo),
+    (@UserBranchId_AdminCampoReal, @UserId_Admin, @BranchId_CampoReal),
+    (@UserBranchId_TestHermosillo, @UserId_Test, @BranchId_HermosilloMiguelHidalgo)
 
 -- Insertar Permisos
 DECLARE @PermissionId_View UNIQUEIDENTIFIER = '7521ffd2-80e6-4970-8ab3-0d454a377d22';
@@ -222,6 +257,8 @@ DECLARE @PermissionId_RevokePermission UNIQUEIDENTIFIER = '9037e10c-38ea-40a6-b3
 DECLARE @PermissionId_Delete UNIQUEIDENTIFIER = '722399bc-76f4-4bfa-950d-85e8b93f7af5';
 DECLARE @PermissionId_DeactivateUser UNIQUEIDENTIFIER = '10d321bd-b667-40c9-adb0-50e62d37c4cc';
 DECLARE @PermissionId_ActivateUser UNIQUEIDENTIFIER = 'a43b1178-931e-4eed-9742-30af024ec05b';
+DECLARE @PermissionId_AssignBranch UNIQUEIDENTIFIER = 'dfbd5729-c8a9-4474-acab-766893ae82f9';
+DECLARE @PermissionId_RevokeBranch UNIQUEIDENTIFIER = '083daf3a-fb59-4714-83f0-fc2bcd0f1374';
 
 INSERT INTO Permissions (PermissionId, PermissionName, PermissionDescription)
 VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
@@ -234,7 +271,9 @@ VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
        (@PermissionId_RevokePermission, 'Revoke_Permission', 'Revoke permission to role'),
        (@PermissionId_Delete, 'Delete', 'Delete objects'),
        (@PermissionId_DeactivateUser, 'Deactivate_User', 'Deactivate user'),
-        (@PermissionId_ActivateUser, 'Activate_User', 'Activate user')
+        (@PermissionId_ActivateUser, 'Activate_User', 'Activate user'),
+        (@PermissionId_AssignBranch, 'Assign_Branch', 'Assign branch to user'),
+        (@PermissionId_RevokeBranch, 'Revoke_Branch', 'Revoke branch to user')
 
 -- Insertar Recursos
 DECLARE @ResourceId_Users UNIQUEIDENTIFIER = 'd161ec8c-7c31-4eb4-a331-82ef9e45903e';
@@ -247,6 +286,7 @@ DECLARE @ResourceId_Products UNIQUEIDENTIFIER = '6e62f20f-39ca-4a21-a52d-126c59c
 DECLARE @ResourceId_Brands UNIQUEIDENTIFIER = '708eb498-6ad5-447c-ba76-13cba1f08dc7';
 DECLARE @ResourceId_Inventory UNIQUEIDENTIFIER = 'b0f8c2e0-f5a1-4a3e-b5e5-c4e8f0f9c7b7';
 DECLARE @ResourceId_Branches UNIQUEIDENTIFIER = '55dc724f-a1aa-4d73-a7ed-5bef93b72be9';
+DECLARE @ResourceId_UsersBranches UNIQUEIDENTIFIER = 'ef53fcb2-2e6f-4104-9b1d-7c5164851b3e';
 
 INSERT INTO Resources (ResourceId, ResourceName, ResourceDescription)
 VALUES (@ResourceId_Users, 'Users', 'Users module'),
@@ -258,7 +298,8 @@ VALUES (@ResourceId_Users, 'Users', 'Users module'),
        (@ResourceId_Products, 'Products', 'Products module'),
        (@ResourceId_Brands, 'Brands', 'Brands module'),
        (@ResourceId_Inventory, 'Inventory', 'Inventory module'),
-       (@ResourceId_Branches, 'Branches', 'Branches module')
+       (@ResourceId_Branches, 'Branches', 'Branches module'),
+       (@ResourceId_UsersBranches, 'UsersBranches', 'Users branches module')
 
 -- Insertar Permisos a los Roles
 INSERT INTO RolesPermissionsResources (RolePermissionId, RoleId, PermissionId, ResourceId)
@@ -294,7 +335,10 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Inventory),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Branches),
        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Branches),
-       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Branches)
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Branches),
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_UsersBranches),
+       (NEWID(), @RoleId_Admin, @PermissionId_AssignBranch, NULL),
+       (NEWID(), @RoleId_Admin, @PermissionId_RevokeBranch, NULL)
 
 -- Insertar ejemplos de marcas
 DECLARE @BrandId_Apple UNIQUEIDENTIFIER = 'c3146b6f-b50f-4b26-8e77-827fc538b7d1';
@@ -329,17 +373,6 @@ VALUES
     (@ProductId_NikeAirMax270, 'Nike Air Max 270', 120.00, 'Comfortable running shoes', 1, @BrandId_Nike),
     (@ProductId_NikeZoomX, 'Nike ZoomX Vaporfly Next%', 250.00, 'High-performance running shoes', 1, @BrandId_Nike),
     (@ProductId_NikeDriFitTShirt, 'Nike Dri-FIT T-shirt', 30.00, 'Breathable athletic shirt', 1, @BrandId_Nike);
-
--- Insertar ejemplos de sucursales
-DECLARE @BranchId_HermosilloMiguelHidalgo UNIQUEIDENTIFIER = '4bf33a98-874d-4673-98bb-b958ddc68c94';
-DECLARE @BranchId_CampoReal UNIQUEIDENTIFIER = 'b0821f0a-20ab-4f64-8c00-5b95d331a836';
-DECLARE @BranchId_PuertoRico UNIQUEIDENTIFIER = 'b3a28df0-fd7d-405e-9820-3d0f137a9ff9';
-
-INSERT INTO Branches (BranchId, BranchName, BranchAddress, BranchPhone, IsActive)
-VALUES
-    (@BranchId_HermosilloMiguelHidalgo, 'Hermosillo Miguel Hidalgo', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1),
-    (@BranchId_CampoReal, 'Campo Real', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1),
-    (@BranchId_PuertoRico, 'Puerto Rico', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1); 
 
 -- Insertar ejemplos de inventario
 DECLARE @InventoryId_iPhone13Hermosillo UNIQUEIDENTIFIER = '3674ad48-1d4c-4492-b21e-a4263237f26f';
@@ -387,3 +420,5 @@ Select *
 from Products;
 Select *
 from Branches;
+Select *
+from UsersBranches;

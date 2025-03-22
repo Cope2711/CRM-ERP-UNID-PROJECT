@@ -13,35 +13,31 @@ public interface IUsersRolesRepository
     Task<UserRole?> GetByUserIdAndRoleIdAsync(Guid userId, Guid roleId);
 }
 
-public class UsersRolesRepository : IUsersRolesRepository
+public class UsersRolesRepository(
+    AppDbContext _context
+) : IUsersRolesRepository
 {
-    private readonly AppDbContext _context;
-
-    public UsersRolesRepository(AppDbContext context)
-    {
-        _context = context;
-    }
-    
     public async Task<UserRole?> GetByUserIdAndRoleIdAsync(Guid userId, Guid roleId)
     {
-        return await this._context.UsersRoles.Include(ur => ur.User).Include(ur => ur.Role).FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+        return await _context.UsersRoles.Include(ur => ur.User).Include(ur => ur.Role)
+            .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
     }
-    
+
     public void Add(UserRole userRole)
     {
-        this._context.UsersRoles.Add(userRole);
+        _context.UsersRoles.Add(userRole);
     }
 
     public async Task SaveChangesAsync()
     {
-        await this._context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
-    
+
     public async Task<bool> IsRoleAssignedToUserAsync(Guid userId, Guid roleId)
     {
-        return await this._context.UsersRoles.AnyAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+        return await _context.UsersRoles.AnyAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
     }
-    
+
     public void Remove(UserRole userRole)
     {
         _context.UsersRoles.Remove(userRole);

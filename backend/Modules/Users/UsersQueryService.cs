@@ -19,25 +19,47 @@ public class UsersQueryService(
     public async Task<User?> GetById(Guid id)
     {
         return await _genericService.GetById(id,
-            query => query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role));
+            query => query
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .Include(u => u.UsersBranches)
+                .ThenInclude(ub => ub.Branch));
     }
 
     public async Task<User> GetByIdThrowsNotFoundAsync(Guid id)
     {
         return await _genericService.GetByIdThrowsNotFoundAsync(id,
-            query => query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role));
+            query => query
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .Include(u => u.UsersBranches)
+                .ThenInclude(ub => ub.Branch));
     }
 
     public async Task<User?> GetByUserName(string userName)
     {
-        return await _genericService.GetFirstAsync(u => u.UserUserName, userName,
-            query => query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role));
+        return await _genericService.GetFirstAsync(
+            u => u.UserUserName, 
+            userName,
+            query => query
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .Include(u => u.UsersBranches)
+                .ThenInclude(ub => ub.Branch)
+        );
     }
 
     public async Task<User> GetByUserNameThrowsNotFound(string userName)
     {
-        return await _genericService.GetFirstThrowsNotFoundAsync(u => u.UserUserName, userName,
-            query => query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role));
+        return await _genericService.GetFirstThrowsNotFoundAsync(
+            u => u.UserUserName, 
+            userName,
+            query => query
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .Include(u => u.UsersBranches)
+                .ThenInclude(ub => ub.Branch)
+        );
     }
 
     public async Task<bool> ExistByIdThrowsNotFound(Guid id)
@@ -65,11 +87,27 @@ public class UsersQueryService(
 
     public async Task<User?> GetByEmail(string email)
     {
-        return await _genericService.GetFirstAsync(u => u.UserEmail, email);
+        return await _genericService.GetFirstAsync(
+            u => u.UserEmail, 
+            email,
+            query => query
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .Include(u => u.UsersBranches)
+                .ThenInclude(ub => ub.Branch)
+        );
     }
 
     public async Task<User> GetByEmailThrowsNotFoundAsync(string email)
     {
-        return await _genericService.GetFirstThrowsNotFoundAsync(u => u.UserEmail, email);
+        return await _genericService.GetFirstThrowsNotFoundAsync(
+            u => u.UserEmail, 
+            email,
+            query => query
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .Include(u => u.UsersBranches)
+                .ThenInclude(ub => ub.Branch)
+        );
     }
 }

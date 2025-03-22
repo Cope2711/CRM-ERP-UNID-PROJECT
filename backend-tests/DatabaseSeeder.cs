@@ -34,7 +34,9 @@ public class DatabaseSeeder
             Models.Permissions.RevokePermission,
             Models.Permissions.Delete,
             Models.Permissions.DeactivateUser,
-            Models.Permissions.ActivateUser);
+            Models.Permissions.ActivateUser,
+            Models.Permissions.AssignBranch,
+            Models.Permissions.RevokeBranch);
         context.Resources.AddRange(
             Models.Resources.Users,
             Models.Resources.Roles,
@@ -45,7 +47,8 @@ public class DatabaseSeeder
             Models.Resources.ProductsResource,
             Models.Resources.BrandsResource,
             Models.Resources.InventoryResource,
-            Models.Resources.BranchesResource);
+            Models.Resources.BranchesResource,
+            Models.Resources.UsersBranches);
         context.RolesPermissionsResources.AddRange(Models.RolesPermissionsResources.AdminViewUsers,
             Models.RolesPermissionsResources.AdminDeactivateUser,
             Models.RolesPermissionsResources.AdminEditContentUsers,
@@ -75,7 +78,10 @@ public class DatabaseSeeder
             Models.RolesPermissionsResources.AdminViewInventory,
             Models.RolesPermissionsResources.AdminViewBranches,
             Models.RolesPermissionsResources.AdminCreateBranches,
-            Models.RolesPermissionsResources.AdminEditBranches);
+            Models.RolesPermissionsResources.AdminEditBranches,
+            Models.RolesPermissionsResources.AdminAssignBranch,
+            Models.RolesPermissionsResources.AdminRevokeBranch,
+            Models.RolesPermissionsResources.AdminViewUsersBranches);
         context.RefreshTokens.AddRange(
             Models.RefreshTokens.TestUserRefreshTokenRevoked,
             Models.RefreshTokens.TestUserExpiredRefreshToken);
@@ -111,6 +117,11 @@ public class DatabaseSeeder
             Models.InventoryModels.SamsungQLEDTVInventoryCampoReal,
             Models.InventoryModels.NikeAirMax270InventoryCampoReal,
             Models.InventoryModels.NikeZoomXInventoryCampoReal);
+        context.UsersBranches.AddRange(
+            Models.UsersBranches.AdminUserBranchHermosillo,
+            Models.UsersBranches.TestUserBranchHermosillo,
+            Models.UsersBranches.HighestPriorityUserBranchHermosillo,
+            Models.UsersBranches.DeactivateHighestPriorityUserBranchHermosillo);
 
     context.SaveChanges();
     }

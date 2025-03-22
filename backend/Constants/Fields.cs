@@ -94,4 +94,10 @@ public static class Fields
         public const string Quantity = nameof(InventoryFields.Quantity);
         public const string IsActive = nameof(InventoryFields.IsActive);
     }
+    
+    public static class Examples
+    {
+        public const string ExampleId = nameof(Example.ExampleId);
+        public const string ExampleName = nameof(Example.ExampleName);
+    }
 }

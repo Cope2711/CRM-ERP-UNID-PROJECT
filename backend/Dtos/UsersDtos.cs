@@ -40,6 +40,7 @@ public class UserDto : RequiredBaseUserDto
     public Guid UserId { get; set; }
     public bool IsActive { get; set; }
     public List<RoleDto> Roles { get; set; } = new();
+    public List<BranchDto> Branches { get; set; } = new();
 }
 
 public class LoginUserDto

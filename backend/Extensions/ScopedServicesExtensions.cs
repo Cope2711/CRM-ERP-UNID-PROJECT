@@ -39,6 +39,9 @@ namespace CRM_ERP_UNID.Extensions
             services.AddScoped<IBranchesRepository, BranchesRepository>();
             services.AddScoped<IBranchesQueryService, BranchesQueryService>();
             services.AddScoped<IBranchesManagementService, BranchesManagementService>();
+            services.AddScoped<IUsersBranchesRepository, UsersBranchesRepository>();
+            services.AddScoped<IUsersBranchesQueryService, UsersBranchesQueryServices>();
+            services.AddScoped<IUsersBranchesManagementService, UsersBranchesManagementService>();
         }
     }
 }
