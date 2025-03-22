@@ -107,6 +107,20 @@ public static class Models
 
     public static class Permissions
     {
+        public static readonly Permission AssignBranch = new Permission
+        {
+            PermissionId = Guid.Parse("c0a1f2c4-a8c1-4e3c-b0c6-c8f4f5c3f7c7"),
+            PermissionName = "Assign_Branch",
+            PermissionDescription = "Ability to assign branch to user"
+        };
+        
+        public static readonly Permission RevokeBranch = new Permission
+        {
+            PermissionId = Guid.Parse("f0a1f2c4-a8c1-4e3c-b0c6-c8f4f5c3f7c7"),
+            PermissionName = "Revoke_Branch",
+            PermissionDescription = "Ability to revoke branch from user"
+        };
+        
         public static readonly Permission View = new Permission
         {
             PermissionId = Guid.Parse("7521ffd2-80e6-4970-8ab3-0d454a377d22"),
@@ -187,6 +201,13 @@ public static class Models
 
     public static class Resources
     {
+        public static readonly Resource UsersBranches = new Resource
+        {
+            ResourceId = Guid.Parse("d161ec8c-7c31-4eb4-a331-82ef9e45999e"),
+            ResourceName = "UsersBranches",
+            ResourceDescription = "Users branches module"
+        };
+        
         public static readonly Resource Users = new Resource
         {
             ResourceId = Guid.Parse("d161ec8c-7c31-4eb4-a331-82ef9e45903e"),
@@ -260,6 +281,28 @@ public static class Models
 
     public static class RolesPermissionsResources
     {
+        public static readonly RolePermissionResource AdminAssignBranch = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.AssignBranch.PermissionId
+        };
+        
+        public static readonly RolePermissionResource AdminRevokeBranch = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.RevokeBranch.PermissionId
+        };
+        
+        public static readonly RolePermissionResource AdminViewUsersBranches = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.View.PermissionId,
+            ResourceId = Resources.UsersBranches.ResourceId
+        };
+        
         public static readonly RolePermissionResource AdminViewBranches = new RolePermissionResource
         {
             RolePermissionId = Guid.NewGuid(),
@@ -807,6 +850,37 @@ public static class Models
            IsActive = true,
            CreatedDate = DateTime.UtcNow,
            UpdatedDate = DateTime.UtcNow
+       };
+   }
+
+   public static class UsersBranches
+   {
+       public static readonly UserBranch AdminUserBranchHermosillo = new UserBranch
+       {
+           UserBranchId = Guid.Parse("35eba27e-c5bc-470d-bcba-eb7dfeaaeb2d"),
+           UserId = Models.Users.Admin.UserId,
+           BranchId = Branches.HermosilloMiguelHidalgo.BranchId
+       };
+
+       public static readonly UserBranch TestUserBranchHermosillo = new UserBranch
+       {
+           UserBranchId = Guid.Parse("b25952ab-0b8d-4ba4-93aa-3a998bc0d434"),
+           UserId = Models.Users.TestUser.UserId,
+           BranchId = Branches.HermosilloMiguelHidalgo.BranchId
+       };
+
+       public static readonly UserBranch HighestPriorityUserBranchHermosillo = new UserBranch
+       {
+           UserBranchId = Guid.Parse("122a24ec-0b17-4e0d-a33c-ca2236183826"),
+           UserId = Models.Users.HighestPriorityUser.UserId,
+           BranchId = Branches.HermosilloMiguelHidalgo.BranchId
+       };
+
+       public static readonly UserBranch DeactivateHighestPriorityUserBranchHermosillo = new UserBranch
+       {
+           UserBranchId = Guid.Parse("85e90b4e-8773-477e-8c67-7ff6bcacb506"),
+           UserId = Models.Users.DeactivateHighestPriorityUser.UserId,
+           BranchId = Branches.HermosilloMiguelHidalgo.BranchId
        };
    }
 }

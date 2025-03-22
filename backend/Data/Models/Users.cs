@@ -12,28 +12,29 @@ public class User
     
     [Required]
     [MaxLength(50)]
-    public string UserUserName { get; set; }
+    public required string UserUserName { get; set; }
     
     [Required]
     [MaxLength(50)]
-    public string UserFirstName { get; set; }
+    public required string UserFirstName { get; set; }
     
     [Required]
     [MaxLength(50)]
 
-    public string UserLastName { get; set; }
+    public required string UserLastName { get; set; }
     
     [Required]
     [MaxLength(100)]
-    public string UserEmail { get; set; }
+    public required string UserEmail { get; set; }
     
     [Required]
     [MaxLength(255)]
-    public string UserPassword { get; set; }
+    public required string UserPassword { get; set; }
     
     [Required]
     public bool IsActive { get; set; }
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public ICollection<UserBranch> UsersBranches { get; set; } = new List<UserBranch>();
     
     public DateTime? CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; } 
@@ -55,6 +56,15 @@ public static class UserExtensions
                 RoleId = ur.RoleId,
                 RolePriority = ur.Role.RolePriority,
                 RoleName = ur.Role.RoleName
+            }).ToList(),
+            Branches = user.UsersBranches.Select(ub => new BranchDto{
+                BranchId = ub.BranchId,
+                BranchName = ub.Branch.BranchName,
+                BranchAddress = ub.Branch.BranchAddress,
+                BranchPhone = ub.Branch.BranchPhone,
+                IsActive = ub.Branch.IsActive,
+                CreatedDate = ub.Branch.CreatedDate,
+                UpdatedDate = ub.Branch.UpdatedDate
             }).ToList()
         };
     }

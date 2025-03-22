@@ -18,7 +18,7 @@ public class BranchDto
     
     [Required]
     [StringLength(20)]
-    public required string BranchPhone { get; set; }
+    public string? BranchPhone { get; set; }
     
     public required bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }

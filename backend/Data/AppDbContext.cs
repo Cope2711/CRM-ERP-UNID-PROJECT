@@ -21,4 +21,5 @@ public class AppDbContext : DbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<Inventory> Inventory { get; set; }
     public DbSet<Branch> Branches { get; set; }
+    public DbSet<UserBranch> UsersBranches { get; set; } 
 }
