@@ -14,7 +14,8 @@ public class UsersRolesService(
     ILogger<UsersRolesService> _logger,
     IHttpContextAccessor _httpContextAccessor,
     IPriorityValidationService _priorityValidationService,
-    IRolesQueryService _rolesQueryService
+    IRolesQueryService _rolesQueryService,
+    IUsersBranchesQueryService _usersBranchesQueryService
 ) : IUsersRolesService
 {
     public async Task<GetAllResponseDto<UserRole>> GetAllAsync(GetAllDto getAllDto)
@@ -53,13 +54,19 @@ public class UsersRolesService(
         foreach (UserAndRoleIdDto userAndRoleIdDto in usersAndRolesDto.UserAndRoleId)
         {
             UserRole? userRole = await GetByUserIdAndRoleId(userAndRoleIdDto.UserId, userAndRoleIdDto.RoleId);
-
+            
             if (userRole == null)
             {
                 AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotFound,
                     Fields.UsersRoles.UserRoleId, "Relation not exists"); continue;
             }
 
+            if (!await _usersBranchesQueryService.EnsureUserCanModifyUserNotThrows(authenticatedUserId, userAndRoleIdDto.UserId))
+            {
+                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.BranchNotMatched,
+                    Fields.Users.UserId, "Not have branch to revoke role to that user"); continue;
+            }
+            
             // User has enough priority to revoke this role from this user?
             Role role = await _rolesQueryService.GetByIdThrowsNotFoundAsync(userAndRoleIdDto.RoleId);
             if (!_priorityValidationService.ValidateRolePriority(role))
@@ -126,6 +133,12 @@ public class UsersRolesService(
             {
                 AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotFound,
                     Fields.Roles.RoleId, "Role not exist"); continue;
+            }
+            
+            if (!await _usersBranchesQueryService.EnsureUserCanModifyUserNotThrows(authenticatedUserId, userAndRoleIdDto.UserId))
+            {
+                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.BranchNotMatched,
+                    Fields.Users.UserId, "Not have branch to assign role to that user"); continue;
             }
             
             if (!_priorityValidationService.ValidateRolePriority(role))

@@ -16,13 +16,17 @@ public class DatabaseSeeder
             Models.Users.Admin,
             Models.Users.InactiveTestUser,
             Models.Users.TestUser,
+            Models.Users.TestUser2,
             Models.Users.HighestPriorityUser,
-            Models.Users.DeactivateHighestPriorityUser);
+            Models.Users.DeactivateHighestPriorityUser,
+            Models.Users.HighestPriorityUser2);
         context.UsersRoles.AddRange(
             Models.UsersRoles.AdminUserRoleAdmin,
             Models.UsersRoles.TestUserRoleUser,
             Models.UsersRoles.HighestPriorityUserRoleHighestPriority,
-            Models.UsersRoles.DeactivateHighestPriorityUserRoleHighestPriority);
+            Models.UsersRoles.DeactivateHighestPriorityUserRoleHighestPriority,
+            Models.UsersRoles.HighestPriorityUserRoleHighestPriority2,
+            Models.UsersRoles.TestUser2RoleUser);
         context.Permissions.AddRange(
             Models.Permissions.View,
             Models.Permissions.ViewReports,
@@ -121,7 +125,10 @@ public class DatabaseSeeder
             Models.UsersBranches.AdminUserBranchHermosillo,
             Models.UsersBranches.TestUserBranchHermosillo,
             Models.UsersBranches.HighestPriorityUserBranchHermosillo,
-            Models.UsersBranches.DeactivateHighestPriorityUserBranchHermosillo);
+            Models.UsersBranches.DeactivateHighestPriorityUserBranchHermosillo,
+            Models.UsersBranches.TestUser2BranchPuertoRico,
+            Models.UsersBranches.InactiveTestUserBranchHermosillo,
+            Models.UsersBranches.HighestPriorityUserBranchCampoReal);
 
     context.SaveChanges();
     }

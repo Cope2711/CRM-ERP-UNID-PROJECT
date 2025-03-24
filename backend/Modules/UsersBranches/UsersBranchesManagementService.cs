@@ -32,11 +32,17 @@ public class UsersBranchesManagementService(
                 AddFailedResponseDto(responseDto, userAndBranchIdDto, ResponseStatus.AlreadyProcessed,
                     Fields.Branches.BranchId, "User already assigned to branch"); continue;
             }
-
+            
             if (!await _branchesQueryService.ExistsById(userAndBranchIdDto.BranchId))
             {
                 AddFailedResponseDto(responseDto, userAndBranchIdDto, ResponseStatus.NotFound,
                     Fields.Branches.BranchId, "Branch not exist"); continue;
+            }
+            
+            if (!await _usersBranchesQueryService.EnsureUserHasAccessToBranchNotThrows(authenticatedUserId, userAndBranchIdDto.BranchId))
+            {
+                AddFailedResponseDto(responseDto, userAndBranchIdDto, ResponseStatus.BranchNotMatched,
+                    Fields.Branches.BranchId, "Not have the permissions to modify that user in that branch"); continue;
             }
             
             User? user = await _usersQueryService.GetById(userAndBranchIdDto.UserId);
@@ -95,6 +101,12 @@ public class UsersBranchesManagementService(
             {
                 AddFailedResponseDto(responseDto, userAndBranchIdDto, ResponseStatus.NotFound,
                     Fields.Branches.BranchId, "User not assigned to branch"); continue;
+            }
+            
+            if (!await _usersBranchesQueryService.EnsureUserCanModifyUserNotThrows(authenticatedUserId, userAndBranchIdDto.UserId))
+            {
+                AddFailedResponseDto(responseDto, userAndBranchIdDto, ResponseStatus.BranchNotMatched,
+                    Fields.Branches.BranchId, "Not have the permissions to modify that user in that branch"); continue;
             }
 
             User? user = await _usersQueryService.GetById(userAndBranchIdDto.UserId);

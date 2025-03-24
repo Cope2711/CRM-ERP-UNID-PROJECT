@@ -13,13 +13,14 @@ public class UsersManagementService(
     IPriorityValidationService _priorityValidationService,
     IMailService _mailService,
     IHttpContextAccessor _httpContextAccessor,
-    ITokenService _tokenService
+    ITokenService _tokenService,
+    IUsersBranchesQueryService _usersBranchesQueryServices
 ) : IUsersManagementService
 {
     public async Task<User?> Create(CreateUserDto createUserDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-
+        
         _logger.LogInformation("User with Id {authenticatedUserId} requested CreateUser with UserName {UserUserName}",
             authenticatedUserId, createUserDto.UserUserName);
 
@@ -76,6 +77,13 @@ public class UsersManagementService(
                 if (user == null)
                 {
                     AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound, Fields.Users.UserId, "User not found");
+                    continue;
+                }
+                
+                if (!await _usersBranchesQueryServices.EnsureUserCanModifyUserNotThrows(authenticatedUserId, id))
+                {
+                    AddFailedResponseDto(responseDto, id, ResponseStatus.BranchNotMatched, Fields.Users.UserId,
+                        "Not have the permissions to deactivate that user in that branch");
                     continue;
                 }
 
@@ -139,7 +147,14 @@ public class UsersManagementService(
                 AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound, Fields.Users.UserId, "User not found");
                 continue;
             }
-
+            
+            if (!await _usersBranchesQueryServices.EnsureUserCanModifyUserNotThrows(authenticatedUserId, id))
+            {
+                AddFailedResponseDto(responseDto, id, ResponseStatus.BranchNotMatched, Fields.Users.UserId,
+                    "Not have the permissions to activate that user in that branch");
+                continue;
+            }
+            
             if (user.IsActive)
             {
                 AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed, Fields.Users.UserId,
@@ -222,8 +237,11 @@ public class UsersManagementService(
         User user = await _usersQueryService.GetByIdThrowsNotFoundAsync(updateUserDto.UserId);
 
         if (authenticatedUserId != updateUserDto.UserId)
+        {
             _priorityValidationService.ValidateUserPriorityThrowsForbiddenException(user);
-
+            await _usersBranchesQueryServices.EnsureUserCanModifyUser(authenticatedUserId, updateUserDto.UserId);
+        }
+        
         bool hasChanges = ModelsHelper.UpdateModel(user, updateUserDto, async (field, value) =>
         {
             return field switch

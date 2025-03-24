@@ -10,6 +10,7 @@ public interface IUsersBranchesRepository
     void Remove(UserBranch usersBranches);
     Task SaveChanges();
     Task<bool> IsUserAssignedToBranch(Guid userId, Guid branchId);
+    Task<bool> AreUsersInSameBranch(Guid userId1, Guid userId2);
     Task<UserBranch?> GetByUserIdAndBranchId(Guid userId, Guid branchId);
 }
 
@@ -17,6 +18,22 @@ public class UsersBranchesRepository(
     AppDbContext _context
 ) : IUsersBranchesRepository
 {
+    public async Task<bool> AreUsersInSameBranch(Guid userId1, Guid userId2)
+    {
+        bool user1HasNoBranches = !await _context.UsersBranches.AnyAsync(ub => ub.UserId == userId1);
+        bool user2HasNoBranches = !await _context.UsersBranches.AnyAsync(ub => ub.UserId == userId2);
+
+        if (user1HasNoBranches || user2HasNoBranches)
+        {
+            return true;
+        }
+
+        return await _context.UsersBranches
+            .AnyAsync(ub1 => ub1.UserId == userId1 &&
+                             _context.UsersBranches.Any(ub2 => ub2.UserId == userId2 &&
+                                                               ub2.BranchId == ub1.BranchId));
+    }
+    
     public async Task<UserBranch?> GetByUserIdAndBranchId(Guid userId, Guid branchId)
     {
         return await _context.UsersBranches.FirstOrDefaultAsync(ub => ub.UserId == userId && ub.BranchId == branchId);

@@ -70,11 +70,25 @@ public static class Models
             UserPassword = HasherHelper.HashString("123456"), IsActive = true
         };
         
+        public static readonly User HighestPriorityUser2 = new User
+        {
+            UserId = Guid.Parse("d1dbd11d-0644-41b5-bb15-641cca9611a9"), UserUserName = "highest-priority2",
+            UserFirstName = "Highest", UserLastName = "Priority2", UserEmail = "highest-priority2@test.com",
+            UserPassword = HasherHelper.HashString("123456"), IsActive = true
+        };
+        
         public static readonly User DeactivateHighestPriorityUser = new User
         {
             UserId = Guid.Parse("2c0986d4-040c-4c00-b8f9-31f7a1e71638"), UserUserName = "deactivate-highest-priority",
             UserFirstName = "Highest", UserLastName = "Priority", UserEmail = "highest-priority@test.com",
             UserPassword = HasherHelper.HashString("123456"), IsActive = false
+        };
+        
+        public static readonly User TestUser2 = new User
+        {
+            UserId = Guid.Parse("8f319401-1f2c-4830-9c9b-9efff3aa56a7"), UserUserName = "test-user2",
+            UserFirstName = "Test2", UserLastName = "User2", UserEmail = "test-user2@test.com",
+            UserPassword = HasherHelper.HashString("123456"), IsActive = true
         };
     }
 
@@ -92,9 +106,21 @@ public static class Models
             RoleId = Roles.User.RoleId
         };
         
+        public static readonly UserRole TestUser2RoleUser = new UserRole
+        {
+            UserRoleId = Guid.Parse("4dc5a565-c484-48a5-bc15-db1ae421dba0"), UserId = Users.TestUser2.UserId,
+            RoleId = Roles.User.RoleId
+        };
+        
         public static readonly UserRole HighestPriorityUserRoleHighestPriority = new UserRole
         {
             UserRoleId = Guid.Parse("fe904dcf-eeb1-4a71-a229-71185cc15017"), UserId = Users.HighestPriorityUser.UserId,
+            RoleId = Roles.HighestPriority.RoleId
+        };
+        
+        public static readonly UserRole HighestPriorityUserRoleHighestPriority2 = new UserRole
+        {
+            UserRoleId = Guid.Parse("36d3b348-09e4-47e2-9205-bb1cd32b9df3"), UserId = Users.HighestPriorityUser2.UserId,
             RoleId = Roles.HighestPriority.RoleId
         };
         
@@ -855,6 +881,13 @@ public static class Models
 
    public static class UsersBranches
    {
+       public static readonly UserBranch TestUser2BranchPuertoRico = new UserBranch
+       {
+           UserBranchId = Guid.Parse("addb9c76-3d03-4706-ada8-be4355a453d4"),
+           UserId = Models.Users.TestUser2.UserId,
+           BranchId = Branches.PuertoRico.BranchId
+       };
+       
        public static readonly UserBranch AdminUserBranchHermosillo = new UserBranch
        {
            UserBranchId = Guid.Parse("35eba27e-c5bc-470d-bcba-eb7dfeaaeb2d"),
@@ -862,6 +895,13 @@ public static class Models
            BranchId = Branches.HermosilloMiguelHidalgo.BranchId
        };
 
+       public static readonly UserBranch InactiveTestUserBranchHermosillo = new UserBranch
+       {
+           UserBranchId = Guid.Parse("ce1c35c1-15f8-4ebc-8517-17f3e8be0372"),
+           UserId = Models.Users.InactiveTestUser.UserId,
+           BranchId = Branches.HermosilloMiguelHidalgo.BranchId
+       };
+       
        public static readonly UserBranch TestUserBranchHermosillo = new UserBranch
        {
            UserBranchId = Guid.Parse("b25952ab-0b8d-4ba4-93aa-3a998bc0d434"),
@@ -881,6 +921,13 @@ public static class Models
            UserBranchId = Guid.Parse("85e90b4e-8773-477e-8c67-7ff6bcacb506"),
            UserId = Models.Users.DeactivateHighestPriorityUser.UserId,
            BranchId = Branches.HermosilloMiguelHidalgo.BranchId
+       };
+       
+       public static readonly UserBranch HighestPriorityUserBranchCampoReal = new UserBranch
+       {
+           UserBranchId = Guid.Parse("0b0c81c9-532f-47c4-93c0-f14ee356a121"),
+           UserId = Models.Users.HighestPriorityUser2.UserId,
+           BranchId = Branches.CampoReal.BranchId
        };
    }
 }

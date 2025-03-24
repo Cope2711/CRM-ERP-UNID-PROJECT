@@ -26,19 +26,20 @@ IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'erp_user')
     END
 GO
 
+DROP TABLE IF EXISTS UsersBranches;
+DROP TABLE IF EXISTS UsersRoles;
+DROP TABLE IF EXISTS RolesPermissionsResources;
+DROP TABLE IF EXISTS PasswordRecoveryTokens;
 DROP TABLE IF EXISTS Inventory;
 DROP TABLE IF EXISTS Branches;
 DROP TABLE IF EXISTS Products;
 DROP TABLE IF EXISTS Brands;
-DROP TABLE IF EXISTS UsersRoles;
-DROP TABLE IF EXISTS Users;
 DROP TABLE IF EXISTS TestTable;
 DROP TABLE IF EXISTS Resources;
 DROP TABLE IF EXISTS Permissions;
 DROP TABLE IF EXISTS Roles;
-DROP TABLE IF EXISTS RolesPermissionsResources;
 DROP TABLE IF EXISTS RefreshTokens;
-DROP TABLE IF EXISTS PasswordRecoveryTokens;
+DROP TABLE IF EXISTS Users;
 
 CREATE TABLE Branches
 (
@@ -227,7 +228,7 @@ VALUES
 -- Insertar UsersRoles
 DECLARE @UserRoleId_Admin UNIQUEIDENTIFIER = '842193b4-5048-4cd9-be60-b7ca34319286';
 DECLARE @UserRoleId_Test UNIQUEIDENTIFIER = 'fe904dcf-eeb1-4a71-a229-71185cc15453';
-DECLARE @UserRoleId_TestDeactivated UNIQUEIDENTIFIER = 'fe904dcf-eeb1-4a71-a229-71185cc15450';
+DECLARE @UserRoleId_TestDeactivated UNIQUEIDENTIFIER = '327a4fd3-03bc-430f-a0ca-a2262624abf7';
 
 INSERT INTO UsersRoles (UserRoleId, UserId, RoleId)
 VALUES (@UserRoleId_Admin, @UserId_Admin, @RoleId_Admin),
@@ -238,12 +239,14 @@ VALUES (@UserRoleId_Admin, @UserId_Admin, @RoleId_Admin),
 DECLARE @UserBranchId_AdminHermosillo UNIQUEIDENTIFIER = 'bd4e931d-09bd-42c2-9249-ccf22533136d';
 DECLARE @UserBranchId_AdminCampoReal UNIQUEIDENTIFIER = 'd6759449-fe42-4fff-ab94-38c575fcaa8c';
 DECLARE @UserBranchId_TestHermosillo UNIQUEIDENTIFIER = '7f26e050-0e3a-4b3e-90bd-8db17ee012cf';
+DECLARE @UserBranch_Id_TestDeactivatedPuertoRico UNIQUEIDENTIFIER = 'a15c7696-0400-40e8-a789-16949f72c6a9';
 
 INSERT INTO UsersBranches (UserBranchId, UserId, BranchId)
 VALUES
     (@UserBranchId_AdminHermosillo, @UserId_Admin, @BranchId_HermosilloMiguelHidalgo),
     (@UserBranchId_AdminCampoReal, @UserId_Admin, @BranchId_CampoReal),
-    (@UserBranchId_TestHermosillo, @UserId_Test, @BranchId_HermosilloMiguelHidalgo)
+    (@UserBranchId_TestHermosillo, @UserId_Test, @BranchId_HermosilloMiguelHidalgo),
+    (@UserBranch_Id_TestDeactivatedPuertoRico, @UserId_TestDeactivated, @BranchId_PuertoRico)
 
 -- Insertar Permisos
 DECLARE @PermissionId_View UNIQUEIDENTIFIER = '7521ffd2-80e6-4970-8ab3-0d454a377d22';
