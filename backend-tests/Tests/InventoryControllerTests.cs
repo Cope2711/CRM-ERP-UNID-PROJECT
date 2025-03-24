@@ -116,7 +116,7 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
                 HttpStatusCode.Conflict
             };
 
-            // Returns Conflict for the BranchID
+            // Returns Forbidden for the user branch
             yield return new object[]
             {
                 new UpdateInventoryDto
@@ -124,7 +124,7 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
                     InventoryId = Models.InventoryModels.iPadProInventoryHermosillo.InventoryId,
                     BranchId = Models.InventoryModels.iPadProInventoryCampoReal.BranchId,
                 },
-                HttpStatusCode.Conflict
+                HttpStatusCode.Forbidden
             };
 
             // Returns NotFound for the InventoryId
@@ -163,7 +163,7 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
                 new CreateInventoryDto
                 {
                     ProductId = Models.Products.NikeDriFitTShirt.ProductId,
-                    BranchId = Models.Branches.PuertoRico.BranchId,
+                    BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId,
                     Quantity = 1,
                     IsActive = true
                 },
@@ -189,11 +189,24 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
                 new CreateInventoryDto
                 {
                     ProductId = Models.Products.iPadPro.ProductId,
-                    BranchId = Models.InventoryModels.iPadProInventoryCampoReal.BranchId,
+                    BranchId = Models.InventoryModels.iPadProInventoryHermosillo.BranchId,
                     Quantity = 10,
                     IsActive = true
                 },
                 HttpStatusCode.Conflict
+            };
+            
+            // Returns Forbidden for the user branch
+            yield return new object[]
+            {
+                new CreateInventoryDto
+                {
+                    ProductId = Models.Products.iPadPro.ProductId,
+                    BranchId = Models.InventoryModels.iPadProInventoryCampoReal.BranchId,
+                    Quantity = 10,
+                    IsActive = true
+                },
+                HttpStatusCode.Forbidden
             };
         }
 

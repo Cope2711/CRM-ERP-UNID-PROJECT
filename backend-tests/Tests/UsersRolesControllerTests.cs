@@ -65,6 +65,13 @@ public class UsersRolesControllerTests : IClassFixture<CustomWebApiFactory>
                         UserId = Models.Users.InactiveTestUser.UserId,
                         RoleId = Models.Roles.HighestPriority.RoleId
                     },
+                    
+                    // Not the same branch
+                    new UserAndRoleIdDto
+                    {
+                        UserId = Models.Users.TestUser2.UserId,
+                        RoleId = Models.Roles.Guest.RoleId
+                    },
                 }
             };
 
@@ -79,6 +86,7 @@ public class UsersRolesControllerTests : IClassFixture<CustomWebApiFactory>
             assignRolesResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.AlreadyProcessed).Should().Be(1);
             assignRolesResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotFound).Should().Be(1);
             assignRolesResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotEnoughPriority).Should().Be(2);
+            assignRolesResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.BranchNotMatched).Should().Be(1);
         }
     }
     
@@ -114,7 +122,14 @@ public class UsersRolesControllerTests : IClassFixture<CustomWebApiFactory>
                     {
                         UserId = Models.Users.HighestPriorityUser.UserId,
                         RoleId = Models.Roles.HighestPriority.RoleId
-                    }
+                    },
+                    
+                    // Not the same branch
+                    new UserAndRoleIdDto
+                    {
+                        UserId = Models.Users.TestUser2.UserId,
+                        RoleId = Models.Roles.User.RoleId
+                    },
                 }
             };
 

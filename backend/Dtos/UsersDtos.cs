@@ -27,7 +27,8 @@ public class CreateUserDto : RequiredBaseUserDto
     [Required]
     public string UserPassword { get; set; } = string.Empty;
 
-    [Required] public bool IsActive { get; set; } = true;
+    [Required] 
+    public bool IsActive { get; set; } = true;
 }
 
 public class UpdateUserDto : BaseUserDto

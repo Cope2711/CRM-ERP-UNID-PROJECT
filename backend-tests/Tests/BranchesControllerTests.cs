@@ -131,6 +131,17 @@ public class BranchesTests
                 },
                 HttpStatusCode.NotFound
             };
+            
+            yield return new object[] // Forbidden for the user branch
+            {
+                new UpdateBranchDto
+                {
+                    BranchId = Models.Branches.CampoReal.BranchId,
+                    BranchName = "Hermosillo Miguel Hidalgo",
+                    IsActive = true
+                },
+                HttpStatusCode.Forbidden
+            };
         }
 
         [Theory]

@@ -10,7 +10,8 @@ public class BranchesManagementService(
     IBranchesQueryService _branchesQueryService,
     IBranchesRepository _branchesRepository,
     ILogger<BranchesManagementService> _logger,
-    IHttpContextAccessor _httpContextAccessor
+    IHttpContextAccessor _httpContextAccessor,
+    IUsersBranchesQueryService _usersBranchesQueryService
 ) : IBranchesManagementService
 {
     public async Task<Branch> Create(CreateBranchDto createBranchDto)
@@ -53,7 +54,7 @@ public class BranchesManagementService(
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         Branch branch = await _branchesQueryService.GetByIdThrowsNotFoundAsync(updateBranchDto.BranchId);
-        
+        await _usersBranchesQueryService.EnsureUserHasAccessToBranch(authenticatedUserId, updateBranchDto.BranchId);
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested UpdateAsync for BranchId {TargetBranchId}",
             authenticatedUserId, updateBranchDto.BranchId);
