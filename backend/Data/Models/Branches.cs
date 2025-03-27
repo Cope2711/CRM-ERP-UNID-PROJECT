@@ -25,6 +25,7 @@ public class Branch
     public DateTime UpdatedDate { get; set; }
     public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
     public ICollection<UserBranch> UsersBranches { get; set; } = new List<UserBranch>();
+    public ICollection<SupplierBranch> SupplierBranches { get; set; } = new List<SupplierBranch>();
 }
 
 public static class BranchExtensions

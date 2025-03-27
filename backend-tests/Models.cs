@@ -3,7 +3,7 @@ using CRM_ERP_UNID.Helpers;
 
 namespace CRM_ERP_UNID_TESTS;
 
-public static class Models
+public static class Models 
 {
     public static class Roles
     {
@@ -39,7 +39,7 @@ public static class Models
             RoleDescription = "Role with highest priority for tests"
         };
     }
-
+    
     public static class Users
     {
         public static readonly User Admin = new User
@@ -133,6 +133,34 @@ public static class Models
 
     public static class Permissions
     {
+        public static readonly Permission AssignSupplierBranch = new Permission
+        {
+            PermissionId = Guid.Parse("305e473a-b450-45fa-a210-9963475e1836"),
+            PermissionName = "Assign_Supplier_Branch",
+            PermissionDescription = "Ability to assign branch to supplier"
+        };
+        
+        public static readonly Permission RevokeSupplierBranch = new Permission
+        {
+            PermissionId = Guid.Parse("7275aef5-6b31-457c-8b3b-f7371cbe260b"),
+            PermissionName = "Revoke_Supplier_Branch",
+            PermissionDescription = "Ability to revoke branch from supplier"
+        };
+        
+        public static readonly Permission AssignProducts = new Permission
+        {
+            PermissionId = Guid.Parse("a14ea690-1d6b-4b55-8b30-0994ea87259f"),
+            PermissionName = "Assign_Products",
+            PermissionDescription = "Ability to assign products to supplier"
+        };
+        
+        public static readonly Permission RevokeProducts = new Permission
+        {
+            PermissionId = Guid.Parse("69409ceb-cc9d-411d-9945-0bec28cccf3e"),
+            PermissionName = "Revoke_Products",
+            PermissionDescription = "Ability to revoke products to supplier"
+        };
+        
         public static readonly Permission AssignBranch = new Permission
         {
             PermissionId = Guid.Parse("c0a1f2c4-a8c1-4e3c-b0c6-c8f4f5c3f7c7"),
@@ -227,6 +255,27 @@ public static class Models
 
     public static class Resources
     {
+        public static readonly Resource SuppliersBranches = new Resource
+        {
+            ResourceId = Guid.Parse("36c11364-f3d7-4860-9aa4-292ac05ad950"),
+            ResourceName = "SuppliersBranches",
+            ResourceDescription = "Suppliers branches module"
+        };
+        
+        public static readonly Resource SuppliersProducts = new Resource
+        {
+            ResourceId = Guid.Parse("495123b4-e0b6-4787-80a3-1798572f1fa8"),
+            ResourceName = "SuppliersProducts",
+            ResourceDescription = "Suppliers products module"
+        };
+        
+        public static readonly Resource Suppliers = new Resource
+        {
+            ResourceId = Guid.Parse("7e2155e0-5dd3-43e1-8f0f-79688cdead6e"),
+            ResourceName = "Suppliers",
+            ResourceDescription = "Suppliers module"
+        };
+        
         public static readonly Resource UsersBranches = new Resource
         {
             ResourceId = Guid.Parse("d161ec8c-7c31-4eb4-a331-82ef9e45999e"),
@@ -307,6 +356,94 @@ public static class Models
 
     public static class RolesPermissionsResources
     {
+        public static readonly RolePermissionResource AdminEditContentSuppliersProducts = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.EditContent.PermissionId,
+            ResourceId = Resources.SuppliersProducts.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminEditContentSuppliersBranches = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.EditContent.PermissionId,
+            ResourceId = Resources.SuppliersBranches.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminAssignSupplierBranch = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.AssignSupplierBranch.PermissionId,
+            ResourceId = null
+        };
+        
+        public static readonly RolePermissionResource AdminRevokeSupplierBranch = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.RevokeSupplierBranch.PermissionId,
+            ResourceId = null
+        };
+        
+        public static readonly RolePermissionResource AdminViewSuppliersBranches = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.View.PermissionId,
+            ResourceId = Resources.SuppliersBranches.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminAssignProducts = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.AssignProducts.PermissionId,
+            ResourceId = null
+        };
+        
+        public static readonly RolePermissionResource AdminRevokeProducts = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.RevokeProducts.PermissionId,
+            ResourceId = null
+        };
+        
+        public static readonly RolePermissionResource AdminViewSuppliersProducts = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.View.PermissionId,
+            ResourceId = Resources.SuppliersProducts.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminViewSuppliers = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.View.PermissionId,
+            ResourceId = Resources.Suppliers.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminEditContentSuppliers = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.EditContent.PermissionId,
+            ResourceId = Resources.Suppliers.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminCreateSuppliers = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.Create.PermissionId,
+            ResourceId = Resources.Suppliers.ResourceId
+        };
+        
         public static readonly RolePermissionResource AdminAssignBranch = new RolePermissionResource
         {
             RolePermissionId = Guid.NewGuid(),
@@ -928,6 +1065,71 @@ public static class Models
            UserBranchId = Guid.Parse("0b0c81c9-532f-47c4-93c0-f14ee356a121"),
            UserId = Models.Users.HighestPriorityUser2.UserId,
            BranchId = Branches.CampoReal.BranchId
+       };
+   }
+
+   public static class Suppliers
+   {
+       public static readonly Supplier Apple = new Supplier
+       {
+           SupplierId = Guid.Parse("87649222-db8d-4025-82e8-8aa68273fef6"),
+           SupplierName = "Apple",
+           SupplierContact = "Apple` Contact",
+           SupplierEmail = "Apple@email.com",
+           SupplierPhone = "Apple Phone",
+           SupplierAddress = "Apple Address",
+           IsActive = true,
+           CreatedDate = DateTime.Now,
+           UpdatedDate = DateTime.Now
+       };
+       
+       public static readonly Supplier Xataka = new Supplier{
+           SupplierId = Guid.Parse("63c455be-c3d9-4a9c-bae9-01562430b1a6"),
+           SupplierName = "Xataka",
+           SupplierContact = "Xataka` Contact",
+           SupplierEmail = "Xataka@email.com",
+           SupplierPhone = "Xataka Phone",
+           SupplierAddress = "Xataka Address",
+           IsActive = true,
+           CreatedDate = DateTime.Now,
+           UpdatedDate = DateTime.Now
+       };
+   }
+
+   public static class SuppliersProducts
+   {
+       public static readonly SupplierProduct AppleIphone13 = new SupplierProduct
+       {
+           SupplierProductId = Guid.Parse("853217ea-0769-4e3b-9153-4a20f3ca2f76"),
+           SupplierId = Suppliers.Apple.SupplierId,
+           ProductId = Products.iPhone13.ProductId,
+           SupplyPrice = 100,
+           SupplyLeadTime = 1,
+           CreatedDate = DateTime.UtcNow,
+           UpdatedDate = DateTime.UtcNow
+       };
+   }
+
+   public static class SuppliersBranches
+   {
+       public static readonly SupplierBranch AppleHermosilloMiguelHidalgo = new SupplierBranch
+       {
+           SupplierBranchId = Guid.Parse("cd34763b-d8ec-4e2f-b6da-62a98a11ec07"),
+           SupplierId = Suppliers.Apple.SupplierId,
+           BranchId = Branches.HermosilloMiguelHidalgo.BranchId,
+           IsPreferredSupplier = true,
+           CreatedDate = DateTime.UtcNow,
+           UpdatedDate = DateTime.UtcNow
+       };
+       
+       public static readonly SupplierBranch ApplePuertoRico = new SupplierBranch
+       {
+           SupplierBranchId = Guid.Parse("4e998215-4857-4900-be92-f63cd25b5ab1"),
+           SupplierId = Suppliers.Apple.SupplierId,
+           BranchId = Branches.PuertoRico.BranchId,
+           IsPreferredSupplier = false,
+           CreatedDate = DateTime.UtcNow,
+           UpdatedDate = DateTime.UtcNow
        };
    }
 }

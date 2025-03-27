@@ -28,6 +28,10 @@ public class DatabaseSeeder
             Models.UsersRoles.HighestPriorityUserRoleHighestPriority2,
             Models.UsersRoles.TestUser2RoleUser);
         context.Permissions.AddRange(
+            Models.Permissions.AssignSupplierBranch,
+            Models.Permissions.RevokeSupplierBranch,
+            Models.Permissions.AssignProducts,
+            Models.Permissions.RevokeProducts,
             Models.Permissions.View,
             Models.Permissions.ViewReports,
             Models.Permissions.EditContent,
@@ -42,6 +46,9 @@ public class DatabaseSeeder
             Models.Permissions.AssignBranch,
             Models.Permissions.RevokeBranch);
         context.Resources.AddRange(
+            Models.Resources.SuppliersBranches,
+            Models.Resources.SuppliersProducts,
+            Models.Resources.Suppliers,
             Models.Resources.Users,
             Models.Resources.Roles,
             Models.Resources.Permissions,
@@ -85,7 +92,18 @@ public class DatabaseSeeder
             Models.RolesPermissionsResources.AdminEditBranches,
             Models.RolesPermissionsResources.AdminAssignBranch,
             Models.RolesPermissionsResources.AdminRevokeBranch,
-            Models.RolesPermissionsResources.AdminViewUsersBranches);
+            Models.RolesPermissionsResources.AdminViewUsersBranches,
+            Models.RolesPermissionsResources.AdminViewSuppliers,
+            Models.RolesPermissionsResources.AdminEditContentSuppliers,
+            Models.RolesPermissionsResources.AdminCreateSuppliers,
+            Models.RolesPermissionsResources.AdminAssignProducts,
+            Models.RolesPermissionsResources.AdminRevokeProducts,
+            Models.RolesPermissionsResources.AdminViewSuppliersProducts,
+            Models.RolesPermissionsResources.AdminAssignSupplierBranch,
+            Models.RolesPermissionsResources.AdminRevokeSupplierBranch,
+            Models.RolesPermissionsResources.AdminViewSuppliersBranches,
+            Models.RolesPermissionsResources.AdminEditContentSuppliersBranches,
+            Models.RolesPermissionsResources.AdminEditContentSuppliersProducts);
         context.RefreshTokens.AddRange(
             Models.RefreshTokens.TestUserRefreshTokenRevoked,
             Models.RefreshTokens.TestUserExpiredRefreshToken);
@@ -129,7 +147,15 @@ public class DatabaseSeeder
             Models.UsersBranches.TestUser2BranchPuertoRico,
             Models.UsersBranches.InactiveTestUserBranchHermosillo,
             Models.UsersBranches.HighestPriorityUserBranchCampoReal);
+        context.Suppliers.AddRange(
+            Models.Suppliers.Apple,
+            Models.Suppliers.Xataka);
+        context.SuppliersProducts.AddRange(
+            Models.SuppliersProducts.AppleIphone13);
+        context.SuppliersBranches.AddRange(
+            Models.SuppliersBranches.AppleHermosilloMiguelHidalgo,
+            Models.SuppliersBranches.ApplePuertoRico);
 
     context.SaveChanges();
-    }
+     }
 }

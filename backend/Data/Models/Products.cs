@@ -30,6 +30,8 @@ public class Product
     
     public DateTime? CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
+    
+    public ICollection<SupplierProduct> SupplierProducts { get; set; } = new List<SupplierProduct>();
 }
 
 public static class ProductExtensions

@@ -20,7 +20,7 @@ public class UserBranch
     public Branch Branch { get; set; }
 }
 
-public static class UsersBranchesExtensions
+public static class UserBranchExtensions
 {
     public static UserBranchDto ToDto(this UserBranch userBranch)
     {
