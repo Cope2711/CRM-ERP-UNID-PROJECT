@@ -36,7 +36,7 @@ public class ProductsController(
     [PermissionAuthorize("View", "Products")]
     public async Task<ActionResult<ProductDto>> GetProductById([FromQuery] Guid id)
     {
-        Product product = await _productsQueryService.GetByIdThrowsNotFoundAsync(id);
+        Product product = await _productsQueryService.GetByIdThrowsNotFound(id);
 
         return Ok(product.ToDto());
     }
@@ -45,7 +45,7 @@ public class ProductsController(
     [PermissionAuthorize("View", "Products")]
     public async Task<ActionResult<ProductDto>> GetProductByName([FromQuery] string name)
     {
-        Product product = await _productsQueryService.GetByNameThrowsNotFoundAsync(name);
+        Product product = await _productsQueryService.GetByNameThrowsNotFound(name);
 
         return Ok(product.ToDto());
     }

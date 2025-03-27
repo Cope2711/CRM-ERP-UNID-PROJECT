@@ -4,6 +4,34 @@ namespace CRM_ERP_UNID.Constants;
 
 public static class Fields
 {
+    public static class SuppliersBranches
+    {
+        public const string SupplierBranchId = nameof(SupplierBranch.SupplierBranchId);
+        public const string SupplierId = nameof(SupplierBranch.SupplierId);
+        public const string BranchId = nameof(SupplierBranch.BranchId);
+        public const string IsPreferredSupplier = nameof(SupplierBranch.IsPreferredSupplier);
+    }
+    
+    public static class SuppliersProducts
+    {
+        public const string SupplierProductId = nameof(SupplierProduct.SupplierProductId);
+        public const string SupplierId = nameof(SupplierProduct.SupplierId);
+        public const string ProductId = nameof(SupplierProduct.ProductId);
+        public const string SupplyPrice = nameof(SupplierProduct.SupplyPrice);
+        public const string SupplyLeadTime = nameof(SupplierProduct.SupplyLeadTime);
+    }
+    
+    public static class Suppliers
+    {
+        public const string SupplierId = nameof(Supplier.SupplierId);
+        public const string SupplierName = nameof(Supplier.SupplierName);
+        public const string SupplierContact = nameof(Supplier.SupplierContact);
+        public const string SupplierEmail = nameof(Supplier.SupplierEmail);
+        public const string SupplierPhone = nameof(Supplier.SupplierPhone);
+        public const string SupplierAddress = nameof(Supplier.SupplierAddress);
+        public const string IsActive = nameof(Supplier.IsActive);
+    }
+    
     public static class Branches
     {
         public const string BranchId = nameof(Branch.BranchId);

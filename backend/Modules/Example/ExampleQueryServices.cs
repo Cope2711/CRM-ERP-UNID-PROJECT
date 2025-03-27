@@ -3,7 +3,7 @@ using CRM_ERP_UNID.Dtos;
 
 namespace CRM_ERP_UNID.Modules;
 
-public class ExampleQueryServices(GenericService<Example> genericService) : IExampleQueryService
+public class ExampleQueryServices(IGenericService<Example> genericService) : IExampleQueryService
 {
     public async Task<Example> GetByIdThrowsNotFoundAsync(Guid id)
     {

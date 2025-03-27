@@ -26,20 +26,38 @@ IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'erp_user')
     END
 GO
 
+DROP TABLE IF EXISTS SuppliersBranches;
+DROP TABLE IF EXISTS SupplierProducts;
 DROP TABLE IF EXISTS UsersBranches;
 DROP TABLE IF EXISTS UsersRoles;
 DROP TABLE IF EXISTS RolesPermissionsResources;
 DROP TABLE IF EXISTS PasswordRecoveryTokens;
 DROP TABLE IF EXISTS Inventory;
 DROP TABLE IF EXISTS Branches;
-DROP TABLE IF EXISTS Products;
-DROP TABLE IF EXISTS Brands;
 DROP TABLE IF EXISTS TestTable;
 DROP TABLE IF EXISTS Resources;
 DROP TABLE IF EXISTS Permissions;
 DROP TABLE IF EXISTS Roles;
 DROP TABLE IF EXISTS RefreshTokens;
 DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Products;
+DROP TABLE IF EXISTS Brands;
+DROP TABLE IF EXISTS Suppliers;
+
+
+CREATE TABLE Suppliers
+(
+    SupplierId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    SupplierName VARCHAR(100) NOT NULL UNIQUE,
+    SupplierContact VARCHAR(50) NULL,
+    SupplierEmail VARCHAR(100) UNIQUE NULL,
+    SupplierPhone VARCHAR(20) NULL,
+    SupplierAddress VARCHAR(255) NULL,
+    IsActive BIT DEFAULT 1,
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    UpdatedDate DATETIME DEFAULT GETDATE()
+);
+
 
 CREATE TABLE Branches
 (
@@ -103,6 +121,39 @@ CREATE TABLE Users
     IsActive      BIT              DEFAULT 1,
     CreatedDate   DATETIME         DEFAULT GETDATE(),
     UpdatedDate   DATETIME         DEFAULT GETDATE(),
+);
+
+CREATE TABLE SuppliersProducts
+(
+    SupplierProductId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    SupplierId UNIQUEIDENTIFIER NOT NULL,
+    ProductId UNIQUEIDENTIFIER NOT NULL,
+    SupplyPrice DECIMAL(10,2) NULL, 
+    SupplyLeadTime INT NULL, 
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    UpdatedDate DATETIME DEFAULT GETDATE(),
+
+    CONSTRAINT FK_SupplierProducts_Suppliers FOREIGN KEY (SupplierId)
+        REFERENCES Suppliers (SupplierId) ON DELETE CASCADE,
+    CONSTRAINT FK_SupplierProducts_Products FOREIGN KEY (ProductId)
+        REFERENCES Products (ProductId) ON DELETE CASCADE,
+    CONSTRAINT UQ_SupplierProducts UNIQUE (SupplierId, ProductId)
+);
+
+CREATE TABLE SuppliersBranches
+(
+    SupplierBranchId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    SupplierId UNIQUEIDENTIFIER NOT NULL,
+    BranchId UNIQUEIDENTIFIER NOT NULL,
+    IsPreferredSupplier BIT DEFAULT 0,
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    UpdatedDate DATETIME DEFAULT GETDATE(),
+
+    CONSTRAINT FK_SupplierBranches_Suppliers FOREIGN KEY (SupplierId)
+        REFERENCES Suppliers (SupplierId) ON DELETE CASCADE,
+    CONSTRAINT FK_SupplierBranches_Branches FOREIGN KEY (BranchId)
+        REFERENCES Branches (BranchId) ON DELETE CASCADE,
+    CONSTRAINT UQ_SupplierBranches UNIQUE (SupplierId, BranchId)
 );
 
 CREATE TABLE UsersBranches
@@ -262,6 +313,10 @@ DECLARE @PermissionId_DeactivateUser UNIQUEIDENTIFIER = '10d321bd-b667-40c9-adb0
 DECLARE @PermissionId_ActivateUser UNIQUEIDENTIFIER = 'a43b1178-931e-4eed-9742-30af024ec05b';
 DECLARE @PermissionId_AssignBranch UNIQUEIDENTIFIER = 'dfbd5729-c8a9-4474-acab-766893ae82f9';
 DECLARE @PermissionId_RevokeBranch UNIQUEIDENTIFIER = '083daf3a-fb59-4714-83f0-fc2bcd0f1374';
+DECLARE @PermissionId_AssignProducts UNIQUEIDENTIFIER = 'd8da9664-8a80-45e2-8378-0e81ebb43fd6';
+DECLARE @PermissionId_RevokeProducts UNIQUEIDENTIFIER = '8b251391-1f6b-474e-9ccb-d34042ef0fee';
+DECLARE @PermissionId_AssignSupplierBranch UNIQUEIDENTIFIER = '10ba08a3-d4cd-4f79-8720-5e2b060403d9';
+DECLARE @PermissionId_RevokeSupplierBranch UNIQUEIDENTIFIER = '1573d6db-9b05-4627-bf26-576e3a4519ac';
 
 INSERT INTO Permissions (PermissionId, PermissionName, PermissionDescription)
 VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
@@ -276,7 +331,12 @@ VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
        (@PermissionId_DeactivateUser, 'Deactivate_User', 'Deactivate user'),
         (@PermissionId_ActivateUser, 'Activate_User', 'Activate user'),
         (@PermissionId_AssignBranch, 'Assign_Branch', 'Assign branch to user'),
-        (@PermissionId_RevokeBranch, 'Revoke_Branch', 'Revoke branch to user')
+        (@PermissionId_RevokeBranch, 'Revoke_Branch', 'Revoke branch to user'),
+        (@PermissionId_AssignProducts, 'Assign_Products', 'Assign products to supplier'),
+        (@PermissionId_RevokeProducts, 'Revoke_Products', 'Revoke products to supplier'),
+        (@PermissionId_AssignSupplierBranch, 'Assign_Supplier_Branch', 'Assign supplier branch'),
+        (@PermissionId_RevokeSupplierBranch, 'Revoke_Supplier_Branch', 'Revoke supplier branch');
+        
 
 -- Insertar Recursos
 DECLARE @ResourceId_Users UNIQUEIDENTIFIER = 'd161ec8c-7c31-4eb4-a331-82ef9e45903e';
@@ -290,6 +350,9 @@ DECLARE @ResourceId_Brands UNIQUEIDENTIFIER = '708eb498-6ad5-447c-ba76-13cba1f08
 DECLARE @ResourceId_Inventory UNIQUEIDENTIFIER = 'b0f8c2e0-f5a1-4a3e-b5e5-c4e8f0f9c7b7';
 DECLARE @ResourceId_Branches UNIQUEIDENTIFIER = '55dc724f-a1aa-4d73-a7ed-5bef93b72be9';
 DECLARE @ResourceId_UsersBranches UNIQUEIDENTIFIER = 'ef53fcb2-2e6f-4104-9b1d-7c5164851b3e';
+DECLARE @ResourceId_Suppliers UNIQUEIDENTIFIER = '425e70c0-cb53-4b5a-85d2-e5fa7f8034fb';
+DECLARE @ResourceId_SuppliersProducts UNIQUEIDENTIFIER = '68a8ab4e-93bc-4459-ac3a-196a209e8209';
+DECLARE @ResourceId_SupplierBranches UNIQUEIDENTIFIER = '22cc021b-28aa-4b62-9fdb-1c3c33ba47d5';
 
 INSERT INTO Resources (ResourceId, ResourceName, ResourceDescription)
 VALUES (@ResourceId_Users, 'Users', 'Users module'),
@@ -302,7 +365,10 @@ VALUES (@ResourceId_Users, 'Users', 'Users module'),
        (@ResourceId_Brands, 'Brands', 'Brands module'),
        (@ResourceId_Inventory, 'Inventory', 'Inventory module'),
        (@ResourceId_Branches, 'Branches', 'Branches module'),
-       (@ResourceId_UsersBranches, 'UsersBranches', 'Users branches module')
+       (@ResourceId_UsersBranches, 'UsersBranches', 'Users branches module'),
+       (@ResourceId_Suppliers, 'Suppliers', 'Suppliers module'),
+       (@ResourceId_SuppliersProducts, 'SuppliersProducts', 'Suppliers products module'),
+       (@ResourceId_SupplierBranches, 'SuppliersBranches', 'Supplier branches module')
 
 -- Insertar Permisos a los Roles
 INSERT INTO RolesPermissionsResources (RolePermissionId, RoleId, PermissionId, ResourceId)
@@ -341,7 +407,20 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Branches),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_UsersBranches),
        (NEWID(), @RoleId_Admin, @PermissionId_AssignBranch, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_RevokeBranch, NULL)
+       (NEWID(), @RoleId_Admin, @PermissionId_RevokeBranch, NULL),
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Suppliers),
+       (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Suppliers),
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Suppliers),
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_SuppliersProducts),
+       (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_SuppliersProducts),
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_SuppliersProducts),
+       (NEWID(), @RoleId_Admin, @PermissionId_AssignProducts, NULL),
+       (NEWID(), @RoleId_Admin, @PermissionId_RevokeProducts, NULL),
+       (NEWID(), @RoleId_Admin, @PermissionId_AssignSupplierBranch, NULL),
+       (NEWID(), @RoleId_Admin, @PermissionId_RevokeSupplierBranch, NULL),
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_SupplierBranches),
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_SupplierBranches),
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_SuppliersProducts)
 
 -- Insertar ejemplos de marcas
 DECLARE @BrandId_Apple UNIQUEIDENTIFIER = 'c3146b6f-b50f-4b26-8e77-827fc538b7d1';
@@ -353,6 +432,17 @@ VALUES
     (@BrandId_Apple, 'Apple', 'Apple Inc. - Premium electronics', 1),
     (@BrandId_Samsung, 'Samsung', 'Samsung Electronics - Leading technology company', 1),
     (@BrandId_Nike, 'Nike', 'Nike Inc. - Sportswear and equipment', 1);
+
+-- Insertar ejemplos de proveedores
+DECLARE @SupplierId_Apple UNIQUEIDENTIFIER = '2508d864-5904-4833-a00c-e1ee2b19ea0f';
+DECLARE @SupplierId_Samsung UNIQUEIDENTIFIER = '5d6fc463-1a01-43e0-8304-6a7e0b1d4455';
+DECLARE @SupplierId_Nike UNIQUEIDENTIFIER = '6457d1cc-0160-464c-873e-25fa3a1f7bf1';
+
+INSERT INTO Suppliers (SupplierId, SupplierName, SupplierContact, SupplierEmail, SupplierPhone, SupplierAddress, IsActive)
+VALUES
+    (@SupplierId_Apple, 'Apple', 'Juan Perez', 'apple@apple.com', '+56999999999', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', 1),
+    (@SupplierId_Samsung, 'Samsung', 'Pancho Perez', 'samsung@samsung.com', '+56999999999', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', 1),
+    (@SupplierId_Nike, 'Nike', 'Pepe Gonzalez', 'nike@nike.com', '+56999999999', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', 1);
 
 -- Insertar ejemplos de productos
 DECLARE @ProductId_iPhone13 UNIQUEIDENTIFIER = '5b22cc12-191b-4fe9-9878-bbc1575fa8a7';
@@ -404,6 +494,40 @@ VALUES
     (@InventoryId_NikeZoomXCampoReal, @ProductId_NikeZoomX, @BranchId_CampoReal, 80, GETUTCDATE(), GETUTCDATE()),
     (@InventoryId_NikeDriFitTShirtCampoReal, @ProductId_NikeDriFitTShirt, @BranchId_CampoReal, 90, GETUTCDATE(), GETUTCDATE());
 
+-- Insertar ejemplos de relaciones entre proveedores y productos
+DECLARE @SupplierProduct_iPhone13_Apple UNIQUEIDENTIFIER = 'c54bedcb-709b-4f06-86eb-aa2e751c04d6';
+DECLARE @SupplierProduct_MacBookPro_Apple UNIQUEIDENTIFIER = 'a219ff24-39b6-4261-b974-e0441a858847';
+DECLARE @SupplierProduct_iPadPro_Apple UNIQUEIDENTIFIER = 'e82a909f-3bee-4f0e-b89d-f1d44e032e83';
+DECLARE @SupplierProduct_GalaxyS21_Samsung UNIQUEIDENTIFIER = 'fedbfe89-e7cf-45d3-9003-624c109b9da2';
+DECLARE @SupplierProduct_GalaxyTabS7_Samsung UNIQUEIDENTIFIER = '5d4ae7b8-f40c-405d-8a04-9514d855a6ae';
+DECLARE @SupplierProduct_SamsungQLEDTV_Samsung UNIQUEIDENTIFIER = '69449420-1259-4507-9dc0-dc55885b057d';
+DECLARE @SupplierProduct_NikeAirMax270_Nike UNIQUEIDENTIFIER = 'd90aff60-8f76-47de-9375-4d0510a4be62';
+DECLARE @SupplierProduct_NikeZoomX_Nike UNIQUEIDENTIFIER = 'f8f18e35-b049-419d-bbc0-f332fe9e4f1e';
+DECLARE @SupplierProduct_NikeDriFitTShirt_Nike UNIQUEIDENTIFIER = 'a9c86b8a-f667-41f5-9c3a-d2840be7e297';
+
+INSERT INTO SuppliersProducts (SupplierProductId, SupplierId, ProductId, SupplyPrice, SupplyLeadTime, CreatedDate, UpdatedDate)
+VALUES
+    (@SupplierProduct_iPhone13_Apple, @SupplierId_Apple, @ProductId_iPhone13, 999.99, 12, GETUTCDATE(), GETUTCDATE()),
+    (@SupplierProduct_MacBookPro_Apple, @SupplierId_Apple, @ProductId_MacBookPro, 1999.99, 12, GETUTCDATE(), GETUTCDATE()),
+    (@SupplierProduct_iPadPro_Apple, @SupplierId_Apple, @ProductId_iPadPro, 799.99, 20, GETUTCDATE(), GETUTCDATE()),
+    (@SupplierProduct_GalaxyS21_Samsung, @SupplierId_Samsung, @ProductId_GalaxyS21, 899.99, 2, GETUTCDATE(), GETUTCDATE()),
+    (@SupplierProduct_GalaxyTabS7_Samsung, @SupplierId_Samsung, @ProductId_GalaxyTabS7, 649.99, 5, GETUTCDATE(), GETUTCDATE()),
+    (@SupplierProduct_SamsungQLEDTV_Samsung, @SupplierId_Samsung, @ProductId_SamsungQLEDTV, 1500.00, 5, GETUTCDATE(), GETUTCDATE()),
+    (@SupplierProduct_NikeAirMax270_Nike, @SupplierId_Nike, @ProductId_NikeAirMax270, 120.00, 10, GETUTCDATE(), GETUTCDATE()),
+    (@SupplierProduct_NikeZoomX_Nike, @SupplierId_Nike, @ProductId_NikeZoomX, 250.00, 10, GETUTCDATE(), GETUTCDATE()),
+    (@SupplierProduct_NikeDriFitTShirt_Nike, @SupplierId_Nike, @ProductId_NikeDriFitTShirt, 30.00, 10, GETUTCDATE(), GETUTCDATE());
+
+-- Insertar ejemplos de ramas de proveedores
+DECLARE @SupplierBranchId_AppleHermosillo UNIQUEIDENTIFIER = '5d3842a3-67f1-4d61-a58c-cfe47bb93f37';
+DECLARE @SupplierBranchId_SamsungCampoReal UNIQUEIDENTIFIER = 'f405b105-feec-4e92-b732-6d3c940f861e';
+DECLARE @SupplierBranchId_NikePuertoRico UNIQUEIDENTIFIER = '7bb723a8-786e-49d2-85cc-553a5e2d7a5c';
+
+INSERT INTO SuppliersBranches (SupplierBranchId, SupplierId, BranchId, IsPreferredSupplier)
+VALUES
+    (@SupplierBranchId_AppleHermosillo, @SupplierId_Apple, @BranchId_HermosilloMiguelHidalgo, 1),
+    (@SupplierBranchId_SamsungCampoReal, @SupplierId_Samsung, @BranchId_CampoReal, 0),
+    (@SupplierBranchId_NikePuertoRico, @SupplierId_Nike, @BranchId_PuertoRico, 1);
+
 -- Consultas para verificar la inserción de datos
 SELECT *
 FROM Users;
@@ -425,3 +549,11 @@ Select *
 from Branches;
 Select *
 from UsersBranches;
+Select *
+from SuppliersProducts;
+Select *
+from Suppliers;
+Select *
+from Inventory;
+Select *
+from SuppliersBranches;

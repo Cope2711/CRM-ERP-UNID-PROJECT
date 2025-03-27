@@ -29,7 +29,7 @@ public class BranchesQueryService(
         return await _genericService.ExistsAsync(b => b.BranchName, name);
     }
     
-    public async Task<bool> ExistsById(Guid id)
+    public async Task<bool> ExistById(Guid id)
     {
         return await _genericService.ExistsAsync(b => b.BranchId, id);
     }

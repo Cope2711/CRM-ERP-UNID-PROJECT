@@ -17,7 +17,7 @@ public class ProductsManagementService(
     public async Task<Product> ChangeBrand(ChangeBrandProductDto changeBrandProductDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        Product product = await _productsQueryService.GetByIdThrowsNotFoundAsync(changeBrandProductDto.ProductId);
+        Product product = await _productsQueryService.GetByIdThrowsNotFound(changeBrandProductDto.ProductId);
         
         if (product.BrandId == changeBrandProductDto.BrandId)
             return product;
@@ -80,7 +80,7 @@ public class ProductsManagementService(
     public async Task<Product> Update(UpdateProductDto updateProductDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        Product product = await _productsQueryService.GetByIdThrowsNotFoundAsync(updateProductDto.ProductId);
+        Product product = await _productsQueryService.GetByIdThrowsNotFound(updateProductDto.ProductId);
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested UpdateAsync for ProductId {TargetProductId}",
             authenticatedUserId, updateProductDto.ProductId);

@@ -33,7 +33,7 @@ public class UsersBranchesManagementService(
                     Fields.Branches.BranchId, "User already assigned to branch"); continue;
             }
             
-            if (!await _branchesQueryService.ExistsById(userAndBranchIdDto.BranchId))
+            if (!await _branchesQueryService.ExistById(userAndBranchIdDto.BranchId))
             {
                 AddFailedResponseDto(responseDto, userAndBranchIdDto, ResponseStatus.NotFound,
                     Fields.Branches.BranchId, "Branch not exist"); continue;

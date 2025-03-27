@@ -10,5 +10,5 @@ public interface IBranchesQueryService
     Task<GetAllResponseDto<Branch>> GetAll(GetAllDto getAllDto);
     Task<bool> ExistByName(string name);
     Task<bool> ExistsByIdThrowsNotFound(Guid id);
-    Task<bool> ExistsById(Guid id);
+    Task<bool> ExistById(Guid id);
 }

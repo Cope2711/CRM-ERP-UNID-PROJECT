@@ -23,7 +23,7 @@ public class ExampleController(
         return Ok(example.ToDto());
     }
     
-    [HttpGet("get-all")]
+    [HttpPost("get-all")]
     [PermissionAuthorize("View", "Example")]
     public async Task<ActionResult<GetAllResponseDto<Example>>> GetAll(GetAllDto getAllDto)
     {

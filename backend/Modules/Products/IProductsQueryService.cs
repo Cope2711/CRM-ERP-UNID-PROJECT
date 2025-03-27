@@ -5,10 +5,11 @@ namespace CRM_ERP_UNID.Modules;
 
 public interface IProductsQueryService
 {
-    Task<Product> GetByIdThrowsNotFoundAsync(Guid id);
-    Task<Product?> GetByIdAsync(Guid id);
-    Task<Product> GetByNameThrowsNotFoundAsync(string name);
-    Task<Product?> GetByNameAsync(string name);
+    Task<Product> GetByIdThrowsNotFound(Guid id);
+    Task<Product?> GetById(Guid id);
+    Task<Product> GetByNameThrowsNotFound(string name);
+    Task<Product?> GetByName(string name);
     Task<GetAllResponseDto<Product>> GetAll(GetAllDto getAllDto);
     Task<bool> ExistByName(string name);
+    Task<bool> ExistById(Guid id);
 }
