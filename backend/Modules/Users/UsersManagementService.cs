@@ -218,6 +218,7 @@ public class UsersManagementService(
 
         // Save changes
         await _usersRepository.SaveChangesAsync();
+        await _tokenService.RevokeRefreshTokensByUserId(authenticatedUserId);
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested ChangePassword and the password was changed",
