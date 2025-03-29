@@ -15,7 +15,7 @@ public class RolesPermissionsResourcesController(
 ) : ControllerBase
 {
     [HttpPost("assign-permissions")]
-    [PermissionAuthorize("Assign_Permission")]
+    [PermissionAuthorize("Assign", "RolesPermissionsResources")]
     public async Task<ActionResult<ResponsesDto<RolePermissionResourceResponseStatusDto>>> AssignPermissionsToRoles(
         [FromBody] PermissionsResourcesAndRolesIdsDto permissionsResourcesAndRolesIdsDto)
     {
@@ -25,7 +25,7 @@ public class RolesPermissionsResourcesController(
     }
 
     [HttpDelete("revoke-permissions")]
-    [PermissionAuthorize("Revoke_Permission")]
+    [PermissionAuthorize("Revoke", "RolesPermissionsResources")]
     public async Task<ActionResult<ResponsesDto<RolePermissionResourceResponseStatusDto>>> RevokePermissionsToRoles(
         [FromBody] PermissionsResourcesAndRolesIdsDto permissionsResourcesAndRolesIdsDto)
     {

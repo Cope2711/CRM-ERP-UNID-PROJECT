@@ -40,7 +40,7 @@ public class UsersBranchesController(
     }
     
     [HttpPost("assign-branch")]
-    [PermissionAuthorize("Assign_Branch")]
+    [PermissionAuthorize("Assign", "UsersBranches")]
     public async Task<ActionResult<ResponsesDto<UserBranchResponseStatusDto>>> AssignBranch([FromBody] UsersAndBranchesDtos usersAndBranchesDtos)
     {
         ResponsesDto<UserBranchResponseStatusDto> userBranchResponsesDto = await _usersBranchesManagementService.AssignBranchToUserAsync(usersAndBranchesDtos);
@@ -48,7 +48,7 @@ public class UsersBranchesController(
     }
     
     [HttpDelete("revoke-branch")]
-    [PermissionAuthorize("Revoke_Branch")]
+    [PermissionAuthorize("Revoke", "UsersBranches")]
     public async Task<ActionResult<ResponsesDto<UserBranchResponseStatusDto>>> RevokeBranch([FromBody] UsersAndBranchesDtos usersAndBranchesDtos)
     {
         ResponsesDto<UserBranchResponseStatusDto> userBranchResponsesDto = await _usersBranchesManagementService.RevokeBranchToUserAsync(usersAndBranchesDtos);

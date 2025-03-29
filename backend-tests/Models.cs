@@ -133,46 +133,18 @@ public static class Models
 
     public static class Permissions
     {
-        public static readonly Permission AssignSupplierBranch = new Permission
+        public static readonly Permission Assign = new Permission
         {
-            PermissionId = Guid.Parse("305e473a-b450-45fa-a210-9963475e1836"),
-            PermissionName = "Assign_Supplier_Branch",
-            PermissionDescription = "Ability to assign branch to supplier"
+            PermissionId = Guid.Parse("a5651c2a-4847-4eaa-b85f-d4f2cba2184a"),
+            PermissionName = "Assign",
+            PermissionDescription = "Assign objects"
         };
-        
-        public static readonly Permission RevokeSupplierBranch = new Permission
+
+        public static readonly Permission Revoke = new Permission
         {
-            PermissionId = Guid.Parse("7275aef5-6b31-457c-8b3b-f7371cbe260b"),
-            PermissionName = "Revoke_Supplier_Branch",
-            PermissionDescription = "Ability to revoke branch from supplier"
-        };
-        
-        public static readonly Permission AssignProducts = new Permission
-        {
-            PermissionId = Guid.Parse("a14ea690-1d6b-4b55-8b30-0994ea87259f"),
-            PermissionName = "Assign_Products",
-            PermissionDescription = "Ability to assign products to supplier"
-        };
-        
-        public static readonly Permission RevokeProducts = new Permission
-        {
-            PermissionId = Guid.Parse("69409ceb-cc9d-411d-9945-0bec28cccf3e"),
-            PermissionName = "Revoke_Products",
-            PermissionDescription = "Ability to revoke products to supplier"
-        };
-        
-        public static readonly Permission AssignBranch = new Permission
-        {
-            PermissionId = Guid.Parse("c0a1f2c4-a8c1-4e3c-b0c6-c8f4f5c3f7c7"),
-            PermissionName = "Assign_Branch",
-            PermissionDescription = "Ability to assign branch to user"
-        };
-        
-        public static readonly Permission RevokeBranch = new Permission
-        {
-            PermissionId = Guid.Parse("f0a1f2c4-a8c1-4e3c-b0c6-c8f4f5c3f7c7"),
-            PermissionName = "Revoke_Branch",
-            PermissionDescription = "Ability to revoke branch from user"
+            PermissionId = Guid.Parse("4e11ee1b-1cd8-4f01-9e00-5dbd3df5620c"),
+            PermissionName = "Revoke",
+            PermissionDescription = "Revoke objects"
         };
         
         public static readonly Permission View = new Permission
@@ -201,34 +173,6 @@ public static class Models
             PermissionId = Guid.Parse("99f766ee-3fd5-4e33-9771-d3821322acea"),
             PermissionName = "Create",
             PermissionDescription = "Create objects"
-        };
-        
-        public static readonly Permission AssignRole = new Permission
-        {
-            PermissionId = Guid.Parse("5c748c35-a4f5-48d6-a320-32287c8649a9"),
-            PermissionName = "Assign_Role",
-            PermissionDescription = "Assign role to user"
-        };
-        
-        public static readonly Permission RevokeRole = new Permission
-        {
-            PermissionId = Guid.Parse("47a2f03a-5f0b-4d73-b535-200a643e7849"),
-            PermissionName = "Revoke_Role",
-            PermissionDescription = "Revoke role to user"
-        };
-        
-        public static readonly Permission AssignPermission = new Permission
-        {
-            PermissionId = Guid.Parse("554b4b5a-cae7-414c-91f8-75df725b526d"),
-            PermissionName = "Assign_Permission",
-            PermissionDescription = "Assign permission to role"
-        };
-        
-        public static readonly Permission RevokePermission = new Permission
-        {
-            PermissionId = Guid.Parse("9037e10c-38ea-40a6-b364-d68f86203c11"),
-            PermissionName = "Revoke_Permission",
-            PermissionDescription = "Revoke permission to role"
         };
         
         public static readonly Permission Delete = new Permission
@@ -376,16 +320,16 @@ public static class Models
         {
             RolePermissionId = Guid.NewGuid(),
             RoleId = Roles.Admin.RoleId,
-            PermissionId = Permissions.AssignSupplierBranch.PermissionId,
-            ResourceId = null
+            PermissionId = Permissions.Assign.PermissionId,
+            ResourceId = Resources.SuppliersBranches.ResourceId
         };
         
         public static readonly RolePermissionResource AdminRevokeSupplierBranch = new RolePermissionResource
         {
             RolePermissionId = Guid.NewGuid(),
             RoleId = Roles.Admin.RoleId,
-            PermissionId = Permissions.RevokeSupplierBranch.PermissionId,
-            ResourceId = null
+            PermissionId = Permissions.Revoke.PermissionId,
+            ResourceId = Resources.SuppliersBranches.ResourceId
         };
         
         public static readonly RolePermissionResource AdminViewSuppliersBranches = new RolePermissionResource
@@ -400,16 +344,16 @@ public static class Models
         {
             RolePermissionId = Guid.NewGuid(),
             RoleId = Roles.Admin.RoleId,
-            PermissionId = Permissions.AssignProducts.PermissionId,
-            ResourceId = null
+            PermissionId = Permissions.Assign.PermissionId,
+            ResourceId = Resources.SuppliersProducts.ResourceId
         };
         
         public static readonly RolePermissionResource AdminRevokeProducts = new RolePermissionResource
         {
             RolePermissionId = Guid.NewGuid(),
             RoleId = Roles.Admin.RoleId,
-            PermissionId = Permissions.RevokeProducts.PermissionId,
-            ResourceId = null
+            PermissionId = Permissions.Revoke.PermissionId,
+            ResourceId = Resources.SuppliersProducts.ResourceId
         };
         
         public static readonly RolePermissionResource AdminViewSuppliersProducts = new RolePermissionResource
@@ -448,14 +392,16 @@ public static class Models
         {
             RolePermissionId = Guid.NewGuid(),
             RoleId = Roles.Admin.RoleId,
-            PermissionId = Permissions.AssignBranch.PermissionId
+            PermissionId = Permissions.Assign.PermissionId,
+            ResourceId = Resources.UsersBranches.ResourceId
         };
         
         public static readonly RolePermissionResource AdminRevokeBranch = new RolePermissionResource
         {
             RolePermissionId = Guid.NewGuid(),
             RoleId = Roles.Admin.RoleId,
-            PermissionId = Permissions.RevokeBranch.PermissionId
+            PermissionId = Permissions.Revoke.PermissionId,
+            ResourceId = Resources.UsersBranches.ResourceId
         };
         
         public static readonly RolePermissionResource AdminViewUsersBranches = new RolePermissionResource
@@ -542,16 +488,16 @@ public static class Models
         {
             RolePermissionId = Guid.NewGuid(),
             RoleId = Roles.Admin.RoleId,
-            PermissionId = Permissions.AssignRole.PermissionId,
-            ResourceId = null
+            PermissionId = Permissions.Assign.PermissionId,
+            ResourceId = Resources.UsersRoles.ResourceId
         };
         
         public static readonly RolePermissionResource AdminRevokeRole = new RolePermissionResource
         {
             RolePermissionId = Guid.NewGuid(),
             RoleId = Roles.Admin.RoleId,
-            PermissionId = Permissions.RevokeRole.PermissionId,
-            ResourceId = null
+            PermissionId = Permissions.Revoke.PermissionId,
+            ResourceId = Resources.UsersRoles.ResourceId
         };
         
         public static readonly RolePermissionResource AdminViewUsersRoles = new RolePermissionResource
@@ -566,16 +512,16 @@ public static class Models
         {
             RolePermissionId = Guid.NewGuid(),
             RoleId = Roles.Admin.RoleId,
-            PermissionId = Permissions.AssignPermission.PermissionId,
-            ResourceId = null
+            PermissionId = Permissions.Assign.PermissionId,
+            ResourceId = Resources.RolesPermissionsResources.ResourceId
         };
         
         public static readonly RolePermissionResource AdminRevokePermission = new RolePermissionResource
         {
             RolePermissionId = Guid.NewGuid(),
             RoleId = Roles.Admin.RoleId,
-            PermissionId = Permissions.RevokePermission.PermissionId,
-            ResourceId = null
+            PermissionId = Permissions.Revoke.PermissionId,
+            ResourceId = Resources.RolesPermissionsResources.ResourceId
         };
         
         public static readonly RolePermissionResource AdminViewRolesPermissionsResources = new RolePermissionResource

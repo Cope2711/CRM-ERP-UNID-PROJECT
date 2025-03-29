@@ -21,7 +21,7 @@ public class UsersRolesController : ControllerBase
     
     
     [HttpPost("assign-roles")]
-    [PermissionAuthorize("Assign_Role")] 
+    [PermissionAuthorize("Assign", "UsersRoles")] 
     public async Task<ActionResult<ResponsesDto<UserAndRoleResponseStatusDto>>> AssignRoles([FromBody] UsersAndRolesDtos usersAndRolesDto)
     {
         ResponsesDto<UserAndRoleResponseStatusDto> usersAndRolesResponsesDto = await _usersRolesService.AssignRolesToUsersAsync(usersAndRolesDto);
@@ -29,7 +29,7 @@ public class UsersRolesController : ControllerBase
     }
     
     [HttpDelete("revoke-roles")]
-    [PermissionAuthorize("Revoke_Role")]
+    [PermissionAuthorize("Revoke", "UsersRoles")]
     public async Task<ActionResult<ResponsesDto<UserAndRoleResponseStatusDto>>> RevokeRoles([FromBody] UsersAndRolesDtos usersAndRolesDto)
     {
         ResponsesDto<UserAndRoleResponseStatusDto> usersAndRolesResponsesDto = await _usersRolesService.RevokeRolesToUsersAsync(usersAndRolesDto);
