@@ -52,7 +52,7 @@ public class SuppliersProductsController(
     }
     
     [HttpPost("assign-products")]
-    [PermissionAuthorize("Assign_Products")]
+    [PermissionAuthorize("Assign", "SuppliersProducts")]
     public async Task<ActionResult<ResponsesDto<SupplierAndProductResponseStatusDto>>> AssignProductsToSuppliers(
         [FromBody] SuppliersAndProductsIdsDto suppliersAndProductsIdsDto)
     {
@@ -63,7 +63,7 @@ public class SuppliersProductsController(
     }
     
     [HttpPost("revoke-products")]
-    [PermissionAuthorize("Revoke_Products")]
+    [PermissionAuthorize("Revoke", "SuppliersProducts")]
     public async Task<ActionResult<ResponsesDto<SupplierAndProductRevokedResponseStatusDto>>> RevokeProductsFromSuppliers(
         [FromBody] SuppliersProductsIdsDto suppliersProductsIdsDto)
     {

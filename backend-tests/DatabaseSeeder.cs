@@ -28,23 +28,15 @@ public class DatabaseSeeder
             Models.UsersRoles.HighestPriorityUserRoleHighestPriority2,
             Models.UsersRoles.TestUser2RoleUser);
         context.Permissions.AddRange(
-            Models.Permissions.AssignSupplierBranch,
-            Models.Permissions.RevokeSupplierBranch,
-            Models.Permissions.AssignProducts,
-            Models.Permissions.RevokeProducts,
             Models.Permissions.View,
             Models.Permissions.ViewReports,
             Models.Permissions.EditContent,
             Models.Permissions.Create,
-            Models.Permissions.AssignRole,
-            Models.Permissions.RevokeRole,
-            Models.Permissions.AssignPermission,
-            Models.Permissions.RevokePermission,
             Models.Permissions.Delete,
             Models.Permissions.DeactivateUser,
             Models.Permissions.ActivateUser,
-            Models.Permissions.AssignBranch,
-            Models.Permissions.RevokeBranch);
+            Models.Permissions.Assign,
+            Models.Permissions.Revoke);
         context.Resources.AddRange(
             Models.Resources.SuppliersBranches,
             Models.Resources.SuppliersProducts,

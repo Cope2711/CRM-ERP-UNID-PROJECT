@@ -40,10 +40,9 @@ DROP TABLE IF EXISTS Permissions;
 DROP TABLE IF EXISTS Roles;
 DROP TABLE IF EXISTS RefreshTokens;
 DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Suppliers;
 DROP TABLE IF EXISTS Products;
 DROP TABLE IF EXISTS Brands;
-DROP TABLE IF EXISTS Suppliers;
-
 
 CREATE TABLE Suppliers
 (
@@ -304,38 +303,22 @@ DECLARE @PermissionId_View UNIQUEIDENTIFIER = '7521ffd2-80e6-4970-8ab3-0d454a377
 DECLARE @PermissionId_ViewReports UNIQUEIDENTIFIER = 'a5088356-4272-4939-b18b-971811fd29e8';
 DECLARE @PermissionId_EditContent UNIQUEIDENTIFIER = '2a831d9d-1245-451e-8b02-de6542f74574';
 DECLARE @PermissionId_Create UNIQUEIDENTIFIER = '99f766ee-3fd5-4e33-9771-d3821322acea';
-DECLARE @PermissionId_AssignRole UNIQUEIDENTIFIER = '5c748c35-a4f5-48d6-a320-32287c8649a9';
-DECLARE @PermissionId_RevokeRole UNIQUEIDENTIFIER = '47a2f03a-5f0b-4d73-b535-200a643e7849';
-DECLARE @PermissionId_AssignPermission UNIQUEIDENTIFIER = '554b4b5a-cae7-414c-91f8-75df725b526d';
-DECLARE @PermissionId_RevokePermission UNIQUEIDENTIFIER = '9037e10c-38ea-40a6-b364-d68f86203c11';
 DECLARE @PermissionId_Delete UNIQUEIDENTIFIER = '722399bc-76f4-4bfa-950d-85e8b93f7af5';
 DECLARE @PermissionId_DeactivateUser UNIQUEIDENTIFIER = '10d321bd-b667-40c9-adb0-50e62d37c4cc';
 DECLARE @PermissionId_ActivateUser UNIQUEIDENTIFIER = 'a43b1178-931e-4eed-9742-30af024ec05b';
-DECLARE @PermissionId_AssignBranch UNIQUEIDENTIFIER = 'dfbd5729-c8a9-4474-acab-766893ae82f9';
-DECLARE @PermissionId_RevokeBranch UNIQUEIDENTIFIER = '083daf3a-fb59-4714-83f0-fc2bcd0f1374';
-DECLARE @PermissionId_AssignProducts UNIQUEIDENTIFIER = 'd8da9664-8a80-45e2-8378-0e81ebb43fd6';
-DECLARE @PermissionId_RevokeProducts UNIQUEIDENTIFIER = '8b251391-1f6b-474e-9ccb-d34042ef0fee';
-DECLARE @PermissionId_AssignSupplierBranch UNIQUEIDENTIFIER = '10ba08a3-d4cd-4f79-8720-5e2b060403d9';
-DECLARE @PermissionId_RevokeSupplierBranch UNIQUEIDENTIFIER = '1573d6db-9b05-4627-bf26-576e3a4519ac';
+DECLARE @PermissionId_Assign UNIQUEIDENTIFIER = 'd2d43370-14ec-4bc1-824b-cf956acc8c46';
+DECLARE @PermissionId_Revoke UNIQUEIDENTIFIER = 'a67c7aeb-12e1-41af-8e60-27e8c188ddde';
 
 INSERT INTO Permissions (PermissionId, PermissionName, PermissionDescription)
 VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
-       (@PermissionId_ViewReports, 'View_Reports', 'Access to view reports'),
-       (@PermissionId_EditContent, 'Edit_Content', 'Permission to edit content'),
-       (@PermissionId_Create, 'Create', 'Create objects'),
-       (@PermissionId_AssignRole, 'Assign_Role', 'Assign role to user'),
-       (@PermissionId_RevokeRole, 'Revoke_Role', 'Revoke role to user'),
-       (@PermissionId_AssignPermission, 'Assign_Permission', 'Assign permission to role'),
-       (@PermissionId_RevokePermission, 'Revoke_Permission', 'Revoke permission to role'),
-       (@PermissionId_Delete, 'Delete', 'Delete objects'),
-       (@PermissionId_DeactivateUser, 'Deactivate_User', 'Deactivate user'),
-        (@PermissionId_ActivateUser, 'Activate_User', 'Activate user'),
-        (@PermissionId_AssignBranch, 'Assign_Branch', 'Assign branch to user'),
-        (@PermissionId_RevokeBranch, 'Revoke_Branch', 'Revoke branch to user'),
-        (@PermissionId_AssignProducts, 'Assign_Products', 'Assign products to supplier'),
-        (@PermissionId_RevokeProducts, 'Revoke_Products', 'Revoke products to supplier'),
-        (@PermissionId_AssignSupplierBranch, 'Assign_Supplier_Branch', 'Assign supplier branch'),
-        (@PermissionId_RevokeSupplierBranch, 'Revoke_Supplier_Branch', 'Revoke supplier branch');
+    (@PermissionId_ViewReports, 'View_Reports', 'Access to view reports'),
+    (@PermissionId_EditContent, 'Edit_Content', 'Permission to edit content'),
+    (@PermissionId_Create, 'Create', 'Create objects'),
+    (@PermissionId_Delete, 'Delete', 'Delete objects'),
+    (@PermissionId_DeactivateUser, 'Deactivate_User', 'Deactivate user'),
+    (@PermissionId_ActivateUser, 'Activate_User', 'Activate user'),
+    (@PermissionId_Assign, 'Assign', 'Assign objects'),
+    (@PermissionId_Revoke, 'Revoke', 'Revoke objects');
         
 
 -- Insertar Recursos
@@ -352,7 +335,7 @@ DECLARE @ResourceId_Branches UNIQUEIDENTIFIER = '55dc724f-a1aa-4d73-a7ed-5bef93b
 DECLARE @ResourceId_UsersBranches UNIQUEIDENTIFIER = 'ef53fcb2-2e6f-4104-9b1d-7c5164851b3e';
 DECLARE @ResourceId_Suppliers UNIQUEIDENTIFIER = '425e70c0-cb53-4b5a-85d2-e5fa7f8034fb';
 DECLARE @ResourceId_SuppliersProducts UNIQUEIDENTIFIER = '68a8ab4e-93bc-4459-ac3a-196a209e8209';
-DECLARE @ResourceId_SupplierBranches UNIQUEIDENTIFIER = '22cc021b-28aa-4b62-9fdb-1c3c33ba47d5';
+DECLARE @ResourceId_SuppliersBranches UNIQUEIDENTIFIER = '22cc021b-28aa-4b62-9fdb-1c3c33ba47d5';
 
 INSERT INTO Resources (ResourceId, ResourceName, ResourceDescription)
 VALUES (@ResourceId_Users, 'Users', 'Users module'),
@@ -368,7 +351,7 @@ VALUES (@ResourceId_Users, 'Users', 'Users module'),
        (@ResourceId_UsersBranches, 'UsersBranches', 'Users branches module'),
        (@ResourceId_Suppliers, 'Suppliers', 'Suppliers module'),
        (@ResourceId_SuppliersProducts, 'SuppliersProducts', 'Suppliers products module'),
-       (@ResourceId_SupplierBranches, 'SuppliersBranches', 'Supplier branches module')
+       (@ResourceId_SuppliersBranches, 'SuppliersBranches', 'Supplier branches module')
 
 -- Insertar Permisos a los Roles
 INSERT INTO RolesPermissionsResources (RolePermissionId, RoleId, PermissionId, ResourceId)
@@ -376,12 +359,14 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_DeactivateUser, NULL),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, NULL),
+       (NEWID(), @RoleId_Admin, @PermissionId_Assign, @ResourceId_UsersRoles),
+       (NEWID(), @RoleId_Admin, @PermissionId_Revoke, @ResourceId_UsersRoles),
        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Users),
-       (NEWID(), @RoleId_Admin, @PermissionId_AssignRole, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_RevokeRole, NULL),
+       (NEWID(), @RoleId_Admin, @PermissionId_Assign, @ResourceId_Roles),
+       (NEWID(), @RoleId_Admin, @PermissionId_Revoke, @ResourceId_Roles),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_UsersRoles),
-       (NEWID(), @RoleId_Admin, @PermissionId_AssignPermission, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_RevokePermission, NULL),
+       (NEWID(), @RoleId_Admin, @PermissionId_Assign, @ResourceId_Permissions),
+       (NEWID(), @RoleId_Admin, @PermissionId_Revoke, @ResourceId_Permissions),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_RolesPermissionsResources),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Roles),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Roles),
@@ -391,8 +376,8 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Permissions),
        (NEWID(), @RoleId_Admin, @PermissionId_ActivateUser, NULL),
        (NEWID(), @RoleId_User, @PermissionId_EditContent, @ResourceId_Users),
-       (NEWID(), @ROleId_User, @PermissionId_RevokeRole, NULL),
-       (NEWID(), @ROleId_User, @PermissionId_RevokePermission, NULL),
+       (NEWID(), @RoleId_User, @PermissionId_Revoke, @ResourceId_Roles),
+       (NEWID(), @ROleId_User, @PermissionId_Revoke, @ResourceId_Permissions),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Products),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Brands),
        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Brands),
@@ -406,20 +391,20 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Branches),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Branches),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_UsersBranches),
-       (NEWID(), @RoleId_Admin, @PermissionId_AssignBranch, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_RevokeBranch, NULL),
+       (NEWID(), @RoleId_Admin, @PermissionId_Assign, @ResourceId_Branches),
+       (NEWID(), @RoleId_Admin, @PermissionId_Revoke, @ResourceId_Branches),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Suppliers),
        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Suppliers),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Suppliers),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_SuppliersProducts),
        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_SuppliersProducts),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_SuppliersProducts),
-       (NEWID(), @RoleId_Admin, @PermissionId_AssignProducts, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_RevokeProducts, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_AssignSupplierBranch, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_RevokeSupplierBranch, NULL),
-       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_SupplierBranches),
-       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_SupplierBranches),
+       (NEWID(), @RoleId_Admin, @PermissionId_Assign, @ResourceId_Products),
+       (NEWID(), @RoleId_Admin, @PermissionId_Revoke, @ResourceId_Products),
+       (NEWID(), @RoleId_Admin, @PermissionId_Assign, @ResourceId_SuppliersBranches),
+       (NEWID(), @RoleId_Admin, @PermissionId_Revoke, @ResourceId_SuppliersBranches),
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_SuppliersBranches),
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_SuppliersBranches),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_SuppliersProducts)
 
 -- Insertar ejemplos de marcas

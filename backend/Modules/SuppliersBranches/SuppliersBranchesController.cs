@@ -25,7 +25,7 @@ public class SuppliersBranchesController(
     }
     
     [HttpPost("assign-branches")]
-    [PermissionAuthorize("Assign_Supplier_Branch")]
+    [PermissionAuthorize("Assign", "SuppliersBranches")]
     public async Task<ActionResult<ResponsesDto<SuppliersBranchResponseStatusDto>>> AssignBranchesToSuppliers(
         [FromBody] SuppliersAndBranchesDto suppliersAndBranchesDto)
     {
@@ -36,7 +36,7 @@ public class SuppliersBranchesController(
     }
     
     [HttpPost("revoke-branches")]
-    [PermissionAuthorize("Revoke_Supplier_Branch")]
+    [PermissionAuthorize("Revoke", "SuppliersBranches")]
     public async Task<ActionResult<ResponsesDto<SuppliersBranchesRevokedResponseStatusDto>>> RevokeBranchesFromSuppliers(
         [FromBody] SuppliersBranchesIdsDto suppliersBranchesIdsDto)
     {
