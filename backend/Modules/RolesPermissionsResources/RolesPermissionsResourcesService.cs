@@ -18,34 +18,30 @@ public class RolesPermissionsResourcesService(
     IRolesQueryService _rolesQueryService
 ) : IRolesPermissionsResourcesService
 {
-    public async Task<ResponsesDto<RolePermissionResourceResponseStatusDto>> RevokePermissionsToRolesAsync(
-        PermissionsResourcesAndRolesIdsDto permissionsResourcesAndRolesIdsDto)
+    public async Task<ResponsesDto<IdResponseStatusDto>> RevokePermissionsToRolesAsync(
+        IdsDto idsDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        ResponsesDto<RolePermissionResourceResponseStatusDto> responseDto = new();
+        ResponsesDto<IdResponseStatusDto> responseDto = new();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested RevokePermissionToRoleAsync with the object {permissionsResourcesAndRolesIdsDto}",
-            authenticatedUserId, permissionsResourcesAndRolesIdsDto);
+            authenticatedUserId, idsDto);
 
-        foreach (PermissionResourceAndRoleIdsDto permissionResourceAndRoleIdsDto in permissionsResourcesAndRolesIdsDto
-                     .PermissionResourceAndRoleIds)
+        foreach (Guid rolePermissionResourceId in idsDto.Ids)
         {
             RolePermissionResource? rolePermissionResource =
-                await GetByRoleIdPermissionIdResourceIdAsync(permissionResourceAndRoleIdsDto.RoleId,
-                    permissionResourceAndRoleIdsDto.PermissionId, permissionResourceAndRoleIdsDto.ResourceId);
+                await GetById(rolePermissionResourceId);
 
             if (rolePermissionResource == null)
             {
-                AddFailedResponseDto(responseDto, permissionResourceAndRoleIdsDto, ResponseStatus.NotFound,
+                ResponsesHelper.AddFailedResponseDto(responseDto, rolePermissionResourceId, ResponseStatus.NotFound,
                     Fields.Permissions.PermissionId, "Permission not found"); continue;
             }
-
-            Role role = await _rolesQueryService.GetByIdThrowsNotFoundAsync(permissionResourceAndRoleIdsDto.RoleId);
-
-            if (!_priorityValidationService.ValidateRolePriority(role))
+            
+            if (!await _priorityValidationService.ValidateRolePriorityById(rolePermissionResource.RoleId))
             {
-                AddFailedResponseDto(responseDto, permissionResourceAndRoleIdsDto, ResponseStatus.NotEnoughPriority,
+                ResponsesHelper.AddFailedResponseDto(responseDto, rolePermissionResourceId, ResponseStatus.NotEnoughPriority,
                     Fields.Roles.RoleId, "Not have enough priority to modify that role"); continue;
             }
 
@@ -53,9 +49,9 @@ public class RolesPermissionsResourcesService(
             _rolesPermissionsResourcesRepository.Remove(rolePermissionResource);
             await _rolesPermissionsResourcesRepository.SaveChangesAsync();
 
-            responseDto.Success.Add(new RolePermissionResourceResponseStatusDto
+            responseDto.Success.Add(new IdResponseStatusDto
             {
-                PermissionResourceAndRoleIds = permissionResourceAndRoleIdsDto,
+                Id = rolePermissionResourceId,
                 Status = ResponseStatus.Success,
                 Message = "Success"
             });
@@ -87,10 +83,8 @@ public class RolesPermissionsResourcesService(
                 AddFailedResponseDto(responseDto, permissionResourceAndRoleIdsDto, ResponseStatus.AlreadyProcessed,
                     Fields.Permissions.PermissionId, "Already assigned"); continue;
             }
-
-            Role? role = await _rolesQueryService.GetById(permissionResourceAndRoleIdsDto.RoleId);
-
-            if (role == null)
+            
+            if (!await _rolesQueryService.ExistById(permissionResourceAndRoleIdsDto.RoleId))
             {
                 AddFailedResponseDto(responseDto, permissionResourceAndRoleIdsDto, ResponseStatus.NotFound,
                     Fields.Roles.RoleId, "Role not found"); continue;
@@ -109,7 +103,7 @@ public class RolesPermissionsResourcesService(
                     Fields.Resources.ResourceId, "Resource not found"); continue;
             }
 
-            if (!_priorityValidationService.ValidateRolePriority(role))
+            if (!await _priorityValidationService.ValidateRolePriorityById(permissionResourceAndRoleIdsDto.RoleId))
             {
                 AddFailedResponseDto(responseDto, permissionResourceAndRoleIdsDto, ResponseStatus.NotEnoughPriority,
                     Fields.Roles.RoleId, "Not have enough priority to modify that role"); continue;
@@ -181,6 +175,11 @@ public class RolesPermissionsResourcesService(
         }
 
         return rolePermissionResource;
+    }
+    
+    public async Task<RolePermissionResource?> GetById(Guid id)
+    {
+        return await _genericService.GetById(id);
     }
 
     private void AddFailedResponseDto(ResponsesDto<RolePermissionResourceResponseStatusDto> responseDto,

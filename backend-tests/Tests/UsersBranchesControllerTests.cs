@@ -21,24 +21,6 @@ public class UsersBranchesControllerTests : IClassFixture<CustomWebApiFactory>
         _client = factory.CreateClientWithBearerToken();
     }
 
-    public class GetUserBranchByIdTests : GetByTestsBase, IClassFixture<CustomWebApiFactory>
-    {
-        public GetUserBranchByIdTests(CustomWebApiFactory factory) :
-            base(factory.CreateClientWithBearerToken(), $"{Endpoint}/get-by", new DoubleBasicStructuresDto
-            {
-                DoubleBasicStructureDtos = new List<DoubleBasicStructureDto>
-                {
-                    new DoubleBasicStructureDto
-                    {
-                        ValidValue = Models.UsersBranches.AdminUserBranchHermosillo.UserBranchId.ToString(),
-                        FieldName = "id"
-                    }
-                }
-            })
-        {
-        }
-    }
-
     public class AssignBranchTests : UsersBranchesControllerTests
     {
         public AssignBranchTests(CustomWebApiFactory factory) : base(factory)
@@ -120,50 +102,26 @@ public class UsersBranchesControllerTests : IClassFixture<CustomWebApiFactory>
         [Fact]
         public async Task RevokeBranch_ReturnsExpectedResult()
         {
-            UsersAndBranchesDtos usersAndBranchesDtos = new UsersAndBranchesDtos
-            {
-                UserAndBranchIdDtos = new List<UserAndBranchIdDto>
+            IdsDto usersBranchesIdsDto = new IdsDto{
+                Ids = new List<Guid>
                 {
-                    // Success - Revoked
-                    new UserAndBranchIdDto
-                    {
-                        UserId = Models.Users.TestUser.UserId,
-                        BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId
-                    },
-                    
-                    // Not found
-                    new UserAndBranchIdDto
-                    {
-                        UserId = Guid.NewGuid(),
-                        BranchId = Models.Branches.CampoReal.BranchId
-                    },
-                    
-                    // Not enough priority
-                    new UserAndBranchIdDto
-                    {
-                        UserId = Models.Users.HighestPriorityUser.UserId,
-                        BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId
-                    },
-                    
-                    // Not in the same branch
-                    new UserAndBranchIdDto
-                    {
-                        UserId = Models.Users.TestUser2.UserId,
-                        BranchId = Models.Branches.PuertoRico.BranchId
-                    }
+                    Models.UsersBranches.TestUserBranchHermosillo.UserBranchId, // Success - Revoked
+                    Guid.NewGuid(), // Not found
+                    Models.UsersBranches.HighestPriorityUserBranchHermosillo.UserBranchId, // Not enough priority
+                    Models.UsersBranches.TestUser2BranchPuertoRico.UserBranchId // Not in the same branch
                 }
             };
 
             var request = new HttpRequestMessage(HttpMethod.Delete, $"{Endpoint}/revoke-branch")
             {
-                Content = new StringContent(JsonConvert.SerializeObject(usersAndBranchesDtos), Encoding.UTF8, "application/json")
+                Content = new StringContent(JsonConvert.SerializeObject(usersBranchesIdsDto), Encoding.UTF8, "application/json")
             };
 
             var response = await _client.SendAsync(request);            
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            ResponsesDto<UserBranchResponseStatusDto>? revokeBranchesResponseDto =
-                await response.Content.ReadFromJsonAsync<ResponsesDto<UserBranchResponseStatusDto>>();
+            ResponsesDto<IdResponseStatusDto>? revokeBranchesResponseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<IdResponseStatusDto>>();
 
             revokeBranchesResponseDto.Should().NotBeNull();
             revokeBranchesResponseDto.Success.Count.Should().Be(1);

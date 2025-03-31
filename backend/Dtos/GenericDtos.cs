@@ -67,3 +67,17 @@ public class ResponseStatusDto
     public string? Message { get; set; }
     public string? Field { get; set; }
 }
+
+public class IdResponseStatusDto : ResponseStatusDto
+{
+    [Required]
+    [RangeListLength(1, 50)]
+    public required Guid Id { get; set; }
+}
+
+public class IdsDto
+{
+    [Required]
+    [RangeListLength(1, 50)]
+    public required List<Guid> Ids { get; set; }
+}

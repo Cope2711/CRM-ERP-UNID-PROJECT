@@ -118,32 +118,32 @@ public class SuppliersBranchesManagementService(
         return responseDto;
     }
     
-    public async Task<ResponsesDto<SuppliersBranchesRevokedResponseStatusDto>> RevokeBranchesFromSuppliers(
-        SuppliersBranchesIdsDto suppliersBranchesIdsDto)
+    public async Task<ResponsesDto<IdResponseStatusDto>> RevokeBranchesFromSuppliers(
+        IdsDto idsDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        ResponsesDto<SuppliersBranchesRevokedResponseStatusDto> responseDto = new();
+        ResponsesDto<IdResponseStatusDto> responseDto = new();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested RevokeBranchesFromSuppliers with the object {SuppliersBranchesIdsDto}",
-            authenticatedUserId, suppliersBranchesIdsDto);
+            authenticatedUserId, idsDto);
 
-        foreach (SupplierBranchIdDto supplierBranchIdDto in suppliersBranchesIdsDto.SupplierBranchIds)
+        foreach (Guid supplierBranchId in idsDto.Ids)
         {
             // Exist?
             SupplierBranch? supplierBranch =
-                await _suppliersBranchesQueryService.GetById(supplierBranchIdDto.SupplierBranchId);
+                await _suppliersBranchesQueryService.GetById(supplierBranchId);
 
             if (supplierBranch == null)
             {
-                AddFailedResponseDto(responseDto, supplierBranchIdDto, ResponseStatus.NotFound,
+                ResponsesHelper.AddFailedResponseDto(responseDto, supplierBranchId, ResponseStatus.NotFound,
                     Fields.SuppliersBranches.SupplierBranchId, "SupplierBranch not exist");
                 continue;
             }
             
             if (!await _usersBranchesQueryService.IsUserAssignedToBranch(authenticatedUserId, supplierBranch.BranchId))
             {
-                AddFailedResponseDto(responseDto, supplierBranchIdDto, ResponseStatus.BranchNotMatched,
+                ResponsesHelper.AddFailedResponseDto(responseDto, supplierBranchId, ResponseStatus.BranchNotMatched,
                     Fields.Branches.BranchId, "User not assigned to branch");
                 continue;
             }
@@ -151,9 +151,9 @@ public class SuppliersBranchesManagementService(
             _suppliersBranchesRepository.Remove(supplierBranch);
             await _suppliersBranchesRepository.SaveChangesAsync();
 
-            responseDto.Success.Add(new SuppliersBranchesRevokedResponseStatusDto
+            responseDto.Success.Add(new IdResponseStatusDto
             {
-                SupplierBranchId = supplierBranchIdDto,
+                Id = supplierBranchId,
                 Status = ResponseStatus.Success,
                 Message = "BranchRevoked"
             });
@@ -172,18 +172,6 @@ public class SuppliersBranchesManagementService(
         responseDto.Failed.Add(new SuppliersBranchResponseStatusDto
         {
             SupplerAndBranchId = supplierAndBranchIdDto,
-            Status = status,
-            Field = field,
-            Message = message
-        });
-    }
-
-    public void AddFailedResponseDto(ResponsesDto<SuppliersBranchesRevokedResponseStatusDto> responseDto,
-        SupplierBranchIdDto supplierBranchIdDto, string status, string field, string message)
-    {
-        responseDto.Failed.Add(new SuppliersBranchesRevokedResponseStatusDto
-        {
-            SupplierBranchId = supplierBranchIdDto,
             Status = status,
             Field = field,
             Message = message

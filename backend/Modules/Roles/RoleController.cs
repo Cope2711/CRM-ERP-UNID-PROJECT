@@ -27,7 +27,7 @@ public class RoleController(
     [PermissionAuthorize("View", "Roles")]
     public async Task<ActionResult<RoleDto>> GetById([FromQuery] Guid id)
     {
-        Role role = await _rolesQueryService.GetByIdThrowsNotFoundAsync(id);
+        Role role = await _rolesQueryService.GetByIdThrowsNotFound(id);
 
         return Ok(role.ToDto());
     }
@@ -36,7 +36,7 @@ public class RoleController(
     [PermissionAuthorize("View", "Roles")]
     public async Task<ActionResult<RoleDto>> GetByName([FromQuery] string rolename)
     {
-        Role role = await _rolesQueryService.GetByNameThrowsNotFoundAsync(rolename);
+        Role role = await _rolesQueryService.GetByNameThrowsNotFound(rolename);
 
         return Ok(role.ToDto());
     }
@@ -51,7 +51,7 @@ public class RoleController(
         if (getAllDto.Filters != null)
             CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Role));
 
-        GetAllResponseDto<Role> getAllResponseDto = await _rolesQueryService.GetAllAsync(getAllDto);
+        GetAllResponseDto<Role> getAllResponseDto = await _rolesQueryService.GetAll(getAllDto);
 
         return Ok(getAllResponseDto);
     }

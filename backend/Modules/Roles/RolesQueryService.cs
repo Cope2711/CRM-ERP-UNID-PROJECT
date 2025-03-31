@@ -5,20 +5,31 @@ using CRM_ERP_UNID.Exceptions;
 namespace CRM_ERP_UNID.Modules;
 
 public class RolesQueryService(
-    IGenericService<Role> _genericService
+    IGenericService<Role> _genericService,
+    IRolesRepository _rolesRepository
 ) : IRolesQueryService
 {
-    public async Task<bool> ExistRoleNameAsync(string roleName)
+    public async Task<double> GetRolePriorityById(Guid roleId)
+    {
+        double? rolePriority = await _rolesRepository.GetRolePriorityById(roleId);
+        if (rolePriority == null)
+        {
+            throw new NotFoundException("Role not exist", field: "RoleId");
+        }
+        return rolePriority.Value;
+    }
+    
+    public async Task<bool> ExistRoleName(string roleName)
     {
         return await _genericService.ExistsAsync(r => r.RoleName, roleName);
     }
 
-    public async Task<GetAllResponseDto<Role>> GetAllAsync(GetAllDto getAllDto)
+    public async Task<GetAllResponseDto<Role>> GetAll(GetAllDto getAllDto)
     {
         return await _genericService.GetAllAsync(getAllDto);
     }
 
-    public async Task<Role> GetByIdThrowsNotFoundAsync(Guid id)
+    public async Task<Role> GetByIdThrowsNotFound(Guid id)
     {
         return await _genericService.GetByIdThrowsNotFoundAsync(id);
     }
@@ -28,7 +39,7 @@ public class RolesQueryService(
         return await _genericService.GetById(id);
     }
 
-    public async Task<Role> GetByNameThrowsNotFoundAsync(string roleName)
+    public async Task<Role> GetByNameThrowsNotFound(string roleName)
     {
         return await _genericService.GetFirstThrowsNotFoundAsync(r => r.RoleName, roleName);
     }
@@ -36,14 +47,6 @@ public class RolesQueryService(
     public async Task<Role?> GetByNameAsync(string roleName)
     {
         return await _genericService.GetFirstAsync(r => r.RoleName, roleName);
-    }
-
-    public async Task<bool> ExistByIdThrowsNotFoundAsync(Guid id)
-    {
-        if (!await ExistById(id))
-            throw new NotFoundException(message: $"Role with id: {id} not exist", field: "RoleId");
-
-        return true;
     }
 
     public async Task<bool> ExistById(Guid id)

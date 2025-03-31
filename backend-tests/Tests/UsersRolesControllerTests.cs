@@ -99,55 +99,33 @@ public class UsersRolesControllerTests : IClassFixture<CustomWebApiFactory>
         [Fact]
         public async Task RevokeRoles_ReturnsExpectedResult()
         {
-            UsersAndRolesDtos usersAndRolesDtos = new UsersAndRolesDtos
+            IdsDto idsDto = new IdsDto
             {
-                UserAndRoleId = new List<UserAndRoleIdDto>
+                Ids = new List<Guid>
                 {
-                    // Success - Revoked
-                    new UserAndRoleIdDto
-                    {
-                        UserId = Models.Users.TestUser.UserId,
-                        RoleId = Models.Roles.User.RoleId
-                    },
-                    
-                    // Not found
-                    new UserAndRoleIdDto
-                    {
-                        UserId = Guid.NewGuid(),
-                        RoleId = Models.Roles.User.RoleId
-                    },
-                    
-                    // Not enough priority
-                    new UserAndRoleIdDto
-                    {
-                        UserId = Models.Users.HighestPriorityUser.UserId,
-                        RoleId = Models.Roles.HighestPriority.RoleId
-                    },
-                    
-                    // Not the same branch
-                    new UserAndRoleIdDto
-                    {
-                        UserId = Models.Users.TestUser2.UserId,
-                        RoleId = Models.Roles.User.RoleId
-                    },
+                    Models.UsersRoles.TestUserRoleUser.UserRoleId, // Success - Revoked
+                    Guid.NewGuid(), // Not found
+                    Models.UsersRoles.HighestPriorityUserRoleHighestPriority.UserRoleId, // Not enough priority
+                    Models.UsersRoles.TestUser2RoleUser.UserRoleId, // Not the same branch
                 }
             };
 
             var request = new HttpRequestMessage(HttpMethod.Delete, $"{Endpoint}/revoke-roles")
             {
-                Content = new StringContent(JsonConvert.SerializeObject(usersAndRolesDtos), Encoding.UTF8, "application/json")
+                Content = new StringContent(JsonConvert.SerializeObject(idsDto), Encoding.UTF8, "application/json")
             };
 
             var response = await _client.SendAsync(request);            
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            ResponsesDto<UserAndRoleResponseStatusDto>? revokeRolesResponseDto =
-                await response.Content.ReadFromJsonAsync<ResponsesDto<UserAndRoleResponseStatusDto>>();
+            ResponsesDto<IdResponseStatusDto>? revokeRolesResponseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<IdResponseStatusDto>>();
 
             revokeRolesResponseDto.Should().NotBeNull();
             revokeRolesResponseDto.Success.Count.Should().Be(1);
             revokeRolesResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotFound).Should().Be(1);
             revokeRolesResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotEnoughPriority).Should().Be(1);
+            revokeRolesResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.BranchNotMatched).Should().Be(1);
         }
     }
 }

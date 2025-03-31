@@ -15,11 +15,12 @@ namespace CRM_ERP_UNID.Extensions
             services.AddScoped<IUsersQueryService, UsersQueryService>();
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddScoped<IResourceService, ResourceService>();
-            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IRolesRepository, RolesRepository>();
             services.AddScoped<IRolesManagementService, RolesManagementService>();
             services.AddScoped<IRolesQueryService, RolesQueryService>();
             services.AddScoped<IUsersRolesRepository, UsersRolesRepository>();
-            services.AddScoped<IUsersRolesService, UsersRolesService>();
+            services.AddScoped<IUsersRolesManagementService, UsersRolesManagementService>();
+            services.AddScoped<IUsersRolesQueryService, UsersRolesQueryService>();
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));

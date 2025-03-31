@@ -13,8 +13,8 @@ public interface IRolesPermissionsResourcesService
     Task<ResponsesDto<RolePermissionResourceResponseStatusDto>> AssignPermissionsToRolesAsync(
         PermissionsResourcesAndRolesIdsDto permissionsResourcesAndRolesIdsDto);
 
-    Task<ResponsesDto<RolePermissionResourceResponseStatusDto>> RevokePermissionsToRolesAsync(
-        PermissionsResourcesAndRolesIdsDto permissionsResourcesAndRolesIdsDto);
+    Task<ResponsesDto<IdResponseStatusDto>> RevokePermissionsToRolesAsync(
+        IdsDto idsDto);
 
     Task<GetAllResponseDto<RolePermissionResource>> GetAllAsync(GetAllDto getAllDto);
 }

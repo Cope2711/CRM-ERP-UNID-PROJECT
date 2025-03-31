@@ -114,24 +114,24 @@ public class SuppliersProductsManagementService(
         return responseDto;
     }
 
-    public async Task<ResponsesDto<SupplierAndProductRevokedResponseStatusDto>> RevokeProductsFromSuppliers(
-        SuppliersProductsIdsDto suppliersProductsIdsDto)
+    public async Task<ResponsesDto<IdResponseStatusDto>> RevokeProductsFromSuppliers(
+        IdsDto idsDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        ResponsesDto<SupplierAndProductRevokedResponseStatusDto> responseDto = new();
+        ResponsesDto<IdResponseStatusDto> responseDto = new();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested UnassignProductsFromSuppliers with the object {SuppliersProductsIdsDto}",
-            authenticatedUserId, suppliersProductsIdsDto);
+            authenticatedUserId, idsDto);
 
-        foreach (SupplierProductIdDto supplierProductIdDto in suppliersProductsIdsDto.SupplierProductIds)
+        foreach (Guid supplierProductId in idsDto.Ids)
         {
             SupplierProduct? supplierProduct =
-                await _suppliersProductsQueryService.GetById(supplierProductIdDto.SupplierProductId);
+                await _suppliersProductsQueryService.GetById(supplierProductId);
 
             if (supplierProduct == null)
             {
-                AddFailedResponseDto(responseDto, supplierProductIdDto, ResponseStatus.NotFound,
+                ResponsesHelper.AddFailedResponseDto(responseDto, supplierProductId, ResponseStatus.NotFound,
                     Fields.SuppliersProducts.SupplierProductId, "SupplierProduct not exist");
                 continue;
             }
@@ -139,9 +139,9 @@ public class SuppliersProductsManagementService(
             _suppliersProductsRepository.Remove(supplierProduct);
             await _suppliersProductsRepository.SaveChangesAsync();
 
-            responseDto.Success.Add(new SupplierAndProductRevokedResponseStatusDto
+            responseDto.Success.Add(new IdResponseStatusDto
             {
-                SupplierProductId = supplierProductIdDto,
+                Id = supplierProductId,
                 Status = ResponseStatus.Success,
                 Message = "ProductRevoked"
             });
@@ -159,18 +159,6 @@ public class SuppliersProductsManagementService(
         responseDto.Failed.Add(new SupplierAndProductResponseStatusDto
         {
             SupplierAndProductId = supplierAndProductIdDto,
-            Status = status,
-            Field = field,
-            Message = message
-        });
-    }
-
-    public void AddFailedResponseDto(ResponsesDto<SupplierAndProductRevokedResponseStatusDto> responseDto,
-        SupplierProductIdDto supplierProductIdDto, string status, string field, string message)
-    {
-        responseDto.Failed.Add(new SupplierAndProductRevokedResponseStatusDto
-        {
-            SupplierProductId = supplierProductIdDto,
             Status = status,
             Field = field,
             Message = message

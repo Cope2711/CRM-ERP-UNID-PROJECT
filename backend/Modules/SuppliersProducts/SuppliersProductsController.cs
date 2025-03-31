@@ -62,13 +62,13 @@ public class SuppliersProductsController(
         return Ok(responseDto);
     }
     
-    [HttpPost("revoke-products")]
+    [HttpDelete("revoke-products")]
     [PermissionAuthorize("Revoke", "SuppliersProducts")]
-    public async Task<ActionResult<ResponsesDto<SupplierAndProductRevokedResponseStatusDto>>> RevokeProductsFromSuppliers(
-        [FromBody] SuppliersProductsIdsDto suppliersProductsIdsDto)
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> RevokeProductsFromSuppliers(
+        [FromBody] IdsDto idsDto)
     {
-        ResponsesDto<SupplierAndProductRevokedResponseStatusDto> responseDto =
-            await _suppliersProductsManagementService.RevokeProductsFromSuppliers(suppliersProductsIdsDto);
+        ResponsesDto<IdResponseStatusDto> responseDto =
+            await _suppliersProductsManagementService.RevokeProductsFromSuppliers(idsDto);
 
         return Ok(responseDto);
     }

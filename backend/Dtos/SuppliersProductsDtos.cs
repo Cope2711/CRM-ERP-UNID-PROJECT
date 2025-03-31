@@ -57,25 +57,7 @@ public class SuppliersAndProductsIdsDto
     [RangeListLength(1, int.MaxValue)]
     public required List<SupplierAndProductIdDto> SuppliersAndProductsIds { get; set; }
 }
-
-public class SupplierProductIdDto
-{
-    [GuidNotEmpty]
-    public required Guid SupplierProductId { get; set; }
-}
-
-public class SuppliersProductsIdsDto
-{
-    [RangeListLength(1, int.MaxValue)]
-    public required List<SupplierProductIdDto> SupplierProductIds { get; set; }
-}
-
 public class SupplierAndProductResponseStatusDto : ResponseStatusDto
 {
     public SupplierAndProductIdDto SupplierAndProductId { get; set; }
-}
-
-public class SupplierAndProductRevokedResponseStatusDto : ResponseStatusDto
-{
-    public SupplierProductIdDto SupplierProductId { get; set; }
 }

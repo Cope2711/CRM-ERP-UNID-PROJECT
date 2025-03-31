@@ -10,19 +10,20 @@ public interface IUsersRolesRepository
     void Add(UserRole userRole);
     Task SaveChangesAsync();
     Task<bool> IsRoleAssignedToUserAsync(Guid userId, Guid roleId);
-    Task<UserRole?> GetByUserIdAndRoleIdAsync(Guid userId, Guid roleId);
+    Task<double[]> GetUserRolesPriority(Guid userId);
 }
 
 public class UsersRolesRepository(
     AppDbContext _context
 ) : IUsersRolesRepository
 {
-    public async Task<UserRole?> GetByUserIdAndRoleIdAsync(Guid userId, Guid roleId)
+    public async Task<double[]> GetUserRolesPriority(Guid userId)
     {
-        return await _context.UsersRoles.Include(ur => ur.User).Include(ur => ur.Role)
-            .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+        return await _context.UsersRoles.Where(ur => ur.UserId == userId)
+            .Select(ur => ur.Role.RolePriority)
+            .ToArrayAsync();
     }
-
+    
     public void Add(UserRole userRole)
     {
         _context.UsersRoles.Add(userRole);

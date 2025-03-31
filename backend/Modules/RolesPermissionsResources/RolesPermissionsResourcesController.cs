@@ -26,11 +26,11 @@ public class RolesPermissionsResourcesController(
 
     [HttpDelete("revoke-permissions")]
     [PermissionAuthorize("Revoke", "RolesPermissionsResources")]
-    public async Task<ActionResult<ResponsesDto<RolePermissionResourceResponseStatusDto>>> RevokePermissionsToRoles(
-        [FromBody] PermissionsResourcesAndRolesIdsDto permissionsResourcesAndRolesIdsDto)
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> RevokePermissionsToRoles(
+        [FromBody] IdsDto idsDto)
     {
-        ResponsesDto<RolePermissionResourceResponseStatusDto> responsesDto =
-            await _rolesPermissionsResourcesService.RevokePermissionsToRolesAsync(permissionsResourcesAndRolesIdsDto);
+        ResponsesDto<IdResponseStatusDto> responsesDto =
+            await _rolesPermissionsResourcesService.RevokePermissionsToRolesAsync(idsDto);
         return Ok(responsesDto);
     }
 

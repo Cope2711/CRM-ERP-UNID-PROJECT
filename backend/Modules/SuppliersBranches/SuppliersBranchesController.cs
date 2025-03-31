@@ -35,13 +35,13 @@ public class SuppliersBranchesController(
         return Ok(responseDto);
     }
     
-    [HttpPost("revoke-branches")]
+    [HttpDelete("revoke-branches")]
     [PermissionAuthorize("Revoke", "SuppliersBranches")]
-    public async Task<ActionResult<ResponsesDto<SuppliersBranchesRevokedResponseStatusDto>>> RevokeBranchesFromSuppliers(
-        [FromBody] SuppliersBranchesIdsDto suppliersBranchesIdsDto)
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> RevokeBranchesFromSuppliers(
+        [FromBody] IdsDto idsDto)
     {
-        ResponsesDto<SuppliersBranchesRevokedResponseStatusDto> responseDto =
-            await _suppliersBranchesManagementService.RevokeBranchesFromSuppliers(suppliersBranchesIdsDto);
+        ResponsesDto<IdResponseStatusDto> responseDto =
+            await _suppliersBranchesManagementService.RevokeBranchesFromSuppliers(idsDto);
 
         return Ok(responseDto);
     }

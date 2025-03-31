@@ -15,14 +15,6 @@ public class UsersBranchesController(
     IUsersBranchesManagementService _usersBranchesManagementService
 ) : ControllerBase
 {
-    [HttpGet("get-by-id")]
-    [PermissionAuthorize("View", "UsersBranches")]
-    public async Task<ActionResult<UserBranchDto>> GetById(Guid id)
-    {
-        UserBranch userBranch = await _usersBranchesQueryService.GetByIdThrowsNotFoundAsync(id);
-        return Ok(userBranch.ToDto());
-    }
-    
     [HttpPost("get-all")]
     [PermissionAuthorize("View", "UsersBranches")]
     public async Task<ActionResult<GetAllResponseDto<UserBranch>>> GetAll(GetAllDto getAllDto)
@@ -49,9 +41,9 @@ public class UsersBranchesController(
     
     [HttpDelete("revoke-branch")]
     [PermissionAuthorize("Revoke", "UsersBranches")]
-    public async Task<ActionResult<ResponsesDto<UserBranchResponseStatusDto>>> RevokeBranch([FromBody] UsersAndBranchesDtos usersAndBranchesDtos)
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> RevokeBranch([FromBody] IdsDto idsDto)
     {
-        ResponsesDto<UserBranchResponseStatusDto> userBranchResponsesDto = await _usersBranchesManagementService.RevokeBranchToUserAsync(usersAndBranchesDtos);
+        ResponsesDto<IdResponseStatusDto> userBranchResponsesDto = await _usersBranchesManagementService.RevokeBranchToUserAsync(idsDto);
         return Ok(userBranchResponsesDto);
     }
 }
