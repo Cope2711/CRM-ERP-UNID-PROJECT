@@ -5,12 +5,11 @@ namespace CRM_ERP_UNID.Modules;
 
 public interface IRolesQueryService
 {
-    Task<GetAllResponseDto<Role>> GetAllAsync(GetAllDto getAllDto);
-    Task<Role> GetByIdThrowsNotFoundAsync(Guid id);
+    Task<GetAllResponseDto<Role>> GetAll(GetAllDto getAllDto);
+    Task<Role> GetByIdThrowsNotFound(Guid id);
     Task<Role?> GetById(Guid id);
-    Task<Role> GetByNameThrowsNotFoundAsync(string roleName);
-    Task<Role?> GetByNameAsync(string roleName);
-    Task<bool> ExistRoleNameAsync(string roleName);
-    Task<bool> ExistByIdThrowsNotFoundAsync(Guid id);
+    Task<Role> GetByNameThrowsNotFound(string roleName);
+    Task<bool> ExistRoleName(string roleName);
     Task<bool> ExistById(Guid id);
+    Task<double> GetRolePriorityById(Guid roleId);
 }

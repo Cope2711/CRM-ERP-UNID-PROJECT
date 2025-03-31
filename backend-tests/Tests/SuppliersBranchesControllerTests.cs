@@ -1,9 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using CRM_ERP_UNID_TESTS;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
+using Newtonsoft.Json;
 
 [Collection("Tests")]
 public class SuppliersBranchesControllerTests : IClassFixture<CustomWebApiFactory>
@@ -66,30 +68,27 @@ public class SuppliersBranchesControllerTests : IClassFixture<CustomWebApiFactor
         [Fact]
         public async Task RevokeBranches_ReturnsExpectedResult()
         {
-            SuppliersBranchesIdsDto suppliersBranchesIdsDto = new SuppliersBranchesIdsDto
+            IdsDto idsDto = new IdsDto
             {
-                SupplierBranchIds = new List<SupplierBranchIdDto>
+                Ids = new List<Guid>
                 {
-                    new SupplierBranchIdDto // ALL OK
-                    {
-                        SupplierBranchId = Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.SupplierBranchId
-                    },
-                    
-                    new SupplierBranchIdDto // NOT FOUND
-                    {
-                        SupplierBranchId = Guid.NewGuid()
-                    },
-                    
-                    new SupplierBranchIdDto // Not branch assigned to user
-                    {
-                        SupplierBranchId = Models.SuppliersBranches.ApplePuertoRico.SupplierBranchId
-                    }
+                    Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.SupplierBranchId, // ALL OK
+                    Guid.NewGuid(), // NOT FOUND
+                    Models.SuppliersBranches.ApplePuertoRico.SupplierBranchId // Not branch assigned to user
                 }
             };
 
-            HttpResponseMessage response = await _client.PostAsJsonAsync($"{Endpoint}/revoke-branches", suppliersBranchesIdsDto);
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Endpoint}/revoke-branches")
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(idsDto), Encoding.UTF8, "application/json")
+            };
+
+            var response = await _client.SendAsync(request);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            ResponsesDto<SuppliersBranchesRevokedResponseStatusDto> responseDto = await response.Content.ReadFromJsonAsync<ResponsesDto<SuppliersBranchesRevokedResponseStatusDto>>();
+            
+            ResponsesDto<IdResponseStatusDto>? responseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<IdResponseStatusDto>>();
+            
             responseDto.Should().NotBeNull();
             responseDto.Success.Count.Should().Be(1);
             responseDto.Failed.Count(x => x.Status == ResponseStatus.NotFound).Should().Be(1);

@@ -1,9 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using CRM_ERP_UNID_TESTS;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
+using Newtonsoft.Json;
 
 [Collection("Tests")]
 public class SuppliersProductsControllerTests : IClassFixture<CustomWebApiFactory>
@@ -107,25 +109,24 @@ public class SuppliersProductsControllerTests : IClassFixture<CustomWebApiFactor
         [Fact]
         public async Task RevokeProducts_ReturnsExpectedResult()
         {
-            SuppliersProductsIdsDto suppliersProductsIdsDto = new SuppliersProductsIdsDto
-            {
-                SupplierProductIds = new List<SupplierProductIdDto>
+            IdsDto suppliersProductsIdsDto = new IdsDto{
+                Ids = new List<Guid>
                 {
-                    new SupplierProductIdDto // ALL OK
-                    {
-                        SupplierProductId = Models.SuppliersProducts.AppleIphone13.SupplierProductId
-                    },
-                    
-                    new SupplierProductIdDto // NOT FOUND
-                    {
-                        SupplierProductId = Guid.NewGuid()
-                    }
+                    Models.SuppliersProducts.AppleIphone13.SupplierProductId, // ALL OK
+                    Guid.NewGuid() // NOT FOUND
                 }
             };
 
-            HttpResponseMessage response = await _client.PostAsJsonAsync($"{Endpoint}/revoke-products", suppliersProductsIdsDto);
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Endpoint}/revoke-products")
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(suppliersProductsIdsDto), Encoding.UTF8, "application/json")
+            };
+
+            var response = await _client.SendAsync(request);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            ResponsesDto<SupplierAndProductRevokedResponseStatusDto> responseDto = await response.Content.ReadFromJsonAsync<ResponsesDto<SupplierAndProductRevokedResponseStatusDto>>();
+            
+            ResponsesDto<IdResponseStatusDto>? responseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<IdResponseStatusDto>>();
             responseDto.Should().NotBeNull();
             responseDto.Success.Count.Should().Be(1);
             responseDto.Failed.Count(x => x.Status == ResponseStatus.NotFound).Should().Be(1);
