@@ -1,4 +1,4 @@
-using CRM_ERP_UNID_TESTS;
+using CRM_ERP_UNID_TESTS.TestsModels;
 using CRM_ERP_UNID_TESTS.Dtos;
 using CRM_ERP_UNID_TESTS.TestsBase;
 
