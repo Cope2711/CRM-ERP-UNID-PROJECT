@@ -6,6 +6,20 @@ public static partial class Models
 {
     public static class Resources
     {
+        public static readonly Resource ProductsCategories = new Resource
+        {
+            ResourceId = Guid.Parse("3c0659bc-7047-49f4-a5a1-2f3d362eb9ee"),
+            ResourceName = "ProductsCategories",
+            ResourceDescription = "ProductsCategories module"
+        };
+        
+        public static readonly Resource Categories = new Resource
+        {
+            ResourceId = Guid.Parse("d25cce2a-ead4-418a-815c-b6fa52f4be92"),
+            ResourceName = "Categories",
+            ResourceDescription = "Categories module"
+        };
+        
         public static readonly Resource SuppliersBranches = new Resource
         {
             ResourceId = Guid.Parse("36c11364-f3d7-4860-9aa4-292ac05ad950"),

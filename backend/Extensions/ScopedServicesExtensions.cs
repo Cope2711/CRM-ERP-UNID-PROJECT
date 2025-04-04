@@ -52,6 +52,12 @@ namespace CRM_ERP_UNID.Extensions
             services.AddScoped<ISuppliersBranchesManagementService, SuppliersBranchesManagementService>();
             services.AddScoped<ISuppliersBranchesQueryService, SuppliersBranchesQueryService>();
             services.AddScoped<ISuppliersBranchesRepository, SuppliersBranchesRepository>();
+            services.AddScoped<ICategoriesManagementService, CategoriesManagementService>();
+            services.AddScoped<ICategoriesQueryService, CategoriesQueryService>();
+            services.AddScoped<ICategoriesRepository, CategoriesRepository>();
+            services.AddScoped<IProductsCategoriesManagementService, ProductsCategoriesManagementService>();
+            services.AddScoped<IProductsCategoriesQueryService, ProductsCategoriesQueryService>();
+            services.AddScoped<IProductsCategoriesRepository, ProductsCategoriesRepository>();
         }
     }
 }

@@ -6,6 +6,62 @@ public static partial class Models
 {
     public static class RolesPermissionsResources
     {
+        public static readonly RolePermissionResource AdminAssignProductsCategories = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.Assign.PermissionId,
+            ResourceId = Resources.ProductsCategories.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminRevokeProductsCategories = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.Revoke.PermissionId,
+            ResourceId = Resources.ProductsCategories.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminViewProductsCategories = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.View.PermissionId,
+            ResourceId = Resources.ProductsCategories.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminViewCategories = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.View.PermissionId,
+            ResourceId = Resources.Categories.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminCreateCategories = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.Create.PermissionId,
+            ResourceId = Resources.Categories.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminEditCategories = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.EditContent.PermissionId,
+            ResourceId = Resources.Categories.ResourceId
+        };
+        
+        public static readonly RolePermissionResource AdminDeleteCategories = new RolePermissionResource
+        {
+            RolePermissionId = Guid.NewGuid(),
+            RoleId = Roles.Admin.RoleId,
+            PermissionId = Permissions.Delete.PermissionId,
+            ResourceId = Resources.Categories.ResourceId
+        };
+        
         public static readonly RolePermissionResource AdminEditContentSuppliersProducts = new RolePermissionResource
         {
             RolePermissionId = Guid.NewGuid(),

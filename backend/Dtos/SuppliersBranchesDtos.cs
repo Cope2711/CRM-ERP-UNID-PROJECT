@@ -48,20 +48,3 @@ public class SuppliersBranchResponseStatusDto : ResponseStatusDto
     public SupplerAndBranchIdDto SupplerAndBranchId { get; set; }
 }
 
-public class SupplierBranchIdDto
-{
-    [GuidNotEmpty]
-    public Guid SupplierBranchId { get; set; }
-}
-
-public class SuppliersBranchesIdsDto
-{
-    [RangeListLength(1, int.MaxValue)]
-    public required List<SupplierBranchIdDto> SupplierBranchIds { get; set; }
-}
-
-public class SuppliersBranchesRevokedResponseStatusDto : ResponseStatusDto
-{
-    public SupplierBranchIdDto SupplierBranchId { get; set; }
-}
-

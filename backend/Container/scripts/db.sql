@@ -28,6 +28,7 @@ GO
 
 DROP TABLE IF EXISTS SuppliersBranches;
 DROP TABLE IF EXISTS SupplierProducts;
+DROP TABLE IF EXISTS ProductsCategories;
 DROP TABLE IF EXISTS UsersBranches;
 DROP TABLE IF EXISTS UsersRoles;
 DROP TABLE IF EXISTS RolesPermissionsResources;
@@ -43,6 +44,8 @@ DROP TABLE IF EXISTS Users;
 DROP TABLE IF EXISTS Suppliers;
 DROP TABLE IF EXISTS Products;
 DROP TABLE IF EXISTS Brands;
+DROP TABLE IF EXISTS Categories;
+
 
 CREATE TABLE Suppliers
 (
@@ -92,6 +95,27 @@ CREATE TABLE Products
 
     CONSTRAINT FK_Products_Brands FOREIGN KEY (BrandId)
         REFERENCES Brands (BrandId) ON DELETE CASCADE
+);
+
+CREATE TABLE Categories
+(
+    CategoryId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    CategoryName VARCHAR(50) NOT NULL,
+    CategoryDescription VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE ProductsCategories
+(
+    ProductCategoryId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    ProductId UNIQUEIDENTIFIER NOT NULL,
+    CategoryId UNIQUEIDENTIFIER NOT NULL,
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    
+    CONSTRAINT FK_ProductsCategories_Products FOREIGN KEY (ProductId)
+        REFERENCES Products (ProductId) ON DELETE CASCADE,
+    CONSTRAINT FK_ProductsCategories_Categories FOREIGN KEY (CategoryId)
+        REFERENCES Categories (CategoryId) ON DELETE CASCADE,
+    CONSTRAINT UQ_ProductsCategories UNIQUE (ProductId, CategoryId)
 );
 
 CREATE TABLE Inventory
@@ -336,6 +360,8 @@ DECLARE @ResourceId_UsersBranches UNIQUEIDENTIFIER = 'ef53fcb2-2e6f-4104-9b1d-7c
 DECLARE @ResourceId_Suppliers UNIQUEIDENTIFIER = '425e70c0-cb53-4b5a-85d2-e5fa7f8034fb';
 DECLARE @ResourceId_SuppliersProducts UNIQUEIDENTIFIER = '68a8ab4e-93bc-4459-ac3a-196a209e8209';
 DECLARE @ResourceId_SuppliersBranches UNIQUEIDENTIFIER = '22cc021b-28aa-4b62-9fdb-1c3c33ba47d5';
+DECLARE @ResourceId_Categories UNIQUEIDENTIFIER = '6e289d1b-247a-4e97-8614-dee88d44f6f6';
+DECLARE @ResourceId_ProductsCategories UNIQUEIDENTIFIER = '9fbeb6a1-d337-4363-82f9-cfa8f77070b1';
 
 INSERT INTO Resources (ResourceId, ResourceName, ResourceDescription)
 VALUES (@ResourceId_Users, 'Users', 'Users module'),
@@ -351,7 +377,9 @@ VALUES (@ResourceId_Users, 'Users', 'Users module'),
        (@ResourceId_UsersBranches, 'UsersBranches', 'Users branches module'),
        (@ResourceId_Suppliers, 'Suppliers', 'Suppliers module'),
        (@ResourceId_SuppliersProducts, 'SuppliersProducts', 'Suppliers products module'),
-       (@ResourceId_SuppliersBranches, 'SuppliersBranches', 'Supplier branches module')
+       (@ResourceId_SuppliersBranches, 'SuppliersBranches', 'Supplier branches module'),
+       (@ResourceId_Categories, 'Categories', 'Categories module'),
+       (@ResourceId_ProductsCategories, 'ProductsCategories', 'Products categories module')
 
 -- Insertar Permisos a los Roles
 INSERT INTO RolesPermissionsResources (RolePermissionId, RoleId, PermissionId, ResourceId)
@@ -405,7 +433,14 @@ VALUES (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
        (NEWID(), @RoleId_Admin, @PermissionId_Revoke, @ResourceId_SuppliersBranches),
        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_SuppliersBranches),
        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_SuppliersBranches),
-       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_SuppliersProducts)
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_SuppliersProducts),
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Categories),
+       (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Categories),
+       (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Categories),
+       (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_ProductsCategories),
+       (NEWID(), @RoleId_Admin, @PermissionId_Assign, @ResourceId_ProductsCategories),
+       (NEWID(), @RoleId_Admin, @PermissionId_Revoke, @ResourceId_ProductsCategories),
+       (NEWID(), @RoleId_Admin, @PermissionId_Delete, @ResourceId_Categories)
 
 -- Insertar ejemplos de marcas
 DECLARE @BrandId_Apple UNIQUEIDENTIFIER = 'c3146b6f-b50f-4b26-8e77-827fc538b7d1';
@@ -451,6 +486,26 @@ VALUES
     (@ProductId_NikeAirMax270, 'Nike Air Max 270', 120.00, 'Comfortable running shoes', 1, @BrandId_Nike),
     (@ProductId_NikeZoomX, 'Nike ZoomX Vaporfly Next%', 250.00, 'High-performance running shoes', 1, @BrandId_Nike),
     (@ProductId_NikeDriFitTShirt, 'Nike Dri-FIT T-shirt', 30.00, 'Breathable athletic shirt', 1, @BrandId_Nike);
+
+-- Insertar ejemplos de categorías
+DECLARE @CategoryId_Tecnology UNIQUEIDENTIFIER = '55d2645a-76b6-4474-9ae2-7b590b24a9f5';
+DECLARE @CategoryId_Business UNIQUEIDENTIFIER = 'b6985551-da66-419d-ad18-42e9ab653763';
+DECLARE @CategoryId_Hombre UNIQUEIDENTIFIER = 'ca7e9834-f00e-48b4-b7fd-2b854bf00605';
+
+INSERT INTO Categories (CategoryId, CategoryName, CategoryDescription)
+VALUES
+    (@CategoryId_Tecnology, 'Tecnology', 'Tecnology category'),
+    (@CategoryId_Business, 'Business', 'Business category'),
+    (@CategoryId_Hombre, 'Hombre', 'Hombre category');
+
+-- Insertar ejemplos de productos y categorías
+DECLARE @ProductCategoryId_iPhone13Tecnology UNIQUEIDENTIFIER = '861d7899-915e-4dd3-b8f8-108e1b8b58b4';
+DECLARE @ProductCategoryId_MacBookProBusiness UNIQUEIDENTIFIER = '6ec7f6ea-9b8b-4617-9515-a197e34ad8d9';
+
+INSERT INTO ProductsCategories (ProductCategoryId, ProductId, CategoryId, CreatedDate)
+VALUES
+    (@ProductCategoryId_iPhone13Tecnology, @ProductId_iPhone13, @CategoryId_Tecnology, GETUTCDATE()),
+    (@ProductCategoryId_MacBookProBusiness, @ProductId_MacBookPro, @CategoryId_Business, GETUTCDATE());
 
 -- Insertar ejemplos de inventario
 DECLARE @InventoryId_iPhone13Hermosillo UNIQUEIDENTIFIER = '3674ad48-1d4c-4492-b21e-a4263237f26f';
@@ -542,3 +597,7 @@ Select *
 from Inventory;
 Select *
 from SuppliersBranches;
+Select * 
+from Categories;
+Select * 
+from ProductsCategories;
