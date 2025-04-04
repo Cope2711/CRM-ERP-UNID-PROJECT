@@ -32,6 +32,7 @@ public class Product
     public DateTime? UpdatedDate { get; set; }
     
     public ICollection<SupplierProduct> SupplierProducts { get; set; } = new List<SupplierProduct>();
+    public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 }
 
 public static class ProductExtensions
@@ -45,7 +46,13 @@ public static class ProductExtensions
             ProductPrice = product.ProductPrice,
             ProductDescription = product.ProductDescription,
             IsActive = product.IsActive,
-            BrandId = product.BrandId
+            BrandId = product.BrandId,
+            Categories = product.ProductCategories.Select(pc => new CategoryDto
+            {
+                CategoryId = pc.CategoryId,
+                CategoryName = pc.Category.CategoryName,
+                CategoryDescription = pc.Category.CategoryDescription
+            }).ToList()
         };
     }
 }

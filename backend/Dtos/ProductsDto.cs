@@ -33,7 +33,9 @@ public abstract class RequiredBaseProductDto
 public class ProductDto : RequiredBaseProductDto
 {
     public Guid ProductId { get; set; }
-    public bool IsActive { get; set; }  
+    public bool IsActive { get; set; } 
+    
+    public List<CategoryDto> Categories { get; set; } = new();
 }
 
 public class CreateProductDto : RequiredBaseProductDto

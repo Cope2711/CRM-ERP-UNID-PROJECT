@@ -1,5 +1,6 @@
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
+using Microsoft.EntityFrameworkCore;
 
 namespace CRM_ERP_UNID.Modules;
 
@@ -9,7 +10,8 @@ public class ProductsQueryService(
 {
     public Task<Product> GetByIdThrowsNotFound(Guid id)
     {
-        return _genericService.GetByIdThrowsNotFoundAsync(id);
+        return _genericService.GetByIdThrowsNotFoundAsync(id, 
+            query => query.Include(p => p.ProductCategories).ThenInclude(pc => pc.Category));
     }
 
     public Task<Product?> GetById(Guid id)

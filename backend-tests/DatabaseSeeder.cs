@@ -51,7 +51,9 @@ public class DatabaseSeeder
             Models.Resources.BrandsResource,
             Models.Resources.InventoryResource,
             Models.Resources.BranchesResource,
-            Models.Resources.UsersBranches);
+            Models.Resources.UsersBranches,
+            Models.Resources.Categories,
+            Models.Resources.ProductsCategories);
         context.RolesPermissionsResources.AddRange(Models.RolesPermissionsResources.AdminViewUsers,
             Models.RolesPermissionsResources.AdminDeactivateUser,
             Models.RolesPermissionsResources.AdminEditContentUsers,
@@ -95,7 +97,14 @@ public class DatabaseSeeder
             Models.RolesPermissionsResources.AdminRevokeSupplierBranch,
             Models.RolesPermissionsResources.AdminViewSuppliersBranches,
             Models.RolesPermissionsResources.AdminEditContentSuppliersBranches,
-            Models.RolesPermissionsResources.AdminEditContentSuppliersProducts);
+            Models.RolesPermissionsResources.AdminEditContentSuppliersProducts,
+            Models.RolesPermissionsResources.AdminViewCategories,
+            Models.RolesPermissionsResources.AdminCreateCategories,
+            Models.RolesPermissionsResources.AdminEditCategories,
+            Models.RolesPermissionsResources.AdminDeleteCategories,
+            Models.RolesPermissionsResources.AdminAssignProductsCategories,
+            Models.RolesPermissionsResources.AdminRevokeProductsCategories,
+            Models.RolesPermissionsResources.AdminViewProductsCategories);
         context.RefreshTokens.AddRange(
             Models.RefreshTokens.TestUserRefreshTokenRevoked,
             Models.RefreshTokens.TestUserExpiredRefreshToken);
@@ -147,7 +156,11 @@ public class DatabaseSeeder
         context.SuppliersBranches.AddRange(
             Models.SuppliersBranches.AppleHermosilloMiguelHidalgo,
             Models.SuppliersBranches.ApplePuertoRico);
-
+        context.Categories.AddRange(
+            Models.Categories.Technology,
+            Models.Categories.Men);
+        context.ProductsCategories.AddRange(
+            Models.ProductsCategories.iPhone13Tecnology);
     context.SaveChanges();
      }
 }
