@@ -52,7 +52,7 @@ public class AuthService(
         {
             _logger.LogError("User with UserName {UserUserName} requested Login but the password is incorrect", loginUserDto.UserUserName);
             throw new UnauthorizedException(message: "The password is incorrect.", reason: Reasons.WrongPassword);
-        }
+        }   
 
         await _tokenService.ValidateNumsOfDevices(user.UserId);
         
