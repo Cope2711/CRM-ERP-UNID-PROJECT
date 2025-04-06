@@ -19,7 +19,7 @@ public class RoleController(
     [PermissionAuthorize("Edit_Content", "Roles")]
     public async Task<ActionResult<RoleDto>> Update([FromBody] UpdateRoleDto updateRoleDto)
     {
-        Role role = await _rolesManagementService.UpdateAsync(updateRoleDto);
+        Role role = await _rolesManagementService.Update(updateRoleDto);
         return Ok(role.ToDto());
     }
 
@@ -60,7 +60,7 @@ public class RoleController(
     [PermissionAuthorize("Create", "Roles")]
     public async Task<ActionResult<RoleDto>> CreateRole([FromBody] CreateRoleDto createRoleDto)
     {
-        Role newRole = await _rolesManagementService.CreateRoleAsync(createRoleDto);
+        Role newRole = await _rolesManagementService.CreateRole(createRoleDto);
         return CreatedAtAction(nameof(GetAll), new { id = newRole.RoleId }, newRole);
     }
 

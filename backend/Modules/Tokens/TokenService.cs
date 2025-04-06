@@ -43,7 +43,7 @@ public class TokenService(
             new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new Claim(ClaimTypes.Name, user.UserUserName),
             new Claim(ClaimTypes.Role, string.Join(",", rolesIds)),
-            new Claim("RolePriorities", string.Join(",", user.UserRoles.Select(ur => ur.Role.RolePriority)))
+            new Claim("MaxRolePriority", user.ToUserRolesPriority().Max().ToString())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
