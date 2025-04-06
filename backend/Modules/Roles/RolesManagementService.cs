@@ -32,7 +32,7 @@ public class RolesManagementService(
         return role;
     }
 
-    public async Task<Role> CreateRoleAsync(CreateRoleDto createRoleDto)
+    public async Task<Role> CreateRole(CreateRoleDto createRoleDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 
@@ -71,7 +71,7 @@ public class RolesManagementService(
         return newRole;
     }
 
-    public async Task<Role> UpdateAsync(UpdateRoleDto updateRoleDto)
+    public async Task<Role> Update(UpdateRoleDto updateRoleDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         Role role = await _rolesQueryService.GetByIdThrowsNotFound(updateRoleDto.RoleId);

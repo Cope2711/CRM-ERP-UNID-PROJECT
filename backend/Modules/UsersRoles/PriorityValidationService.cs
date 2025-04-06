@@ -10,72 +10,44 @@ public class PriorityValidationService(
     IRolesQueryService _rolesQueryService
 ) : IPriorityValidationService
 {
-    public bool ValidateUserPriority(User user) 
-        => ValidatePriorityWithoutException(user.ToUserRolesPriority());
+    public bool ValidateUserPriority(User user) =>
+        IsPriorityValid(user.ToUserRolesPriority());
 
     public async Task<bool> ValidateUserPriorityById(Guid userId)
     {
-        double[] authenticatedUserRolePriorities = HttpContextHelper.GetAuthenticatedUserRolePriorities(_httpContextAccessor);
+        var authMaxRolePriority = GetAuthenticatedUserMaxRolePriority();
 
-        if (!authenticatedUserRolePriorities.Any())
-            return false;
-
-        double[] userRolePriorities = await _usersRolesQueryService.GetUserRolesPriorityByUserId(userId);
-
-        if (!userRolePriorities.Any())
-            return false;
-
-        return userRolePriorities.Any(userRolePriority =>
-            authenticatedUserRolePriorities.Any(authPriority => authPriority > userRolePriority));
+        double targetUserPriority = await _usersRolesQueryService.GetMaxRolePriorityByUserId(userId);
+        return IsPriorityGreater(authMaxRolePriority, targetUserPriority);
     }
-    
+
     public async Task<bool> ValidateRolePriorityById(Guid roleId)
     {
-        double[] authenticatedUserRolePriorities = HttpContextHelper.GetAuthenticatedUserRolePriorities(_httpContextAccessor);
+        var authMaxRolePriority = GetAuthenticatedUserMaxRolePriority();
 
-        if (!authenticatedUserRolePriorities.Any())
-            return false;
-
-        double rolePriorities = await _rolesQueryService.GetRolePriorityById(roleId);
-
-        if (rolePriorities == null)
-            return false;
-        
-        return authenticatedUserRolePriorities.Any(authPriority => authPriority > rolePriorities);
+        double rolePriority = await _rolesQueryService.GetRolePriorityById(roleId);
+        return IsPriorityGreater(authMaxRolePriority, rolePriority);
     }
-    
-    public void ValidateRolePriorityThrowsForbiddenException(Role role)
-    {
-        ValidatePriorityThrowsForbiddenException(role.RolePriority);
-    }
-    
-    public void ValidateUserPriorityThrowsForbiddenException(User user)
-    {
-        ValidatePriorityThrowsForbiddenException(user.ToUserRolesPriority());
-    }
-    
-    public void ValidatePriorityThrowsForbiddenException(params double[] rolePriorities)
-    {
-        double[] authenticatedUserRolePriorities = HttpContextHelper.GetAuthenticatedUserRolePriorities(_httpContextAccessor);
-        
-        if (!authenticatedUserRolePriorities.Any())
-            throw new ForbiddenException("Authenticated user has no roles assigned");
 
-        if (!rolePriorities.Any())
-            return;
+    public void ValidateRolePriorityThrowsForbiddenException(Role role) =>
+        ValidatePriorityOrThrow(role.RolePriority);
 
-        bool hasPriority = authenticatedUserRolePriorities.Any(authPriority =>
-            rolePriorities.Any(rolePriority => authPriority > rolePriority));
+    public void ValidateUserPriorityThrowsForbiddenException(User user) =>
+        ValidatePriorityOrThrow(user.ToUserRolesPriority());
 
-        if (!hasPriority)
+    public void ValidatePriorityThrowsForbiddenException(params double[] targetPriorities)
+    {
+        var authMaxRolePriority = GetAuthenticatedUserMaxRolePriority();
+
+        if (targetPriorities.Any() && !IsPriorityGreater(authMaxRolePriority, targetPriorities.Max()))
             throw new ForbiddenException("Not enough permission to make the action");
     }
 
-    private bool ValidatePriorityWithoutException(params double[] rolePriorities)
+    private bool IsPriorityValid(params double[] targetPriorities)
     {
         try
         {
-            ValidatePriorityThrowsForbiddenException(rolePriorities);
+            ValidatePriorityOrThrow(targetPriorities);
             return true;
         }
         catch (ForbiddenException)
@@ -83,4 +55,13 @@ public class PriorityValidationService(
             return false;
         }
     }
+
+    private void ValidatePriorityOrThrow(params double[] targetPriorities) =>
+        ValidatePriorityThrowsForbiddenException(targetPriorities);
+
+    private double GetAuthenticatedUserMaxRolePriority() =>
+        HttpContextHelper.GetAuthenticatedUserMaxRolePriority(_httpContextAccessor);
+
+    private bool IsPriorityGreater(double authPriority, double targetPriority) =>
+        authPriority > targetPriority;
 }
