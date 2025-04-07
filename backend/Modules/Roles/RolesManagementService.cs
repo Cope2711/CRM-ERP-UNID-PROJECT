@@ -32,7 +32,7 @@ public class RolesManagementService(
         return role;
     }
 
-    public async Task<Role> CreateRole(CreateRoleDto createRoleDto)
+    public async Task<Role> Create(CreateRoleDto createRoleDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 

@@ -15,6 +15,13 @@ public class RoleController(
     IRolesQueryService _rolesQueryService
 ) : ControllerBase
 {
+    [HttpGet("get-create-schema")]
+    [PermissionAuthorize("Create", "Roles")]
+    public async Task<ActionResult> GetCreateSchema()
+    {
+        return Ok(DtoSchemaHelper.GetDtoSchema<CreateRoleDto>());
+    }
+    
     [HttpPatch("update")]
     [PermissionAuthorize("Edit_Content", "Roles")]
     public async Task<ActionResult<RoleDto>> Update([FromBody] UpdateRoleDto updateRoleDto)
@@ -60,7 +67,7 @@ public class RoleController(
     [PermissionAuthorize("Create", "Roles")]
     public async Task<ActionResult<RoleDto>> CreateRole([FromBody] CreateRoleDto createRoleDto)
     {
-        Role newRole = await _rolesManagementService.CreateRole(createRoleDto);
+        Role newRole = await _rolesManagementService.Create(createRoleDto);
         return CreatedAtAction(nameof(GetAll), new { id = newRole.RoleId }, newRole);
     }
 
