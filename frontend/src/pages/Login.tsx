@@ -37,7 +37,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <div>
-      <h2>Login</h2>
+      {/* <h2>Login</h2> */}
 
       <Loading isLoading={isLoading}>
         <LoginForm onFinish={onFinish} />
