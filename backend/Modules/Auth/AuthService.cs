@@ -51,7 +51,7 @@ public class AuthService(
         if (!HasherHelper.VerifyHash(loginUserDto.UserPassword, user.UserPassword))
         {
             _logger.LogError("User with UserName {UserUserName} requested Login but the password is incorrect", loginUserDto.UserUserName);
-            throw new UnauthorizedException(message: "The password is incorrect.", reason: Reasons.WrongPassword);
+            throw new UnauthorizedException(message: "The password is incorrect.", reason: Reasons.WrongPassword, field: Fields.Users.UserPassword);
         }   
 
         await _tokenService.ValidateNumsOfDevices(user.UserId);

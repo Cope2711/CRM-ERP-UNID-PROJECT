@@ -34,7 +34,7 @@ public static class ProblemDetailsExtensions
                 Title = "Unauthorized",
                 Status = StatusCodes.Status401Unauthorized,
                 Detail = ex.Message,
-                Extensions = { { "reason", ex.Reason } }
+                Extensions = { { "reason", ex.Reason }, { "field", ex.Field } }
             });
 
             options.Map<ForbiddenException>(ex => new ProblemDetails
