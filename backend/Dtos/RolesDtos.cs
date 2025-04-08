@@ -6,9 +6,11 @@ namespace CRM_ERP_UNID.Dtos;
 public abstract class BaseRoleDto
 {
     [MaxLength(50)]
+    [Required]
     public required string RoleName { get; set; }
     
     [Range(0, 1000)]
+    [Required]
     public required double RolePriority { get; set; }
     
     [MaxLength(255)]

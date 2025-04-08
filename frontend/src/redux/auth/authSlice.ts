@@ -35,13 +35,16 @@ const authSlice = createSlice({
         state.isSuccess = false;
         state.errorMessage = undefined;
       })
-      .addCase(login.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.token = action.payload.token;
-        state.refreshToken = action.payload.refreshToken;
-        state.isSuccess = true;
-        state.errorMessage = undefined;
-      })
+        .addCase(login.fulfilled, (state, action) => {
+          const { token, refreshToken } = action.payload;
+          localStorage.setItem('access_token', token);
+          localStorage.setItem('refresh_token', refreshToken);
+          state.isLoading = false;
+          state.token = token;
+          state.refreshToken = refreshToken;
+          state.isSuccess = true;
+          state.errorMessage = undefined;
+        })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
