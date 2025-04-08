@@ -21,10 +21,14 @@ public class InventoryDto
 
 public class CreateInventoryDto
 {
+    [Required]
     [GuidNotEmpty]
     public required Guid ProductId { get; set; }
+    
+    [Required]
     [GuidNotEmpty]
     public required Guid BranchId { get; set; }
+    
     [Required]
     [Range(1, int.MaxValue)]
     public required int Quantity { get; set; }

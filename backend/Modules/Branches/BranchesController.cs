@@ -15,6 +15,13 @@ public class Branches(
     IBranchesManagementService _branchesManagementService
 ) : ControllerBase  
 {
+    [HttpGet("get-create-schema")]
+    [PermissionAuthorize("Create", "Branches")]
+    public async Task<ActionResult> GetCreateSchema()
+    {
+        return Ok(DtoSchemaHelper.GetDtoSchema<CreateBranchDto>());
+    }
+    
     [HttpGet("get-by-id")]
     [PermissionAuthorize("View", "Branches")]
     public async Task<ActionResult<BranchDto>> GetById([FromQuery] Guid id)

@@ -16,8 +16,11 @@ public abstract class BaseProductDto
 
 public abstract class RequiredBaseProductDto
 {
+    [Required]
     [MaxLength(50)]
     public required string ProductName { get; set; }
+    
+    [Required]
     [Range(0.01, 10000)]
     public required decimal ProductPrice { get; set; }
     
@@ -26,6 +29,7 @@ public abstract class RequiredBaseProductDto
     
     public bool? IsActive { get; set; }
     
+    [Required]
     [GuidNotEmpty]
     public required Guid BrandId { get; set; }
 }

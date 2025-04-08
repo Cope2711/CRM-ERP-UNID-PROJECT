@@ -15,6 +15,13 @@ public class SupplierController(
     ISuppliersManagementService _suppliersManagementService
 ) : ControllerBase
 {
+    [HttpGet("get-create-schema")]
+    [PermissionAuthorize("Create", "Suppliers")]
+    public async Task<ActionResult> GetCreateSchema()
+    {
+        return Ok(DtoSchemaHelper.GetDtoSchema<CreateSupplierDto>());
+    }
+    
     [HttpGet("get-by-id")]
     [PermissionAuthorize("View", "Suppliers")]
     public async Task<ActionResult<SupplierDto>> GetById(Guid id)

@@ -36,13 +36,17 @@ public class CreateSupplierDto
     [MaxLength(100)]
     public required string SupplierName { get; set; }
     
+    [Required]
     [MaxLength(50)]
     public string? SupplierContact { get; set; }
     
+    [Required]
     [MaxLength(100)]
+    [IsEmail]
     public required string SupplierEmail { get; set; }
     
     [MaxLength(20)]
+    [IsPhoneNumberWithLada]
     public string? SupplierPhone { get; set; }
     
     [MaxLength(255)]

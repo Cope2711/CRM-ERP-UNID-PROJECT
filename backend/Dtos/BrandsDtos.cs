@@ -15,9 +15,11 @@ public abstract class BaseBrandDto
 
 public abstract class RequiredBaseBrandDto
 {
+    [Required]
     [MaxLength(50)]
     public required string BrandName { get; set; }
     
+    [Required]
     [MaxLength(255)]
     public string? BrandDescription { get; set; }
     public bool? IsActive { get; set; }
