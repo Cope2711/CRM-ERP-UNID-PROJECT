@@ -17,9 +17,11 @@ public class CategoryDto
 
 public class CreateCategoryDto
 {
+    [Required]
     [MaxLength(50)]
     public required string CategoryName { get; set; }
     
+    [Required]
     [MaxLength(255)]
     public string? CategoryDescription { get; set; }
 }

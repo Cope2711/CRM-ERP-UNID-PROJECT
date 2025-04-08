@@ -15,6 +15,13 @@ public class CategoriesController(
     ICategoriesQueryService categoriesQueryService
 ) : ControllerBase
 {
+    [HttpGet("get-create-schema")]
+    [PermissionAuthorize("View", "Categories")]
+    public async Task<ActionResult> GetCreateSchema()
+    {
+        return Ok(DtoSchemaHelper.GetDtoSchema<CreateCategoryDto>());
+    }
+    
     [HttpGet("get-by-id")]
     [PermissionAuthorize("View", "Categories")]
     public async Task<ActionResult<CategoryDto>> GetCategoryById([FromQuery] Guid id)

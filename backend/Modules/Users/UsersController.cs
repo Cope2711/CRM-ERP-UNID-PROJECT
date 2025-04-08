@@ -15,6 +15,13 @@ public class UsersController(
     IUsersQueryService _usersQueryService
 ) : ControllerBase
 {
+    [HttpGet("get-create-schema")]
+    [PermissionAuthorize("Create", "Users")]
+    public async Task<ActionResult> GetCreateSchema()
+    {
+        return Ok(DtoSchemaHelper.GetDtoSchema<CreateUserDto>());
+    }
+    
     [HttpPatch("update")]
     [PermissionAuthorize("Edit_Content", "Users")]
     public async Task<ActionResult<UserDto>> UpdateUser([FromBody] UpdateUserDto updateUserDto)

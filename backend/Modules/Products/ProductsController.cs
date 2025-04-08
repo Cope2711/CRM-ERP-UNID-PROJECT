@@ -15,6 +15,13 @@ public class ProductsController(
     IProductsQueryService _productsQueryService
 ) : ControllerBase
 {
+    [HttpGet("get-create-schema")]
+    [PermissionAuthorize("Create", "Products")]
+    public async Task<ActionResult> GetCreateSchema()
+    {
+        return Ok(DtoSchemaHelper.GetDtoSchema<CreateProductDto>());
+    }
+    
     [HttpPost("get-all")]
     [PermissionAuthorize("View", "Products")]
     public async Task<ActionResult<GetAllResponseDto<Product>>> GetAll([FromBody] GetAllDto getAllDto)

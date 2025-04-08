@@ -14,6 +14,13 @@ public class BrandsController(
     IBrandsService brandsService
 ) : ControllerBase
 {
+    [HttpGet("get-create-schema")]
+    [PermissionAuthorize("Create", "Brands")]
+    public async Task<ActionResult> GetCreateSchema()
+    {
+        return Ok(DtoSchemaHelper.GetDtoSchema<CreateBrandDto>());
+    }
+    
     [HttpGet("get-by-id")]
     [PermissionAuthorize("View", "Brands")]
     public async Task<ActionResult<BrandDto>> GetById([FromQuery] Guid id)

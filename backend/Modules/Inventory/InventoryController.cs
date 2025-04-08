@@ -15,6 +15,13 @@ public class InventoryController(
     IInventoryQueryService _inventoryQueryService
 ) : ControllerBase
 {
+    [HttpGet("get-create-schema")]
+    [PermissionAuthorize("Create", "Inventory")]
+    public async Task<ActionResult> GetCreateSchema()
+    {
+        return Ok(DtoSchemaHelper.GetDtoSchema<CreateInventoryDto>());
+    }
+    
     [HttpGet("get-by-id")]
     [PermissionAuthorize("View", "Inventory")]
     public async Task<ActionResult<InventoryDto>> GetInventoryById([FromQuery] Guid id)

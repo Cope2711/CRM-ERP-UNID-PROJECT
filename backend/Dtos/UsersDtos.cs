@@ -13,10 +13,23 @@ public abstract class BaseUserDto
 
 public abstract class RequiredBaseUserDto
 {
-    [MaxLength(50)] public required string UserUserName { get; set; }
-    [MaxLength(50)] public required string UserFirstName { get; set; }
-    [MaxLength(50)] public required string UserLastName { get; set; }
-    [MaxLength(255)] public required string UserEmail { get; set; }
+    [Required]
+    [MinLength(3)]
+    [MaxLength(50)] 
+    public required string UserUserName { get; set; }
+    
+    [Required]
+    [MaxLength(50)] 
+    public required string UserFirstName { get; set; }
+    
+    [Required]
+    [MaxLength(50)] 
+    public required string UserLastName { get; set; }
+    
+    [Required]
+    [MaxLength(255)]
+    [IsEmail]
+    public required string UserEmail { get; set; }
 }
 
 
