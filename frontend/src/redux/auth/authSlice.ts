@@ -1,5 +1,5 @@
-import {createSlice} from '@reduxjs/toolkit';
-import {login} from '@/redux/auth/thunks.ts';
+import { createSlice } from '@reduxjs/toolkit';
+import { login, logoutThunk } from '@/redux/auth/thunks.ts';
 
 interface AuthState {
     token: string | null;
@@ -28,6 +28,12 @@ const authSlice = createSlice({
         logout: (state) => {
             state.token = null;
             state.refreshToken = null;
+            state.isSuccess = false;
+            state.isError = false;
+            state.errorMessage = undefined;
+            state.errorField = undefined;
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
         },
     },
     extraReducers: (builder) => {
@@ -39,7 +45,7 @@ const authSlice = createSlice({
                 state.errorMessage = undefined;
             })
             .addCase(login.fulfilled, (state, action) => {
-                const {token, refreshToken} = action.payload;
+                const { token, refreshToken } = action.payload;
                 localStorage.setItem('access_token', token);
                 localStorage.setItem('refresh_token', refreshToken);
                 state.isLoading = false;
@@ -60,9 +66,15 @@ const authSlice = createSlice({
                     state.errorMessage = 'Error desconocido';
                     state.errorField = undefined;
                 }
+            })
+            .addCase(logoutThunk.fulfilled, (state) => {
+                state.token = null;
+                state.refreshToken = null;
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
             });
     },
 });
 
-export const {logout} = authSlice.actions;
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;

@@ -10,7 +10,9 @@ public static class CorsExtensions
             {
                 policy.WithOrigins("http://localhost:5173")
                     .AllowAnyMethod()
-                    .AllowAnyHeader();
+                    .AllowAnyHeader()
+                    .AllowCredentials()
+                    .WithExposedHeaders("Token-Expired");
             });
         });
 
