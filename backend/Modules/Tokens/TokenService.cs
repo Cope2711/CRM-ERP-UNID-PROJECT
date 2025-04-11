@@ -53,7 +53,7 @@ public class TokenService(
             issuer: _configuration["JwtSettings:Issuer"],
             audience: _configuration["JwtSettings:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(12),
+            expires: DateTime.UtcNow.AddMinutes(15), 
             signingCredentials: creds
         );
 
@@ -78,7 +78,7 @@ public class TokenService(
             UserId = userId,
             Token = refreshToken,
             DeviceId = HasherHelper.HashDeviceIdForStorage(deviceId),
-            ExpiresAt = DateTime.UtcNow.AddMinutes(2),
+            ExpiresAt = DateTime.UtcNow.AddHours(12),
         };
 
         _tokensRepository.AddRefreshToken(refreshTokenModel);

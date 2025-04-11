@@ -58,8 +58,8 @@ public class AuthController : ControllerBase
         return Ok(tokenDto);
     }
 
-    [AllowAnonymous]
     [HttpPost("refresh-token")]
+    [AllowAnonymous]
     public async Task<ActionResult<TokenDto>> RefreshToken([FromBody] RefreshTokenEntryDto refreshTokenEntryDto)
     {
         TokenDto? tokenDto = await this._authService.RefreshTokenAsync(refreshTokenEntryDto);

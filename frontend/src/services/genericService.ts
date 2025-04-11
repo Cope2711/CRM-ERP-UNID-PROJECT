@@ -1,16 +1,11 @@
-import axiosInstance from "@/services/axiosConfig";
-import { ErrorDetail } from "@/dtos/ErrorDetailDtos";
+import { ErrorDetail } from '@/dtos/ErrorDetailDtos.ts';
+import { axiosInstance } from '@/services/axiosConfig';
 import type { Schema } from "@/types/Schema";
 
 class GenericService {
     async getCreateSchema(modelName: string): Promise<Schema> {
         try {
-            const token = localStorage.getItem('access_token');
-            const { data } = await axiosInstance.get(`${modelName}/get-create-schema`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const { data } = await axiosInstance.get(`${modelName}/get-create-schema`);
             return data;
         } catch (error: any) {
             const response = error.response;
@@ -26,12 +21,7 @@ class GenericService {
 
     async create(modelName: string, data: any): Promise<any> {
         try {
-            const token = localStorage.getItem('access_token');
-            const { data: responseData } = await axiosInstance.post(`${modelName}/create`, data, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const { data: responseData } = await axiosInstance.post(`${modelName}/create`, data);
             return responseData;
         } catch (error: any) {
             const response = error.response;
