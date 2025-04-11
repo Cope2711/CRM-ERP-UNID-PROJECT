@@ -13,6 +13,9 @@ public class TokenDto
 
 public class RefreshTokenEntryDto
 {
-    public string RefreshToken { get; set; } = null!;
-    public string DeviceId { get; set; } = null!;
+    [Required]
+    public required string RefreshToken { get; set; }
+    
+    [Required]
+    public required string DeviceId { get; set; }
 }

@@ -9,10 +9,13 @@ export default function DynamicCreateRolePage() {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        genericService.getCreateSchema("roles")
-            .then(setSchema)
-            .catch(() => message.error("Error al cargar el esquema"));
-    }, []);
+        if (!schema) {
+            console.log("Cargando esquema...");
+            genericService.getCreateSchema("roles")
+                .then(setSchema)
+                .catch(() => message.error("Error al cargar el esquema"));
+        }
+    }, [schema]);
 
     const handleSubmit = (values: Record<string, any>) => {
         console.log("Datos enviados:", values);

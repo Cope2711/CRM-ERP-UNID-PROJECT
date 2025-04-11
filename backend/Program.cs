@@ -32,7 +32,9 @@ builder.Services.AddCustomCors();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Configure the HTTP request pipeline.
+app.UseCors("AllowAllOrigins");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -44,8 +46,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseProblemDetails();
-
-app.UseCors("AllowAllOrigins");
 
 app.MapControllers();
 
