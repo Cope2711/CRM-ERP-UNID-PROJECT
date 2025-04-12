@@ -11,8 +11,6 @@ import {
 import {useState} from 'react';
 import Sidebar from './Sidebar';
 import SidebarItem from './SidebarItem';
-import SidebarLogoutItem from "@/components/Sidebar/SidebarLogoutItem.tsx";
-
 
 export default function MakeSidebar() {
     const [expanded, setExpanded] = useState(true);
@@ -79,9 +77,6 @@ export default function MakeSidebar() {
                     {navBarItems.map((item, index) => (
                         <SidebarItem key={index} expanded={expanded} {...item} />
                     ))}
-                </div>
-                <div>
-                    <SidebarLogoutItem />
                 </div>
             </div>
         </Sidebar>

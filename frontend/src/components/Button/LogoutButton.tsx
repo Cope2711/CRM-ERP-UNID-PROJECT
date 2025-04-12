@@ -1,5 +1,5 @@
 import { ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
-import { useLogout } from '@/hooks/useLogout';
+import { useLogout } from '@/hooks/useLogout.ts';
 
 const LogoutButton = () => {
     const handleLogout = useLogout();

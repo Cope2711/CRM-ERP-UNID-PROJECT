@@ -4,6 +4,8 @@ import {
     EllipsisVerticalIcon,
   } from '@heroicons/react/24/outline';
   import type { ReactNode } from 'react';
+import DropdownMenu from "@/components/DropDownMenu.tsx";
+import LogoutButton from "@/components/Button/LogoutButton.tsx";
   
   interface SidebarProps {
     children: ReactNode;
@@ -43,12 +45,18 @@ import {
                 alt="User Avatar"
                 className="h-10 w-10 rounded-md"
               />
-              <div className={`flex items-center justify-between overflow-hidden transition-all ${expanded ? 'ml-3 w-52' : 'w-0'}`}>
-                <div className="leading-4">
+              <div className="flex items-center justify-between transition-all">
+                <div className={`leading-4 overflow-hidden transition-all ${expanded ? 'ml-3 max-w-xs' : 'max-w-0'}`}>
                   <h4 className="font-semibold">Steve</h4>
                   <span className="text-xs text-gray-600">CRM-ERP@gmail.com</span>
                 </div>
-                <EllipsisVerticalIcon className="h-6 w-6" />
+
+                <DropdownMenu
+                    buttonIcon={<EllipsisVerticalIcon className="h-6 w-6 text-gray-600" />}
+                    options={[
+                      { button: <LogoutButton /> },
+                    ]}
+                />
               </div>
             </div>
           </nav>
