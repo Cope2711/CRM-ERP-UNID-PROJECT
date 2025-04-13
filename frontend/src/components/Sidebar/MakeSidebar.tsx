@@ -22,7 +22,6 @@ export default function MakeSidebar() {
             icon: <HomeIcon className="h-5 w-5"/>,
             text: 'Home',
             path: '/',
-            active: true,
         },
         {
             icon: <ChartPieIcon className="h-5 w-5"/>,
