@@ -1,6 +1,6 @@
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface SidebarItemProps {
   active?: boolean;
@@ -38,6 +38,15 @@ export default function SidebarItem({
 }: SidebarItemProps) {
   const [expandSubMenu, setExpandSubMenu] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  const isActive = path ? 
+    (path === '/' ? location.pathname === '/' : location.pathname === path) : 
+    active;
+  
+  const isSubMenuActive = subMenu && subMenu.some(item => 
+    item.path && location.pathname === item.path
+  );
 
   useEffect(() => {
     if (!expanded) setExpandSubMenu(false);
@@ -51,7 +60,7 @@ export default function SidebarItem({
         <button
           className={`
             group relative my-1 flex w-full items-center rounded-md px-3 py-2 font-medium transition-colors
-            ${active && !subMenu ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-indigo-50'}
+            ${(isActive || isSubMenuActive) && !subMenu ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-indigo-50'}
             ${!expanded && 'hidden sm:flex'}
           `}
           onClick={() => {
