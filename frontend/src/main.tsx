@@ -18,7 +18,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/login" element={<LoginPage />} />
           <Route path="/test1" element={<DynamicCreateRolePage />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/app/*" element={<App />} />
+          <Route path="/*" element={<App />} />
         </Routes>
       </Router>
     </Provider>
