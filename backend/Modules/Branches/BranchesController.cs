@@ -1,6 +1,8 @@
 using CRM_ERP_UNID.Attributes;
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
+using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +17,25 @@ public class Branches(
     IBranchesManagementService _branchesManagementService
 ) : ControllerBase  
 {
-    [HttpGet("get-create-schema")]
-    [PermissionAuthorize("Create", "Branches")]
-    public async Task<ActionResult> GetCreateSchema()
+    [HttpGet("schema")]
+    [PermissionAuthorize("View", "Branches")]
+    public IActionResult GetSchema([FromQuery] string type)
     {
-        return Ok(DtoSchemaHelper.GetDtoSchema<CreateBranchDto>());
+        if (!Utils.ValidSchemaTypes.Contains(type.ToLower()))
+            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
+        
+        var dtoType = type.ToLower() switch
+        {
+            "create" => typeof(CreateBranchDto),
+            "update" => typeof(UpdateBranchDto),
+            "model" or "read" => typeof(BranchDto),
+            _ => null
+        };
+
+        if (dtoType == null)
+            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
+
+        return Ok(DtoSchemaHelper.GetDtoSchema(dtoType));
     }
     
     [HttpGet("get-by-id")]

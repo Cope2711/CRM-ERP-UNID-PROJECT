@@ -1,11 +1,21 @@
 import { ErrorDetail } from '@/dtos/ErrorDetailDtos.ts';
 import { axiosInstance } from '@/services/axiosConfig';
 import type { Schema } from "@/types/Schema";
+import {GetAllDto} from "@/dtos/GenericDtos.ts";
 
 class GenericService {
-    async getCreateSchema(modelName: string): Promise<Schema> {
+    async getAll(modelName: string, getAllDto: GetAllDto): Promise<any> {
         try {
-            const { data } = await axiosInstance.get(`${modelName}/get-create-schema`);
+            const { data } = await axiosInstance.post(`${modelName}/get-all`, getAllDto);
+            return data;
+        } catch (error: any) {
+            throw error.response?.data;
+        }
+    }
+
+    async getSchemas(modelName: string, schemaType: string): Promise<Schema> {
+        try {
+            const { data } = await axiosInstance.get(`${modelName}/get-create-schema?type=${schemaType}`);
             return data;
         } catch (error: any) {
             const response = error.response;
