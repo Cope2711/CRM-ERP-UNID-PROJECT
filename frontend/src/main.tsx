@@ -20,7 +20,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/test1" element={<DynamicCreateRolePage />} />
           <Route path="/test2" element={<TestGetAllService />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/app/*" element={<App />} />
+          <Route path="/*" element={<App />} />
         </Routes>
       </Router>
     </Provider>
