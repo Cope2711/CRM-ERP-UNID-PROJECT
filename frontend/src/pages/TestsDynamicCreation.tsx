@@ -11,7 +11,7 @@ export default function DynamicCreateRolePage() {
     useEffect(() => {
         if (!schema) {
             console.log("Cargando esquema...");
-            genericService.getCreateSchema("roles")
+            genericService.getSchemas("roles", "create")
                 .then(setSchema)
                 .catch(() => message.error("Error al cargar el esquema"));
         }
