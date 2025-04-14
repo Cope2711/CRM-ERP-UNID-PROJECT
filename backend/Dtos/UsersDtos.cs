@@ -51,8 +51,13 @@ public class UpdateUserDto : BaseUserDto
 
 public class UserDto : RequiredBaseUserDto
 {
+    [Required]
+    [GuidNotEmpty]
     public Guid UserId { get; set; }
-    public bool IsActive { get; set; }
+    
+    [Required]
+    public required bool IsActive { get; set; }
+    
     public List<RoleDto> Roles { get; set; } = new();
     public List<BranchDto> Branches { get; set; } = new();
 }

@@ -6,7 +6,7 @@ namespace CRM_ERP_UNID.Helpers;
 
 public static class DtoSchemaHelper
 {
-    public static object GetDtoSchema<T>()
+    public static object GetDtoSchema(Type dtoType)
     {
         var schema = new System.Dynamic.ExpandoObject() as IDictionary<string, object>;
 
@@ -16,7 +16,7 @@ public static class DtoSchemaHelper
             { typeof(IsPhoneNumberWithLadaAttribute), nameof(IsPhoneNumberWithLadaAttribute).Replace("Attribute", "") }
         };
 
-        var properties = typeof(T).GetProperties();
+        var properties = dtoType.GetProperties();
 
         foreach (var property in properties)
         {
@@ -55,5 +55,10 @@ public static class DtoSchemaHelper
         }
 
         return schema;
+    }
+    
+    public static object GetDtoSchema<T>()
+    {
+        return GetDtoSchema(typeof(T));
     }
 }

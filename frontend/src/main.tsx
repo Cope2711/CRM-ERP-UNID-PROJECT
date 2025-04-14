@@ -8,6 +8,7 @@ import LoginPage from '@/pages/Login.tsx';
 import DynamicCreateRolePage from "@/pages/TestsDynamicCreation.tsx";
 import AboutPage from './pages/AboutPage';
 import App from './App';
+import TestGetAllService from "@/pages/TestGetAllService.tsx";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/test1" element={<DynamicCreateRolePage />} />
+          <Route path="/test2" element={<TestGetAllService />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/app/*" element={<App />} />
         </Routes>
