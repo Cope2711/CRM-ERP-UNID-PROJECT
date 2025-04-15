@@ -58,14 +58,14 @@ public class SuppliersManagementService(
         return supplier;
     }
     
-    public async Task<Supplier> Update(UpdateSupplierDto updateSupplierDto)
+    public async Task<Supplier> Update(Guid id, UpdateSupplierDto updateSupplierDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        Supplier supplier = await _suppliersQueryService.GetByIdThrowsNotFoundAsync(updateSupplierDto.SupplierId);
+        Supplier supplier = await _suppliersQueryService.GetByIdThrowsNotFoundAsync(id);
         
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested UpdateAsync for SupplierId {TargetSupplierId}",
-            authenticatedUserId, updateSupplierDto.SupplierId);
+            authenticatedUserId, id);
         
         bool hasChanges = ModelsHelper.UpdateModel(supplier, updateSupplierDto, async (field, value) =>
         {
@@ -86,13 +86,13 @@ public class SuppliersManagementService(
             await _suppliersRepository.SaveChanges();
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for SupplierId {TargetSupplierId} and the supplier was updated",
-                authenticatedUserId, updateSupplierDto.SupplierId);
+                authenticatedUserId, id);
         }
         else
         {
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for SupplierId {TargetSupplierId} and the supplier was not updated",
-                authenticatedUserId, updateSupplierDto.SupplierId);
+                authenticatedUserId, id);
         }
         
         return supplier;

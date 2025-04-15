@@ -1,4 +1,3 @@
-
 using System.Net;
 using System.Net.Http.Json;
 using CRM_ERP_UNID_TESTS.TestsModels;
@@ -84,17 +83,15 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
 
     public class UpdateBrandTests : BrandsControllerTests
     {
-        public UpdateBrandTests(CustomWebApiFactory factory) : base(factory)
-        {
-        }
+        public UpdateBrandTests(CustomWebApiFactory factory) : base(factory) { }
 
-        public static IEnumerable<Object[]> UpdateBrandTestData()
+        public static IEnumerable<object[]> UpdateBrandTestData()
         {
-            yield return new Object[] // All OK
+            yield return new object[] // All OK
             {
+                Models.Brands.Nike.BrandId,
                 new UpdateBrandDto
                 {
-                    BrandId = Models.Brands.Nike.BrandId,
                     BrandName = "Appless",
                     BrandDescription = "Apples company",
                     IsActive = true
@@ -102,23 +99,23 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
                 HttpStatusCode.OK
             };
 
-            yield return new Object[] // BrandName already exist
+            yield return new object[] // BrandName already exist
             {
+                Models.Brands.Nike.BrandId,
                 new UpdateBrandDto
                 {
-                    BrandId = Models.Brands.Nike.BrandId,
                     BrandName = Models.Brands.Apple.BrandName,
                     BrandDescription = "Apples company",
                     IsActive = true
                 },
                 HttpStatusCode.Conflict
             };
-            
-            yield return new Object[] // Not found
+
+            yield return new object[] // Not found
             {
+                Guid.NewGuid(),
                 new UpdateBrandDto
                 {
-                    BrandId = Guid.NewGuid(),
                     BrandName = Models.Brands.Apple.BrandName,
                     BrandDescription = "Apples company",
                     IsActive = true
@@ -129,10 +126,9 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(UpdateBrandTestData))]
-        public async Task UpdateBrand_ReturnsExpectedResult(UpdateBrandDto updateBrandDto,
-            HttpStatusCode expectedStatusCode)
+        public async Task UpdateBrand_ReturnsExpectedResult(Guid brandId, UpdateBrandDto updateBrandDto, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update", updateBrandDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{brandId}", updateBrandDto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }

@@ -37,8 +37,6 @@ public class CreateInventoryDto
 
 public class UpdateInventoryDto
 {
-    [GuidNotEmpty]
-    public required Guid InventoryId { get; set; }
     public Guid? ProductId { get; set; }
     public Guid? BranchId { get; set; }
     [Range(1, int.MaxValue)]

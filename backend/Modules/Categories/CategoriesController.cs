@@ -73,11 +73,11 @@ public class CategoriesController(
         return Ok(category.ToDto());
     }
     
-    [HttpPatch("update")]
+    [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Categories")]
-    public async Task<ActionResult<CategoryDto>> Update([FromBody] UpdateCategoryDto updateCategoryDto)
+    public async Task<ActionResult<CategoryDto>> Update(Guid id, [FromBody] UpdateCategoryDto updateCategoryDto)
     {
-        Category category = await _categoriesManagementService.Update(updateCategoryDto);
+        Category category = await _categoriesManagementService.Update(id, updateCategoryDto);
 
         return Ok(category.ToDto());
     }

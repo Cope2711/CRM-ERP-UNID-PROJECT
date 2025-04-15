@@ -62,7 +62,7 @@ public class UsersManagementService(
         return user;
     }
 
-    public async Task<ResponsesDto<UserResponseStatusDto>> DeactivateUsersAsync(UsersIdsDto usersIdsDto)
+    public async Task<ResponsesDto<UserResponseStatusDto>> DeactivateUsers(UsersIdsDto usersIdsDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         ResponsesDto<UserResponseStatusDto> responseDto = new();
@@ -130,7 +130,7 @@ public class UsersManagementService(
         }
     }
 
-    public async Task<ResponsesDto<UserResponseStatusDto>> ActivateUsersAsync(UsersIdsDto usersIdsDto)
+    public async Task<ResponsesDto<UserResponseStatusDto>> ActivateUsers(UsersIdsDto usersIdsDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         ResponsesDto<UserResponseStatusDto> responseDto = new();
@@ -187,7 +187,7 @@ public class UsersManagementService(
         return responseDto;
     }
 
-    public async Task<User> ChangePasswordAsync(ChangePasswordDto changePasswordDto)
+    public async Task<User> ChangePassword(ChangePasswordDto changePasswordDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 
@@ -227,20 +227,20 @@ public class UsersManagementService(
         return user;
     }
 
-    public async Task<User> UpdateAsync(UpdateUserDto updateUserDto)
+    public async Task<User> Update(Guid id, UpdateUserDto updateUserDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested UpdateUser with UserId {TargetUserId}",
-            authenticatedUserId, updateUserDto.UserId);
+            authenticatedUserId, id);
 
-        User user = await _usersQueryService.GetByIdThrowsNotFoundAsync(updateUserDto.UserId);
+        User user = await _usersQueryService.GetByIdThrowsNotFoundAsync(id);
 
-        if (authenticatedUserId != updateUserDto.UserId)
+        if (authenticatedUserId != id)
         {
             _priorityValidationService.ValidateUserPriorityThrowsForbiddenException(user);
-            await _usersBranchesQueryServices.EnsureUserCanModifyUser(authenticatedUserId, updateUserDto.UserId);
+            await _usersBranchesQueryServices.EnsureUserCanModifyUser(authenticatedUserId, id);
         }
         
         bool hasChanges = ModelsHelper.UpdateModel(user, updateUserDto, async (field, value) =>
@@ -258,6 +258,7 @@ public class UsersManagementService(
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} updated User with Id {UpdatedUserId}",
                 authenticatedUserId, user.UserId);
+            await _usersRepository.SaveChangesAsync();
         }
         else
         {

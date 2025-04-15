@@ -1,3 +1,4 @@
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
@@ -40,7 +41,7 @@ public class PriorityValidationService(
         var authMaxRolePriority = GetAuthenticatedUserMaxRolePriority();
 
         if (targetPriorities.Any() && !IsPriorityGreater(authMaxRolePriority, targetPriorities.Max()))
-            throw new ForbiddenException("Not enough permission to make the action");
+            throw new ForbiddenException("Not enough permission to make the action", field: Fields.Roles.RolePriority);
     }
 
     private bool IsPriorityValid(params double[] targetPriorities)

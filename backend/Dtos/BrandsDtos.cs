@@ -39,6 +39,5 @@ public class CreateBrandDto : RequiredBaseBrandDto
 
 public class UpdateBrandDto : BaseBrandDto
 {
-    [GuidNotEmpty]
-    public Guid BrandId { get; set; }
+
 }

@@ -37,11 +37,11 @@ public class CategoriesManagementService(
         return category;
     }
     
-    public async Task<Category> Update(UpdateCategoryDto updateCategoryDto)
+    public async Task<Category> Update(Guid id, UpdateCategoryDto updateCategoryDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        Category category = await _categoriesQueryService.GetByIdThrowsNotFound(updateCategoryDto.CategoryId);
-        _logger.LogInformation("User with Id {authenticatedUserId} requested Update for CategoryId {TargetCategoryId}", authenticatedUserId, updateCategoryDto.CategoryId);
+        Category category = await _categoriesQueryService.GetByIdThrowsNotFound(id);
+        _logger.LogInformation("User with Id {authenticatedUserId} requested Update for CategoryId {TargetCategoryId}", authenticatedUserId, id);
         
         bool hasChanges = ModelsHelper.UpdateModel(category, updateCategoryDto, async (field, value) =>
         {
@@ -58,11 +58,11 @@ public class CategoriesManagementService(
         if (hasChanges)
         {
             await _categoriesRepository.SaveChanges();
-            _logger.LogInformation("User with Id {authenticatedUserId} requested Update for CategoryId {TargetCategoryId} and the category was updated", authenticatedUserId, updateCategoryDto.CategoryId);
+            _logger.LogInformation("User with Id {authenticatedUserId} requested Update for CategoryId {TargetCategoryId} and the category was updated", authenticatedUserId, id);
         }
         else
         {
-            _logger.LogInformation("User with Id {authenticatedUserId} requested Update for CategoryId {TargetCategoryId} and the category was not updated", authenticatedUserId, updateCategoryDto.CategoryId);
+            _logger.LogInformation("User with Id {authenticatedUserId} requested Update for CategoryId {TargetCategoryId} and the category was not updated", authenticatedUserId, id);
         }
         
         return category;

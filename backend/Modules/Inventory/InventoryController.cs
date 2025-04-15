@@ -82,11 +82,11 @@ public class InventoryController(
         return Ok(inventory.ToDto());
     }
     
-    [HttpPatch("update")]
+    [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Inventory")]
-    public async Task<ActionResult<InventoryDto>> Update([FromBody] UpdateInventoryDto updateInventoryDto)
+    public async Task<ActionResult<InventoryDto>> Update(Guid id, [FromBody] UpdateInventoryDto updateInventoryDto)
     {
-        Inventory inventory = await _inventoryManagementService.Update(updateInventoryDto);
+        Inventory inventory = await _inventoryManagementService.Update(id, updateInventoryDto);
 
         return Ok(inventory.ToDto());
     }

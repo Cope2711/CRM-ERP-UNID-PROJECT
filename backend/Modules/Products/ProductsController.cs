@@ -66,11 +66,11 @@ public class ProductsController(
         return Ok(product.ToDto());
     }
     
-    [HttpPatch("update")]
+    [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Products")]
-    public async Task<ActionResult<ProductDto>> Update([FromBody] UpdateProductDto updateProductDto)
+    public async Task<ActionResult<ProductDto>> Update(Guid id, [FromBody] UpdateProductDto updateProductDto)
     {
-        Product product = await _productsManagementService.Update(updateProductDto);
+        Product product = await _productsManagementService.Update(id, updateProductDto);
 
         return Ok(product.ToDto());
     }

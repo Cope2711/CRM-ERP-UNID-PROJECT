@@ -37,17 +37,16 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
 
     public class UpdateSupplierTests : SuppliersControllerTests
     {
-        public UpdateSupplierTests(CustomWebApiFactory factory) : base(factory)
-        {
-        }
+        public UpdateSupplierTests(CustomWebApiFactory factory) : base(factory) { }
+
         public static IEnumerable<object[]> GetTestData()
-        {                
-            // All OK
+        {
+            // OK
             yield return new object[]
             {
+                Models.Suppliers.Apple.SupplierId,
                 new UpdateSupplierDto
                 {
-                    SupplierId = Models.Suppliers.Apple.SupplierId,
                     SupplierName = "Appless",
                     SupplierContact = "Apples company",
                     SupplierEmail = "apples@gmail.com",
@@ -55,13 +54,13 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
                 },
                 HttpStatusCode.OK
             };
-            
+
             // 404 NOT FOUND
             yield return new object[]
             {
+                Guid.NewGuid(),
                 new UpdateSupplierDto
                 {
-                    SupplierId = Guid.NewGuid(),
                     SupplierName = "Appless",
                     SupplierContact = "Apples company",
                     SupplierEmail = "apples@gmail.com",
@@ -69,39 +68,39 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
                 },
                 HttpStatusCode.NotFound
             };
-            
-            // 409 FOR THE NAME
+
+            // 409 CONFLICT - NAME
             yield return new object[]
             {
+                Models.Suppliers.Apple.SupplierId,
                 new UpdateSupplierDto
                 {
-                    SupplierId = Models.Suppliers.Apple.SupplierId,
-                    SupplierName = Models.Suppliers.Xataka.SupplierName,
+                    SupplierName = Models.Suppliers.Xataka.SupplierName
                 },
                 HttpStatusCode.Conflict
             };
-            
-            // 409 FOR THE EMAIL
+
+            // 409 CONFLICT - EMAIL
             yield return new object[]
             {
+                Models.Suppliers.Apple.SupplierId,
                 new UpdateSupplierDto
                 {
-                    SupplierId = Models.Suppliers.Apple.SupplierId,
-                    SupplierEmail = Models.Suppliers.Xataka.SupplierEmail,
+                    SupplierEmail = Models.Suppliers.Xataka.SupplierEmail
                 },
                 HttpStatusCode.Conflict
             };
         }
-        
+
         [Theory]
         [MemberData(nameof(GetTestData))]
-        public async Task UpdateSupplier_ReturnsExpectedResult(UpdateSupplierDto updateSupplierDto,
-            HttpStatusCode expectedStatusCode)
+        public async Task UpdateSupplier_ReturnsExpectedResult(Guid supplierId, UpdateSupplierDto updateDto, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update", updateSupplierDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{supplierId}", updateDto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
+
     
     public class CreateSupplierTests : SuppliersControllerTests
     {

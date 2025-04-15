@@ -76,37 +76,35 @@ public class CategoriesControllerTests : IClassFixture<CustomWebApiFactory>
 
     public class UpdateCategoryTests : CategoriesControllerTests
     {
-        public UpdateCategoryTests(CustomWebApiFactory factory) : base(factory)
-        {
-        }
+        public UpdateCategoryTests(CustomWebApiFactory factory) : base(factory) { }
 
-        public static IEnumerable<Object[]> UpdateCategoryTestData()
+        public static IEnumerable<object[]> UpdateCategoryTestData()
         {
-            yield return new Object[] // CategoryName already exist
+            yield return new object[] // CategoryName already exist
             {
+                Models.Categories.Technology.CategoryId,
                 new UpdateCategoryDto
                 {
-                    CategoryId = Models.Categories.Technology.CategoryId,
                     CategoryName = Models.Categories.Men.CategoryName,
                 },
                 HttpStatusCode.Conflict
             };
-            
-            yield return new Object[] // All OK
+
+            yield return new object[] // All OK
             {
+                Models.Categories.Technology.CategoryId,
                 new UpdateCategoryDto
                 {
-                    CategoryId = Models.Categories.Technology.CategoryId,
                     CategoryName = "Tecnologia",
                 },
                 HttpStatusCode.OK
             };
 
-            yield return new Object[] // Not found
+            yield return new object[] // Not found
             {
+                Guid.NewGuid(),
                 new UpdateCategoryDto
                 {
-                    CategoryId = Guid.NewGuid(),
                     CategoryName = Models.Categories.Technology.CategoryName,
                     CategoryDescription = "Technology category"
                 },
@@ -116,10 +114,9 @@ public class CategoriesControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(UpdateCategoryTestData))]
-        public async Task UpdateCategory_ReturnsExpectedResult(UpdateCategoryDto updateCategoryDto,
-            HttpStatusCode expectedStatusCode)
+        public async Task UpdateCategory_ReturnsExpectedResult(Guid categoryId, UpdateCategoryDto dto, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update", updateCategoryDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{categoryId}", dto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }

@@ -1,4 +1,3 @@
-import { ErrorDetail } from '@/dtos/ErrorDetailDtos.ts';
 import { axiosInstance } from '@/services/axiosConfig';
 import type { Schema } from "@/types/Schema";
 import {GetAllDto} from "@/dtos/GenericDtos.ts";
@@ -15,17 +14,11 @@ class GenericService {
 
     async getSchemas(modelName: string, schemaType: string): Promise<Schema> {
         try {
-            const { data } = await axiosInstance.get(`${modelName}/get-create-schema?type=${schemaType}`);
+            const { data } = await axiosInstance.get(`${modelName}/schema?type=${schemaType}`);
             return data;
         } catch (error: any) {
-            const response = error.response;
-            const errorDetail: ErrorDetail = {
-                title: response?.data?.title || 'Error',
-                status: response?.status || 500,
-                detail: response?.data?.detail || 'Error al obtener el esquema',
-                field: response?.data?.field,
-            };
-            throw errorDetail;
+            const response = error.response.data;
+            throw response;
         }
     }
 
@@ -34,14 +27,25 @@ class GenericService {
             const { data: responseData } = await axiosInstance.post(`${modelName}/create`, data);
             return responseData;
         } catch (error: any) {
-            const response = error.response;
-            const errorDetail: ErrorDetail = {
-                title: response?.data?.title || 'Error',
-                status: response?.status || 500,
-                detail: response?.data?.detail || 'Error al crear el registro',
-                field: response?.data?.field,
-            };
-            throw errorDetail;
+            throw error.response?.data;
+        }
+    }
+
+    async getById(modelName: string, id: string): Promise<any> {
+        try {
+            const { data } = await axiosInstance.get(`${modelName}/get-by-id?id=${id}`);
+            return data;
+        } catch (error: any) {
+            throw error.response?.data;
+        }
+    }
+
+    async update(modelName: string, data: any, id: string): Promise<any> {
+        try {
+            const { data: responseData } = await axiosInstance.patch(`${modelName}/update/${id}`, data);
+            return responseData;
+        } catch (error: any) {
+            throw error.response?.data;
         }
     }
 }

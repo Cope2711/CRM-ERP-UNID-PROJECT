@@ -38,11 +38,11 @@ public class RoleController(
         return Ok(DtoSchemaHelper.GetDtoSchema(dtoType));
     }
     
-    [HttpPatch("update")]
+    [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Roles")]
-    public async Task<ActionResult<RoleDto>> Update([FromBody] UpdateRoleDto updateRoleDto)
+    public async Task<ActionResult<RoleDto>> Update(Guid id, [FromBody] UpdateRoleDto updateRoleDto)
     {
-        Role role = await _rolesManagementService.Update(updateRoleDto);
+        Role role = await _rolesManagementService.Update(id, updateRoleDto);
         return Ok(role.ToDto());
     }
 

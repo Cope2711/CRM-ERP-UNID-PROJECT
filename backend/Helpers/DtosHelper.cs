@@ -13,7 +13,9 @@ public static class DtoSchemaHelper
         var specialAttributeMap = new Dictionary<Type, string>
         {
             { typeof(IsEmailAttribute), nameof(IsEmailAttribute).Replace("Attribute", "") },
-            { typeof(IsPhoneNumberWithLadaAttribute), nameof(IsPhoneNumberWithLadaAttribute).Replace("Attribute", "") }
+            { typeof(IsPhoneNumberWithLadaAttribute), nameof(IsPhoneNumberWithLadaAttribute).Replace("Attribute", "") },
+            { typeof(IsPasswordAttribute), nameof(IsPasswordAttribute).Replace("Attribute", "") },
+            { typeof(IsObjectKeyAttribute), nameof(IsObjectKeyAttribute).Replace("Attribute", "") }
         };
 
         var properties = dtoType.GetProperties();

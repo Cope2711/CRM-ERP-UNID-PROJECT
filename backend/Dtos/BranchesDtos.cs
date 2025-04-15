@@ -44,9 +44,6 @@ public class CreateBranchDto
 
 public class UpdateBranchDto
 {
-    [GuidNotEmpty]
-    public Guid BranchId { get; set; }
-    
     [StringLength(100)]
     public string? BranchName { get; set; }
     

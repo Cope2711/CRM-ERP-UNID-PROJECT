@@ -15,11 +15,11 @@ public class InventoryManagementService(
     IUsersBranchesQueryService _usersBranchesQueryService
 ) : IInventoryManagementService
 {
-    public async Task<Inventory> Update(UpdateInventoryDto updateInventoryDto)
+    public async Task<Inventory> Update(Guid id, UpdateInventoryDto updateInventoryDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 
-        Inventory inventory = await _inventoryQueryService.GetByIdThrowsNotFoundAsync(updateInventoryDto.InventoryId);
+        Inventory inventory = await _inventoryQueryService.GetByIdThrowsNotFoundAsync(id);
 
         if (updateInventoryDto.BranchId.HasValue && updateInventoryDto.BranchId != inventory.BranchId)
         {

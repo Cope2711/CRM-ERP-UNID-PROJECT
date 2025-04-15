@@ -10,5 +10,5 @@ public interface IBrandsService
     Task<bool> ExistByIdThrowsNotFound(Guid brandId);
     Task<GetAllResponseDto<Brand>> GetAll(GetAllDto getAllDto);
     Task<Brand> Create(CreateBrandDto createBrandDto);
-    Task<Brand> Update(UpdateBrandDto updateBrandDto);
+    Task<Brand> Update(Guid id, UpdateBrandDto updateBrandDto);
 }

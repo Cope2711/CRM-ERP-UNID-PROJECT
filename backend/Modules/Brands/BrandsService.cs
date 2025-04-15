@@ -79,13 +79,13 @@ public class BrandsService(
         return await _genericService.ExistsAsync(b => b.BrandName, brandName);
     }
     
-    public async Task<Brand> Update(UpdateBrandDto updateBrandDto)
+    public async Task<Brand> Update(Guid id, UpdateBrandDto updateBrandDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        Brand brand = await GetByIdThrowsNotFound(updateBrandDto.BrandId);
+        Brand brand = await GetByIdThrowsNotFound(id);
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested UpdateAsync for BrandId {TargetBrandId}",
-            authenticatedUserId, updateBrandDto.BrandId);
+            authenticatedUserId, id);
         
         bool hasChanges = ModelsHelper.UpdateModel(brand, updateBrandDto, async (field, value) =>
         {
@@ -104,13 +104,13 @@ public class BrandsService(
             await _brandsRepository.SaveChangesAsync();
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for BrandId {TargetBrandId} and the brand was updated",
-                authenticatedUserId, updateBrandDto.BrandId);
+                authenticatedUserId, id);
         }
         else
         {
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for BrandId {TargetBrandId} and the brand was not updated",
-                authenticatedUserId, updateBrandDto.BrandId);
+                authenticatedUserId, id);
         }
         
         return brand;

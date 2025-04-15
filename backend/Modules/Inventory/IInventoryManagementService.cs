@@ -6,5 +6,5 @@ namespace CRM_ERP_UNID.Modules;
 public interface IInventoryManagementService
 {
     Task<Inventory> Create(CreateInventoryDto createInventoryDto);
-    Task<Inventory> Update(UpdateInventoryDto updateInventoryDto);
+    Task<Inventory> Update(Guid id, UpdateInventoryDto updateInventoryDto);
 }

@@ -6,6 +6,6 @@ namespace CRM_ERP_UNID.Modules;
 public interface IProductsManagementService
 {
     Task<Product> Create(CreateProductDto createProductDto);
-    Task<Product> Update(UpdateProductDto updateProductDto);
+    Task<Product> Update(Guid id, UpdateProductDto updateProductDto);
     Task<Product> ChangeBrand(ChangeBrandProductDto changeBrandProductDto);
 }
