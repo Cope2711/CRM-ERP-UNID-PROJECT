@@ -81,11 +81,11 @@ public class BrandsController(
         return Ok(brand.ToDto());
     }
     
-    [HttpPatch("update")]
+    [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Brands")]
-    public async Task<ActionResult<BrandDto>> Update([FromBody] UpdateBrandDto updateBrandDto)
+    public async Task<ActionResult<BrandDto>> Update(Guid id, [FromBody] UpdateBrandDto updateBrandDto)
     {
-        Brand brand = await brandsService.Update(updateBrandDto);
+        Brand brand = await brandsService.Update(id, updateBrandDto);
 
         return Ok(brand.ToDto());
     }

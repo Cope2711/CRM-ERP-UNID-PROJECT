@@ -77,13 +77,13 @@ public class ProductsManagementService(
         return product;
     }
     
-    public async Task<Product> Update(UpdateProductDto updateProductDto)
+    public async Task<Product> Update(Guid id, UpdateProductDto updateProductDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        Product product = await _productsQueryService.GetByIdThrowsNotFound(updateProductDto.ProductId);
+        Product product = await _productsQueryService.GetByIdThrowsNotFound(id);
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested UpdateAsync for ProductId {TargetProductId}",
-            authenticatedUserId, updateProductDto.ProductId);
+            authenticatedUserId, id);
         
         bool hasChanges = ModelsHelper.UpdateModel(product, updateProductDto, async (field, value) =>
         {
@@ -102,13 +102,13 @@ public class ProductsManagementService(
             await _productsRepository.SaveChangesAsync();
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for ProductId {TargetProductId} and the product was updated",
-                authenticatedUserId, updateProductDto.ProductId);
+                authenticatedUserId, id);
         }
         else
         {
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for ProductId {TargetProductId} and the product was not updated",
-                authenticatedUserId, updateProductDto.ProductId);
+                authenticatedUserId, id);
         }
         
         return product;

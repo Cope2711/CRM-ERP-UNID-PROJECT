@@ -87,17 +87,15 @@ public class BranchesTests
     
     public class UpdateBranchTests : BranchesTests
     {
-        public UpdateBranchTests(CustomWebApiFactory factory) : base(factory)
-        {
-        }
+        public UpdateBranchTests(CustomWebApiFactory factory) : base(factory) { }
 
-        public static IEnumerable<Object[]> UpdateBranchTestData()
+        public static IEnumerable<object[]> UpdateBranchTestData()
         {
-            yield return new Object[] // All OK
+            yield return new object[] // All OK
             {
+                Models.Branches.HermosilloMiguelHidalgo.BranchId,
                 new UpdateBranchDto
                 {
-                    BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId,
                     BranchName = "Olivares de la Frontera",
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
                     BranchPhone = "666666666",
@@ -106,11 +104,11 @@ public class BranchesTests
                 HttpStatusCode.OK
             };
 
-            yield return new Object[] // BranchName already exist
+            yield return new object[] // BranchName already exists
             {
+                Models.Branches.HermosilloMiguelHidalgo.BranchId,
                 new UpdateBranchDto
                 {
-                    BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId,
                     BranchName = Models.Branches.CampoReal.BranchName,
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
                     BranchPhone = "666666666",
@@ -118,12 +116,12 @@ public class BranchesTests
                 },
                 HttpStatusCode.Conflict
             };
-            
-            yield return new Object[] // Not found
+
+            yield return new object[] // Not found
             {
+                Guid.NewGuid(),
                 new UpdateBranchDto
                 {
-                    BranchId = Guid.NewGuid(),
                     BranchName = Models.Branches.CampoReal.BranchName,
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
                     BranchPhone = "666666666",
@@ -131,12 +129,12 @@ public class BranchesTests
                 },
                 HttpStatusCode.NotFound
             };
-            
+
             yield return new object[] // Forbidden for the user branch
             {
+                Models.Branches.CampoReal.BranchId,
                 new UpdateBranchDto
                 {
-                    BranchId = Models.Branches.CampoReal.BranchId,
                     BranchName = "Hermosillo Miguel Hidalgo",
                     IsActive = true
                 },
@@ -146,10 +144,9 @@ public class BranchesTests
 
         [Theory]
         [MemberData(nameof(UpdateBranchTestData))]
-        public async Task UpdateBranch_ReturnsExpectedResult(UpdateBranchDto updateBranchDto,
-            HttpStatusCode expectedStatusCode)
+        public async Task UpdateBranch_ReturnsExpectedResult(Guid branchId, UpdateBranchDto updateBranchDto, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update", updateBranchDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{branchId}", updateBranchDto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }

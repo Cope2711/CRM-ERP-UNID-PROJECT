@@ -6,5 +6,5 @@ namespace CRM_ERP_UNID.Modules;
 public interface ISuppliersManagementService
 {
     Task<Supplier> Create(CreateSupplierDto createSupplierDto);
-    Task<Supplier> Update(UpdateSupplierDto updateSupplierDto);
+    Task<Supplier> Update(Guid id, UpdateSupplierDto updateSupplierDto);
 }

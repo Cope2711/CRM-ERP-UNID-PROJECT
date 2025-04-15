@@ -3,7 +3,7 @@ import { useRedirectIfAuthenticated } from '@/hooks/useRedirectIfAuthenticated';
 
 import Loading from '@/components/Loading';
 import LoginForm from '@/components/LoginForm';
-import AlertMessage from '@/components/AlertMessage';
+import AlertMessage from '@/components/message/AlertMessage';
 
 const LoginPage: React.FC = () => {
     useRedirectIfAuthenticated();

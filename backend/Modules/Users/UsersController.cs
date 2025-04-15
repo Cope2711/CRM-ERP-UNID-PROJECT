@@ -38,11 +38,11 @@ public class UsersController(
         return Ok(DtoSchemaHelper.GetDtoSchema(dtoType));
     }
     
-    [HttpPatch("update")]
+    [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Users")]
-    public async Task<ActionResult<UserDto>> UpdateUser([FromBody] UpdateUserDto updateUserDto)
+    public async Task<ActionResult<UserDto>> UpdateUser(Guid id, [FromBody] UpdateUserDto updateUserDto)
     {
-        User user = await _usersManagementService.UpdateAsync(updateUserDto);
+        User user = await _usersManagementService.Update(id, updateUserDto);
         return Ok(user.ToDto());
     }
 
@@ -115,7 +115,7 @@ public class UsersController(
         [FromBody] UsersIdsDto usersIdsDto)
     {
         ResponsesDto<UserResponseStatusDto> deactivateUsersResponseDto =
-            await _usersManagementService.DeactivateUsersAsync(usersIdsDto);
+            await _usersManagementService.DeactivateUsers(usersIdsDto);
         return Ok(deactivateUsersResponseDto);
     }
 
@@ -125,14 +125,14 @@ public class UsersController(
         [FromBody] UsersIdsDto usersIdsDto)
     {
         ResponsesDto<UserResponseStatusDto> activateUsersResponseDto =
-            await _usersManagementService.ActivateUsersAsync(usersIdsDto);
+            await _usersManagementService.ActivateUsers(usersIdsDto);
         return Ok(activateUsersResponseDto);
     }
 
     [HttpPut("change-password")]
     public async Task<ActionResult<UserDto>> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
     {
-        User user = await _usersManagementService.ChangePasswordAsync(changePasswordDto);
+        User user = await _usersManagementService.ChangePassword(changePasswordDto);
         return Ok(user.ToDto());
     }
 }

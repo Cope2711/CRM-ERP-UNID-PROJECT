@@ -89,50 +89,45 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
 
     public class UpdateInventoryTests : InventoryControllerTests
     {
-        public UpdateInventoryTests(CustomWebApiFactory factory) : base(factory)
-        {
-        }
+        public UpdateInventoryTests(CustomWebApiFactory factory) : base(factory) { }
 
         public static IEnumerable<object[]> UpdateInventoryTestData()
         {
             yield return new object[] // All ok
             {
+                Models.InventoryModels.iPhone13InventoryHermosillo.InventoryId,
                 new UpdateInventoryDto
                 {
-                    InventoryId = Models.InventoryModels.iPhone13InventoryHermosillo.InventoryId,
                     Quantity = 20,
                 },
                 HttpStatusCode.OK
             };
 
-            // Returns Conflict for the ProductId
-            yield return new object[]
+            yield return new object[] // Conflict for ProductId
             {
+                Models.InventoryModels.iPhone13InventoryHermosillo.InventoryId,
                 new UpdateInventoryDto
                 {
-                    InventoryId = Models.InventoryModels.iPhone13InventoryHermosillo.InventoryId,
                     ProductId = Models.InventoryModels.GalaxyS21InventoryHermosillo.ProductId,
                 },
                 HttpStatusCode.Conflict
             };
 
-            // Returns Forbidden for the user branch
-            yield return new object[]
+            yield return new object[] // Forbidden for BranchId
             {
+                Models.InventoryModels.iPadProInventoryHermosillo.InventoryId,
                 new UpdateInventoryDto
                 {
-                    InventoryId = Models.InventoryModels.iPadProInventoryHermosillo.InventoryId,
                     BranchId = Models.InventoryModels.iPadProInventoryCampoReal.BranchId,
                 },
                 HttpStatusCode.Forbidden
             };
 
-            // Returns NotFound for the InventoryId
-            yield return new object[]
+            yield return new object[] // NotFound for InventoryId
             {
+                Guid.NewGuid(),
                 new UpdateInventoryDto
                 {
-                    InventoryId = Guid.NewGuid(),
                     Quantity = 20,
                     IsActive = true
                 },
@@ -142,10 +137,9 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(UpdateInventoryTestData))]
-        public async Task UpdateInventory_ReturnsExpectedResult(UpdateInventoryDto updateInventoryDto,
-            HttpStatusCode expectedStatusCode)
+        public async Task UpdateInventory_ReturnsExpectedResult(Guid inventoryId, UpdateInventoryDto dto, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update", updateInventoryDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{inventoryId}", dto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }

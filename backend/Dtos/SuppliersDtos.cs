@@ -58,9 +58,6 @@ public class CreateSupplierDto
 
 public class UpdateSupplierDto
 {
-    [GuidNotEmpty]
-    public Guid SupplierId { get; set; }
-    
     [MaxLength(100)]
     public string? SupplierName { get; set; }
     

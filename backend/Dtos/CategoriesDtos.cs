@@ -28,8 +28,6 @@ public class CreateCategoryDto
 
 public class UpdateCategoryDto
 {
-    [GuidNotEmpty]
-    public Guid CategoryId { get; set; }
     
     [MaxLength(50)]
     public string? CategoryName { get; set; }

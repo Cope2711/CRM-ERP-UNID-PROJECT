@@ -50,14 +50,14 @@ public class BranchesManagementService(
         return branch;
     }
     
-    public async Task<Branch> Update(UpdateBranchDto updateBranchDto)
+    public async Task<Branch> Update(Guid id, UpdateBranchDto updateBranchDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        Branch branch = await _branchesQueryService.GetByIdThrowsNotFoundAsync(updateBranchDto.BranchId);
-        await _usersBranchesQueryService.EnsureUserHasAccessToBranch(authenticatedUserId, updateBranchDto.BranchId);
+        Branch branch = await _branchesQueryService.GetByIdThrowsNotFoundAsync(id);
+        await _usersBranchesQueryService.EnsureUserHasAccessToBranch(authenticatedUserId, id);
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested UpdateAsync for BranchId {TargetBranchId}",
-            authenticatedUserId, updateBranchDto.BranchId);
+            authenticatedUserId, id);
         
         bool hasChanges = ModelsHelper.UpdateModel(branch, updateBranchDto, async (field, value) =>
         {
@@ -76,13 +76,13 @@ public class BranchesManagementService(
             await _branchesRepository.SaveChangesAsync();
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for BranchId {TargetBranchId} and the branch was updated",
-                authenticatedUserId, updateBranchDto.BranchId);
+                authenticatedUserId, id);
         }
         else
         {
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for BranchId {TargetBranchId} and the branch was not updated",
-                authenticatedUserId, updateBranchDto.BranchId);
+                authenticatedUserId, id);
         }
         
         return branch;

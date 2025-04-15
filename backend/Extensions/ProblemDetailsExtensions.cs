@@ -42,7 +42,7 @@ public static class ProblemDetailsExtensions
                 Title = "Forbidden",
                 Status = StatusCodes.Status403Forbidden,
                 Detail = ex.Message,
-                Extensions = { { "permission", ex.Permission }, { "resource", ex.Resource } }
+                Extensions = { { "permission", ex.Permission }, { "resource", ex.Resource }, { "field", ex.Field } }
             });
             
             options.Map<BadRequestException>(ex => new ProblemDetails

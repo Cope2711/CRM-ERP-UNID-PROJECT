@@ -6,5 +6,5 @@ namespace CRM_ERP_UNID.Modules;
 public interface IBranchesManagementService
 { 
     Task<Branch> Create(CreateBranchDto createBranchDto);
-    Task<Branch> Update(UpdateBranchDto updateBranchDto);
+    Task<Branch> Update(Guid id, UpdateBranchDto updateBranchDto);
 }

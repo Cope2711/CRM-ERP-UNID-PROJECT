@@ -42,67 +42,68 @@ public class RoleControllerTests : IClassFixture<CustomWebApiFactory>
 
     public class UpdateRoleTests : RoleControllerTests
     {
-        public UpdateRoleTests(CustomWebApiFactory factory) : base(factory)
-        {
-        }
+        public UpdateRoleTests(CustomWebApiFactory factory) : base(factory) { }
 
         public static IEnumerable<object[]> UpdateRoleTestData()
         {
+            // Success
             yield return new object[]
             {
-                // Success
+                Models.Roles.User.RoleId,
                 new UpdateRoleDto
                 {
-                    RoleId = Models.Roles.User.RoleId,
                     RoleName = "Adminmsamdksad",
                     RoleDescription = "Admin role"
                 },
                 HttpStatusCode.OK
             };
-            
+
+            // Conflict - Same RoleName as Admin
             yield return new object[]
             {
+                Models.Roles.User.RoleId,
                 new UpdateRoleDto
                 {
-                    RoleId = Models.Roles.User.RoleId,
                     RoleName = Models.Roles.Admin.RoleName,
                     RoleDescription = "Admin role"
                 },
                 HttpStatusCode.Conflict
             };
-            
+
+            // Forbidden - Trying to update a protected role
             yield return new object[]
             {
+                Models.Roles.Admin.RoleId,
                 new UpdateRoleDto
                 {
-                    RoleId = Models.Roles.Admin.RoleId,
                     RoleName = "asdsadsadsa",
                     RoleDescription = "Admin role"
                 },
                 HttpStatusCode.Forbidden
             };
-            
+
+            // NotFound - Role doesn't exist
             yield return new object[]
             {
+                Guid.NewGuid(),
                 new UpdateRoleDto
                 {
-                    RoleId = Guid.NewGuid(),
                     RoleName = "asdsadsadsa",
                     RoleDescription = "Admin role"
                 },
                 HttpStatusCode.NotFound
             };
         }
-        
+
         [Theory]
         [MemberData(nameof(UpdateRoleTestData))]
-        public async Task UpdateRole_ReturnsExpectedResult(UpdateRoleDto updateRoleDto,
-            HttpStatusCode expectedStatusCode)
+        public async Task UpdateRole_ReturnsExpectedResult(Guid roleId, UpdateRoleDto updateDto, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update", updateRoleDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{roleId}", updateDto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
+
     
     public class CreateRoleTests : RoleControllerTests
     {

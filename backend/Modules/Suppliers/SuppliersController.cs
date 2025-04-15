@@ -62,11 +62,11 @@ public class SupplierController(
         return Ok(getAllResponseDto);
     }
     
-    [HttpPatch("update")]
+    [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Suppliers")]
-    public async Task<ActionResult<SupplierDto>> UpdateSupplier([FromBody] UpdateSupplierDto updateSupplierDto)
+    public async Task<ActionResult<SupplierDto>> UpdateSupplier(Guid id, [FromBody] UpdateSupplierDto updateSupplierDto)
     {
-        Supplier supplier = await _suppliersManagementService.Update(updateSupplierDto);
+        Supplier supplier = await _suppliersManagementService.Update(id, updateSupplierDto);
         return Ok(supplier.ToDto());
     }
     

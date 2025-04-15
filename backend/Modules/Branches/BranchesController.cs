@@ -82,12 +82,11 @@ public class Branches(
         return Ok(branch.ToDto());
     }
     
-    [HttpPatch("update")]
+    [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Branches")]
-    public async Task<ActionResult<BranchDto>> Update([FromBody] UpdateBranchDto updateBranchDto)
+    public async Task<ActionResult<BranchDto>> Update(Guid id, [FromBody] UpdateBranchDto updateBranchDto)
     {
-        Branch branch = await _branchesManagementService.Update(updateBranchDto);
-
+        Branch branch = await _branchesManagementService.Update(id, updateBranchDto);
         return Ok(branch.ToDto());
     }
 }

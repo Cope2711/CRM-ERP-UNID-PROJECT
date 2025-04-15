@@ -71,12 +71,12 @@ public class RolesManagementService(
         return newRole;
     }
 
-    public async Task<Role> Update(UpdateRoleDto updateRoleDto)
+    public async Task<Role> Update(Guid id, UpdateRoleDto updateRoleDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        Role role = await _rolesQueryService.GetByIdThrowsNotFound(updateRoleDto.RoleId);
+        Role role = await _rolesQueryService.GetByIdThrowsNotFound(id);
 
-        if (authenticatedUserId != updateRoleDto.RoleId)
+        if (authenticatedUserId != id)
             _priorityValidationService.ValidateRolePriorityThrowsForbiddenException(role);
 
         bool hasChanges = ModelsHelper.UpdateModel(role, updateRoleDto, async (field, value) =>
@@ -100,13 +100,13 @@ public class RolesManagementService(
             await rolesRepository.SaveChangesAsync();
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for RoleId {TargetRoleId} and the role was updated",
-                authenticatedUserId, updateRoleDto.RoleId);
+                authenticatedUserId, id);
         }
         else
         {
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for RoleId {TargetRoleId} and the role was not updated",
-                authenticatedUserId, updateRoleDto.RoleId);
+                authenticatedUserId, id);
         }
 
         return role;

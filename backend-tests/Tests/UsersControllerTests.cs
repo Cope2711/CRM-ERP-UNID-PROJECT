@@ -67,72 +67,65 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
     
     public class UpdateUserTests : UsersControllerTests
     {
-        public UpdateUserTests(CustomWebApiFactory factory) : base(factory)
-        {
-        }
+        public UpdateUserTests(CustomWebApiFactory factory) : base(factory) { }
 
         public static IEnumerable<object[]> UpdateUserTestData()
         {
             yield return new object[]
             {
+                Models.Users.TestUser.UserId,
                 new UpdateUserDto
                 {
-                    UserId = Models.Users.TestUser.UserId,
                     UserUserName = "test-updated"
                 },
                 HttpStatusCode.OK
             };
 
-            // When User does not exist
             yield return new object[]
             {
+                Guid.NewGuid(),
                 new UpdateUserDto
                 {
-                    UserId = Guid.NewGuid(),
-                    UserUserName = "TestUserr",
+                    UserUserName = "TestUserr"
                 },
                 HttpStatusCode.NotFound
             };
 
-            // When UserName already exist
             yield return new object[]
             {
+                Models.Users.TestUser.UserId,
                 new UpdateUserDto
                 {
-                    UserId = Models.Users.TestUser.UserId,
                     UserUserName = "admin"
                 },
                 HttpStatusCode.Conflict
             };
 
-            // When Email already exist
             yield return new object[]
             {
+                Models.Users.TestUser.UserId,
                 new UpdateUserDto
                 {
-                    UserId = Models.Users.TestUser.UserId,
                     UserEmail = "admin@admin.com"
                 },
                 HttpStatusCode.Conflict
             };
-            
-            // When user has highest priority
+
             yield return new object[]
             {
+                Models.Users.HighestPriorityUser.UserId,
                 new UpdateUserDto
                 {
-                    UserId = Models.Users.HighestPriorityUser.UserId,
                     UserEmail = "asdsa@gmail.com"
                 },
                 HttpStatusCode.Forbidden
             };
-            
-            // When user is not in the same branch
+
             yield return new object[]
             {
+                Models.Users.TestUser2.UserId,
                 new UpdateUserDto
                 {
-                    UserId = Models.Users.TestUser2.UserId,
                     UserUserName = "test-updated"
                 },
                 HttpStatusCode.Forbidden
@@ -141,15 +134,13 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(UpdateUserTestData))]
-        public async Task UpdateUser_ReturnsExpectedResult(UpdateUserDto updateUserDto,
-            HttpStatusCode expectedStatusCode)
+        public async Task UpdateUser_ReturnsExpectedResult(Guid userId, UpdateUserDto updateUserDto, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update", updateUserDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{userId}", updateUserDto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
-        
-        
     }
+
 
     public class ChangePasswordTests : UsersControllerTests
     {

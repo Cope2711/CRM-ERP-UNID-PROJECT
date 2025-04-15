@@ -27,9 +27,6 @@ public class RoleDto : BaseRoleDto
 
 public class UpdateRoleDto
 {
-    [GuidNotEmpty]
-    public Guid RoleId { get; set; }
-    
     [MaxLength(50)]
     public string? RoleName { get; set; }
     

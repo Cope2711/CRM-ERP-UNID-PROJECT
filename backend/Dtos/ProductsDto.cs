@@ -48,8 +48,6 @@ public class CreateProductDto : RequiredBaseProductDto
 
 public class UpdateProductDto : BaseProductDto
 {
-    [GuidNotEmpty]
-    public Guid ProductId { get; set; }
 }
 
 public class ChangeBrandProductDto

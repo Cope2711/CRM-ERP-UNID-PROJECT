@@ -6,6 +6,6 @@ namespace CRM_ERP_UNID.Modules;
 public interface IRolesManagementService
 {
     Task<Role> Create(CreateRoleDto createRoleDto);
-    Task<Role> Update(UpdateRoleDto updateRoleDto);
+    Task<Role> Update(Guid id, UpdateRoleDto updateRoleDto);
     Task<Role> DeleteById(Guid id);
 }

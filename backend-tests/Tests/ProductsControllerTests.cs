@@ -88,37 +88,35 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
     
     public class UpdateProductTests : ProductsControllerTests
     {
-        public UpdateProductTests(CustomWebApiFactory factory) : base(factory)
-        {
-        }
+        public UpdateProductTests(CustomWebApiFactory factory) : base(factory) { }
 
-        public static IEnumerable<Object[]> UpdateProductTestData()
+        public static IEnumerable<object[]> UpdateProductTestData()
         {
-            yield return new Object[] // All OK
+            yield return new object[] // All OK
             {
+                Models.Products.iPhone13.ProductId,
                 new UpdateProductDto
                 {
-                    ProductId = Models.Products.iPhone13.ProductId,
                     ProductName = "Appless"
                 },
                 HttpStatusCode.OK
             };
 
-            yield return new Object[] // ProductName already exist
+            yield return new object[] // ProductName already exists
             {
+                Models.Products.iPhone13.ProductId,
                 new UpdateProductDto
                 {
-                    ProductId = Models.Products.iPhone13.ProductId,
                     ProductName = Models.Products.iPadPro.ProductName,
                 },
                 HttpStatusCode.Conflict
             };
-            
-            yield return new Object[] // Not found
+
+            yield return new object[] // Not Found
             {
+                Guid.NewGuid(),
                 new UpdateProductDto
                 {
-                    ProductId = Guid.NewGuid(),
                     ProductName = Models.Products.iPadPro.ProductName,
                 },
                 HttpStatusCode.NotFound
@@ -127,13 +125,13 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(UpdateProductTestData))]
-        public async Task UpdateProduct_ReturnsExpectedResult(UpdateProductDto updateProductDto,
-            HttpStatusCode expectedStatusCode)
+        public async Task UpdateProduct_ReturnsExpectedResult(Guid productId, UpdateProductDto updateDto, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update", updateProductDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{productId}", updateDto);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
+
 
     public class ChangeBrandProductTests : ProductsControllerTests
     {
