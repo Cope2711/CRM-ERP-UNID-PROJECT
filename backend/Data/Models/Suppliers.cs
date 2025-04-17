@@ -49,8 +49,6 @@ public static class SupplierExtensions
             SupplierPhone = supplier.SupplierPhone,
             SupplierAddress = supplier.SupplierAddress,
             IsActive = supplier.IsActive,
-            CreatedDate = supplier.CreatedDate,
-            UpdatedDate = supplier.UpdatedDate
         };
     }
 }

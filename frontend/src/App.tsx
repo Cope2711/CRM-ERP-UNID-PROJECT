@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import MakeSidebar from './components/Sidebar/MakeSidebar';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
+import GenericDetailPage from './pages/GenericDetailPage';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -26,6 +27,10 @@ const AppRoutes = () => {
       <Route path="/settings" element={<div>Settings Page</div>} />
       <Route path="/users/list" element={<div>User List Page</div>} />
       <Route path="/users/roles" element={<div>User Roles Page</div>} />
+      <Route path="/users/:id" element={<GenericDetailPage modelName="users" />} />
+      <Route path="/branches/:id" element={<GenericDetailPage modelName="branches" />} />
+      <Route path="/roles/:id" element={<GenericDetailPage modelName="roles" />} />
+      <Route path="/suppliers/:id" element={<GenericDetailPage modelName="suppliers" />} />
     </Routes>
   );
 };

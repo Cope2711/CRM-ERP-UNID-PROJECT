@@ -50,12 +50,6 @@ public class SuppliersBranchesController(
     [PermissionAuthorize("View", "SuppliersBranches")]
     public async Task<ActionResult<GetAllResponseDto<SupplierBranch>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(SupplierBranch));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(SupplierBranch));
-
         GetAllResponseDto<SupplierBranch> getAllResponseDto = await _suppliersBranchesQueryService.GetAll(getAllDto);
 
         return Ok(getAllResponseDto);

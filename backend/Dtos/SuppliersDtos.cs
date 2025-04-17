@@ -5,29 +5,42 @@ namespace CRM_ERP_UNID.Dtos;
 
 public class SupplierDto
 {
+    [IsObjectKey]
     [GuidNotEmpty]
+    [Required]
     public Guid SupplierId { get; set; }
     
     [Required]
-    [MaxLength(100)]
+    [MinLength(3)]
+    [MaxLength(50)]
     public required string SupplierName { get; set; }
     
-    [MaxLength(50)]
+    [MinLength(3)]
+    [MaxLength(255)]
     public string? SupplierContact { get; set; }
     
-    [MaxLength(100)]
+    [MinLength(3)]
+    [MaxLength(255)]
+    [IsEmail]
     public string? SupplierEmail { get; set; }
     
-    [MaxLength(20)]
+    [MinLength(3)]
+    [MaxLength(255)]
+    [IsPhoneNumberWithLada]
     public string? SupplierPhone { get; set; }
     
+    [MinLength(3)]
     [MaxLength(255)]
     public string? SupplierAddress { get; set; }
     
-    [Required]
-    public required bool IsActive { get; set; }
-    public DateTime? CreatedDate { get; set; }
-    public DateTime? UpdatedDate { get; set; }
+    [Required] 
+    public bool IsActive { get; set; } = true;
+    
+    [RelationInfo("SuppliersProducts", "suppliers-products", new[] { "Product.productName" })]
+    public List<SupplierProductDto> Products { get; set; } = new();
+    
+    [RelationInfo("SuppliersBranches", "suppliers-branches", new[] { "Branch.branchName" })]
+    public List<SupplierBranchDto> Branches { get; set; } = new();
 }
 
 public class CreateSupplierDto
@@ -52,26 +65,33 @@ public class CreateSupplierDto
     [MaxLength(255)]
     public string? SupplierAddress { get; set; }
     
-    [Required]
-    public required bool IsActive { get; set; }
+    [Required] 
+    public bool IsActive { get; set; } = true;
 }
 
 public class UpdateSupplierDto
 {
-    [MaxLength(100)]
+    [MinLength(3)]
+    [MaxLength(50)]
     public string? SupplierName { get; set; }
     
-    [MaxLength(50)]
+    [MinLength(3)]
+    [MaxLength(255)]
     public string? SupplierContact { get; set; }
     
-    [MaxLength(100)]
+    [MinLength(3)]
+    [MaxLength(255)]
+    [IsEmail]
     public string? SupplierEmail { get; set; }
     
-    [MaxLength(20)]
+    [MinLength(3)]
+    [MaxLength(255)]
+    [IsPhoneNumberWithLada]
     public string? SupplierPhone { get; set; }
     
+    [MinLength(3)]
     [MaxLength(255)]
     public string? SupplierAddress { get; set; }
     
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
 }

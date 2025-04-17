@@ -31,16 +31,10 @@ public class UsersRolesController(
         return Ok(usersAndRolesResponsesDto);
     }
     
-    [HttpGet("get-all")]
+    [HttpPost("get-all")]
     [PermissionAuthorize("View", "UsersRoles")]
     public async Task<ActionResult<GetAllResponseDto<UserRole>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(UserRole));
-        
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(UserRole));
-        
         GetAllResponseDto<UserRole> getAllResponseDto = await _usersRolesQueryService.GetAllAsync(getAllDto);
         
         return Ok(getAllResponseDto);

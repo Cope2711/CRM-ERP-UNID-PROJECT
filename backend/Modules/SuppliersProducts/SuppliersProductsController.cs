@@ -28,14 +28,6 @@ public class SuppliersProductsController(
     [PermissionAuthorize("View", "SuppliersProducts")]
     public async Task<ActionResult<GetAllResponseDto<SupplierProductDto>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(SupplierProductDto));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(SupplierProductDto));
-
-        CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Selects, typeof(SupplierProductDto));
-
         GetAllResponseDto<SupplierProduct>
             getAllResponseDto = await _suppliersProductsQueryService.GetAll(getAllDto);
 
