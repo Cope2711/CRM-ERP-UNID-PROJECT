@@ -135,20 +135,30 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
         return await selectedQuery.ToListAsync();
     }
-
-
+    
     private static IQueryable<Dictionary<string, object>> ApplySelects<T>(IQueryable<T> query, List<string> selects)
     {
         if (selects == null || !selects.Any()) return query.Select(e => typeof(T).GetProperties()
             .ToDictionary(p => p.Name, p => (object)p.GetValue(e, null) ?? DBNull.Value));
 
         var parameter = Expression.Parameter(typeof(T), "e");
-    
+
         var bindings = selects
             .Select(column =>
             {
-                var property = typeof(T).GetProperty(column, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                return property != null ? new { Column = column, Expression = Expression.Property(parameter, property) } : null;
+                var propertyPath = column.Split('.');  // Dividir el path en partes (por ejemplo: "Role.roleName")
+                Expression expression = Expression.Property(parameter, propertyPath[0]);  // Primer nivel
+
+                // Navegar a través de las propiedades anidadas si hay más niveles
+                for (int i = 1; i < propertyPath.Length; i++)
+                {
+                    var property = expression.Type.GetProperty(propertyPath[i], BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    if (property == null) return null;
+
+                    expression = Expression.Property(expression, property);
+                }
+
+                return new { Column = column, Expression = expression };
             })
             .Where(x => x != null)
             .ToList();
@@ -156,9 +166,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         if (!bindings.Any()) return query.Select(e => new Dictionary<string, object>());
 
         var newExpression = Expression.New(typeof(Dictionary<string, object>));
-    
         var addMethod = typeof(Dictionary<string, object>).GetMethod("Add");
-    
+
         var memberInit = Expression.ListInit(newExpression, bindings.Select(b =>
             Expression.ElementInit(addMethod, Expression.Constant(b.Column), Expression.Convert(b.Expression, typeof(object)))));
 
@@ -166,8 +175,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
         return query.Select(lambda);
     }
-
-
     
     private static IQueryable<T> ApplyFilters<T>(IQueryable<T> query, List<FilterDto>? filters)
     {
@@ -188,7 +195,10 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
             object? filterValue = string.IsNullOrEmpty(filter.Value)
                 ? null
-                : Convert.ChangeType(filter.Value, underlyingType);
+                : (underlyingType == typeof(Guid) 
+                    ? (object)Guid.Parse(filter.Value)  
+                    : Convert.ChangeType(filter.Value, underlyingType)); 
+
             Expression left = Expression.Property(parameter, property);
             Expression right = Expression.Constant(filterValue, propertyType);
 
@@ -232,21 +242,34 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         if (!string.IsNullOrEmpty(orderBy))
         {
-            var orderProperty = typeof(T).GetProperty(orderBy,
-                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            if (orderProperty != null)
+            var parameter = Expression.Parameter(typeof(T), "e");
+
+            // Dividir el orderBy por puntos (para manejar propiedades anidadas)
+            var propertyPath = orderBy.Split('.');
+
+            // Navegar a través de las propiedades anidadas
+            Expression propertyAccess = Expression.Property(parameter, propertyPath[0]);  // Primer nivel
+
+            for (int i = 1; i < propertyPath.Length; i++)
             {
-                var parameter = Expression.Parameter(typeof(T), "e");
-                var propertyAccess = Expression.Property(parameter, orderProperty);
-                var orderExpression = Expression.Lambda(propertyAccess, parameter);
+                var property = propertyAccess.Type.GetProperty(propertyPath[i], BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                if (property == null) return queryable;  // Si no encontramos la propiedad, no aplicamos el orden
 
-                var methodName = descending ? "OrderByDescending" : "OrderBy";
-                var orderByCall = Expression.Call(typeof(Queryable), methodName,
-                    new Type[] { typeof(T), orderProperty.PropertyType }, queryable.Expression,
-                    Expression.Quote(orderExpression));
-
-                queryable = queryable.Provider.CreateQuery<T>(orderByCall);
+                propertyAccess = Expression.Property(propertyAccess, property);  // Navegar al siguiente nivel
             }
+
+            var orderExpression = Expression.Lambda(propertyAccess, parameter);
+
+            // Seleccionar el método adecuado: OrderBy o OrderByDescending
+            var methodName = descending ? "OrderByDescending" : "OrderBy";
+            var orderByCall = Expression.Call(
+                typeof(Queryable), methodName,
+                new Type[] { typeof(T), propertyAccess.Type }, 
+                queryable.Expression,
+                Expression.Quote(orderExpression)
+            );
+
+            queryable = queryable.Provider.CreateQuery<T>(orderByCall);
         }
 
         return queryable;

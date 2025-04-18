@@ -3,7 +3,7 @@ import { Button, Form, message } from "antd";
 import genericService from "@/services/genericService";
 import { Schema } from "@/types/Schema";
 import DynamicForm from "./DynamicForm";
-import SuccessMessage from "../message/SuccessMessage";
+import SuccessMessage from "../../message/SuccessMessage";
 
 type DynamicCreateFormProps = {
     modelName: string; // "users", "roles", etc.

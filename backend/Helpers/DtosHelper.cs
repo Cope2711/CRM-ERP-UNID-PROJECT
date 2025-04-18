@@ -50,6 +50,32 @@ public static class DtoSchemaHelper
                 .Select(attr => specialAttributeMap[attr.GetType()])
                 .ToList();
 
+            // 👇 Agregar relaciones si es lista de DTOs
+            if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                var itemType = property.PropertyType.GetGenericArguments()[0];
+                if (itemType.Name.EndsWith("Dto"))
+                {
+                    specialAttributes.Add("IsRelation");
+
+                    string mainDtoName = dtoType.Name.Replace("Dto", "");
+                    string relatedDtoName = itemType.Name.Replace("Dto", "");
+                    string inferredModel = $"{mainDtoName}s{relatedDtoName}s";
+
+                    var relAttr = property.GetCustomAttribute<RelationInfoAttribute>();
+                    string model = relAttr?.RelationModel ?? inferredModel;
+                    string controller = relAttr?.Controller ?? model.ToLower();
+                    string[] selects = relAttr?.Selects ?? Array.Empty<string>();
+
+                    propertySchema["relationInfo"] = new
+                    {
+                        model,
+                        controller,
+                        selects
+                    };
+                }
+            }
+
             if (specialAttributes.Any())
                 propertySchema["specialData"] = specialAttributes;
 
@@ -58,9 +84,10 @@ public static class DtoSchemaHelper
 
         return schema;
     }
-    
+
     public static object GetDtoSchema<T>()
     {
         return GetDtoSchema(typeof(T));
     }
 }
+

@@ -19,13 +19,6 @@ public class UsersBranchesController(
     [PermissionAuthorize("View", "UsersBranches")]
     public async Task<ActionResult<GetAllResponseDto<UserBranch>>> GetAll(GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(UserBranch));
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(UserBranch));
-        
-        CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Selects, typeof(UserBranch));
-        
         GetAllResponseDto<UserBranch> getAllResponseDto = await _usersBranchesQueryService.GetAll(getAllDto);
         
         return Ok(getAllResponseDto);
