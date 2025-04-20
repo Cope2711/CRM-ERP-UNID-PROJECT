@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import genericService from "@/services/genericService";
 import DynamicUpdateForm from "@/components/dynamic/forms/DynamicUpdateForm";
-import DynamicRelationViewer from "@/components/dynamic/DynamicRelationViewer";
+import DynamicRelationViewer from "@/components/dynamic/dynamicRelationViewer/DynamicRelationViewer";
 import { LoadingSpinner } from "@/components/Loading/loadingSpinner";
 
 /**
@@ -94,6 +94,7 @@ const GenericDetailPage = ({ modelName }: DetailPageProps) => {
                         id={id}
                         schema={schema}
                         setRelationData={setRelationData}
+
                     />
                 </div>
             </div>

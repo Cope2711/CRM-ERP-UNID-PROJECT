@@ -84,10 +84,10 @@ public class UserDto
     [Required] 
     public bool IsActive { get; set; } = true;
     
-    [RelationInfo("UsersRoles", "users-roles", new[] { "Role.roleName", "Role.rolePriority" })]
+    [RelationInfo("UsersRoles", "users-roles", new[] { "UserRoleId", "Role.RoleId", "Role.RoleName", "Role.RolePriority" })]
     public List<RoleDto> Roles { get; set; } = new();
     
-    [RelationInfo("UsersBranches", "users-branches", new[] { "Branch.branchName" })]
+    [RelationInfo("UsersBranches", "users-branches", new[] { "UserBranchId", "Branch.BranchId", "Branch.BranchName" })]
     public List<BranchDto> Branches { get; set; } = new();
 }
 

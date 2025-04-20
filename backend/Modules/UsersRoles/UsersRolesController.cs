@@ -15,15 +15,15 @@ public class UsersRolesController(
     IUsersRolesQueryService _usersRolesQueryService
 ) : ControllerBase
 {
-    [HttpPost("assign-roles")]
+    [HttpPost("assign")]
     [PermissionAuthorize("Assign", "UsersRoles")] 
-    public async Task<ActionResult<ResponsesDto<UserAndRoleResponseStatusDto>>> AssignRoles([FromBody] UsersAndRolesDtos usersAndRolesDto)
+    public async Task<ActionResult<ResponsesDto<ModelAndAssignResponseStatusDto>>> AssignRoles([FromBody] ModelsAndAssignsDtos modelsAndAssignsDtos)
     {
-        ResponsesDto<UserAndRoleResponseStatusDto> usersAndRolesResponsesDto = await _usersRolesManagementService.AssignRolesToUsersAsync(usersAndRolesDto);
+        ResponsesDto<ModelAndAssignResponseStatusDto> usersAndRolesResponsesDto = await _usersRolesManagementService.AssignRolesToUsersAsync(modelsAndAssignsDtos);
         return Ok(usersAndRolesResponsesDto);
     }
     
-    [HttpDelete("revoke-roles")]
+    [HttpDelete("revoke")]
     [PermissionAuthorize("Revoke", "UsersRoles")]
     public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> RevokeRoles([FromBody] IdsDto idsDto)
     {

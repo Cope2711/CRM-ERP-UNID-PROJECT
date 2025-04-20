@@ -14,3 +14,7 @@ export const extractIsObjectKeyName = (data: Record<string, any>): string => {
     
     return key;
 };
+
+export const toLowerRelationKey = (key: string): string => {
+    return key.charAt(0).toLowerCase() + key.slice(1);
+};

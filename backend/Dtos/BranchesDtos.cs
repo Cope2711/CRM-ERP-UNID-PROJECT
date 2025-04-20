@@ -38,19 +38,21 @@ public class CreateBranchDto
     [Required]
     [StringLength(20)]
     public required string BranchPhone { get; set; }
-    
-    public bool? IsActive { get; set; }
+
+    [Required] 
+    public bool IsActive { get; set; } = true;
 }
 
 public class UpdateBranchDto
 {
-    [StringLength(100)]
+    [MinLength(4)]
+    [MaxLength(255)]
     public string? BranchName { get; set; }
     
-    [StringLength(255)]
+    [MinLength(4)]
+    [MaxLength(255)]
     public string? BranchAddress { get; set; }
     
-    [StringLength(20)]
     public string? BranchPhone { get; set; }
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
 }

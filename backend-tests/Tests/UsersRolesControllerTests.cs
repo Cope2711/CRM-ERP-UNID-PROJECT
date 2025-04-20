@@ -27,59 +27,59 @@ public class UsersRolesControllerTests : IClassFixture<CustomWebApiFactory>
         [Fact]
         public async Task AssignRoles_ReturnsExpectedResult()
         {
-            UsersAndRolesDtos usersAndRolesDtos = new UsersAndRolesDtos
+            ModelsAndAssignsDtos usersAndRolesDtos = new ModelsAndAssignsDtos
             {
-                UserAndRoleId = new List<UserAndRoleIdDto>
+                ModelAssignIds = new List<ModelAssignIdsDto>
                 {
                     // Success - Assigned
-                    new UserAndRoleIdDto
+                    new ModelAssignIdsDto
                     {
-                        UserId = Models.Users.TestUser.UserId,
-                        RoleId = Models.Roles.Guest.RoleId
+                        ModelId = Models.Users.TestUser.UserId,
+                        AssignId = Models.Roles.Guest.RoleId
                     },
                     
                     // Already assigned
-                    new UserAndRoleIdDto
+                    new ModelAssignIdsDto
                     {
-                        UserId = Models.Users.TestUser.UserId,
-                        RoleId = Models.Roles.User.RoleId
+                        ModelId = Models.Users.TestUser.UserId,
+                        AssignId = Models.Roles.User.RoleId
                     },
                     
                     // Not found
-                    new UserAndRoleIdDto
+                    new ModelAssignIdsDto
                     {
-                        UserId = Guid.NewGuid(),
-                        RoleId = Models.Roles.User.RoleId
+                        ModelId = Guid.NewGuid(),
+                        AssignId = Models.Roles.User.RoleId
                     },
                     
                     // Not enough priority
-                    new UserAndRoleIdDto
+                    new ModelAssignIdsDto
                     {
-                        UserId = Models.Users.HighestPriorityUser.UserId,
-                        RoleId = Models.Roles.User.RoleId
+                        ModelId = Models.Users.HighestPriorityUser.UserId,
+                        AssignId = Models.Roles.User.RoleId
                     },
                     
                     // Not enough priority
-                    new UserAndRoleIdDto
+                    new ModelAssignIdsDto
                     {
-                        UserId = Models.Users.InactiveTestUser.UserId,
-                        RoleId = Models.Roles.HighestPriority.RoleId
+                        ModelId = Models.Users.InactiveTestUser.UserId,
+                        AssignId = Models.Roles.HighestPriority.RoleId
                     },
                     
                     // Not the same branch
-                    new UserAndRoleIdDto
+                    new ModelAssignIdsDto
                     {
-                        UserId = Models.Users.TestUser2.UserId,
-                        RoleId = Models.Roles.Guest.RoleId
+                        ModelId = Models.Users.TestUser2.UserId,
+                        AssignId = Models.Roles.Guest.RoleId
                     },
                 }
             };
 
-            var response = await _client.PostAsJsonAsync($"{Endpoint}/assign-roles", usersAndRolesDtos);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/assign", usersAndRolesDtos);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            ResponsesDto<UserAndRoleResponseStatusDto>? assignRolesResponseDto =
-                await response.Content.ReadFromJsonAsync<ResponsesDto<UserAndRoleResponseStatusDto>>();
+            ResponsesDto<ModelAndAssignResponseStatusDto>? assignRolesResponseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<ModelAndAssignResponseStatusDto>>();
 
             assignRolesResponseDto.Should().NotBeNull();
             assignRolesResponseDto.Success.Count.Should().Be(1);
@@ -110,7 +110,7 @@ public class UsersRolesControllerTests : IClassFixture<CustomWebApiFactory>
                 }
             };
 
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Endpoint}/revoke-roles")
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Endpoint}/revoke")
             {
                 Content = new StringContent(JsonConvert.SerializeObject(idsDto), Encoding.UTF8, "application/json")
             };

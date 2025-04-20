@@ -28,9 +28,6 @@ const AppRoutes = () => {
       <Route path="/users/list" element={<div>User List Page</div>} />
       <Route path="/users/roles" element={<div>User Roles Page</div>} />
       <Route path="/users/:id" element={<GenericDetailPage modelName="users" />} />
-      <Route path="/branches/:id" element={<GenericDetailPage modelName="branches" />} />
-      <Route path="/roles/:id" element={<GenericDetailPage modelName="roles" />} />
-      <Route path="/suppliers/:id" element={<GenericDetailPage modelName="suppliers" />} />
     </Routes>
   );
 };

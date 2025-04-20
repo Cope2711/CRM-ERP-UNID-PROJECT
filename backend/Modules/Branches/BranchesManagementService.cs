@@ -36,7 +36,7 @@ public class BranchesManagementService(
             BranchName = createBranchDto.BranchName,
             BranchAddress = createBranchDto.BranchAddress,
             BranchPhone = createBranchDto.BranchPhone,
-            IsActive = createBranchDto.IsActive ?? true
+            IsActive = createBranchDto.IsActive
         };
 
         _branchesRepository.Add(branch);

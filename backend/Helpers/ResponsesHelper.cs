@@ -15,4 +15,15 @@ public static class ResponsesHelper
             Message = message
         });
     }
+    
+    public static void AddFailedResponseDto(ResponsesDto<ModelAndAssignResponseStatusDto> responseDto,
+        ModelAssignIdsDto modelAssignIdsDto, string status, string field, string message)
+    {
+        responseDto.Failed.Add(new ModelAndAssignResponseStatusDto{
+            ModelAssignIds = modelAssignIdsDto,
+            Status = status,
+            Field = field,
+            Message = message
+        });
+    }
 }

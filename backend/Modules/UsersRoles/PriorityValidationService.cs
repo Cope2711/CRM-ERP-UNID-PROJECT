@@ -18,7 +18,8 @@ public class PriorityValidationService(
     {
         var authMaxRolePriority = GetAuthenticatedUserMaxRolePriority();
 
-        double targetUserPriority = await _usersRolesQueryService.GetMaxRolePriorityByUserId(userId);
+        double? targetUserPriority = await _usersRolesQueryService.GetMaxRolePriorityByUserId(userId);
+
         return IsPriorityGreater(authMaxRolePriority, targetUserPriority);
     }
 
@@ -63,6 +64,13 @@ public class PriorityValidationService(
     private double GetAuthenticatedUserMaxRolePriority() =>
         HttpContextHelper.GetAuthenticatedUserMaxRolePriority(_httpContextAccessor);
 
-    private bool IsPriorityGreater(double authPriority, double targetPriority) =>
-        authPriority > targetPriority;
+    private bool IsPriorityGreater(double authPriority, double? targetPriority)
+    {
+        if (targetPriority == null)
+        {
+            return true;
+        }
+        
+        return authPriority > targetPriority;
+    }
 }
