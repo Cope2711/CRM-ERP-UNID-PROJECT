@@ -81,3 +81,26 @@ public class IdsDto
     [RangeListLength(1, 50)]
     public required List<Guid> Ids { get; set; }
 }
+
+public class ModelsAndAssignsDtos
+{
+    [Required]
+    [RangeListLength(1, 50)]
+    public required List<ModelAssignIdsDto> ModelAssignIds { get; set; }
+}
+
+public class ModelAssignIdsDto
+{
+    [Required]
+    [GuidNotEmpty]
+    public required Guid ModelId { get; set; }
+    
+    [Required]
+    [GuidNotEmpty]
+    public required Guid AssignId { get; set; }
+}
+
+public class ModelAndAssignResponseStatusDto : ResponseStatusDto
+{
+    public required ModelAssignIdsDto ModelAssignIds { get; set; }
+}

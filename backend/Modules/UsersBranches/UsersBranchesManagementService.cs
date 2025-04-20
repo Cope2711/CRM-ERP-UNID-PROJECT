@@ -16,60 +16,60 @@ public class UsersBranchesManagementService(
     IPriorityValidationService _priorityValidationService
 ) : IUsersBranchesManagementService
 {
-    public async Task<ResponsesDto<UserBranchResponseStatusDto>> AssignBranchToUserAsync(UsersAndBranchesDtos usersAndBranchesDtos)
+    public async Task<ResponsesDto<ModelAndAssignResponseStatusDto>> AssignBranchToUserAsync(ModelsAndAssignsDtos modelsAndAssignsDtos)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        ResponsesDto<UserBranchResponseStatusDto> responseDto = new();
+        ResponsesDto<ModelAndAssignResponseStatusDto> responseDto = new();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested AssignBranchToUser with the object {UserBranchDto}",
-            authenticatedUserId, usersAndBranchesDtos);
+            authenticatedUserId, modelsAndAssignsDtos);
 
-        foreach (UserAndBranchIdDto userAndBranchIdDto in usersAndBranchesDtos.UserAndBranchIdDtos)
+        foreach (ModelAssignIdsDto modelAssignIds in modelsAndAssignsDtos.ModelAssignIds)
         {
-            if (await _usersBranchesQueryService.IsUserAssignedToBranch(userAndBranchIdDto.UserId, userAndBranchIdDto.BranchId))
+            if (await _usersBranchesQueryService.IsUserAssignedToBranch(modelAssignIds.ModelId, modelAssignIds.AssignId))
             {
-                AddFailedResponseDto(responseDto, userAndBranchIdDto, ResponseStatus.AlreadyProcessed,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.AlreadyProcessed,
                     Fields.Branches.BranchId, "User already assigned to branch"); continue;
             }
             
-            if (!await _branchesQueryService.ExistById(userAndBranchIdDto.BranchId))
+            if (!await _branchesQueryService.ExistById(modelAssignIds.AssignId))
             {
-                AddFailedResponseDto(responseDto, userAndBranchIdDto, ResponseStatus.NotFound,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotFound,
                     Fields.Branches.BranchId, "Branch not exist"); continue;
             }
             
-            if (!await _usersQueryService.ExistById(userAndBranchIdDto.UserId))
+            if (!await _usersQueryService.ExistById(modelAssignIds.ModelId))
             {
-                AddFailedResponseDto(responseDto, userAndBranchIdDto, ResponseStatus.NotFound,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotFound,
                     Fields.Users.UserId, "User not exist"); continue;
             }
             
-            if (!await _usersBranchesQueryService.EnsureUserHasAccessToBranchNotThrows(authenticatedUserId, userAndBranchIdDto.BranchId))
+            if (!await _usersBranchesQueryService.EnsureUserHasAccessToBranchNotThrows(authenticatedUserId, modelAssignIds.AssignId))
             {
-                AddFailedResponseDto(responseDto, userAndBranchIdDto, ResponseStatus.BranchNotMatched,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.BranchNotMatched,
                     Fields.Branches.BranchId, "Not have the permissions to modify that user in that branch"); continue;
             }
             
-            if (!await _priorityValidationService.ValidateUserPriorityById(userAndBranchIdDto.UserId))
+            if (!await _priorityValidationService.ValidateUserPriorityById(modelAssignIds.ModelId))
             {
-                AddFailedResponseDto(responseDto, userAndBranchIdDto, ResponseStatus.NotEnoughPriority,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotEnoughPriority,
                     Fields.Users.UserId, "Not have enough priority to modify that user"); continue;
             }
             
             // Add to database
             UserBranch userBranch = new UserBranch
             {
-                UserId = userAndBranchIdDto.UserId,
-                BranchId = userAndBranchIdDto.BranchId
+                UserId = modelAssignIds.ModelId,
+                BranchId = modelAssignIds.AssignId
             };
 
             _usersBranchesRepository.Add(userBranch);
             await _usersBranchesRepository.SaveChanges();
 
-            responseDto.Success.Add(new UserBranchResponseStatusDto
+            responseDto.Success.Add(new ModelAndAssignResponseStatusDto
             {
-                UserAndBranchId = userAndBranchIdDto,
+                ModelAssignIds = modelAssignIds,
                 Status = ResponseStatus.Success,
                 Message = "User assigned to branch"
             });
@@ -82,7 +82,7 @@ public class UsersBranchesManagementService(
         return responseDto;
     }
     
-    public async Task<ResponsesDto<IdResponseStatusDto>> RevokeBranchToUserAsync(IdsDto idsDto)
+    public async Task<ResponsesDto<IdResponseStatusDto>> RevokeBranchToUser(IdsDto idsDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         ResponsesDto<IdResponseStatusDto> responseDto = new();
@@ -129,16 +129,5 @@ public class UsersBranchesManagementService(
             authenticatedUserId, responseDto);
         
         return responseDto;
-    }
-    
-    private void AddFailedResponseDto(ResponsesDto<UserBranchResponseStatusDto> responseDto,
-        UserAndBranchIdDto userAndBranchIdDto, string status, string field, string message)
-    {
-        responseDto.Failed.Add(new UserBranchResponseStatusDto{
-            UserAndBranchId = userAndBranchIdDto,
-            Status = status,
-            Field = field,
-            Message = message
-        });
     }
 }

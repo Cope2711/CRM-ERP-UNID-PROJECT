@@ -8,5 +8,5 @@ public interface IUsersRolesQueryService
     Task<bool> IsRoleAssignedToUserAsync(Guid userId, Guid roleId);
     Task<GetAllResponseDto<UserRole>> GetAllAsync(GetAllDto getAllDto);
     Task<UserRole?> GetById(Guid id);
-    Task<double> GetMaxRolePriorityByUserId(Guid userId);
+    Task<double?> GetMaxRolePriorityByUserId(Guid userId);
 }

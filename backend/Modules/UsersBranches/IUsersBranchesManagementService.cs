@@ -4,6 +4,6 @@ namespace CRM_ERP_UNID.Modules;
 
 public interface IUsersBranchesManagementService
 {
-    Task<ResponsesDto<UserBranchResponseStatusDto>> AssignBranchToUserAsync(UsersAndBranchesDtos usersAndBranchesDtos);
-    Task<ResponsesDto<IdResponseStatusDto>> RevokeBranchToUserAsync(IdsDto idsDto);
+    Task<ResponsesDto<ModelAndAssignResponseStatusDto>> AssignBranchToUserAsync(ModelsAndAssignsDtos modelsAndAssignsDtos);
+    Task<ResponsesDto<IdResponseStatusDto>> RevokeBranchToUser(IdsDto idsDto);
 }

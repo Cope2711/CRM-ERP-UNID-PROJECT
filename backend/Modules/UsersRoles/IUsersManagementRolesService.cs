@@ -5,6 +5,6 @@ namespace CRM_ERP_UNID.Modules;
 
 public interface IUsersRolesManagementService
 {
-    Task<ResponsesDto<UserAndRoleResponseStatusDto>> AssignRolesToUsersAsync(UsersAndRolesDtos usersAndRolesDto); 
+    Task<ResponsesDto<ModelAndAssignResponseStatusDto>> AssignRolesToUsersAsync(ModelsAndAssignsDtos modelsAndAssignsDtos); 
     Task<ResponsesDto<IdResponseStatusDto>> RevokeRolesToUsersAsync(IdsDto idsDto);
 }

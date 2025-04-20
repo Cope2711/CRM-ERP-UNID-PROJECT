@@ -16,21 +16,3 @@ public class UserRoleDto : BaseUserRoleDto
 {
     [GuidNotEmpty] public Guid UserRoleId { get; set; }
 }
-
-public class UsersAndRolesDtos
-{
-    [Required]
-    [RangeListLength(1, 50)]
-    public required List<UserAndRoleIdDto> UserAndRoleId { get; set; }
-}
-
-public class UserAndRoleIdDto
-{
-    [Required] [GuidNotEmpty] public required Guid UserId { get; set; }
-    [Required] [GuidNotEmpty] public required Guid RoleId { get; set; }
-}
-
-public class UserAndRoleResponseStatusDto : ResponseStatusDto
-{
-    public required UserAndRoleIdDto UserAndRoleId { get; set; }
-}

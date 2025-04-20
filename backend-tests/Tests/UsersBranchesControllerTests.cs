@@ -27,59 +27,59 @@ public class UsersBranchesControllerTests : IClassFixture<CustomWebApiFactory>
         [Fact]
         public async Task AssignBranch_ReturnsExpectedResult()
         {
-            UsersAndBranchesDtos usersAndBranchesDtos = new UsersAndBranchesDtos
+            ModelsAndAssignsDtos usersAndBranchesDtos = new ModelsAndAssignsDtos
             {
-                UserAndBranchIdDtos = new List<UserAndBranchIdDto>
+                ModelAssignIds = new List<ModelAssignIdsDto>
                 {
                     // Success - Assigned
-                    new UserAndBranchIdDto
+                    new ModelAssignIdsDto
                     {
-                        UserId = Models.Users.TestUser2.UserId,
-                        BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId
+                        ModelId = Models.Users.TestUser2.UserId,
+                        AssignId = Models.Branches.HermosilloMiguelHidalgo.BranchId
                     },
 
                     // Already assigned
-                    new UserAndBranchIdDto
+                    new ModelAssignIdsDto
                     {
-                        UserId = Models.Users.TestUser2.UserId,
-                        BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId
+                        ModelId = Models.Users.TestUser2.UserId,
+                        AssignId = Models.Branches.HermosilloMiguelHidalgo.BranchId
                     },
                     
                     // Not found
-                    new UserAndBranchIdDto
+                    new ModelAssignIdsDto
                     {
-                        UserId = Guid.NewGuid(),
-                        BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId
+                        ModelId = Guid.NewGuid(),
+                        AssignId = Models.Branches.HermosilloMiguelHidalgo.BranchId
                     },
                     
                     // Not found branch
-                    new UserAndBranchIdDto
+                    new ModelAssignIdsDto
                     {
-                        UserId = Models.Users.TestUser2.UserId,
-                        BranchId = Guid.NewGuid()
+                        ModelId = Models.Users.TestUser2.UserId,
+                        AssignId = Guid.NewGuid()
                     },
                     
                     // Not enough priority
-                    new UserAndBranchIdDto
+                    new ModelAssignIdsDto
                     {
-                        UserId = Models.Users.HighestPriorityUser2.UserId,
-                        BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId
+                        ModelId = Models.Users.HighestPriorityUser2.UserId,
+                        AssignId = Models.Branches.HermosilloMiguelHidalgo.BranchId
                     },
                     
                     // Not in the same branch
-                    new UserAndBranchIdDto
+                    new ModelAssignIdsDto
                     {
-                        UserId = Models.Users.TestUser2.UserId,
-                        BranchId = Models.Branches.CampoReal.BranchId
+                        ModelId = Models.Users.TestUser2.UserId,
+                        AssignId = Models.Branches.CampoReal.BranchId
                     }
                 }
             };
             
-            var response = await _client.PostAsJsonAsync($"{Endpoint}/assign-branch", usersAndBranchesDtos);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/assign", usersAndBranchesDtos);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            ResponsesDto<UserBranchResponseStatusDto>? assignBranchesResponseDto =
-                await response.Content.ReadFromJsonAsync<ResponsesDto<UserBranchResponseStatusDto>>();
+            ResponsesDto<ModelAndAssignResponseStatusDto>? assignBranchesResponseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<ModelAndAssignResponseStatusDto>>();
 
             assignBranchesResponseDto.Should().NotBeNull();
             assignBranchesResponseDto.Success.Count.Should().Be(1);
@@ -109,7 +109,7 @@ public class UsersBranchesControllerTests : IClassFixture<CustomWebApiFactory>
                 }
             };
 
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Endpoint}/revoke-branch")
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Endpoint}/revoke")
             {
                 Content = new StringContent(JsonConvert.SerializeObject(usersBranchesIdsDto), Encoding.UTF8, "application/json")
             };

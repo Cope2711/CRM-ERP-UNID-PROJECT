@@ -71,66 +71,66 @@ public class UsersRolesManagementService(
         return responseDto;
     }
 
-    public async Task<ResponsesDto<UserAndRoleResponseStatusDto>> AssignRolesToUsersAsync(UsersAndRolesDtos usersAndRolesDto)
+    public async Task<ResponsesDto<ModelAndAssignResponseStatusDto>> AssignRolesToUsersAsync(ModelsAndAssignsDtos modelsAndAssignsDtos)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        ResponsesDto<UserAndRoleResponseStatusDto> responseDto = new();
+        ResponsesDto<ModelAndAssignResponseStatusDto> responseDto = new();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested AssignRolesToUsers with the object {UsersAndRolesDto}",
-            authenticatedUserId, usersAndRolesDto); 
+            authenticatedUserId, modelsAndAssignsDtos); 
 
-        foreach (UserAndRoleIdDto userAndRoleIdDto in usersAndRolesDto.UserAndRoleId)
+        foreach (ModelAssignIdsDto modelAssignIds in modelsAndAssignsDtos.ModelAssignIds)
         {
-            if (await _usersRolesQueryService.IsRoleAssignedToUserAsync(userAndRoleIdDto.UserId, userAndRoleIdDto.RoleId))
+            if (await _usersRolesQueryService.IsRoleAssignedToUserAsync(modelAssignIds.ModelId, modelAssignIds.AssignId))
             {
-                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.AlreadyProcessed,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.AlreadyProcessed,
                     Fields.Roles.RoleId, "Role already assigned to user"); continue;
             }
             
-            if (!await _usersQueryService.ExistById(userAndRoleIdDto.UserId))
+            if (!await _usersQueryService.ExistById(modelAssignIds.ModelId))
             {
-                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotFound,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotFound,
                     Fields.Users.UserId, "User not exist"); continue;
             }
 
-            if (!await _rolesQueryService.ExistById(userAndRoleIdDto.RoleId))
+            if (!await _rolesQueryService.ExistById(modelAssignIds.AssignId))
             {
-                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotFound,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotFound,
                     Fields.Roles.RoleId, "Role not exist"); continue;
             }
             
-            if (!await _usersBranchesQueryService.EnsureUserCanModifyUserNotThrows(authenticatedUserId, userAndRoleIdDto.UserId))
+            if (!await _usersBranchesQueryService.EnsureUserCanModifyUserNotThrows(authenticatedUserId, modelAssignIds.ModelId))
             {
-                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.BranchNotMatched,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.BranchNotMatched,
                     Fields.Users.UserId, "Not have branch to assign role to that user"); continue;
             }
             
-            if (!await _priorityValidationService.ValidateRolePriorityById(userAndRoleIdDto.RoleId))
+            if (!await _priorityValidationService.ValidateRolePriorityById(modelAssignIds.AssignId))
             {
-                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotEnoughPriority,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotEnoughPriority,
                     Fields.Roles.RoleId, "Not have enough priority to modify that role"); continue;
             }
             
-            if (!await _priorityValidationService.ValidateUserPriorityById(userAndRoleIdDto.UserId))
+            if (!await _priorityValidationService.ValidateUserPriorityById(modelAssignIds.ModelId))
             {
-                AddFailedResponseDto(responseDto, userAndRoleIdDto, ResponseStatus.NotEnoughPriority,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotEnoughPriority,
                     Fields.Users.UserId, "Not have enough priority to modify that user"); continue;
             }
 
             // Add to database
             UserRole userRole = new UserRole
             {
-                UserId = userAndRoleIdDto.UserId,
-                RoleId = userAndRoleIdDto.RoleId
+                UserId = modelAssignIds.ModelId,
+                RoleId = modelAssignIds.AssignId
             };
 
             _usersRolesRepository.Add(userRole);
             await _usersRolesRepository.SaveChangesAsync();
 
-            responseDto.Success.Add(new UserAndRoleResponseStatusDto
+            responseDto.Success.Add(new ModelAndAssignResponseStatusDto
             {
-                UserAndRoleId = userAndRoleIdDto,
+                ModelAssignIds = modelAssignIds,
                 Status = ResponseStatus.Success,
                 Message = "RoleAssigned"
             });
@@ -141,16 +141,5 @@ public class UsersRolesManagementService(
             authenticatedUserId, responseDto);
 
         return responseDto;
-    }
-
-    private void AddFailedResponseDto(ResponsesDto<UserAndRoleResponseStatusDto> responseDto,
-        UserAndRoleIdDto userAndRoleIdDto, string status, string field, string message)
-    {
-        responseDto.Failed.Add(new UserAndRoleResponseStatusDto{
-            UserAndRoleId = userAndRoleIdDto,
-            Status = status,
-            Field = field,
-            Message = message
-        });
     }
 }

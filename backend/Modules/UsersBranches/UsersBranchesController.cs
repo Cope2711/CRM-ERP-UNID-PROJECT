@@ -24,19 +24,19 @@ public class UsersBranchesController(
         return Ok(getAllResponseDto);
     }
     
-    [HttpPost("assign-branch")]
+    [HttpPost("assign")]
     [PermissionAuthorize("Assign", "UsersBranches")]
-    public async Task<ActionResult<ResponsesDto<UserBranchResponseStatusDto>>> AssignBranch([FromBody] UsersAndBranchesDtos usersAndBranchesDtos)
+    public async Task<ActionResult<ResponsesDto<ModelAndAssignResponseStatusDto>>> AssignBranch([FromBody] ModelsAndAssignsDtos modelsAndAssignsDtos)
     {
-        ResponsesDto<UserBranchResponseStatusDto> userBranchResponsesDto = await _usersBranchesManagementService.AssignBranchToUserAsync(usersAndBranchesDtos);
+        ResponsesDto<ModelAndAssignResponseStatusDto> userBranchResponsesDto = await _usersBranchesManagementService.AssignBranchToUserAsync(modelsAndAssignsDtos);
         return Ok(userBranchResponsesDto);
     }
     
-    [HttpDelete("revoke-branch")]
+    [HttpDelete("revoke")]
     [PermissionAuthorize("Revoke", "UsersBranches")]
     public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> RevokeBranch([FromBody] IdsDto idsDto)
     {
-        ResponsesDto<IdResponseStatusDto> userBranchResponsesDto = await _usersBranchesManagementService.RevokeBranchToUserAsync(idsDto);
+        ResponsesDto<IdResponseStatusDto> userBranchResponsesDto = await _usersBranchesManagementService.RevokeBranchToUser(idsDto);
         return Ok(userBranchResponsesDto);
     }
 }

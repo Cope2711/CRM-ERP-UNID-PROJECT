@@ -48,6 +48,35 @@ class GenericService {
             throw error.response?.data;
         }
     }
+
+    async revoke(modelName: string, ids: string[]): Promise<any> {
+        try {
+            const { data } = await axiosInstance.delete(`${modelName}/revoke`, {
+                data: { ids: ids }
+              });
+            return data;
+        } catch (error: any) {
+            throw error.response?.data;
+        }
+    }
+
+    async assign(modelName: string, modelAssignIds: { modelId: string, assignIds: string[] }): Promise<any> {
+        try {
+            const payload = {
+                ModelAssignIds: modelAssignIds.assignIds.map(assignId => ({
+                    ModelId: modelAssignIds.modelId,
+                    AssignId: assignId,
+                })),
+            };
+    
+            // El modelName se incluye aquí en la llamada al endpoint
+            const { data: responseData } = await axiosInstance.post(`${modelName}/assign`, payload);
+            return responseData;
+        } catch (error: any) {
+            throw error.response?.data;
+        }
+    }
+    
 }
 
 export default new GenericService();

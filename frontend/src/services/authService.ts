@@ -1,5 +1,5 @@
-import {LoginRequestDto, LoginResponseDto, RefreshTokenEntryDto} from '@/dtos/AuthDtos.ts';
-import {axiosInstanceAnonymous} from '@/services/axiosConfig';
+import { LoginRequestDto, LoginResponseDto, RefreshTokenEntryDto } from '@/dtos/AuthDtos.ts';
+import { axiosInstanceAnonymous } from '@/services/axiosConfig';
 import { ErrorDetail } from '@/dtos/ErrorDetailDtos.ts';
 
 class authService {

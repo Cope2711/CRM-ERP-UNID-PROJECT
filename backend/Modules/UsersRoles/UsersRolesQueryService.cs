@@ -25,7 +25,7 @@ public class UsersRolesQueryService(
         return await _usersRolesRepository.IsRoleAssignedToUserAsync(userId, roleId);
     }
     
-    public async Task<double> GetMaxRolePriorityByUserId(Guid userId)
+    public async Task<double?> GetMaxRolePriorityByUserId(Guid userId)
     {
         return await _usersRolesRepository.GetMaxUserRolePriority(userId);
     }
