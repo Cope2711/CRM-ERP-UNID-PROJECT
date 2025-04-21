@@ -3,41 +3,45 @@ using CRM_ERP_UNID.Attributes;
 
 namespace CRM_ERP_UNID.Dtos;
 
-public abstract class BaseBrandDto
+public class BrandDto
 {
-    [MaxLength(50)]
-    public string? BrandName { get; set; }
-    
-    [MaxLength(255)]
-    public string? BrandDescription { get; set; }
-    public bool? IsActive { get; set; }
-}
-
-public abstract class RequiredBaseBrandDto
-{
+    [IsObjectKey]
+    [GuidNotEmpty]
     [Required]
-    [MaxLength(50)]
+    public Guid BrandId { get; set; }
+    
+    [Required]
+    [MinLength(3)]
+    [MaxLength(255)]
     public required string BrandName { get; set; }
     
-    [Required]
+    [MinLength(3)]
     [MaxLength(255)]
     public string? BrandDescription { get; set; }
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
 }
 
-public class BrandDto : RequiredBaseBrandDto
+public class CreateBrandDto
 {
-    [GuidNotEmpty]
-    public Guid BrandId { get; set; }
-    public DateTime? CreatedDate { get; set; }
-    public DateTime? UpdatedDate { get; set; }
+    [Required]
+    [MinLength(3)]
+    [MaxLength(255)]
+    public required string BrandName { get; set; }
+    
+    [MinLength(3)]
+    [MaxLength(255)]
+    public string? BrandDescription { get; set; }
+    public bool IsActive { get; set; }
 }
 
-public class CreateBrandDto : RequiredBaseBrandDto
+public class UpdateBrandDto
 {
-}
-
-public class UpdateBrandDto : BaseBrandDto
-{
-
+    [MinLength(3)]
+    [MaxLength(255)]
+    public string? BrandName { get; set; }
+    
+    [MinLength(3)]
+    [MaxLength(255)]
+    public string? BrandDescription { get; set; }
+    public bool IsActive { get; set; }
 }

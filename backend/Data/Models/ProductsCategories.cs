@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CRM_ERP_UNID.Dtos;
 
 namespace CRM_ERP_UNID.Data.Models;
 
@@ -19,4 +20,18 @@ public class ProductCategory
     
     public Category? Category { get; set; }
     public Product? Product { get; set; }
+}
+
+public static class ProductCategoryExtensions
+{
+    public static ProductCategoryDto ToDto(this ProductCategory productCategory)
+    {
+        return new ProductCategoryDto
+        {
+            ProductCategoryId = productCategory.ProductCategoryId,
+            ProductId = productCategory.ProductId,
+            CategoryId = productCategory.CategoryId,
+            CreatedDate = productCategory.CreatedDate,
+        };
+    }
 }

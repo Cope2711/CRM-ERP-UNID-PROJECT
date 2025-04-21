@@ -5,7 +5,7 @@ namespace CRM_ERP_UNID.Modules;
 
 public interface ISuppliersProductsManagementService
 {
-    Task<ResponsesDto<SupplierAndProductResponseStatusDto>> AssignProductsToSuppliers(SuppliersAndProductsIdsDto suppliersAndProductsIdsDto);
+    Task<ResponsesDto<ModelAndAssignResponseStatusDto>> AssignProductsToSuppliers(ModelsAndAssignsDtos modelsAndAssignsDtos);
     Task<ResponsesDto<IdResponseStatusDto>> RevokeProductsFromSuppliers(IdsDto idsDto);
     Task<SupplierProduct> Update(UpdateSupplierProductDto updateSupplierProductDto);
 }

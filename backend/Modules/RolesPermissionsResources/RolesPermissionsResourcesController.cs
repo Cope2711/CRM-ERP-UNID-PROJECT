@@ -24,7 +24,7 @@ public class RolesPermissionsResourcesController(
         return Ok(responsesDto);
     }
 
-    [HttpDelete("revoke-permissions")]
+    [HttpDelete("revoke")]
     [PermissionAuthorize("Revoke", "RolesPermissionsResources")]
     public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> RevokePermissionsToRoles(
         [FromBody] IdsDto idsDto)

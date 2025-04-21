@@ -36,10 +36,10 @@ public class SupplierDto
     [Required] 
     public bool IsActive { get; set; } = true;
     
-    [RelationInfo("SuppliersProducts", "suppliers-products", new[] { "Product.productName" })]
+    [RelationInfo("SuppliersProducts", "suppliers-products", new[] { "SupplierProductId", "Product.ProductId", "Product.ProductName" })]
     public List<SupplierProductDto> Products { get; set; } = new();
     
-    [RelationInfo("SuppliersBranches", "suppliers-branches", new[] { "Branch.branchName" })]
+    [RelationInfo("SuppliersBranches", "suppliers-branches", new[] { "SupplierBranchId", "Branch.BranchId", "Branch.BranchName" })]
     public List<SupplierBranchDto> Branches { get; set; } = new();
 }
 
@@ -84,14 +84,12 @@ public class UpdateSupplierDto
     [IsEmail]
     public string? SupplierEmail { get; set; }
     
-    [MinLength(3)]
-    [MaxLength(255)]
     [IsPhoneNumberWithLada]
     public string? SupplierPhone { get; set; }
     
     [MinLength(3)]
     [MaxLength(255)]
     public string? SupplierAddress { get; set; }
-    
-    public bool IsActive { get; set; }
+
+    public bool IsActive { get; set; } = new();
 }

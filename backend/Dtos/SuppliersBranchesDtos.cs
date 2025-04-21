@@ -27,24 +27,3 @@ public class SupplierBranchDto
     public SupplierDto? Supplier { get; set; }
     public BranchDto? Branch { get; set; }
 }
-
-public class SuppliersAndBranchesDto
-{
-    [RangeListLength(1, int.MaxValue)]
-    public required List<SupplerAndBranchIdDto> SupplerAndBranchIdDto { get; set; }
-}
-
-public class SupplerAndBranchIdDto
-{
-    [GuidNotEmpty]
-    public Guid SupplierId { get; set; }
-    
-    [GuidNotEmpty]
-    public Guid BranchId { get; set; }
-}
-
-public class SuppliersBranchResponseStatusDto : ResponseStatusDto
-{
-    public SupplerAndBranchIdDto SupplerAndBranchId { get; set; }
-}
-

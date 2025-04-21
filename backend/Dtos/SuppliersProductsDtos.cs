@@ -51,13 +51,3 @@ public class SupplierAndProductIdDto
     
     public int? SupplyLeadTime { get; set; }
 }
-
-public class SuppliersAndProductsIdsDto
-{
-    [RangeListLength(1, int.MaxValue)]
-    public required List<SupplierAndProductIdDto> SuppliersAndProductsIds { get; set; }
-}
-public class SupplierAndProductResponseStatusDto : ResponseStatusDto
-{
-    public SupplierAndProductIdDto SupplierAndProductId { get; set; }
-}

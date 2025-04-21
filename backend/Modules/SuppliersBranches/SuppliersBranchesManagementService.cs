@@ -50,43 +50,43 @@ public class SuppliersBranchesManagementService(
         return supplierBranch;
     }
     
-    public async Task<ResponsesDto<SuppliersBranchResponseStatusDto>> AssignBranchesToSuppliers(
-        SuppliersAndBranchesDto suppliersAndBranchesDto)
+    public async Task<ResponsesDto<ModelAndAssignResponseStatusDto>> AssignBranchesToSuppliers(
+        ModelsAndAssignsDtos modelsAndAssignsDtos)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        ResponsesDto<SuppliersBranchResponseStatusDto> responseDto = new();
+        ResponsesDto<ModelAndAssignResponseStatusDto> responseDto = new();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested AssignBranchesToSuppliers with the object {SuppliersAndBranchesDto}",
-            authenticatedUserId, suppliersAndBranchesDto);
+            authenticatedUserId, modelsAndAssignsDtos);
 
-        foreach (SupplerAndBranchIdDto supplierAndBranchIdDto in suppliersAndBranchesDto.SupplerAndBranchIdDto)
+        foreach (ModelAssignIdsDto modelAssignIdsDto in modelsAndAssignsDtos.ModelAssignIds)
         {
-            if (await _suppliersBranchesQueryService.IsSupplierAssignedToBranch(supplierAndBranchIdDto.SupplierId,
-                    supplierAndBranchIdDto.BranchId))
+            if (await _suppliersBranchesQueryService.IsSupplierAssignedToBranch(modelAssignIdsDto.ModelId,
+                    modelAssignIdsDto.AssignId))
             {
-                AddFailedResponseDto(responseDto, supplierAndBranchIdDto, ResponseStatus.AlreadyProcessed,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIdsDto, ResponseStatus.AlreadyProcessed,
                     Fields.SuppliersBranches.BranchId, "Branch already assigned to supplier");
                 continue;
             }
 
-            if (!await _suppliersQueryService.ExistById(supplierAndBranchIdDto.SupplierId))
+            if (!await _suppliersQueryService.ExistById(modelAssignIdsDto.ModelId))
             {
-                AddFailedResponseDto(responseDto, supplierAndBranchIdDto, ResponseStatus.NotFound,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIdsDto, ResponseStatus.NotFound,
                     Fields.Suppliers.SupplierId, "Supplier not exist");
                 continue;
             }
 
-            if (!await _branchesQueryService.ExistById(supplierAndBranchIdDto.BranchId))
+            if (!await _branchesQueryService.ExistById(modelAssignIdsDto.AssignId))
             {
-                AddFailedResponseDto(responseDto, supplierAndBranchIdDto, ResponseStatus.NotFound,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIdsDto, ResponseStatus.NotFound,
                     Fields.Products.ProductId, "Branch not exist");
                 continue;
             }
             
-            if (!await _usersBranchesQueryService.IsUserAssignedToBranch(authenticatedUserId, supplierAndBranchIdDto.BranchId))
+            if (!await _usersBranchesQueryService.IsUserAssignedToBranch(authenticatedUserId, modelAssignIdsDto.AssignId))
             {
-                AddFailedResponseDto(responseDto, supplierAndBranchIdDto, ResponseStatus.BranchNotMatched,
+                ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIdsDto, ResponseStatus.BranchNotMatched,
                     Fields.Branches.BranchId, "User not assigned to branch");
                 continue;
             }
@@ -94,8 +94,8 @@ public class SuppliersBranchesManagementService(
             // Add to database
             SupplierBranch supplierBranch = new()
             {
-                SupplierId = supplierAndBranchIdDto.SupplierId,
-                BranchId = supplierAndBranchIdDto.BranchId,
+                SupplierId = modelAssignIdsDto.ModelId,
+                BranchId = modelAssignIdsDto.AssignId,
                 CreatedDate = DateTime.UtcNow,
                 UpdatedDate = DateTime.UtcNow
             };
@@ -103,9 +103,9 @@ public class SuppliersBranchesManagementService(
             _suppliersBranchesRepository.Add(supplierBranch);
             await _suppliersBranchesRepository.SaveChangesAsync();
 
-            responseDto.Success.Add(new SuppliersBranchResponseStatusDto
+            responseDto.Success.Add(new ModelAndAssignResponseStatusDto
             {
-                SupplerAndBranchId = supplierAndBranchIdDto,
+                ModelAssignIds = modelAssignIdsDto,
                 Status = ResponseStatus.Success,
                 Message = "BranchAssigned"
             });
@@ -164,17 +164,5 @@ public class SuppliersBranchesManagementService(
             authenticatedUserId, responseDto);
 
         return responseDto;
-    }
-
-    public void AddFailedResponseDto(ResponsesDto<SuppliersBranchResponseStatusDto> responseDto,
-        SupplerAndBranchIdDto supplierAndBranchIdDto, string status, string field, string message)
-    {
-        responseDto.Failed.Add(new SuppliersBranchResponseStatusDto
-        {
-            SupplerAndBranchId = supplierAndBranchIdDto,
-            Status = status,
-            Field = field,
-            Message = message
-        });
     }
 }

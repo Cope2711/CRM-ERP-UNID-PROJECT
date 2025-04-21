@@ -62,9 +62,7 @@ public static class UserExtensions
                 BranchName = ub.Branch.BranchName,
                 BranchAddress = ub.Branch.BranchAddress,
                 BranchPhone = ub.Branch.BranchPhone,
-                IsActive = ub.Branch.IsActive,
-                CreatedDate = ub.Branch.CreatedDate,
-                UpdatedDate = ub.Branch.UpdatedDate
+                IsActive = ub.Branch.IsActive
             }).ToList()
         };
     }

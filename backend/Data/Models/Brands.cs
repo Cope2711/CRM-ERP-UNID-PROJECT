@@ -35,9 +35,7 @@ public static class BrandExtensions
             BrandId = brand.BrandId,
             BrandName = brand.BrandName,
             BrandDescription = brand.BrandDescription,
-            IsActive = brand.IsActive,
-            CreatedDate = brand.CreatedDate,
-            UpdatedDate = brand.UpdatedDate
+            IsActive = brand.IsActive
         };
     }
 }
