@@ -24,18 +24,28 @@ public class SuppliersBranchesController(
         return Ok(supplierBranch.ToDto());
     }
     
-    [HttpPost("assign-branches")]
+    [HttpPost("assign")]
     [PermissionAuthorize("Assign", "SuppliersBranches")]
-    public async Task<ActionResult<ResponsesDto<SuppliersBranchResponseStatusDto>>> AssignBranchesToSuppliers(
-        [FromBody] SuppliersAndBranchesDto suppliersAndBranchesDto)
+    public async Task<ActionResult<ResponsesDto<ModelAndAssignResponseStatusDto>>> AssignBranchesToSuppliers(
+        [FromBody] ModelsAndAssignsDtos modelsAndAssignsDtos, [FromQuery] string? modelName)
     {
-        ResponsesDto<SuppliersBranchResponseStatusDto> responseDto =
-            await _suppliersBranchesManagementService.AssignBranchesToSuppliers(suppliersAndBranchesDto);
+        if (modelName != null && modelName == "Suppliers")
+        {
+            foreach (var assign in modelsAndAssignsDtos.ModelAssignIds)
+            {
+                var temp = assign.ModelId;
+                assign.ModelId = assign.AssignId;
+                assign.AssignId = temp;
+            }
+        }
+        
+        ResponsesDto<ModelAndAssignResponseStatusDto> responseDto =
+            await _suppliersBranchesManagementService.AssignBranchesToSuppliers(modelsAndAssignsDtos);
 
         return Ok(responseDto);
     }
     
-    [HttpDelete("revoke-branches")]
+    [HttpDelete("revoke")]
     [PermissionAuthorize("Revoke", "SuppliersBranches")]
     public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> RevokeBranchesFromSuppliers(
         [FromBody] IdsDto idsDto)

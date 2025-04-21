@@ -62,7 +62,7 @@ public class ProductsManagementService(
             ProductName = createProductDto.ProductName,
             ProductPrice = createProductDto.ProductPrice,
             ProductDescription = createProductDto.ProductDescription,
-            IsActive = createProductDto.IsActive ?? true,
+            IsActive = createProductDto.IsActive,
             BrandId = createProductDto.BrandId
         };
 

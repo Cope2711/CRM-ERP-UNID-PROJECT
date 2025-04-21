@@ -43,18 +43,29 @@ public class SuppliersProductsController(
         return Ok(supplierProduct.ToDto());
     }
     
-    [HttpPost("assign-products")]
+    [HttpPost("assign")]
     [PermissionAuthorize("Assign", "SuppliersProducts")]
-    public async Task<ActionResult<ResponsesDto<SupplierAndProductResponseStatusDto>>> AssignProductsToSuppliers(
-        [FromBody] SuppliersAndProductsIdsDto suppliersAndProductsIdsDto)
+    public async Task<ActionResult<ResponsesDto<ModelAndAssignResponseStatusDto>>> AssignProductsToSuppliers(
+        [FromBody] ModelsAndAssignsDtos modelsAndAssignsDtos, [FromQuery] string? modelName)
     {
-        ResponsesDto<SupplierAndProductResponseStatusDto> responseDto =
-            await _suppliersProductsManagementService.AssignProductsToSuppliers(suppliersAndProductsIdsDto);
+        // Change the model and assigns ids depending on the frontend context
+        if (modelName != null && modelName == "Suppliers")
+        {
+            foreach (var assign in modelsAndAssignsDtos.ModelAssignIds)
+            {
+                var temp = assign.ModelId;
+                assign.ModelId = assign.AssignId;
+                assign.AssignId = temp;
+            }
+        }
+        
+        ResponsesDto<ModelAndAssignResponseStatusDto> responseDto =
+            await _suppliersProductsManagementService.AssignProductsToSuppliers(modelsAndAssignsDtos);
 
         return Ok(responseDto);
     }
     
-    [HttpDelete("revoke-products")]
+    [HttpDelete("revoke")]
     [PermissionAuthorize("Revoke", "SuppliersProducts")]
     public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> RevokeProductsFromSuppliers(
         [FromBody] IdsDto idsDto)

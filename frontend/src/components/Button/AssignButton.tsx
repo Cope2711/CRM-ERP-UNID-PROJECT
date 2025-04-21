@@ -11,6 +11,7 @@ interface AssignButtonProps {
     relationController: string; // Endpoint para asignar relaciones
     orderBy: string; // Campo para ordenar los resultados
     selects: string[]; // Campos a seleccionar en la consulta
+    senderResource: string; // Recurso del modelo que envía la relación
     onSuccess?: () => void; // Callback al completar asignaciones exitosas
 }
 
@@ -23,6 +24,7 @@ const AssignButton = ({
     relationController,
     orderBy,
     selects,
+    senderResource,
     onSuccess,
 }: AssignButtonProps) => {
     // Estado del componente
@@ -117,13 +119,13 @@ const AssignButton = ({
         }
 
         setLoading(true);
-
+        
         try {
             // Enviar asignaciones al servidor
             const response: any = await genericService.assign(relationController, {
                 modelId,
                 assignIds: selectedIds,
-            });
+            }, senderResource);
 
             const { success, failed } = response;
 

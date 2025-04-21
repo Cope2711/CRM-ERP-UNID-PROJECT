@@ -39,10 +39,12 @@ public class UpdateUserDto
     [MaxLength(50)]
     public string? UserUserName { get; set; }
     
-    [MaxLength(50)] 
+    [MinLength(3)]
+    [MaxLength(50)]
     public string? UserFirstName { get; set; }
     
-    [MaxLength(50)] 
+    [MinLength(3)]
+    [MaxLength(50)]
     public string? UserLastName { get; set; }
     
     [MaxLength(255)]

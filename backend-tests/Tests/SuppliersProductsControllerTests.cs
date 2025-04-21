@@ -60,39 +60,39 @@ public class SuppliersProductsControllerTests : IClassFixture<CustomWebApiFactor
         [Fact]
         public async Task AssignProducts_ReturnsExpectedResult()
         {
-            SuppliersAndProductsIdsDto suppliersAndProductsIdsDto = new SuppliersAndProductsIdsDto
+            ModelsAndAssignsDtos suppliersAndProductsIdsDto = new ModelsAndAssignsDtos
             {
-                SuppliersAndProductsIds = new List<SupplierAndProductIdDto>
+                ModelAssignIds = new List<ModelAssignIdsDto>
                 {
-                    new SupplierAndProductIdDto // ALL OK
+                    new ModelAssignIdsDto // ALL OK
                     {
-                        SupplierId = Models.Suppliers.Apple.SupplierId,
-                        ProductId = Models.Products.iPadPro.ProductId
+                        ModelId = Models.Suppliers.Apple.SupplierId,
+                        AssignId = Models.Products.iPadPro.ProductId
                     },
                     
-                    new SupplierAndProductIdDto // ALREADY PROCESSED
+                    new ModelAssignIdsDto // ALREADY PROCESSED
                     {
-                        SupplierId = Models.Suppliers.Apple.SupplierId,
-                        ProductId = Models.Products.iPhone13.ProductId
+                        ModelId = Models.Suppliers.Apple.SupplierId,
+                        AssignId = Models.Products.iPhone13.ProductId
                     },
                     
-                    new SupplierAndProductIdDto // NOT FOUND FOR SUPPLIER
+                    new ModelAssignIdsDto // NOT FOUND FOR SUPPLIER
                     {
-                        SupplierId = Guid.NewGuid(),
-                        ProductId = Models.Products.iPhone13.ProductId
+                        ModelId = Guid.NewGuid(),
+                        AssignId = Models.Products.iPhone13.ProductId
                     },
                     
-                    new SupplierAndProductIdDto // NOT FOUND FOR PRODUCT
+                    new ModelAssignIdsDto // NOT FOUND FOR PRODUCT
                     {
-                        SupplierId = Models.Suppliers.Apple.SupplierId,
-                        ProductId = Guid.NewGuid()
+                        ModelId = Models.Suppliers.Apple.SupplierId,
+                        AssignId = Guid.NewGuid()
                     }
                 }
             };
 
-            HttpResponseMessage response = await _client.PostAsJsonAsync($"{Endpoint}/assign-products", suppliersAndProductsIdsDto);
+            HttpResponseMessage response = await _client.PostAsJsonAsync($"{Endpoint}/assign", suppliersAndProductsIdsDto);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            ResponsesDto<SupplierAndProductResponseStatusDto> responseDto = await response.Content.ReadFromJsonAsync<ResponsesDto<SupplierAndProductResponseStatusDto>>();
+            ResponsesDto<ModelAndAssignResponseStatusDto> responseDto = await response.Content.ReadFromJsonAsync<ResponsesDto<ModelAndAssignResponseStatusDto>>();
             responseDto.Should().NotBeNull();
             responseDto.Success.Count.Should().Be(1);
             responseDto.Failed.Count(x => x.Status == ResponseStatus.AlreadyProcessed).Should().Be(1);
@@ -117,7 +117,7 @@ public class SuppliersProductsControllerTests : IClassFixture<CustomWebApiFactor
                 }
             };
 
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Endpoint}/revoke-products")
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Endpoint}/revoke")
             {
                 Content = new StringContent(JsonConvert.SerializeObject(suppliersProductsIdsDto), Encoding.UTF8, "application/json")
             };

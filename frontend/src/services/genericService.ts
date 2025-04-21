@@ -60,7 +60,7 @@ class GenericService {
         }
     }
 
-    async assign(modelName: string, modelAssignIds: { modelId: string, assignIds: string[] }): Promise<any> {
+    async assign(modelName: string, modelAssignIds: { modelId: string, assignIds: string[] }, senderResource: string): Promise<any> {
         try {
             const payload = {
                 ModelAssignIds: modelAssignIds.assignIds.map(assignId => ({
@@ -69,8 +69,12 @@ class GenericService {
                 })),
             };
     
-            // El modelName se incluye aquí en la llamada al endpoint
-            const { data: responseData } = await axiosInstance.post(`${modelName}/assign`, payload);
+            const { data: responseData } = await axiosInstance.post(`${modelName}/assign`, payload, {
+                params: {
+                    modelName: senderResource, 
+                }
+            });
+    
             return responseData;
         } catch (error: any) {
             throw error.response?.data;

@@ -26,8 +26,17 @@ public class UsersBranchesController(
     
     [HttpPost("assign")]
     [PermissionAuthorize("Assign", "UsersBranches")]
-    public async Task<ActionResult<ResponsesDto<ModelAndAssignResponseStatusDto>>> AssignBranch([FromBody] ModelsAndAssignsDtos modelsAndAssignsDtos)
+    public async Task<ActionResult<ResponsesDto<ModelAndAssignResponseStatusDto>>> AssignBranch([FromBody] ModelsAndAssignsDtos modelsAndAssignsDtos, [FromQuery] string? modelName)
     {
+        if (modelName != null && modelName == "Users")
+        {
+            foreach (var assign in modelsAndAssignsDtos.ModelAssignIds)
+            {
+                var temp = assign.ModelId;
+                assign.ModelId = assign.AssignId;
+                assign.AssignId = temp;
+            }
+        }
         ResponsesDto<ModelAndAssignResponseStatusDto> userBranchResponsesDto = await _usersBranchesManagementService.AssignBranchToUserAsync(modelsAndAssignsDtos);
         return Ok(userBranchResponsesDto);
     }

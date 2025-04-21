@@ -19,14 +19,6 @@ public class ProductsCategoriesController(
     [PermissionAuthorize("View", "ProductsCategories")]
     public async Task<ActionResult<GetAllResponseDto<ProductCategory>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(ProductCategory));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(ProductCategory));
-
-        CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Selects, typeof(ProductCategory));
-
         GetAllResponseDto<ProductCategory> getAllResponseDto = await _productsCategoriesQueryService.GetAll(getAllDto);
 
         return Ok(getAllResponseDto);
@@ -34,9 +26,19 @@ public class ProductsCategoriesController(
     
     [HttpPost("assign")]
     [PermissionAuthorize("Assign", "ProductsCategories")]
-    public async Task<ActionResult<ResponsesDto<ProductAndCategoryResponseStatusDto>>> Assign([FromBody] ProductsAndCategoriesDto productsAndCategoriesDto)
+    public async Task<ActionResult<ResponsesDto<ModelAndAssignResponseStatusDto>>> Assign([FromBody] ModelsAndAssignsDtos modelsAndAssignsDtos, [FromQuery] string? modelName)
     {
-        ResponsesDto<ProductAndCategoryResponseStatusDto> responsesDto = await _productsCategoriesManagementService.Assign(productsAndCategoriesDto);
+        if (modelName != null && modelName == "Products")
+        {
+            foreach (var assign in modelsAndAssignsDtos.ModelAssignIds)
+            {
+                var temp = assign.ModelId;
+                assign.ModelId = assign.AssignId;
+                assign.AssignId = temp;
+            }
+        }
+
+        ResponsesDto<ModelAndAssignResponseStatusDto> responsesDto = await _productsCategoriesManagementService.Assign(modelsAndAssignsDtos);
 
         return Ok(responsesDto);
     }

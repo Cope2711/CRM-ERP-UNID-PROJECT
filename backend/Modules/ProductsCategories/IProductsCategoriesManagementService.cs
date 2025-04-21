@@ -4,6 +4,6 @@ namespace CRM_ERP_UNID.Modules;
 
 public interface IProductsCategoriesManagementService
 {
-    Task<ResponsesDto<ProductAndCategoryResponseStatusDto>> Assign(ProductsAndCategoriesDto productsAndCategoriesDto);
+    Task<ResponsesDto<ModelAndAssignResponseStatusDto>> Assign(ModelsAndAssignsDtos modelsAndAssignsDtos);
     Task<ResponsesDto<IdResponseStatusDto>> Revoke(IdsDto idsDto);
 }

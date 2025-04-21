@@ -1,6 +1,8 @@
 using CRM_ERP_UNID.Attributes;
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
+using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +17,25 @@ public class ProductsController(
     IProductsQueryService _productsQueryService
 ) : ControllerBase
 {
-    [HttpGet("get-create-schema")]
-    [PermissionAuthorize("Create", "Products")]
-    public async Task<ActionResult> GetCreateSchema()
+    [HttpGet("schema")]
+    [PermissionAuthorize("View", "Users")]
+    public IActionResult GetSchema([FromQuery] string type)
     {
-        return Ok(DtoSchemaHelper.GetDtoSchema<CreateProductDto>());
+        if (!Utils.ValidSchemaTypes.Contains(type.ToLower()))
+            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
+        
+        var dtoType = type.ToLower() switch
+        {
+            "create" => typeof(CreateProductDto),
+            "update" => typeof(UpdateProductDto),
+            "model" or "read" => typeof(ProductDto),
+            _ => null
+        };
+
+        if (dtoType == null)
+            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
+
+        return Ok(DtoSchemaHelper.GetDtoSchema(dtoType));
     }
     
     [HttpPost("get-all")]

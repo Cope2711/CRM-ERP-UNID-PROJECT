@@ -60,7 +60,7 @@ public class BrandsService(
         {
             BrandName = createBrandDto.BrandName,
             BrandDescription = createBrandDto.BrandDescription,
-            IsActive = createBrandDto.IsActive ?? true
+            IsActive = createBrandDto.IsActive
         };
 
         _brandsRepository.Add(brand);

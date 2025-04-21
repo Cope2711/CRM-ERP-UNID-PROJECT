@@ -118,7 +118,7 @@ const DynamicRelationViewer = ({ id, schema, setRelationData }: RelationViewerPr
                 filters,
                 selects: relationInfo.selects,
             };
-
+            
             // Obtener datos del servicio
             const response = await genericService.getAll(relationInfo.controller, getAllDto);
             const newData = { [key]: response.data };
@@ -161,7 +161,12 @@ const DynamicRelationViewer = ({ id, schema, setRelationData }: RelationViewerPr
 
         try {
             // Enviar solicitud de revocación
-            await genericService.revoke(relationInfo.controller, selectedIds);
+            const response = await genericService.revoke(relationInfo.controller, selectedIds);
+
+            if (response.failed?.length > 0) {
+                setError(`Failed to revoke: ${response.failed?.join(", ")}`);
+                return;
+            }
             
             // Recargar datos y resetear selección
             forceReloadRelationData();
@@ -246,6 +251,7 @@ const DynamicRelationViewer = ({ id, schema, setRelationData }: RelationViewerPr
                             relationController={relationInfoMap[activeKey]?.controller}
                             orderBy={extractLastKeyPart(relationInfoMap[activeKey]?.selects[2])}
                             selects={extractLastKeyParts(relationInfoMap[activeKey]?.selects.slice(1))}
+                            senderResource={activeKey}
                             onSuccess={() => {
                                 forceReloadRelationData();
                                 setShowSuccess(true);

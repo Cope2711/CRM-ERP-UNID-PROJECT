@@ -2,7 +2,6 @@ using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Helpers;
-using CRM_ERP_UNID.Modules;
 
 namespace CRM_ERP_UNID.Modules;
 
@@ -15,51 +14,51 @@ public class ProductsCategoriesManagementService(
     ICategoriesQueryService _categoriesQueryService
 ) : IProductsCategoriesManagementService
 {
-    public async Task<ResponsesDto<ProductAndCategoryResponseStatusDto>> Assign(ProductsAndCategoriesDto productsAndCategoriesDto)
+    public async Task<ResponsesDto<ModelAndAssignResponseStatusDto>> Assign(ModelsAndAssignsDtos modelsAndAssignsDtos)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        ResponsesDto<ProductAndCategoryResponseStatusDto> responsesDto = new();
+        ResponsesDto<ModelAndAssignResponseStatusDto> responsesDto = new();
 
         _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested Assign with the object {ProductsAndCategoriesDto}",
-            authenticatedUserId, productsAndCategoriesDto);
+            "User with Id {authenticatedUserId} requested Assign with the object {ModelsAndAssignsDtos}",
+            authenticatedUserId, modelsAndAssignsDtos);
         
-        foreach (ProductAndCategoryIdDto productAndCategoryIdDto in productsAndCategoriesDto.ProductAndCategoryIdDto)
+        foreach (ModelAssignIdsDto modelAssignIdsDto in modelsAndAssignsDtos.ModelAssignIds)
         {
-            if (await _productsCategoriesQueryService.ExistsByProductCategoryIds(productAndCategoryIdDto.ProductId, productAndCategoryIdDto.CategoryId))
+            if (await _productsCategoriesQueryService.ExistsByProductCategoryIds(modelAssignIdsDto.ModelId, modelAssignIdsDto.AssignId))
             {
-                AddFailedResponse(responsesDto, productAndCategoryIdDto, ResponseStatus.AlreadyProcessed,
+                ResponsesHelper.AddFailedResponseDto(responsesDto, modelAssignIdsDto, ResponseStatus.AlreadyProcessed,
                     Fields.ProductsCategories.ProductCategoryId, "Product already assigned to category");
                 continue;
             }
             
-            if (!await _productsQueryService.ExistById(productAndCategoryIdDto.ProductId))
+            if (!await _productsQueryService.ExistById(modelAssignIdsDto.ModelId))
             {
-                AddFailedResponse(responsesDto, productAndCategoryIdDto, ResponseStatus.NotFound,
+                ResponsesHelper.AddFailedResponseDto(responsesDto, modelAssignIdsDto, ResponseStatus.NotFound,
                     Fields.Products.ProductId, "Product not exist");
                 continue;
             }
 
-            if (!await _categoriesQueryService.ExistsById(productAndCategoryIdDto.CategoryId))
+            if (!await _categoriesQueryService.ExistsById(modelAssignIdsDto.AssignId))
             {
-                AddFailedResponse(responsesDto, productAndCategoryIdDto, ResponseStatus.NotFound,
+                ResponsesHelper.AddFailedResponseDto(responsesDto, modelAssignIdsDto, ResponseStatus.NotFound,
                     Fields.Categories.CategoryId, "Category not exist");
                 continue;
             }
 
             ProductCategory productCategory = new()
             {
-                ProductId = productAndCategoryIdDto.ProductId,
-                CategoryId = productAndCategoryIdDto.CategoryId,
+                ProductId = modelAssignIdsDto.ModelId,
+                CategoryId = modelAssignIdsDto.AssignId,
                 CreatedDate = DateTime.UtcNow
             };
             
             _productsCategoriesRepository.Add(productCategory);
             await _productsCategoriesRepository.SaveChanges();
             
-            responsesDto.Success.Add(new ProductAndCategoryResponseStatusDto
+            responsesDto.Success.Add(new ModelAndAssignResponseStatusDto
             {
-                ProductAndCategoryId = productAndCategoryIdDto,
+                ModelAssignIds = modelAssignIdsDto,
                 Status = ResponseStatus.Success,
                 Message = "ProductAssigned"
             });
@@ -108,16 +107,5 @@ public class ProductsCategoriesManagementService(
             authenticatedUserId, responsesDto);
         
         return responsesDto;
-    }
-    
-    private void AddFailedResponse(ResponsesDto<ProductAndCategoryResponseStatusDto> responsesDto, ProductAndCategoryIdDto productAndCategoryIdDto, string status, string field, string message)
-    {
-        responsesDto.Failed.Add(new ProductAndCategoryResponseStatusDto
-        {
-            ProductAndCategoryId = productAndCategoryIdDto,
-            Status = status,
-            Field = field,
-            Message = message
-        });
     }
 }

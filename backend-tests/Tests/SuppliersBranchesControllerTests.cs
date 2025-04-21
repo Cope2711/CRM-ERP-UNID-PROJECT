@@ -78,7 +78,7 @@ public class SuppliersBranchesControllerTests : IClassFixture<CustomWebApiFactor
                 }
             };
 
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Endpoint}/revoke-branches")
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Endpoint}/revoke")
             {
                 Content = new StringContent(JsonConvert.SerializeObject(idsDto), Encoding.UTF8, "application/json")
             };
@@ -105,45 +105,45 @@ public class SuppliersBranchesControllerTests : IClassFixture<CustomWebApiFactor
         [Fact]
         public async Task AssignBranches_ReturnsExpectedResult()
         {
-            SuppliersAndBranchesDto suppliersAndBranchesDto = new SuppliersAndBranchesDto
+            ModelsAndAssignsDtos modelsAndAssignsDtos = new ModelsAndAssignsDtos
             {
-                SupplerAndBranchIdDto = new List<SupplerAndBranchIdDto>
+                ModelAssignIds = new List<ModelAssignIdsDto>
                 {
-                    new SupplerAndBranchIdDto // Success
+                    new ModelAssignIdsDto // Success
                     {
-                        SupplierId = Models.Suppliers.Xataka.SupplierId,
-                        BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId
+                        ModelId = Models.Suppliers.Xataka.SupplierId,
+                        AssignId = Models.Branches.HermosilloMiguelHidalgo.BranchId
                     },
                     
-                    new SupplerAndBranchIdDto // Already assigned
+                    new ModelAssignIdsDto // Already assigned
                     {
-                        SupplierId = Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.SupplierId,
-                        BranchId = Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.BranchId
+                        ModelId = Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.SupplierId,
+                        AssignId = Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.BranchId
                     },
                     
-                    new SupplerAndBranchIdDto // Branch not assigned to user
+                    new ModelAssignIdsDto // Branch not assigned to user
                     {
-                        SupplierId = Models.Suppliers.Apple.SupplierId,
-                        BranchId = Models.Branches.CampoReal.BranchId
+                        ModelId = Models.Suppliers.Apple.SupplierId,
+                        AssignId = Models.Branches.CampoReal.BranchId
                     },
                     
-                    new SupplerAndBranchIdDto // Supplier not exist
+                    new ModelAssignIdsDto // Supplier not exist
                     {
-                        SupplierId = Guid.NewGuid(),
-                        BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId
+                        ModelId = Guid.NewGuid(),
+                        AssignId = Models.Branches.HermosilloMiguelHidalgo.BranchId
                     },
                     
-                    new SupplerAndBranchIdDto // Branch not exist
+                    new ModelAssignIdsDto // Branch not exist
                     {
-                        SupplierId = Models.Suppliers.Apple.SupplierId,
-                        BranchId = Guid.NewGuid()
+                        ModelId = Models.Suppliers.Apple.SupplierId,
+                        AssignId = Guid.NewGuid()
                     }
                 }
             };
 
-            HttpResponseMessage response = await _client.PostAsJsonAsync($"{Endpoint}/assign-branches", suppliersAndBranchesDto);
+            HttpResponseMessage response = await _client.PostAsJsonAsync($"{Endpoint}/assign", modelsAndAssignsDtos);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            ResponsesDto<SuppliersBranchResponseStatusDto> responseDto = await response.Content.ReadFromJsonAsync<ResponsesDto<SuppliersBranchResponseStatusDto>>();
+            ResponsesDto<ModelAndAssignResponseStatusDto>? responseDto = await response.Content.ReadFromJsonAsync<ResponsesDto<ModelAndAssignResponseStatusDto>>();
             responseDto.Should().NotBeNull();
             responseDto.Success.Count.Should().Be(1);
             responseDto.Failed.Count(x => x.Status == ResponseStatus.AlreadyProcessed).Should().Be(1);
