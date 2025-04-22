@@ -1,14 +1,9 @@
 /**
- * Extracts the last part of a key string after the last dot
+ * Extrae solo la última parte de las claves separadas por punto.
+ * Ej: "Branch.BranchId" => "BranchId"
  */
-export const extractLastKeyPart = (key: string): string => {
-  const parts = key.split('.');
-  return parts[parts.length - 1];
-};
+export const extractLastKeyParts = (keys: string[]): string[] =>
+  keys.map(key => key.split('.').pop() || key);
 
-/**
- * Extracts the last parts of multiple key strings
- */
-export const extractLastKeyParts = (keys: string[]): string[] => {
-  return keys.map(key => extractLastKeyPart(key));
-}; 
+export const extractLastKeyPart = (key: string): string =>
+  key.split('.').pop() || key;
