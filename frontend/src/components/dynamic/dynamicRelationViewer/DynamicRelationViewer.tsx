@@ -3,7 +3,7 @@ import genericService from "@/services/genericService";
 import { extractIsObjectKeyName, toLowerRelationKey } from "@/utils/objectUtils";
 import { FilterDto, GetAllDto } from "@/dtos/GenericDtos";
 import { FilterOperators } from "@/constants/filterOperators";
-import { Tabs, Button, Space, Alert } from "antd";
+import { Tabs, Button, Space, Alert, Pagination } from "antd";
 import AlertMessage from "@/components/message/AlertMessage";
 import SuccessMessage from "@/components/message/SuccessMessage";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -38,6 +38,8 @@ const DynamicRelationViewer = ({ id, schema, setRelationData }: RelationViewerPr
     const [error, setError] = useState<string | null>(null); // Mensaje de error
     const [selectedIds, setSelectedIds] = useState<string[]>([]); // IDs seleccionados
     const [showSuccess, setShowSuccess] = useState(false); // Mostrar mensaje de éxito
+    // Estados para paginacion
+    const [paginationState, setPaginationState] = useState<Record<string, { page: number; pageSize: number; total: number }>>({}); // Estado de paginacion por relacion
 
     // Obtener las claves de relación del esquema
     const relationKeys = useRelationData(schema);
@@ -67,6 +69,11 @@ const DynamicRelationViewer = ({ id, schema, setRelationData }: RelationViewerPr
         }
     }, [activeKey]);
 
+    // Obtener el estado de paginacion actual para la relacion activa
+    const getCurrentPagination = (key: string) => {
+        return paginationState[key] || { page: 1, pageSize: 10, total: 0 };
+    };
+
     /**
      * Carga los datos de la relación activa
      */
@@ -84,16 +91,46 @@ const DynamicRelationViewer = ({ id, schema, setRelationData }: RelationViewerPr
     };
 
     /**
+     * Maneja el cambio de pagina
+     */
+    const handlePageChange = (page: number, pageSize?: number) => {
+        if (!activeKey) return;
+        
+        // Actualizar estado de paginacion
+        const currentPagination = getCurrentPagination(activeKey);
+        const newPageSize = pageSize || currentPagination.pageSize;
+        
+        setPaginationState(prev => ({
+            ...prev,
+            [activeKey]: {
+                ...currentPagination,
+                page,
+                pageSize: newPageSize
+            }
+        }));
+        
+        // Cargar datos con la nueva pagina
+        fetchRelationData(activeKey, true, page, newPageSize);
+    };
+
+    /**
      * Obtiene los datos de una relación específica
      * @param key - Clave de la relación a cargar
      * @param force - Forzar recarga incluso si ya estaba cargada
+     * @param page - Numero de pagina (opcional)
+     * @param pageSize - Tamano de pagina (opcional)
      */
-    const fetchRelationData = async (key: string, force = false) => {
+    const fetchRelationData = async (key: string, force = false, page?: number, pageSize?: number) => {
         const relationInfo = relationInfoMap[key];
         if (!relationInfo) return;
 
-        // Evitar recarga innecesaria
-        if (!force && loadedRelations.has(key)) return;
+        // Obtener estado de paginacion actual
+        const currentPagination = getCurrentPagination(key);
+        const currentPage = page || currentPagination.page;
+        const currentPageSize = pageSize || currentPagination.pageSize;
+
+        // Evitar recarga innecesaria si no es forzada y ya está cargada
+        if (!force && loadedRelations.has(key) && page === undefined && pageSize === undefined) return;
 
         setLoading(true);
         setError(null);
@@ -111,8 +148,8 @@ const DynamicRelationViewer = ({ id, schema, setRelationData }: RelationViewerPr
 
             // Configurar DTO para la consulta
             const getAllDto: GetAllDto = {
-                pageNumber: 1,
-                pageSize: 10,
+                pageNumber: currentPage,
+                pageSize: currentPageSize,
                 orderBy: relationInfo.selects[0],
                 descending: false,
                 filters,
@@ -126,7 +163,20 @@ const DynamicRelationViewer = ({ id, schema, setRelationData }: RelationViewerPr
             // Actualizar estados con los nuevos datos
             setLocalRelationData(prev => ({ ...prev, ...newData }));
             setRelationData((prev: any) => ({ ...prev, ...newData }));
-            setLoadedRelations(prev => new Set(prev).add(key));
+            
+            // Actualizar estado de paginacion con el total de registros
+            setPaginationState(prev => ({
+                ...prev,
+                [key]: {
+                    page: currentPage,
+                    pageSize: currentPageSize,
+                    total: response.count || 0
+                }
+            }));
+
+            if (!loadedRelations.has(key)) {
+                setLoadedRelations(prev => new Set(prev).add(key));
+            }
         } catch (err) {
             console.error(`Error loading relation ${key}`, err);
             setError(`Error loading ${key} data`);
@@ -183,6 +233,7 @@ const DynamicRelationViewer = ({ id, schema, setRelationData }: RelationViewerPr
     // Datos y columnas para la relación activa
     const currentData = activeKey ? relationData[activeKey] : [];
     const columns = activeKey && relationInfoMap[activeKey]?.selects || [];
+    const currentPagination = activeKey ? getCurrentPagination(activeKey) : { page: 1, pageSize: 10, total: 0 };
 
     return (
         <div className="h-full flex flex-col gap-4">
@@ -221,14 +272,31 @@ const DynamicRelationViewer = ({ id, schema, setRelationData }: RelationViewerPr
                                     onRowSelect={handleRowSelect}
                                 />
                                 
-                                {/* Info de elementos seleccionados */}
-                                {selectedIds.length > 0 && (
-                                    <Alert
-                                        message={`${selectedIds.length} elemento(s) seleccionado(s).`}
-                                        type="info"
-                                        showIcon
+                                {/* Paginaciin */}
+                                <div className="flex justify-between items-center p-2 bg-gray-50">
+                                    {/* Info de elementos seleccionados */}
+                                    <div>
+                                        {selectedIds.length > 0 && (
+                                            <Alert
+                                                message={`${selectedIds.length} elemento(s) seleccionado(s).`}
+                                                type="info"
+                                                showIcon
+                                            />
+                                        )}
+                                    </div>
+                                    
+                                    {/* Control de paginacion */}
+                                    <Pagination
+                                        current={currentPagination.page}
+                                        pageSize={currentPagination.pageSize}
+                                        total={currentPagination.total}
+                                        onChange={handlePageChange}
+                                        showSizeChanger
+                                        pageSizeOptions={['5', '10', '20', '50']}
+                                        size="small"
+                                        showTotal={(total) => `Total: ${total} elementos`}
                                     />
-                                )}
+                                </div>
                             </>
                         ) : (
                             <div className="text-center text-gray-500 py-4">
