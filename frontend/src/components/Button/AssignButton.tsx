@@ -1,7 +1,7 @@
 import { GetAllDto } from "@/dtos/GenericDtos";
 import genericService from "@/services/genericService";
 import { LoadingOutlined, CloseOutlined, CheckOutlined } from "@ant-design/icons";
-import { Button, Divider, notification, Space, Tooltip } from "antd";
+import { Button, Divider, notification, Space, Tooltip, Pagination } from "antd";
 import { useState, useRef, useEffect, Key } from "react";
 import classNames from "classnames";
 
@@ -32,18 +32,21 @@ const AssignButton = ({
     const [options, setOptions] = useState<any[]>([]); // Opciones disponibles
     const [failedMap, setFailedMap] = useState<Record<string, { status: string; message: string }>>({}); // Errores por ID
     const [successIds, setSuccessIds] = useState<Set<string>>(new Set()); // IDs con asignación exitosa
+    const [pageNumber, setPageNumber] = useState(1); // Numero de pagina actual
+    const [pageSize, setPageSize] = useState(10); // Tamano de pagina
+    const [total, setTotal] = useState(0); // Total de registros disponibles
 
     const popupRef = useRef<HTMLDivElement>(null); // Referencia al popup para cerrar al hacer clic fuera
 
     /**
      * Obtiene los datos para mostrar en el popup
      */
-    const fetchData = async () => {
+    const fetchData = async (page = pageNumber, size = pageSize) => {
         setLoading(true);
         try {
             const getAllDto: GetAllDto = {
-                pageNumber: 1,
-                pageSize: 10,
+                pageNumber: page,
+                pageSize: size,
                 orderBy,
                 descending: false,
                 filters: [],
@@ -52,6 +55,10 @@ const AssignButton = ({
 
             const response = await genericService.getAll(modelController, getAllDto);
             setOptions(response.data);
+            // Actualizar el total de registros si esta disponible en la respuesta
+            if (response.count !== undefined) {
+                setTotal(response.count);
+            }
         } catch (error) {
             console.error("Error al obtener los datos:", error);
             notification.error({
@@ -61,6 +68,17 @@ const AssignButton = ({
         } finally {
             setLoading(false);
         }
+    };
+
+    /**
+     * Maneja el cambio de pagina
+     */
+    const handlePageChange = (page: number, size?: number) => {
+        setPageNumber(page);
+        if (size && size !== pageSize) {
+            setPageSize(size);
+        }
+        fetchData(page, size);
     };
 
     /**
@@ -85,7 +103,8 @@ const AssignButton = ({
 
         if (visible) {
             // Resetear estado al abrir el popup
-            fetchData();
+            setPageNumber(1);
+            fetchData(1, pageSize);
             setSelectedIds([]);
             setFailedMap({});
             setSuccessIds(new Set());
@@ -249,6 +268,20 @@ const AssignButton = ({
                                         })}
                                     </tbody>
                                 </table>
+                            </div>
+
+                            {/* Paginacion */}
+                            <div className="my-2 flex justify-center">
+                                <Pagination
+                                    current={pageNumber}
+                                    pageSize={pageSize}
+                                    total={total}
+                                    onChange={handlePageChange}
+                                    showSizeChanger
+                                    pageSizeOptions={['5', '10', '20', '50']}
+                                    size="small"
+                                    showTotal={(total) => `Total: ${total} elementos`}
+                                />
                             </div>
 
                             <Divider className="my-2" />
