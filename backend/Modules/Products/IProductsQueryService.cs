@@ -8,8 +8,10 @@ public interface IProductsQueryService
     Task<Product> GetByIdThrowsNotFound(Guid id);
     Task<Product?> GetById(Guid id);
     Task<Product> GetByNameThrowsNotFound(string name);
+    Task<Product> GetByBarcodeThrowsNotFound(string barcode);
     Task<Product?> GetByName(string name);
     Task<GetAllResponseDto<Product>> GetAll(GetAllDto getAllDto);
     Task<bool> ExistByName(string name);
     Task<bool> ExistById(Guid id);
+    Task<bool> ExistByBarcode(string barcode);
 }

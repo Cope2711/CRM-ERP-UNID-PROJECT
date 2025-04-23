@@ -33,6 +33,11 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
                     {
                         ValidValue = Models.Products.iPhone13.ProductId.ToString(),
                         FieldName = "id"
+                    },
+                    new DoubleBasicStructureDto
+                    {
+                        ValidValue = Models.Products.iPhone13.ProductBarcode.ToString(),
+                        FieldName = "barcode"
                     }
                 }
             })
@@ -55,6 +60,7 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     ProductName = "iPhone 133333",
                     ProductPrice = 999.99m,
+                    ProductBarcode = "1111111111",
                     ProductDescription = "Latest iPhone model",
                     IsActive = true,
                     BrandId = Models.Brands.Apple.BrandId
@@ -68,6 +74,21 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     ProductName = Models.Products.iPadPro.ProductName,
                     ProductPrice = 999.99m,
+                    ProductBarcode = "111111111121312321",
+                    ProductDescription = "Latest iPhone model",
+                    IsActive = true,
+                    BrandId = Models.Brands.Apple.BrandId
+                },
+                HttpStatusCode.Conflict
+            };
+
+            yield return new object[] // ProductBarcode already exist
+            {
+                new CreateProductDto
+                {
+                    ProductName = "ProductNameelpepe",
+                    ProductPrice = 999.99m,
+                    ProductBarcode = Models.Products.iPhone13.ProductBarcode,
                     ProductDescription = "Latest iPhone model",
                     IsActive = true,
                     BrandId = Models.Brands.Apple.BrandId
@@ -108,6 +129,16 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
                 new UpdateProductDto
                 {
                     ProductName = Models.Products.iPadPro.ProductName,
+                },
+                HttpStatusCode.Conflict
+            };
+            
+            yield return new object[] // ProductBarcode already exists
+            {
+                Models.Products.iPhone13.ProductId,
+                new UpdateProductDto
+                {
+                    ProductBarcode = Models.Products.iPadPro.ProductBarcode,
                 },
                 HttpStatusCode.Conflict
             };

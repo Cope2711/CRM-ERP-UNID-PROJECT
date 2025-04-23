@@ -63,6 +63,15 @@ public class ProductsController(
 
         return Ok(product.ToDto());
     }
+    
+    [HttpGet("get-by-barcode")]
+    [PermissionAuthorize("View", "Products")]
+    public async Task<ActionResult<ProductDto>> GetProductByBarcode([FromQuery] string barcode)
+    {
+        Product product = await _productsQueryService.GetByBarcodeThrowsNotFound(barcode);
+
+        return Ok(product.ToDto());
+    }
 
     [HttpGet("get-by-name")]
     [PermissionAuthorize("View", "Products")]
