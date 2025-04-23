@@ -15,6 +15,10 @@ public class Product
     public required string ProductName { get; set; }
     
     [Required]
+    [MaxLength(255)]
+    public required string ProductBarcode { get; set; }
+    
+    [Required]
     public decimal ProductPrice { get; set; }
     
     [MaxLength(255)]
@@ -43,6 +47,7 @@ public static class ProductExtensions
         {
             ProductId = product.ProductId,
             ProductName = product.ProductName,
+            ProductBarcode = product.ProductBarcode,
             ProductPrice = product.ProductPrice,
             ProductDescription = product.ProductDescription,
             IsActive = product.IsActive,

@@ -13,6 +13,11 @@ public class ProductDto
     [Required]
     public required string ProductName { get; set; }
     
+    [MinLength(1)]
+    [MaxLength(255)]
+    [Required]
+    public required string ProductBarcode { get; set; }
+    
     [Required]
     [Range(0.01, 10000)]
     public required decimal ProductPrice { get; set; }
@@ -41,6 +46,11 @@ public class CreateProductDto
     [Required]
     public required string ProductName { get; set; }
     
+    [MinLength(1)]
+    [MaxLength(255)]
+    [Required]
+    public required string ProductBarcode { get; set; }
+    
     [Required]
     [Range(0.01, 10000)]
     public required decimal ProductPrice { get; set; }
@@ -61,11 +71,18 @@ public class UpdateProductDto
     [MinLength(3)]
     [MaxLength(50)]
     public string? ProductName { get; set; }
+    
+    [MinLength(1)]
+    [MaxLength(255)]
+    public string? ProductBarcode { get; set; }
+    
     [Range(0.01, 10000)]
     public decimal? ProductPrice { get; set; }
+    
     [MinLength(3)]
     [MaxLength(255)]
     public string? ProductDescription { get; set; }
+    
     public bool IsActive { get; set; }
 }
 

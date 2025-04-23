@@ -123,6 +123,7 @@ public static class Fields
     {
         public const string ProductId = nameof(Product.ProductId);
         public const string ProductName = nameof(Product.ProductName);
+        public const string ProductBarcode = nameof(Product.ProductBarcode);
         public const string ProductPrice = nameof(Product.ProductPrice);
         public const string ProductDescription = nameof(Product.ProductDescription);
         public const string IsActive = nameof(Product.IsActive);

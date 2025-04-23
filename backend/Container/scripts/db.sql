@@ -86,6 +86,7 @@ CREATE TABLE Products
 (
     ProductId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
     ProductName VARCHAR(50) NOT NULL,
+    ProductBarcode VARCHAR (255) NOT NULL,
     ProductPrice DECIMAL(10,2) NOT NULL,
     ProductDescription VARCHAR(255) NULL,
     IsActive BIT DEFAULT 1,
@@ -479,17 +480,17 @@ DECLARE @ProductId_NikeAirMax270 UNIQUEIDENTIFIER = 'de30da34-c216-488e-8b3b-3cb
 DECLARE @ProductId_NikeZoomX UNIQUEIDENTIFIER = 'e9ade468-590a-4c0e-bfbe-91ab9dbb6830';
 DECLARE @ProductId_NikeDriFitTShirt UNIQUEIDENTIFIER = 'ac99dcd4-b451-416d-bb12-59b706c5db30';
 
-INSERT INTO Products (ProductId, ProductName, ProductPrice, ProductDescription, IsActive, BrandId)  
+INSERT INTO Products (ProductId, ProductName, ProductBarcode, ProductPrice, ProductDescription, IsActive, BrandId)  
 VALUES
-    (@ProductId_iPhone13, 'iPhone 13', 999.99, 'Latest iPhone model', 1, @BrandId_Apple),
-    (@ProductId_MacBookPro, 'MacBook Pro', 1999.99, 'High-performance laptop', 1, @BrandId_Apple),
-    (@ProductId_iPadPro, 'iPad Pro', 799.99, 'Powerful tablet for work and entertainment', 1, @BrandId_Apple),
-    (@ProductId_GalaxyS21, 'Galaxy S21', 899.99, 'Samsung flagship phone', 1, @BrandId_Samsung),
-    (@ProductId_GalaxyTabS7, 'Galaxy Tab S7', 649.99, 'High-end Android tablet', 1, @BrandId_Samsung),
-    (@ProductId_SamsungQLEDTV, 'Samsung QLED TV', 1500.00, 'Smart TV with stunning display', 1, @BrandId_Samsung),
-    (@ProductId_NikeAirMax270, 'Nike Air Max 270', 120.00, 'Comfortable running shoes', 1, @BrandId_Nike),
-    (@ProductId_NikeZoomX, 'Nike ZoomX Vaporfly Next%', 250.00, 'High-performance running shoes', 1, @BrandId_Nike),
-    (@ProductId_NikeDriFitTShirt, 'Nike Dri-FIT T-shirt', 30.00, 'Breathable athletic shirt', 1, @BrandId_Nike);
+    (@ProductId_iPhone13, 'iPhone 13', 'IPHONE13', 999.99, 'Latest iPhone model', 1, @BrandId_Apple),
+    (@ProductId_MacBookPro, 'MacBook Pro', 'MACBOOK', 1999.99, 'High-performance laptop', 1, @BrandId_Apple),
+    (@ProductId_iPadPro, 'iPad Pro', 'IPADPRO', 799.99, 'Powerful tablet for work and entertainment', 1, @BrandId_Apple),
+    (@ProductId_GalaxyS21, 'Galaxy S21', 'GALAXYS21', 899.99, 'Samsung flagship phone', 1, @BrandId_Samsung),
+    (@ProductId_GalaxyTabS7, 'Galaxy Tab S7', 'GALAXYTABS7', 649.99, 'High-end Android tablet', 1, @BrandId_Samsung),
+    (@ProductId_SamsungQLEDTV, 'Samsung QLED TV', 'SAMSUNGQLEDTV', 1500.00, 'Smart TV with stunning display', 1, @BrandId_Samsung),
+    (@ProductId_NikeAirMax270, 'Nike Air Max 270', 'NIKEAIRMAX270', 120.00, 'Comfortable running shoes', 1, @BrandId_Nike),
+    (@ProductId_NikeZoomX, 'Nike ZoomX Vaporfly Next%', 'NIKEZOOMX', 250.00, 'High-performance running shoes', 1, @BrandId_Nike),
+    (@ProductId_NikeDriFitTShirt, 'Nike Dri-FIT T-shirt', 'NIKEDRIFITTSHIRT', 30.00, 'Breathable athletic shirt', 1, @BrandId_Nike);
 
 -- Insertar ejemplos de categorías
 DECLARE @CategoryId_Tecnology UNIQUEIDENTIFIER = '55d2645a-76b6-4474-9ae2-7b590b24a9f5';

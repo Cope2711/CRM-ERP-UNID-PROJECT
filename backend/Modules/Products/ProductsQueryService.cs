@@ -24,6 +24,11 @@ public class ProductsQueryService(
         return _genericService.GetFirstThrowsNotFoundAsync(p => p.ProductName, name);
     }
 
+    public Task<Product> GetByBarcodeThrowsNotFound(string barcode)
+    {
+        return _genericService.GetFirstThrowsNotFoundAsync(p => p.ProductBarcode, barcode);
+    }
+
     public Task<Product?> GetByName(string name)
     {
         return _genericService.GetFirstAsync(p => p.ProductName, name);
@@ -42,5 +47,10 @@ public class ProductsQueryService(
     public Task<bool> ExistById(Guid id)
     {
         return _genericService.ExistsAsync(p => p.ProductId, id);
+    }
+
+    public Task<bool> ExistByBarcode(string barcode)
+    {
+        return _genericService.ExistsAsync(p => p.ProductBarcode, barcode);
     }
 }
