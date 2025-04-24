@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import GenericDetailPage from './pages/GenericDetailPage';
 import AboutPage from './pages/AboutPage';
+import ListViewPage from './pages/ListViewPage';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -22,18 +23,28 @@ const AppRoutes = () => {
       <Route path="/" element={<Home />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/inventory" element={<Home />} />
-      <Route path="/products" element={<div>Products Page</div>} />
-      <Route path="/suppliers" element={<div>Suppliers Page</div>} />
       <Route path="/about" element={<AboutPage />} />
-      <Route path="/settings" element={<div>Settings Page</div>} />
-      <Route path="/users/list" element={<div>User List Page</div>} />
-      <Route path="/users/roles" element={<div>User Roles Page</div>} />
-      <Route path="/users/:id" element={<GenericDetailPage modelName="users" />} />
-      <Route path="/suppliers/:id" element={<GenericDetailPage modelName="suppliers" />} />
-      <Route path="/roles/:id" element={<GenericDetailPage modelName="roles" />} />
+      <Route path="/settings" element={<div>Settings Page</div>} />      
+
+      <Route path="/products" element={<ListViewPage key="products" modelName="products" />} />
       <Route path="/products/:id" element={<GenericDetailPage modelName="products" />} />
+
+      <Route path="/suppliers" element={<ListViewPage key="suppliers" modelName="suppliers" />} />
+      <Route path="/suppliers/:id" element={<GenericDetailPage modelName="suppliers" />} />
+
+      <Route path="/users" element={<ListViewPage key="users" modelName="users" />} />
+      <Route path="/users/:id" element={<GenericDetailPage modelName="users" />} />
+
+      <Route path="/roles" element={<ListViewPage key="roles" modelName="roles" />} />
+      <Route path="/roles/:id" element={<GenericDetailPage modelName="roles" />} />
+
+      <Route path="/categories" element={<ListViewPage key="categories" modelName="categories" />} />
       <Route path="/categories/:id" element={<GenericDetailPage modelName="categories" />} />
+
+      <Route path="/brands" element={<ListViewPage key="brands" modelName="brands" />} />
       <Route path="/brands/:id" element={<GenericDetailPage modelName="brands" />} />
+
+      <Route path="/branches" element={<ListViewPage key="branches" modelName="branches" />} />
       <Route path="/branches/:id" element={<GenericDetailPage modelName="branches" />} />
     </Routes>
   );
