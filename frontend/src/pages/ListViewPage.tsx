@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Space, Spin } from 'antd';
+import { Button, Space, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { ErrorMessage } from '@/components/message/ErrorMessage';
 import genericService from '@/services/genericService';
@@ -10,6 +10,9 @@ import SearchBar from '@/components/ListView/SearchBar';
 import AdvancedFilters from '@/components/ListView/AdvancedFilters';
 import ListTable from '@/components/ListView/ListTable';
 import { Tag, Tooltip } from 'antd';
+import { Drawer } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import DynamicCreateForm from "@/components/dynamic/forms/DynamicCreateForm";
 
 type ListViewPageProps = {
     modelName: string;
@@ -27,23 +30,24 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
     const [showFilters, setShowFilters] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchField, setSearchField] = useState<string>('');
+    const [showCreateForm, setShowCreateForm] = useState(false);
 
     const navigate = useNavigate();
 
     // Memoized primary key and valid fields based on schema
     const { primaryKey, validFields } = useMemo(() => {
         if (!schema) return { primaryKey: 'id', validFields: [] };
-    
+
         let pk = 'id';
         const fields: string[] = [];
-    
+
         for (const [key, meta] of Object.entries(schema) as [string, any][]) {
             if (meta.type === 'list`1') continue;
-    
+
             if (Array.isArray(meta.specialData) && meta.specialData.includes('IsPassword')) {
                 continue;
             }
-    
+
             if (
                 meta.type === 'guid' &&
                 Array.isArray(meta.specialData) &&
@@ -51,12 +55,12 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
             ) {
                 pk = key;
             }
-    
+
             if (meta.type !== 'guid') {
                 fields.push(key);
             }
         }
-    
+
         return { primaryKey: pk, validFields: fields };
     }, [schema]);
 
@@ -66,7 +70,6 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
             setIsLoading(true);
             try {
                 const schemaData = await genericService.getSchemas(modelName, 'model');
-                console.log(schemaData);
                 setSchema(schemaData);
             } catch (err) {
                 setError((err as Error).message || 'Failed to load schema');
@@ -95,7 +98,6 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
                     filters: filters,
                     selects: [primaryKey, ...validFields],
                 };
-                console.log(getAllDto);
                 const response = await genericService.getAll(modelName, getAllDto);
                 setItems(response.data);
                 setTotalItems(response.totalItems);
@@ -136,7 +138,30 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
                     setPageSize(value);
                     setPage(1);
                 }}
+                extraButton={
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => setShowCreateForm(true)}
+                    >
+                        Crear
+                    </Button>
+                }
             />
+
+            <Drawer
+                title={`Crear ${modelName}`}
+                width={600}
+                onClose={() => setShowCreateForm(false)}
+                open={showCreateForm}
+                destroyOnClose
+            >
+                {schema && (
+                    <DynamicCreateForm
+                        modelName={modelName}
+                    />
+                )}
+            </Drawer>
 
             <SearchBar
                 searchText={searchText}
