@@ -19,6 +19,5 @@ public interface IGenericService<T> where T : class
 
     Task<GetAllResponseDto<T>> GetAllAsync(
         GetAllDto getAllDto,
-        Func<IQueryable<T>, IQueryable<T>> queryModifier = null,
-        List<string>? camposPermitidos = null);
+        Func<IQueryable<T>, IQueryable<T>> queryModifier = null);
 }
