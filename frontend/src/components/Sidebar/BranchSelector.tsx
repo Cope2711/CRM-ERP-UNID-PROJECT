@@ -14,14 +14,16 @@ export default function BranchSelector() {
     <DropdownMenu
       buttonIcon={
         <span className="text-sm font-medium text-gray-800">
-          {actualBranch?.branchName ?? 'Seleccionar sucursal'}
+          {actualBranch?.branchName ?? 'Seleccionar Sucursal'}
         </span>
       }
       options={user.branches.map(branch => ({
         button: (
           <button
             key={branch.branchId}
-            className="w-full px-4 py-2 text-left hover:bg-gray-100"
+            className={`w-full px-4 py-2 text-left hover:bg-gray-100 ${
+              actualBranch?.branchId === branch.branchId ? 'bg-green-200 text-green-800' : ''
+            }`}
             onClick={() => dispatch(setActualBranch(branch))}
           >
             {branch.branchName}
