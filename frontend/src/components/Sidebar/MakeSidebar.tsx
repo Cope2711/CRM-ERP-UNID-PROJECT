@@ -7,6 +7,7 @@ import {
     UsersIcon,
     ChartPieIcon,
     BuildingStorefrontIcon,
+    ShoppingCartIcon
 } from '@heroicons/react/24/outline';
 import {useState} from 'react';
 import Sidebar from './Sidebar';
@@ -25,6 +26,11 @@ export default function MakeSidebar() {
             icon: <ChartPieIcon className="h-5 w-5"/>,
             text: 'Dashboard',
             path: '/dashboard',
+        },
+        {
+            icon: <ShoppingCartIcon className="h-5 w-5"/>,
+            text: 'Sales',
+            path: '/sales',
         },
         {
             icon: <BuildingStorefrontIcon className="h-5 w-5"/>,
