@@ -2,11 +2,17 @@ import axios from 'axios';
 import {RefreshTokenEntryDto} from "@/dtos/AuthDtos.ts";
 import authService from "@/services/authService.ts";
 
+
+const baseURl = import.meta.env.VITE_API_URL;
+if (!baseURl) {
+    throw new Error("Missing baseURL");
+}
 export const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5245/api/',
+  baseURL: baseURl,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
+    withCredentials: true,
 });
 
 axiosInstance.defaults.withCredentials = true;
@@ -61,7 +67,7 @@ axiosInstance.interceptors.response.use(
 );
 
 export const axiosInstanceAnonymous = axios.create({
-    baseURL: 'http://localhost:5245/api/',
+    baseURL: baseURl,
     headers: {
         'Content-Type': 'application/json',
     }

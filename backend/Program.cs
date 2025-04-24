@@ -33,7 +33,7 @@ builder.Services.AddCustomCors();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-app.UseCors("AllowAllOrigins");
+app.UseCors("CustomCorsPolicy");
 
 if (app.Environment.IsDevelopment())
 {
