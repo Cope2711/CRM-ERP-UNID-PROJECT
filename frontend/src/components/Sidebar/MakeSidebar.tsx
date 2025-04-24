@@ -1,12 +1,12 @@
 import {
     HomeIcon,
     UserIcon,
-    CogIcon,
     InformationCircleIcon,
     ShoppingBagIcon,
     UsersIcon,
     ChartPieIcon,
     BuildingStorefrontIcon,
+    ShoppingCartIcon,
     ComputerDesktopIcon,
     BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
@@ -28,6 +28,11 @@ export default function MakeSidebar() {
             icon: <ChartPieIcon className="h-5 w-5"/>,
             text: 'Dashboard',
             path: '/dashboard',
+        },
+        {
+            icon: <ShoppingCartIcon className="h-5 w-5"/>,
+            text: 'Sales',
+            path: '/sales',
         },
         {
             icon: <BuildingStorefrontIcon className="h-5 w-5"/>,
