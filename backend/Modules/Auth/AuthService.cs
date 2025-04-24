@@ -34,7 +34,8 @@ public class AuthService(
         TokenDto newTokenDto = new TokenDto
         {
             Token = _tokenService.GenerateAccessToken(user),
-            RefreshToken = refreshToken.Token
+            RefreshToken = refreshToken.Token,
+            User = user.ToDto()
         };
         
         return newTokenDto;
@@ -67,7 +68,8 @@ public class AuthService(
         return new TokenDto
         {
             Token = _tokenService.GenerateAccessToken(user),
-            RefreshToken = (await _tokenService.GenerateAndStoreRefreshTokenAsync(user.UserId, loginUserDto.DeviceId)).Token
+            RefreshToken = (await _tokenService.GenerateAndStoreRefreshTokenAsync(user.UserId, loginUserDto.DeviceId)).Token,
+            User = user.ToDto()
         };
     }
 

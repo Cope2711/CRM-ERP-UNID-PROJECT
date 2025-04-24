@@ -3,6 +3,7 @@ import MakeSidebar from './components/Sidebar/MakeSidebar';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import GenericDetailPage from './pages/GenericDetailPage';
+import AboutPage from './pages/AboutPage';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -23,7 +24,7 @@ const AppRoutes = () => {
       <Route path="/inventory" element={<Home />} />
       <Route path="/products" element={<div>Products Page</div>} />
       <Route path="/suppliers" element={<div>Suppliers Page</div>} />
-      <Route path="/about" element={<div>About Page</div>} />
+      <Route path="/about" element={<AboutPage />} />
       <Route path="/settings" element={<div>Settings Page</div>} />
       <Route path="/users/list" element={<div>User List Page</div>} />
       <Route path="/users/roles" element={<div>User Roles Page</div>} />

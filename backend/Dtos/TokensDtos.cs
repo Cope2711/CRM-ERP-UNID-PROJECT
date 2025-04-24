@@ -9,6 +9,8 @@ public class TokenDto
     
     [Required]
     public string? RefreshToken { get; set; }
+    
+    public UserDto? User { get; set; }
 }
 
 public class RefreshTokenEntryDto
