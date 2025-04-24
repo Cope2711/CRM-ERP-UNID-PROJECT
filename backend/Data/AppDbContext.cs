@@ -27,4 +27,7 @@ public class AppDbContext : DbContext
     public DbSet<SupplierBranch> SuppliersBranches { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<ProductCategory> ProductsCategories { get; set; }
+    public DbSet<Sale> Sales { get; set; }
+    public DbSet<SaleDetail> SalesDetails { get; set; }
+
 }

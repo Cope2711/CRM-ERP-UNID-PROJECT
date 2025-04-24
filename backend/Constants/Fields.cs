@@ -143,4 +143,9 @@ public static class Fields
         public const string ExampleId = nameof(Example.ExampleId);
         public const string ExampleName = nameof(Example.ExampleName);
     }
+
+    public static class Sales
+    {
+        public const string SaleId = nameof(Sale.SaleId);
+    }
 }

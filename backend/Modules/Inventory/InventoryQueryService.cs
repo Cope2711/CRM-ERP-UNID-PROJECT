@@ -13,7 +13,7 @@ public class InventoryQueryService(
 {
     public async Task<Inventory> GetByIdThrowsNotFoundAsync(Guid id)
     {
-        return await _genericService.GetByIdThrowsNotFoundAsync(id, query => query.Include(i => i.Product));
+        return await _genericService.GetByIdThrowsNotFound(id, query => query.Include(i => i.Product));
     }
     
     public async Task<Inventory> GetByProductIdInBranchIdThrowsNotFound(Guid productId, Guid branchId)
@@ -21,7 +21,7 @@ public class InventoryQueryService(
         Inventory? inventory = await _inventoryRepository.GetByProductIdInBranchId(productId, branchId);
         
         if (inventory == null)
-            throw new NotFoundException("Product not found", Fields.InventoryFields.ProductId);
+            throw new NotFoundException("Product has no inventory", Fields.InventoryFields.ProductId);
         
         return inventory;
     }

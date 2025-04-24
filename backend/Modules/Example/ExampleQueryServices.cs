@@ -7,7 +7,7 @@ public class ExampleQueryServices(IGenericService<Example> genericService) : IEx
 {
     public async Task<Example> GetByIdThrowsNotFoundAsync(Guid id)
     {
-        return await genericService.GetByIdThrowsNotFoundAsync(id);
+        return await genericService.GetByIdThrowsNotFound(id);
     }
 
     public async Task<GetAllResponseDto<Example>> GetAll(GetAllDto getAllDto)

@@ -47,7 +47,7 @@ public class UsersBranchesQueryServices(
 
     public async Task<UserBranch> GetByIdThrowsNotFoundAsync(Guid id)
     {
-        return await _genericService.GetByIdThrowsNotFoundAsync(id);
+        return await _genericService.GetByIdThrowsNotFound(id);
     }
 
     public async Task<GetAllResponseDto<UserBranch>> GetAll(GetAllDto getAllDto)

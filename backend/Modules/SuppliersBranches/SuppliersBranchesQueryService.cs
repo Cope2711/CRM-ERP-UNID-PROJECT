@@ -16,7 +16,7 @@ public class SuppliersBranchesQueryService(
 
     public async Task<SupplierBranch> GetByIdThrowsNotFound(Guid id)
     {
-        return await _genericService.GetByIdThrowsNotFoundAsync(id, 
+        return await _genericService.GetByIdThrowsNotFound(id, 
             query => query.Include(sb => sb.Supplier).Include(sb => sb.Branch));
     }
 

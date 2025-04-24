@@ -7,4 +7,6 @@ public interface IInventoryManagementService
 {
     Task<Inventory> Create(CreateInventoryDto createInventoryDto);
     Task<Inventory> Update(Guid id, UpdateInventoryDto updateInventoryDto);
+    Task DecreaseStockBulk(List<StockChangeDto> stockChanges, Guid branchId);
+    Task IncreaseStockBulk(List<StockChangeDto> stockChanges, Guid branchId);
 }

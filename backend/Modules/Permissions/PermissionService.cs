@@ -15,7 +15,7 @@ public class PermissionService(
 
     public async Task<Permission> GetByIdThrowsNotFoundAsync(Guid id)
     {
-        return await _genericService.GetByIdThrowsNotFoundAsync(id);
+        return await _genericService.GetByIdThrowsNotFound(id);
     }
     
     public async Task<Permission?> GetByNameAsync(string permissionName)

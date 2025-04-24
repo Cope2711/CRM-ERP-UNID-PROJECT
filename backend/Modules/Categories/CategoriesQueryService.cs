@@ -19,7 +19,7 @@ public class CategoriesQueryService(
 
     public async Task<Category> GetByIdThrowsNotFound(Guid categoryId)
     {
-        return await _genericService.GetByIdThrowsNotFoundAsync(categoryId);
+        return await _genericService.GetByIdThrowsNotFound(categoryId);
     }
 
     public async Task<GetAllResponseDto<Category>> GetAll(GetAllDto getAllDto)

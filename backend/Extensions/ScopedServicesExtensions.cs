@@ -58,6 +58,9 @@ namespace CRM_ERP_UNID.Extensions
             services.AddScoped<IProductsCategoriesManagementService, ProductsCategoriesManagementService>();
             services.AddScoped<IProductsCategoriesQueryService, ProductsCategoriesQueryService>();
             services.AddScoped<IProductsCategoriesRepository, ProductsCategoriesRepository>();
+            services.AddScoped<ISalesQueryService, SalesQueryService>();
+            services.AddScoped<ISalesManagementService, SalesManagementService>();
+            services.AddScoped<ISalesRepository, SalesRepository>();
         }
     }
 }
