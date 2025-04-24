@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import GenericDetailPage from './pages/GenericDetailPage';
 import AboutPage from './pages/AboutPage';
 import SalesPage from './pages/SalesPage';
+import Inventory from './pages/Inventory';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -22,7 +23,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/inventory" element={<Home />} />
+      <Route path="/inventory" element={<Inventory/>} />
       <Route path="/products" element={<div>Products Page</div>} />
       <Route path="/suppliers" element={<div>Suppliers Page</div>} />
       <Route path="/about" element={<AboutPage />} />
