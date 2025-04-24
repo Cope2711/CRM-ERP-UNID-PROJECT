@@ -1,17 +1,19 @@
 import {
     HomeIcon,
     UserIcon,
-    CogIcon,
     InformationCircleIcon,
     ShoppingBagIcon,
     UsersIcon,
     ChartPieIcon,
     BuildingStorefrontIcon,
-    ShoppingCartIcon
+    ShoppingCartIcon,
+    ComputerDesktopIcon,
+    BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
 import {useState} from 'react';
 import Sidebar from './Sidebar';
 import SidebarItem from './SidebarItem';
+import { BriefcaseIcon, TagIcon } from 'lucide-react';
 
 export default function MakeSidebar() {
     const [expanded, setExpanded] = useState(true);
@@ -50,18 +52,27 @@ export default function MakeSidebar() {
         {
             icon: <UserIcon className="h-5 w-5"/>,
             text: 'Users',
-            subMenu: [
-                {
-                    icon: <UserIcon className="h-5 w-5"/>,
-                    text: 'User List',
-                    path: '/users/list',
-                },
-                {
-                    icon: <CogIcon className="h-5 w-5"/>,
-                    text: 'User Roles',
-                    path: '/users/roles',
-                },
-            ],
+            path: '/users',
+        },
+        {
+            icon: <ComputerDesktopIcon className="h-5 w-5"/>,
+            text: 'Roles',
+            path: '/roles',
+        },
+        {
+            icon: <TagIcon className="h-5 w-5"/>,
+            text: 'Categories',
+            path: '/categories',
+        },
+        {
+            icon: <BriefcaseIcon className="h-5 w-5"/>,
+            text: 'Brands',
+            path: '/brands',
+        },
+        {
+            icon: <BuildingOffice2Icon className="h-5 w-5"/>,
+            text: 'Branches',
+            path: '/branches',
         },
         {
             icon: <InformationCircleIcon className="h-5 w-5"/>,

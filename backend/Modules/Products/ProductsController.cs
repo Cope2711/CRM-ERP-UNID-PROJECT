@@ -57,7 +57,7 @@ public class ProductsController(
     
     [HttpGet("get-by-id")]
     [PermissionAuthorize("View", "Products")]
-    public async Task<ActionResult<ProductDto>> GetProductById([FromQuery] Guid id)
+    public async Task<ActionResult<ProductDto>> GetById([FromQuery] Guid id)
     {
         Product product = await _productsQueryService.GetByIdThrowsNotFound(id);
 
@@ -66,7 +66,7 @@ public class ProductsController(
     
     [HttpGet("get-by-barcode")]
     [PermissionAuthorize("View", "Products")]
-    public async Task<ActionResult<ProductDto>> GetProductByBarcode([FromQuery] string barcode)
+    public async Task<ActionResult<ProductDto>> GetByBarcode([FromQuery] string barcode)
     {
         Product product = await _productsQueryService.GetByBarcodeThrowsNotFound(barcode);
 
@@ -75,7 +75,7 @@ public class ProductsController(
 
     [HttpGet("get-by-name")]
     [PermissionAuthorize("View", "Products")]
-    public async Task<ActionResult<ProductDto>> GetProductByName([FromQuery] string name)
+    public async Task<ActionResult<ProductDto>> GetByName([FromQuery] string name)
     {
         Product product = await _productsQueryService.GetByNameThrowsNotFound(name);
 
