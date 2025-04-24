@@ -10,7 +10,7 @@ import {
     ComputerDesktopIcon,
     BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
-import {useState} from 'react';
+import { useState } from 'react';
 import Sidebar from './Sidebar';
 import SidebarItem from './SidebarItem';
 import { BriefcaseIcon, TagIcon } from 'lucide-react';
@@ -20,67 +20,67 @@ export default function MakeSidebar() {
 
     const navBarItems = [
         {
-            icon: <HomeIcon className="h-5 w-5"/>,
+            icon: <HomeIcon className="h-5 w-5" />,
             text: 'Home',
-            path: '/',
+            path: '/Home',
         },
+        // {
+        //     icon: <ChartPieIcon className="h-5 w-5" />,
+        //     text: 'Dashboard',
+        //     path: '/dashboard',
+        // },
         {
-            icon: <ChartPieIcon className="h-5 w-5"/>,
-            text: 'Dashboard',
-            path: '/dashboard',
-        },
-        {
-            icon: <ShoppingCartIcon className="h-5 w-5"/>,
+            icon: <ShoppingCartIcon className="h-5 w-5" />,
             text: 'Sales',
             path: '/sales',
         },
         {
-            icon: <BuildingStorefrontIcon className="h-5 w-5"/>,
+            icon: <BuildingStorefrontIcon className="h-5 w-5" />,
             text: 'Inventory',
             path: '/inventory',
         },
         {
-            icon: <ShoppingBagIcon className="h-5 w-5"/>,
+            icon: <ShoppingBagIcon className="h-5 w-5" />,
             text: 'Products',
             path: '/products',
         },
         {
-            icon: <UsersIcon className="h-5 w-5"/>,
+            icon: <UsersIcon className="h-5 w-5" />,
             text: 'Suppliers',
             path: '/suppliers',
         },
         {
-            icon: <UserIcon className="h-5 w-5"/>,
+            icon: <UserIcon className="h-5 w-5" />,
             text: 'Users',
             path: '/users',
         },
         {
-            icon: <ComputerDesktopIcon className="h-5 w-5"/>,
+            icon: <ComputerDesktopIcon className="h-5 w-5" />,
             text: 'Roles',
             path: '/roles',
         },
         {
-            icon: <TagIcon className="h-5 w-5"/>,
+            icon: <TagIcon className="h-5 w-5" />,
             text: 'Categories',
             path: '/categories',
         },
         {
-            icon: <BriefcaseIcon className="h-5 w-5"/>,
+            icon: <BriefcaseIcon className="h-5 w-5" />,
             text: 'Brands',
             path: '/brands',
         },
         {
-            icon: <BuildingOffice2Icon className="h-5 w-5"/>,
+            icon: <BuildingOffice2Icon className="h-5 w-5" />,
             text: 'Branches',
             path: '/branches',
         },
         {
-            icon: <InformationCircleIcon className="h-5 w-5"/>,
+            icon: <InformationCircleIcon className="h-5 w-5" />,
             text: 'About',
             path: '/about',
         },
         {
-            icon: <ChartPieIcon className="h-5 w-5"/>,
+            icon: <ChartPieIcon className="h-5 w-5" />,
             text: 'Settings',
             path: '/settings',
         },
@@ -98,4 +98,3 @@ export default function MakeSidebar() {
         </Sidebar>
     );
 }
-    

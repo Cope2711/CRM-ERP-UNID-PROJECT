@@ -1,5 +1,3 @@
-const Home = () => {
-    return <div>Home</div>;
-  };
-  
-  export default Home;
+import HomePage from "@/components/HomePage";
+
+export default HomePage;
