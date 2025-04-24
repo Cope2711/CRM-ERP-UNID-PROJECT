@@ -32,7 +32,7 @@ const usuariosPreview = [
     { nombre: 'María Pérez', estado: 'Activo', imagen: 'https://i.pravatar.cc/150?img=7' },
 ];
 
-// Variantes de animación reutilizables
+
 const fadeUp = {
     hidden: { opacity: 0, y: 30 },
     visible: (i = 0) => ({
@@ -57,7 +57,7 @@ export default function HomePage() {
                 </div>
             </header>
 
-            {/* Cards con animación */}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
                 {[
                     {
@@ -104,7 +104,7 @@ export default function HomePage() {
                 ))}
             </div>
 
-            {/* Gráfica animada */}
+
             <motion.div
                 initial="hidden"
                 animate="visible"
@@ -123,7 +123,7 @@ export default function HomePage() {
                 </ResponsiveContainer>
             </motion.div>
 
-            {/* Secciones inferiores */}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 {[
                     {
