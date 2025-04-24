@@ -15,7 +15,7 @@ public interface IGenericService<T> where T : class
 
     Task<bool> ExistsAsync(Expression<Func<T, object>> fieldSelector, object value);
 
-    Task<T> GetByIdThrowsNotFoundAsync(Guid id, Func<IQueryable<T>, IQueryable<T>>? include = null);
+    Task<T> GetByIdThrowsNotFound(Guid id, Func<IQueryable<T>, IQueryable<T>>? include = null);
 
     Task<GetAllResponseDto<T>> GetAllAsync(
         GetAllDto getAllDto,

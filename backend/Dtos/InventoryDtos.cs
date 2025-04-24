@@ -43,3 +43,9 @@ public class UpdateInventoryDto
     public int? Quantity { get; set; }
     public bool? IsActive { get; set; }
 }
+
+public class StockChangeDto
+{
+    public Guid ProductId { get; set; }
+    public int Quantity { get; set; } 
+}

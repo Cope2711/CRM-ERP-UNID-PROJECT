@@ -27,7 +27,7 @@ public class UsersRolesControllerTests : IClassFixture<CustomWebApiFactory>
         [Fact]
         public async Task AssignRoles_ReturnsExpectedResult()
         {
-            ModelsAndAssignsDtos usersAndRolesDtos = new ModelsAndAssignsDtos
+            ModelsAndAssignsDtos modelsAndAssignsDtos = new ModelsAndAssignsDtos
             {
                 ModelAssignIds = new List<ModelAssignIdsDto>
                 {
@@ -75,7 +75,7 @@ public class UsersRolesControllerTests : IClassFixture<CustomWebApiFactory>
                 }
             };
 
-            var response = await _client.PostAsJsonAsync($"{Endpoint}/assign", usersAndRolesDtos);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/assign", modelsAndAssignsDtos);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             ResponsesDto<ModelAndAssignResponseStatusDto>? assignRolesResponseDto =

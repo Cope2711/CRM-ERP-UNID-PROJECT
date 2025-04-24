@@ -38,9 +38,7 @@ public static class BranchExtensions
             BranchName = branch.BranchName,
             BranchAddress = branch.BranchAddress,
             BranchPhone = branch.BranchPhone,
-            IsActive = branch.IsActive,
-            CreatedDate = branch.CreatedDate,
-            UpdatedDate = branch.UpdatedDate
+            IsActive = branch.IsActive
         };
     }
 }

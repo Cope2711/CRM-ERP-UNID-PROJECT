@@ -63,7 +63,7 @@ public class PasswordResetService(
 
     public async Task<PasswordRecoveryToken> GetByIdThrowsNotFoundAsync(Guid id)
     {
-        return await _genericService.GetByIdThrowsNotFoundAsync(id);
+        return await _genericService.GetByIdThrowsNotFound(id);
     }
 
     private string GenerateResetToken()

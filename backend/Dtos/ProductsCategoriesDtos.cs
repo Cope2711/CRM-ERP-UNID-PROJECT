@@ -24,14 +24,3 @@ public class ProductAndCategoryIdDto
     [GuidNotEmpty]
     public Guid CategoryId { get; set; }
 }
-
-public class ProductsAndCategoriesDto
-{
-    [RangeListLength(1, int.MaxValue)]
-    public required List<ProductAndCategoryIdDto> ProductAndCategoryIdDto { get; set; }
-}
-
-public class ProductAndCategoryResponseStatusDto : ResponseStatusDto
-{
-    public ProductAndCategoryIdDto ProductAndCategoryId { get; set; }
-}

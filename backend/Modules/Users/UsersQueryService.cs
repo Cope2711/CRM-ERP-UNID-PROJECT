@@ -28,7 +28,7 @@ public class UsersQueryService(
 
     public async Task<User> GetByIdThrowsNotFoundAsync(Guid id)
     {
-        return await _genericService.GetByIdThrowsNotFoundAsync(id,
+        return await _genericService.GetByIdThrowsNotFound(id,
             query => query
                 .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)

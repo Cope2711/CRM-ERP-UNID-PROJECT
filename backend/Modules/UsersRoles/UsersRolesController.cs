@@ -16,10 +16,24 @@ public class UsersRolesController(
 ) : ControllerBase
 {
     [HttpPost("assign")]
-    [PermissionAuthorize("Assign", "UsersRoles")] 
-    public async Task<ActionResult<ResponsesDto<ModelAndAssignResponseStatusDto>>> AssignRoles([FromBody] ModelsAndAssignsDtos modelsAndAssignsDtos)
+    [PermissionAuthorize("Assign", "UsersRoles")]
+    public async Task<ActionResult<ResponsesDto<ModelAndAssignResponseStatusDto>>> AssignRoles(
+        [FromBody] ModelsAndAssignsDtos modelsAndAssignsDtos, 
+        [FromQuery] string? modelName) 
     {
-        ResponsesDto<ModelAndAssignResponseStatusDto> usersAndRolesResponsesDto = await _usersRolesManagementService.AssignRolesToUsersAsync(modelsAndAssignsDtos);
+        if (modelName != null && modelName == "Users")
+        {
+            foreach (var assign in modelsAndAssignsDtos.ModelAssignIds)
+            {
+                var temp = assign.ModelId;
+                assign.ModelId = assign.AssignId;
+                assign.AssignId = temp;
+            }
+        }
+
+        ResponsesDto<ModelAndAssignResponseStatusDto> usersAndRolesResponsesDto = 
+            await _usersRolesManagementService.AssignRolesToUsersAsync(modelsAndAssignsDtos);
+
         return Ok(usersAndRolesResponsesDto);
     }
     

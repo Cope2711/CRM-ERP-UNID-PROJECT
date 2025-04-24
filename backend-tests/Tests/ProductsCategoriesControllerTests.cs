@@ -27,39 +27,39 @@ public class ProductsCategoriesControllerTests : IClassFixture<CustomWebApiFacto
         [Fact]
         public async Task AssignProductsCategories_ReturnsExpectedResult()
         {
-            ProductsAndCategoriesDto productsAndCategoriesDto = new()
+            ModelsAndAssignsDtos modelsAndAssignsDtos = new ModelsAndAssignsDtos
             {
-                ProductAndCategoryIdDto = new List<ProductAndCategoryIdDto>
+                ModelAssignIds = new List<ModelAssignIdsDto>
                 {
-                    new ProductAndCategoryIdDto // OK
+                    new ModelAssignIdsDto // OK
                     {
-                        ProductId = Models.Products.GalaxyS21.ProductId,
-                        CategoryId = Models.Categories.Technology.CategoryId
+                        ModelId = Models.Products.GalaxyS21.ProductId,
+                        AssignId = Models.Categories.Technology.CategoryId
                     },
                     
-                    new ProductAndCategoryIdDto // Not found
+                    new ModelAssignIdsDto // Not found
                     {
-                        ProductId = Guid.NewGuid(),
-                        CategoryId = Models.Categories.Technology.CategoryId
+                        ModelId = Guid.NewGuid(),
+                        AssignId = Models.Categories.Technology.CategoryId
                     },
                     
-                    new ProductAndCategoryIdDto // Not found
+                    new ModelAssignIdsDto // Not found
                     {
-                        ProductId = Models.Products.GalaxyS21.ProductId,
-                        CategoryId = Guid.NewGuid()
+                        ModelId = Models.Products.GalaxyS21.ProductId,
+                        AssignId = Guid.NewGuid()
                     },
                     
-                    new ProductAndCategoryIdDto // Already assigned
+                    new ModelAssignIdsDto // Already assigned
                     {
-                        ProductId = Models.Products.iPhone13.ProductId,
-                        CategoryId = Models.Categories.Technology.CategoryId
+                        ModelId = Models.Products.iPhone13.ProductId,
+                        AssignId = Models.Categories.Technology.CategoryId
                     }
                 }
             };
             
-            var response = await _client.PostAsJsonAsync($"{Endpoint}/assign", productsAndCategoriesDto);
+            var response = await _client.PostAsJsonAsync($"{Endpoint}/assign", modelsAndAssignsDtos);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            ResponsesDto<ProductAndCategoryResponseStatusDto> responsesDto = await response.Content.ReadFromJsonAsync<ResponsesDto<ProductAndCategoryResponseStatusDto>>();
+            ResponsesDto<ModelAndAssignResponseStatusDto>? responsesDto = await response.Content.ReadFromJsonAsync<ResponsesDto<ModelAndAssignResponseStatusDto>>();
             responsesDto.Should().NotBeNull();
             responsesDto.Success.Should().HaveCount(1);
             responsesDto.Failed.Count(x => x.Status == ResponseStatus.AlreadyProcessed).Should().Be(1);

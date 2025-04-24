@@ -11,7 +11,7 @@ public class BranchesQueryService(
 {
     public Task<Branch> GetByIdThrowsNotFoundAsync(Guid id)
     {
-        return _genericService.GetByIdThrowsNotFoundAsync(id);
+        return _genericService.GetByIdThrowsNotFound(id);
     }
 
     public async Task<Branch> GetByNameThrowsNotFoundAsync(string name)

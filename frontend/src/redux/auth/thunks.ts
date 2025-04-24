@@ -2,6 +2,7 @@ import {createAsyncThunk} from '@reduxjs/toolkit';
 import {LoginRequestDto, LoginResponseDto, RefreshTokenEntryDto} from '@/dtos/AuthDtos.ts';
 import authService from '@/services/authService';
 import {ErrorDetail} from '@/dtos/ErrorDetailDtos.ts';
+import { clearSession, setUser } from '../session/sessionSlice';
 
 export const login =
     createAsyncThunk<
@@ -15,6 +16,7 @@ export const login =
     async (payload, thunkApi) => {
         try {
             const data = await authService.login(payload);
+            thunkApi.dispatch(setUser(data.user));
             return data;
         } catch (error: any) {
             return thunkApi.rejectWithValue(error);
@@ -32,6 +34,7 @@ export const logoutThunk =
     async (payload, thunkApi) => {
         try {
             await authService.logout(payload);
+            thunkApi.dispatch(clearSession());
         } catch (error: any) {
             return thunkApi.rejectWithValue(error);
         }

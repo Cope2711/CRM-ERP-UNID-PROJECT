@@ -15,6 +15,37 @@ public class InventoryManagementService(
     IUsersBranchesQueryService _usersBranchesQueryService
 ) : IInventoryManagementService
 {
+    public async Task IncreaseStockBulk(List<StockChangeDto> stockChanges, Guid branchId)
+    {
+        foreach (StockChangeDto stockChangeDto in stockChanges)
+        {
+            Inventory inventory = await _inventoryQueryService.GetByProductIdInBranchIdThrowsNotFound(stockChangeDto.ProductId, branchId);
+            inventory.Quantity += stockChangeDto.Quantity;
+        }
+
+        await _inventoryRepository.SaveChangesAsync();
+    }
+    
+    public async Task DecreaseStockBulk(List<StockChangeDto> stockChanges, Guid branchId)
+    {
+        foreach (StockChangeDto stockChangeDto in stockChanges)
+        {
+            Inventory inventory = await _inventoryQueryService.GetByProductIdInBranchIdThrowsNotFound(stockChangeDto.ProductId, branchId);
+
+            if (inventory.Quantity - stockChangeDto.Quantity < 0)
+            {
+                throw new BadRequestException(
+                    $"Not enough stock for product {stockChangeDto.ProductId}. Requested: {stockChangeDto.Quantity}, Available: {inventory.Quantity}",
+                    field: Fields.Products.ProductId
+                );
+            }
+
+            inventory.Quantity -= stockChangeDto.Quantity;
+        }
+
+        await _inventoryRepository.SaveChangesAsync();
+    }
+    
     public async Task<Inventory> Update(Guid id, UpdateInventoryDto updateInventoryDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);

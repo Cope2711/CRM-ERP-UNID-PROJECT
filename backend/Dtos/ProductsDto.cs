@@ -3,51 +3,87 @@ using CRM_ERP_UNID.Attributes;
 
 namespace CRM_ERP_UNID.Dtos;
 
-public abstract class BaseProductDto
+public class ProductDto
 {
+    [IsObjectKey]
+    public Guid ProductId { get; set; }
+    
+    [MinLength(3)]
     [MaxLength(50)]
-    public string? ProductName { get; set; }
-    [Range(0.01, 10000)]
-    public decimal? ProductPrice { get; set; }
-    [MaxLength(255)]
-    public string? ProductDescription { get; set; }
-    public bool? IsActive { get; set; }
-}
-
-public abstract class RequiredBaseProductDto
-{
     [Required]
-    [MaxLength(50)]
     public required string ProductName { get; set; }
+    
+    [MinLength(1)]
+    [MaxLength(255)]
+    [Required]
+    public required string ProductBarcode { get; set; }
     
     [Required]
     [Range(0.01, 10000)]
     public required decimal ProductPrice { get; set; }
     
+    [MinLength(3)]
     [MaxLength(255)]
     public string? ProductDescription { get; set; }
     
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
+    
+    [Required]
+    [GuidNotEmpty]
+    public required Guid BrandId { get; set; }
+    
+    [RelationInfo("ProductsCategories", "products-categories", new[] { "ProductCategoryId", "Category.CategoryId", "Category.CategoryName" })]
+    public List<CategoryDto> Categories { get; set; } = new();
+    
+    [RelationInfo("SupplierProducts", "suppliers-products", new[] { "SupplierProductId", "Supplier.SupplierId", "Supplier.SupplierName" })]
+    public List<SupplierDto> Suppliers { get; set; } = new();
+}
+
+public class CreateProductDto
+{
+    [MinLength(3)]
+    [MaxLength(50)]
+    [Required]
+    public required string ProductName { get; set; }
+    
+    [MinLength(1)]
+    [MaxLength(255)]
+    [Required]
+    public required string ProductBarcode { get; set; }
+    
+    [Required]
+    [Range(0.01, 10000)]
+    public required decimal ProductPrice { get; set; }
+    
+    [MinLength(3)]
+    [MaxLength(255)]
+    public string? ProductDescription { get; set; }
+    
+    public bool IsActive { get; set; }
     
     [Required]
     [GuidNotEmpty]
     public required Guid BrandId { get; set; }
 }
 
-public class ProductDto : RequiredBaseProductDto
+public class UpdateProductDto
 {
-    public Guid ProductId { get; set; }
-    public bool IsActive { get; set; } 
+    [MinLength(3)]
+    [MaxLength(50)]
+    public string? ProductName { get; set; }
     
-    public List<CategoryDto> Categories { get; set; } = new();
-}
-
-public class CreateProductDto : RequiredBaseProductDto
-{
-}
-
-public class UpdateProductDto : BaseProductDto
-{
+    [MinLength(1)]
+    [MaxLength(255)]
+    public string? ProductBarcode { get; set; }
+    
+    [Range(0.01, 10000)]
+    public decimal? ProductPrice { get; set; }
+    
+    [MinLength(3)]
+    [MaxLength(255)]
+    public string? ProductDescription { get; set; }
+    
+    public bool IsActive { get; set; }
 }
 
 public class ChangeBrandProductDto

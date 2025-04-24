@@ -15,7 +15,7 @@ public class BrandsService(
 {
     public async Task<Brand> GetByIdThrowsNotFound(Guid brandId)
     {
-        return await _genericService.GetByIdThrowsNotFoundAsync(brandId);
+        return await _genericService.GetByIdThrowsNotFound(brandId);
     }
     
     public async Task<Brand> GetByNameThrowsNotFound(string brandName)
@@ -60,7 +60,7 @@ public class BrandsService(
         {
             BrandName = createBrandDto.BrandName,
             BrandDescription = createBrandDto.BrandDescription,
-            IsActive = createBrandDto.IsActive ?? true
+            IsActive = createBrandDto.IsActive
         };
 
         _brandsRepository.Add(brand);

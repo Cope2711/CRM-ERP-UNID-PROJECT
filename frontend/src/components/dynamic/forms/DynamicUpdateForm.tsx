@@ -16,7 +16,7 @@ import { LoadingSpinner } from "@/components/Loading/loadingSpinner";
 type UpdateFormProps = {
   modelName: string;
   id: string;
-  defaultData?: Record<string, any>;
+  defaultData?: Record<string, any> | null;
 };
 
 /**
@@ -30,7 +30,7 @@ type UpdateFormProps = {
  * - showSuccess: Estado para mostrar mensaje de éxito
  * - handleSubmit: Función para manejar el envío del formulario
  */
-const useUpdateForm = (modelName: string, id: string, defaultData?: Record<string, any>) => {
+const useUpdateForm = (modelName: string, id: string, defaultData?: Record<string, any> | null) => {
   // Estado para el esquema del formulario
   const [schema, setSchema] = useState<Schema | null>(null);
   

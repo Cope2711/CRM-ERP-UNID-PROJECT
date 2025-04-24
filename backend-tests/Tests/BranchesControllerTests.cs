@@ -56,7 +56,7 @@ public class BranchesTests
                 {
                     BranchName = "Olivares de la Frontera",
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
-                    BranchPhone = "666666666",
+                    BranchPhone = "+526623296985",
                     IsActive = true
                 },
                 HttpStatusCode.OK
@@ -68,7 +68,7 @@ public class BranchesTests
                 {
                     BranchName = Models.Branches.HermosilloMiguelHidalgo.BranchName,
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
-                    BranchPhone = "666666666",
+                    BranchPhone = "+526623296985",
                     IsActive = false
                 },
                 HttpStatusCode.Conflict
@@ -98,7 +98,7 @@ public class BranchesTests
                 {
                     BranchName = "Olivares de la Frontera",
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
-                    BranchPhone = "666666666",
+                    BranchPhone = "+526623296985",
                     IsActive = true
                 },
                 HttpStatusCode.OK
@@ -111,7 +111,7 @@ public class BranchesTests
                 {
                     BranchName = Models.Branches.CampoReal.BranchName,
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
-                    BranchPhone = "666666666",
+                    BranchPhone = "+526623296985",
                     IsActive = true
                 },
                 HttpStatusCode.Conflict
@@ -124,7 +124,7 @@ public class BranchesTests
                 {
                     BranchName = Models.Branches.CampoReal.BranchName,
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
-                    BranchPhone = "666666666",
+                    BranchPhone = "+526623296985",
                     IsActive = true
                 },
                 HttpStatusCode.NotFound
