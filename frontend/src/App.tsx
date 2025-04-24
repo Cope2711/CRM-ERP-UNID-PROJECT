@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import GenericDetailPage from './pages/GenericDetailPage';
 import AboutPage from './pages/AboutPage';
+import SalesPage from './pages/SalesPage';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -28,6 +29,7 @@ const AppRoutes = () => {
       <Route path="/settings" element={<div>Settings Page</div>} />
       <Route path="/users/list" element={<div>User List Page</div>} />
       <Route path="/users/roles" element={<div>User Roles Page</div>} />
+      <Route path="/sales" element={<SalesPage />} />
       <Route path="/users/:id" element={<GenericDetailPage modelName="users" />} />
       <Route path="/suppliers/:id" element={<GenericDetailPage modelName="suppliers" />} />
       <Route path="/roles/:id" element={<GenericDetailPage modelName="roles" />} />
