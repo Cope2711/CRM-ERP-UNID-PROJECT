@@ -31,7 +31,7 @@ public class RolesQueryService(
 
     public async Task<Role> GetByIdThrowsNotFound(Guid id)
     {
-        return await _genericService.GetByIdThrowsNotFoundAsync(id);
+        return await _genericService.GetByIdThrowsNotFound(id);
     }
 
     public async Task<Role?> GetById(Guid id)

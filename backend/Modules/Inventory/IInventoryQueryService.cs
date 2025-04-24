@@ -9,5 +9,4 @@ public interface IInventoryQueryService
     public Task<Inventory> GetByProductIdInBranchIdThrowsNotFound(Guid productId, Guid branchId);
     public Task<GetAllResponseDto<Inventory>> GetAll(GetAllDto getAllDto);
     public Task<bool> ExistProductInBranch(Guid productId, Guid branchId);
-    public Task<bool> ExistProductInBranchThrowsUniqueConstraintViolation(Guid productId, Guid branchId);
 }

@@ -44,7 +44,7 @@ public class GenericService<T>(
         return await _genericRepository.ExistsAsync(fieldSelector, value);
     }
 
-    public async Task<T> GetByIdThrowsNotFoundAsync(Guid id, Func<IQueryable<T>, IQueryable<T>>? include = null)
+    public async Task<T> GetByIdThrowsNotFound(Guid id, Func<IQueryable<T>, IQueryable<T>>? include = null)
     {
         T? entity = await _genericRepository.GetByIdAsync(id, include);
 

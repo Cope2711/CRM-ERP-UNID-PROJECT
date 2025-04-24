@@ -13,5 +13,6 @@ public interface IProductsQueryService
     Task<GetAllResponseDto<Product>> GetAll(GetAllDto getAllDto);
     Task<bool> ExistByName(string name);
     Task<bool> ExistById(Guid id);
+    Task<bool> ExistByIdThrowsNotFound(Guid id);
     Task<bool> ExistByBarcode(string barcode);
 }

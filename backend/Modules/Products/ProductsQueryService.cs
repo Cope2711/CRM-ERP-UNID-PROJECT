@@ -1,5 +1,7 @@
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
+using CRM_ERP_UNID.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_ERP_UNID.Modules;
@@ -10,7 +12,7 @@ public class ProductsQueryService(
 {
     public Task<Product> GetByIdThrowsNotFound(Guid id)
     {
-        return _genericService.GetByIdThrowsNotFoundAsync(id, 
+        return _genericService.GetByIdThrowsNotFound(id, 
             query => query.Include(p => p.ProductCategories).ThenInclude(pc => pc.Category));
     }
 
@@ -44,13 +46,22 @@ public class ProductsQueryService(
         return _genericService.ExistsAsync(p => p.ProductName, name);
     }
     
-    public Task<bool> ExistById(Guid id)
+    public async Task<bool> ExistById(Guid id)
     {
-        return _genericService.ExistsAsync(p => p.ProductId, id);
+        return await _genericService.ExistsAsync(p => p.ProductId, id);
     }
 
-    public Task<bool> ExistByBarcode(string barcode)
+    public async Task<bool> ExistByIdThrowsNotFound(Guid id)
     {
-        return _genericService.ExistsAsync(p => p.ProductBarcode, barcode);
+        if (!await ExistById(id))
+        {
+            throw new NotFoundException(message: "Product not found", field: Fields.Sales.SaleId);
+        }
+        return true;
+    }
+
+    public async Task<bool> ExistByBarcode(string barcode)
+    {
+        return await _genericService.ExistsAsync(p => p.ProductBarcode, barcode);
     }
 }

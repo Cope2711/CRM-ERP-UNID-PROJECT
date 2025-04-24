@@ -14,7 +14,7 @@ public class SuppliersQueryServices(
     
     public async Task<Supplier> GetByIdThrowsNotFoundAsync(Guid id)
     {
-        return await genericService.GetByIdThrowsNotFoundAsync(id);
+        return await genericService.GetByIdThrowsNotFound(id);
     }
 
     public async Task<GetAllResponseDto<Supplier>> GetAll(GetAllDto getAllDto)

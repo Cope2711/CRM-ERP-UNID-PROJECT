@@ -46,7 +46,6 @@ DROP TABLE IF EXISTS Products;
 DROP TABLE IF EXISTS Brands;
 DROP TABLE IF EXISTS Categories;
 
-
 CREATE TABLE Suppliers
 (
     SupplierId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
@@ -265,6 +264,36 @@ CREATE TABLE PasswordRecoveryTokens
         ON DELETE CASCADE
 );
 
+CREATE TABLE Sales
+(
+    SaleId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    BranchId UNIQUEIDENTIFIER NOT NULL,
+    UserId UNIQUEIDENTIFIER NOT NULL,
+    SaleDate DATETIME DEFAULT GETDATE(),
+    TotalAmount DECIMAL(12, 2) NOT NULL,
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    UpdatedDate DATETIME DEFAULT GETDATE(),
+
+    CONSTRAINT FK_Sales_Branches FOREIGN KEY (BranchId)
+        REFERENCES Branches (BranchId) ON DELETE CASCADE,
+    CONSTRAINT FK_Sales_Users FOREIGN KEY (UserId)
+        REFERENCES Users (UserId) ON DELETE CASCADE 
+);
+
+CREATE TABLE SalesDetails
+(
+    SaleDetailId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    SaleId UNIQUEIDENTIFIER NOT NULL,
+    ProductId UNIQUEIDENTIFIER NOT NULL,
+    Quantity INT NOT NULL,
+    UnitPrice DECIMAL(10, 2) NOT NULL,
+
+    CONSTRAINT FK_SalesDetails_Sales FOREIGN KEY (SaleId)
+        REFERENCES Sales (SaleId) ON DELETE CASCADE,
+    CONSTRAINT FK_SalesDetails_Products FOREIGN KEY (ProductId)
+        REFERENCES Products (ProductId) ON DELETE CASCADE
+);
+
 -- Insertar Roles
 DECLARE @RoleId_Admin UNIQUEIDENTIFIER = 'aad0f879-79bf-42b5-b829-3e14b9ef0e4b';
 DECLARE @RoleId_User UNIQUEIDENTIFIER = '523a8c97-735e-41f7-b4b2-16f92791adf5';
@@ -363,6 +392,7 @@ DECLARE @ResourceId_SuppliersProducts UNIQUEIDENTIFIER = '68a8ab4e-93bc-4459-ac3
 DECLARE @ResourceId_SuppliersBranches UNIQUEIDENTIFIER = '22cc021b-28aa-4b62-9fdb-1c3c33ba47d5';
 DECLARE @ResourceId_Categories UNIQUEIDENTIFIER = '6e289d1b-247a-4e97-8614-dee88d44f6f6';
 DECLARE @ResourceId_ProductsCategories UNIQUEIDENTIFIER = '9fbeb6a1-d337-4363-82f9-cfa8f77070b1';
+DECLARE @ResourceId_Sales UNIQUEIDENTIFIER = '4fd1a4aa-750b-48d0-bb8c-b055360ee31e';
 
 INSERT INTO Resources (ResourceId, ResourceName, ResourceDescription)
 VALUES (@ResourceId_Users, 'Users', 'Users module'),
@@ -380,7 +410,8 @@ VALUES (@ResourceId_Users, 'Users', 'Users module'),
        (@ResourceId_SuppliersProducts, 'SuppliersProducts', 'Suppliers products module'),
        (@ResourceId_SuppliersBranches, 'SuppliersBranches', 'Supplier branches module'),
        (@ResourceId_Categories, 'Categories', 'Categories module'),
-       (@ResourceId_ProductsCategories, 'ProductsCategories', 'Products categories module')
+       (@ResourceId_ProductsCategories, 'ProductsCategories', 'Products categories module'),
+       (@ResourceId_Sales, 'Sales', 'Sales module')
 
 -- Insertar Permisos a los Roles
 INSERT INTO RolesPermissionsResources (RolePermissionId, RoleId, PermissionId, ResourceId)
@@ -445,7 +476,10 @@ VALUES  (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
         (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_ProductsCategories),
         (NEWID(), @RoleId_Admin, @PermissionId_Assign, @ResourceId_ProductsCategories),
         (NEWID(), @RoleId_Admin, @PermissionId_Revoke, @ResourceId_ProductsCategories),
-        (NEWID(), @RoleId_Admin, @PermissionId_Delete, @ResourceId_Categories)
+        (NEWID(), @RoleId_Admin, @PermissionId_Delete, @ResourceId_Categories),
+        (NEWID(), @RoleId_Admin, @PermissionId_Delete, @ResourceId_Sales),
+        (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Sales),
+        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Sales)
 
 -- Insertar ejemplos de marcas
 DECLARE @BrandId_Apple UNIQUEIDENTIFIER = 'c3146b6f-b50f-4b26-8e77-827fc538b7d1';
@@ -573,6 +607,33 @@ VALUES
     (@SupplierBranchId_SamsungCampoReal, @SupplierId_Samsung, @BranchId_CampoReal, 0),
     (@SupplierBranchId_NikePuertoRico, @SupplierId_Nike, @BranchId_PuertoRico, 1);
 
+-- Ejemplos de ventas
+-- Venta 1
+DECLARE @SaleExample1 UNIQUEIDENTIFIER = '14ed6c32-a588-499d-8fa1-99159627fff8';
+DECLARE @SaleExample1Detail1 UNIQUEIDENTIFIER = '0e70cd61-640a-4433-8a36-a3028c2cdbc5';
+DECLARE @SaleExample1Detail2 UNIQUEIDENTIFIER= '2d7f8555-481e-4783-8536-623c08cd963b';
+
+INSERT INTO Sales (SaleId, BranchId, UserId, SaleDate, TotalAmount)
+VALUES (@SaleExample1, @BranchId_HermosilloMiguelHidalgo, @UserId_Admin, GETDATE(), 3396);
+
+INSERT INTO SalesDetails (SaleDetailId, SaleId, ProductId, Quantity, UnitPrice)
+VALUES
+    (@SaleExample1Detail1, @SaleExample1Detail1, @ProductId_iPadPro, 1, 999),
+    (@SaleExample1Detail2, @SaleExample1Detail1, @ProductId_iPhone13, 3, 799);
+
+DECLARE @SaleExample2 UNIQUEIDENTIFIER = '82cb3dcc-60f1-4cbd-830a-1d9e4dda81a8';
+DECLARE @SaleExample2Detail1 UNIQUEIDENTIFIER = 'a8f9c601-6b4f-4b26-af52-c00946eb29f5';
+DECLARE @SaleExample2Detail2 UNIQUEIDENTIFIER= '2b4a2595-e5fe-4fcd-9739-1821b4735473';
+
+-- Venta 2
+INSERT INTO Sales (SaleId, BranchId, UserId, SaleDate, TotalAmount)
+VALUES (@SaleExample2, @BranchId_HermosilloMiguelHidalgo, @UserId_Test, GETDATE(), 340.00);
+
+INSERT INTO SalesDetails (SaleDetailId, SaleId, ProductId, Quantity, UnitPrice)
+VALUES
+    (@SaleExample2Detail1, @SaleExample2, @ProductId_iPadPro, 2, 999),
+    (@SaleExample2Detail2, @SaleExample2, @ProductId_iPhone13, 2, 7999);
+
 -- Consultas para verificar la inserción de datos
 SELECT *
 FROM Users;
@@ -606,3 +667,7 @@ Select *
 from Categories;
 Select * 
 from ProductsCategories;
+Select *
+from Sales;
+Select * 
+from SalesDetails;

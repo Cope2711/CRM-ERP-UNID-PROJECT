@@ -16,7 +16,7 @@ public class SuppliersProductsQueryService(
 
     public async Task<SupplierProduct> GetByIdThrowsNotFound(Guid id)
     {
-        return await _genericService.GetByIdThrowsNotFoundAsync(id,
+        return await _genericService.GetByIdThrowsNotFound(id,
             query => query
                 .Include(sp => sp.Supplier)
                 .Include(sp => sp.Product));

@@ -15,7 +15,7 @@ public class BrandsService(
 {
     public async Task<Brand> GetByIdThrowsNotFound(Guid brandId)
     {
-        return await _genericService.GetByIdThrowsNotFoundAsync(brandId);
+        return await _genericService.GetByIdThrowsNotFound(brandId);
     }
     
     public async Task<Brand> GetByNameThrowsNotFound(string brandName)
