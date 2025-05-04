@@ -14,46 +14,129 @@ public class ProductsManagementService(
     IHttpContextAccessor _httpContextAccessor
 ) : IProductsManagementService
 {
+    public async Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto)
+    {
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
+        ResponsesDto<IdResponseStatusDto> responseDto = new();
+
+        foreach (Guid id in idsDto.Ids)
+        {
+            Product? product = await _productsQueryService.GetById(id);
+            if (product == null)
+            {
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
+                    Fields.Products.ProductId, "Product not found");
+                continue;
+            }
+
+            if (!product.IsActive)
+            {
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
+                    Fields.Products.ProductId,
+                    "Product was already deactivated");
+                continue;
+            }
+
+            product.IsActive = false;
+            await _productsRepository.SaveChanges();
+
+            responseDto.Success.Add(new IdResponseStatusDto
+            {
+                Id = id,
+                Status = ResponseStatus.Success,
+                Message = "Product successfully deactivated"
+            });
+        }
+
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} processed Deactivate Products request. Response: {responseDto}",
+            authenticatedUserId, responseDto);
+
+        return responseDto;
+    }
+
+    public async Task<ResponsesDto<IdResponseStatusDto>> Activate(IdsDto idsDto)
+    {
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
+        ResponsesDto<IdResponseStatusDto> responseDto = new();
+
+        foreach (Guid id in idsDto.Ids)
+        {
+            Product? product = await _productsQueryService.GetById(id);
+            if (product == null)
+            {
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
+                    Fields.Products.ProductId, "Product not found");
+                continue;
+            }
+
+            if (product.IsActive)
+            {
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
+                    Fields.Products.ProductId,
+                    "Product was already activated");
+                continue;
+            }
+
+            product.IsActive = true;
+            await _productsRepository.SaveChanges();
+
+            responseDto.Success.Add(new IdResponseStatusDto
+            {
+                Id = id,
+                Status = ResponseStatus.Success,
+                Message = "Product successfully activated"
+            });
+        }
+
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} processed Activate Products request. Response: {responseDto}",
+            authenticatedUserId, responseDto);
+
+        return responseDto;
+    }
+
     public async Task<Product> ChangeBrand(ChangeBrandProductDto changeBrandProductDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         Product product = await _productsQueryService.GetByIdThrowsNotFound(changeBrandProductDto.ProductId);
-        
+
         if (product.BrandId == changeBrandProductDto.BrandId)
             return product;
-        
+
         await _brandsService.ExistByIdThrowsNotFound(changeBrandProductDto.BrandId);
-        
+
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested ChangeBrandAsync for ProductId {TargetProductId}",
             authenticatedUserId, changeBrandProductDto.ProductId);
-        
+
         product.BrandId = changeBrandProductDto.BrandId;
 
-        await _productsRepository.SaveChangesAsync();
+        await _productsRepository.SaveChanges();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested ChangeBrandAsync for ProductId {TargetProductId} and the product was changed",
             authenticatedUserId, changeBrandProductDto.ProductId);
-        
+
         return product;
     }
-    
+
     public async Task<Product> Create(CreateProductDto createProductDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        
+
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested Create for ProductName {TargetProductName}",
             authenticatedUserId, createProductDto.ProductName);
-        
+
         // Check unique camps
         if (await _productsQueryService.ExistByName(createProductDto.ProductName))
         {
             _logger.LogError(
                 "User with Id {authenticatedUserId} requested Create for ProductName {TargetProductName} but the productname already exists",
                 authenticatedUserId, createProductDto.ProductName);
-            throw new UniqueConstraintViolationException("Product with this name already exists", Fields.Products.ProductName);
+            throw new UniqueConstraintViolationException("Product with this name already exists",
+                Fields.Products.ProductName);
         }
 
         if (await _productsQueryService.ExistByBarcode(createProductDto.ProductBarcode))
@@ -78,15 +161,15 @@ public class ProductsManagementService(
 
         _productsRepository.Add(product);
 
-        await _productsRepository.SaveChangesAsync();
+        await _productsRepository.SaveChanges();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested CreateAsync for ProductName {TargetProductName} and the product was created",
             authenticatedUserId, createProductDto.ProductName);
-        
+
         return product;
     }
-    
+
     public async Task<Product> Update(Guid id, UpdateProductDto updateProductDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
@@ -94,7 +177,7 @@ public class ProductsManagementService(
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested UpdateAsync for ProductId {TargetProductId}",
             authenticatedUserId, id);
-        
+
         bool hasChanges = ModelsHelper.UpdateModel(product, updateProductDto, async (field, value) =>
         {
             switch (field)
@@ -103,15 +186,15 @@ public class ProductsManagementService(
                     return await _productsQueryService.ExistByName((string)value);
                 case nameof(updateProductDto.ProductBarcode):
                     return await _productsQueryService.ExistByBarcode((string)value);
-                
+
                 default:
                     return false;
             }
         });
-        
+
         if (hasChanges)
         {
-            await _productsRepository.SaveChangesAsync();
+            await _productsRepository.SaveChanges();
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for ProductId {TargetProductId} and the product was updated",
                 authenticatedUserId, id);
@@ -122,7 +205,7 @@ public class ProductsManagementService(
                 "User with Id {authenticatedUserId} requested UpdateAsync for ProductId {TargetProductId} and the product was not updated",
                 authenticatedUserId, id);
         }
-        
+
         return product;
     }
 }

@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using CRM_ERP_UNID_TESTS.TestsModels;
 using CRM_ERP_UNID_TESTS.Dtos;
 using CRM_ERP_UNID_TESTS.TestsBase;
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -83,7 +84,9 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
 
     public class UpdateBrandTests : BrandsControllerTests
     {
-        public UpdateBrandTests(CustomWebApiFactory factory) : base(factory) { }
+        public UpdateBrandTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
 
         public static IEnumerable<object[]> UpdateBrandTestData()
         {
@@ -94,7 +97,6 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     BrandName = "Appless",
                     BrandDescription = "Apples company",
-                    IsActive = true
                 },
                 HttpStatusCode.OK
             };
@@ -106,7 +108,6 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     BrandName = Models.Brands.Apple.BrandName,
                     BrandDescription = "Apples company",
-                    IsActive = true
                 },
                 HttpStatusCode.Conflict
             };
@@ -118,7 +119,6 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     BrandName = Models.Brands.Apple.BrandName,
                     BrandDescription = "Apples company",
-                    IsActive = true
                 },
                 HttpStatusCode.NotFound
             };
@@ -126,10 +126,81 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(UpdateBrandTestData))]
-        public async Task UpdateBrand_ReturnsExpectedResult(Guid brandId, UpdateBrandDto updateBrandDto, HttpStatusCode expectedStatusCode)
+        public async Task UpdateBrand_ReturnsExpectedResult(Guid brandId, UpdateBrandDto updateBrandDto,
+            HttpStatusCode expectedStatusCode)
         {
             var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{brandId}", updateBrandDto);
             response.StatusCode.Should().Be(expectedStatusCode);
+        }
+    }
+
+    public class ActivateUserTests : BrandsControllerTests
+    {
+        public ActivateUserTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
+
+        [Fact]
+        public async Task Activate_Test()
+        {
+            // Arrange
+            IdsDto usersIdsDto = new IdsDto
+            {
+                Ids = new List<Guid>
+                {
+                    Models.Brands.Nike.BrandId, // Success
+                    Guid.NewGuid(), // Not found
+                    Models.Brands.Apple.BrandId // Already proccessed
+                }
+            };
+
+            // Act
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/activate", usersIdsDto);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            ResponsesDto<IdResponseStatusDto>? activateUsersResponseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<IdResponseStatusDto>>();
+
+            // Assert
+            activateUsersResponseDto.Should().NotBeNull();
+            activateUsersResponseDto.Success.Count.Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotFound).Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.AlreadyProcessed).Should().Be(1);
+        }
+    }
+
+    public class DeactivateUserTests : BrandsControllerTests
+    {
+        public DeactivateUserTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
+
+        [Fact]
+        public async Task Deactivate_Test()
+        {
+            // Arrange
+            IdsDto usersIdsDto = new IdsDto
+            {
+                Ids = new List<Guid>
+                {
+                    Models.Brands.Samsung.BrandId, // Success
+                    Models.Brands.Nike.BrandId, // AlreadyProcessed
+                    Guid.NewGuid() // Not found
+                }
+            };
+
+            // Act
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/deactivate", usersIdsDto);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            ResponsesDto<IdResponseStatusDto>? activateUsersResponseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<IdResponseStatusDto>>();
+
+            // Assert
+            activateUsersResponseDto.Should().NotBeNull();
+            activateUsersResponseDto.Success.Count.Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotFound).Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.AlreadyProcessed).Should().Be(1);
         }
     }
 }

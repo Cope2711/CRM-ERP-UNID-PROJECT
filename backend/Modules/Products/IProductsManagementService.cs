@@ -8,4 +8,6 @@ public interface IProductsManagementService
     Task<Product> Create(CreateProductDto createProductDto);
     Task<Product> Update(Guid id, UpdateProductDto updateProductDto);
     Task<Product> ChangeBrand(ChangeBrandProductDto changeBrandProductDto);
+    Task<ResponsesDto<IdResponseStatusDto>> Activate(IdsDto idsDto);
+    Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto);
 }

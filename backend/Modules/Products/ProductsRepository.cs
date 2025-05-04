@@ -6,7 +6,7 @@ namespace CRM_ERP_UNID.Modules;
 public interface IProductsRepository
 {
     void Add(Product product);
-    Task SaveChangesAsync();
+    Task SaveChanges();
 }
 
 public class ProductsRepository(
@@ -18,7 +18,7 @@ public class ProductsRepository(
         _context.Products.Add(product);
     }
     
-    public async Task SaveChangesAsync()
+    public async Task SaveChanges()
     {
         await _context.SaveChangesAsync();
     }

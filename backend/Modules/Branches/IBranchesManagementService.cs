@@ -7,4 +7,6 @@ public interface IBranchesManagementService
 { 
     Task<Branch> Create(CreateBranchDto createBranchDto);
     Task<Branch> Update(Guid id, UpdateBranchDto updateBranchDto);
+    Task<ResponsesDto<IdResponseStatusDto>> Activate(IdsDto idsDto);
+    Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto);
 }

@@ -108,4 +108,24 @@ public class ProductsController(
 
         return Ok(product.ToDto());
     }
+    
+    [HttpPatch("deactivate")]
+    [PermissionAuthorize("Deactivate", "Products")]
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> Deactivate(
+        [FromBody] IdsDto idsDto)
+    {
+        ResponsesDto<IdResponseStatusDto> deactivateResponseDto =
+            await _productsManagementService.Deactivate(idsDto);
+        return Ok(deactivateResponseDto);
+    }
+
+    [HttpPatch("activate")]
+    [PermissionAuthorize("Activate", "Products")]
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> Activate(
+        [FromBody] IdsDto idsDto)
+    {
+        ResponsesDto<IdResponseStatusDto> activateResponseDto =
+            await _productsManagementService.Activate(idsDto);
+        return Ok(activateResponseDto);
+    }
 }

@@ -38,5 +38,16 @@ public static partial class Models
             CreatedDate = DateTime.UtcNow,
             UpdatedDate = DateTime.UtcNow
         };
+        
+        public static readonly Branch Obregon = new Branch
+        {   
+            BranchId = Guid.Parse("de515092-5f1e-4a54-8cf5-894c09834701"),
+            BranchName = "Obregon",
+            BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
+            BranchPhone = "44444444",
+            IsActive = false,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
+        };
     }
 }

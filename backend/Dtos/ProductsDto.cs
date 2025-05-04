@@ -82,8 +82,6 @@ public class UpdateProductDto
     [MinLength(3)]
     [MaxLength(255)]
     public string? ProductDescription { get; set; }
-    
-    public bool IsActive { get; set; }
 }
 
 public class ChangeBrandProductDto

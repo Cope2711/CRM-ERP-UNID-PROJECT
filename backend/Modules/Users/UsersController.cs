@@ -110,23 +110,23 @@ public class UsersController(
     }
 
     [HttpPatch("deactivate")]
-    [PermissionAuthorize("Deactivate_User")]
-    public async Task<ActionResult<ResponsesDto<UserResponseStatusDto>>> DeactivateUser(
-        [FromBody] UsersIdsDto usersIdsDto)
+    [PermissionAuthorize("Deactivate", "Users")]
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> Deactivate(
+        [FromBody] IdsDto idsDto)
     {
-        ResponsesDto<UserResponseStatusDto> deactivateUsersResponseDto =
-            await _usersManagementService.DeactivateUsers(usersIdsDto);
-        return Ok(deactivateUsersResponseDto);
+        ResponsesDto<IdResponseStatusDto> deactivateResponseDto =
+            await _usersManagementService.Deactivate(idsDto);
+        return Ok(deactivateResponseDto);
     }
 
     [HttpPatch("activate")]
-    [PermissionAuthorize("Activate_User")]
-    public async Task<ActionResult<ResponsesDto<UserResponseStatusDto>>> ActivateUser(
-        [FromBody] UsersIdsDto usersIdsDto)
+    [PermissionAuthorize("Activate", "Users")]
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> Activate(
+        [FromBody] IdsDto idsDto)
     {
-        ResponsesDto<UserResponseStatusDto> activateUsersResponseDto =
-            await _usersManagementService.ActivateUsers(usersIdsDto);
-        return Ok(activateUsersResponseDto);
+        ResponsesDto<IdResponseStatusDto> activateResponseDto =
+            await _usersManagementService.Activate(idsDto);
+        return Ok(activateResponseDto);
     }
 
     [HttpPut("change-password")]

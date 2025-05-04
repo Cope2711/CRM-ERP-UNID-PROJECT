@@ -108,16 +108,3 @@ public class ChangePasswordDto
     [Required] [MaxLength(255)] [MinLength(6)]
     public string NewPassword { get; set; }
 }
-
-public class UsersIdsDto
-{
-    [GuidNotEmpty]
-    [RangeListLength(1, 15)]
-    public required List<Guid> Ids { get; set; }
-}
-
-
-public class UserResponseStatusDto : ResponseStatusDto
-{
-    public required Guid UserId { get; set; }
-}

@@ -80,7 +80,28 @@ class GenericService {
             throw error.response?.data;
         }
     }
-    
+
+    async activate(ids: string[], modelName: string): Promise<any> {
+        try {
+            const { data } = await axiosInstance.patch(`${modelName}/activate`, {
+                ids: ids
+            });
+            return data;
+        } catch (error: any) {
+            throw error.response?.data;
+        }
+    }
+
+    async deactivate(ids: string[], modelName: string): Promise<any> {
+        try {
+            const { data } = await axiosInstance.patch(`${modelName}/deactivate`, {
+                ids: ids
+            });
+            return data;
+        } catch (error: any) {
+            throw error.response?.data;
+        }
+    }
 }
 
 export default new GenericService();

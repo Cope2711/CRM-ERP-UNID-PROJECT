@@ -13,7 +13,7 @@ namespace CRM_ERP_UNID.Modules;
 [Authorize]
 [Route("api/brands")]
 public class BrandsController(
-    IBrandsService brandsService
+    IBrandsService _brandsService
 ) : ControllerBase
 {
     [HttpGet("schema")]
@@ -41,7 +41,7 @@ public class BrandsController(
     [PermissionAuthorize("View", "Brands")]
     public async Task<ActionResult<BrandDto>> GetById([FromQuery] Guid id)
     {
-        Brand brand = await brandsService.GetByIdThrowsNotFound(id);
+        Brand brand = await _brandsService.GetByIdThrowsNotFound(id);
 
         return Ok(brand.ToDto());
     }
@@ -50,7 +50,7 @@ public class BrandsController(
     [PermissionAuthorize("View", "Brands")]
     public async Task<ActionResult<BrandDto>> GetByName([FromQuery] string name)
     {
-        Brand brand = await brandsService.GetByNameThrowsNotFound(name);
+        Brand brand = await _brandsService.GetByNameThrowsNotFound(name);
 
         return Ok(brand.ToDto());
     }
@@ -67,7 +67,7 @@ public class BrandsController(
 
         CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Selects, typeof(Brand));
 
-        GetAllResponseDto<Brand> getAllResponseDto = await brandsService.GetAll(getAllDto);
+        GetAllResponseDto<Brand> getAllResponseDto = await _brandsService.GetAll(getAllDto);
 
         return Ok(getAllResponseDto);
     }
@@ -76,7 +76,7 @@ public class BrandsController(
     [PermissionAuthorize("Create", "Brands")]
     public async Task<ActionResult<BrandDto>> Create([FromBody] CreateBrandDto createBrandDto)
     {
-        Brand brand = await brandsService.Create(createBrandDto);
+        Brand brand = await _brandsService.Create(createBrandDto);
 
         return Ok(brand.ToDto());
     }
@@ -85,8 +85,28 @@ public class BrandsController(
     [PermissionAuthorize("Edit_Content", "Brands")]
     public async Task<ActionResult<BrandDto>> Update(Guid id, [FromBody] UpdateBrandDto updateBrandDto)
     {
-        Brand brand = await brandsService.Update(id, updateBrandDto);
+        Brand brand = await _brandsService.Update(id, updateBrandDto);
 
         return Ok(brand.ToDto());
+    }
+    
+    [HttpPatch("deactivate")]
+    [PermissionAuthorize("Deactivate", "Brands")]
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> Deactivate(
+        [FromBody] IdsDto idsDto)
+    {
+        ResponsesDto<IdResponseStatusDto> deactivateResponseDto =
+            await _brandsService.Deactivate(idsDto);
+        return Ok(deactivateResponseDto);
+    }
+
+    [HttpPatch("activate")]
+    [PermissionAuthorize("Activate", "Brands")]
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> Activate(
+        [FromBody] IdsDto idsDto)
+    {
+        ResponsesDto<IdResponseStatusDto> activateResponseDto =
+            await _brandsService.Activate(idsDto);
+        return Ok(activateResponseDto);
     }
 }

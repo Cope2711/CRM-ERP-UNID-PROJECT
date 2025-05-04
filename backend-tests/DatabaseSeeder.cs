@@ -33,8 +33,8 @@ public class DatabaseSeeder
             Models.Permissions.EditContent,
             Models.Permissions.Create,
             Models.Permissions.Delete,
-            Models.Permissions.DeactivateUser,
-            Models.Permissions.ActivateUser,
+            Models.Permissions.Deactivate,
+            Models.Permissions.Activate,
             Models.Permissions.Assign,
             Models.Permissions.Revoke);
         context.Resources.AddRange(
@@ -55,12 +55,10 @@ public class DatabaseSeeder
             Models.Resources.Categories,
             Models.Resources.ProductsCategories);
         context.RolesPermissionsResources.AddRange(Models.RolesPermissionsResources.AdminViewUsers,
-            Models.RolesPermissionsResources.AdminDeactivateUser,
             Models.RolesPermissionsResources.AdminEditContentUsers,
-            Models.RolesPermissionsResources.AdminEditContent,
             Models.RolesPermissionsResources.AdminCreateUsers,
-            Models.RolesPermissionsResources.AdminAssignRole,
-            Models.RolesPermissionsResources.AdminRevokeRole,
+            Models.RolesPermissionsResources.AdminAssignUsersRoles,
+            Models.RolesPermissionsResources.AdminRevokeUsersRoles,
             Models.RolesPermissionsResources.AdminViewUsersRoles,
             Models.RolesPermissionsResources.AdminAssignPermission,
             Models.RolesPermissionsResources.AdminRevokePermission,
@@ -71,7 +69,6 @@ public class DatabaseSeeder
             Models.RolesPermissionsResources.AdminDeleteRoles,
             Models.RolesPermissionsResources.AdminViewResources,
             Models.RolesPermissionsResources.AdminViewPermissions,
-            Models.RolesPermissionsResources.AdminActivateUser,
             Models.RolesPermissionsResources.AdminViewProducts,
             Models.RolesPermissionsResources.AdminViewBrands,
             Models.RolesPermissionsResources.AdminCreateBrands,
@@ -84,8 +81,8 @@ public class DatabaseSeeder
             Models.RolesPermissionsResources.AdminViewBranches,
             Models.RolesPermissionsResources.AdminCreateBranches,
             Models.RolesPermissionsResources.AdminEditBranches,
-            Models.RolesPermissionsResources.AdminAssignBranch,
-            Models.RolesPermissionsResources.AdminRevokeBranch,
+            Models.RolesPermissionsResources.AdminAssignUsersBranches,
+            Models.RolesPermissionsResources.AdminRevokeUsersBranches,
             Models.RolesPermissionsResources.AdminViewUsersBranches,
             Models.RolesPermissionsResources.AdminViewSuppliers,
             Models.RolesPermissionsResources.AdminEditContentSuppliers,
@@ -93,8 +90,8 @@ public class DatabaseSeeder
             Models.RolesPermissionsResources.AdminAssignProducts,
             Models.RolesPermissionsResources.AdminRevokeProducts,
             Models.RolesPermissionsResources.AdminViewSuppliersProducts,
-            Models.RolesPermissionsResources.AdminAssignSupplierBranch,
-            Models.RolesPermissionsResources.AdminRevokeSupplierBranch,
+            Models.RolesPermissionsResources.AdminAssignSupplierBranches,
+            Models.RolesPermissionsResources.AdminRevokeSupplierBranches,
             Models.RolesPermissionsResources.AdminViewSuppliersBranches,
             Models.RolesPermissionsResources.AdminEditContentSuppliersBranches,
             Models.RolesPermissionsResources.AdminEditContentSuppliersProducts,
@@ -104,7 +101,17 @@ public class DatabaseSeeder
             Models.RolesPermissionsResources.AdminDeleteCategories,
             Models.RolesPermissionsResources.AdminAssignProductsCategories,
             Models.RolesPermissionsResources.AdminRevokeProductsCategories,
-            Models.RolesPermissionsResources.AdminViewProductsCategories);
+            Models.RolesPermissionsResources.AdminViewProductsCategories,
+            Models.RolesPermissionsResources.AdminActivateUsers,
+            Models.RolesPermissionsResources.AdminDeactivateUsers,
+            Models.RolesPermissionsResources.AdminActivateSuppliers,
+            Models.RolesPermissionsResources.AdminDeactivateSuppliers,
+            Models.RolesPermissionsResources.AdminActivateProducts,
+            Models.RolesPermissionsResources.AdminDeactivateProducts,
+            Models.RolesPermissionsResources.AdminActivateBrands,
+            Models.RolesPermissionsResources.AdminDeactivateBrands,
+            Models.RolesPermissionsResources.AdminActivateBranches,
+            Models.RolesPermissionsResources.AdminDeactivateBranches);
         context.RefreshTokens.AddRange(
             Models.RefreshTokens.TestUserRefreshTokenRevoked,
             Models.RefreshTokens.TestUserExpiredRefreshToken);
@@ -128,7 +135,8 @@ public class DatabaseSeeder
         context.Branches.AddRange(
             Models.Branches.HermosilloMiguelHidalgo,
             Models.Branches.CampoReal,
-            Models.Branches.PuertoRico);
+            Models.Branches.PuertoRico,
+            Models.Branches.Obregon);
         context.Inventory.AddRange(
             Models.InventoryModels.iPhone13InventoryHermosillo,
             Models.InventoryModels.MacBookProInventoryHermosillo,
@@ -142,6 +150,7 @@ public class DatabaseSeeder
             Models.InventoryModels.NikeZoomXInventoryCampoReal);
         context.UsersBranches.AddRange(
             Models.UsersBranches.AdminUserBranchHermosillo,
+            Models.UsersBranches.AdminUserBranchObregon,
             Models.UsersBranches.TestUserBranchHermosillo,
             Models.UsersBranches.HighestPriorityUserBranchHermosillo,
             Models.UsersBranches.DeactivateHighestPriorityUserBranchHermosillo,
@@ -150,7 +159,8 @@ public class DatabaseSeeder
             Models.UsersBranches.HighestPriorityUserBranchCampoReal);
         context.Suppliers.AddRange(
             Models.Suppliers.Apple,
-            Models.Suppliers.Xataka);
+            Models.Suppliers.Xataka,
+            Models.Suppliers.CentelInactive);
         context.SuppliersProducts.AddRange(
             Models.SuppliersProducts.AppleIphone13);
         context.SuppliersBranches.AddRange(

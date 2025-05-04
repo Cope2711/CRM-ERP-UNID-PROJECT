@@ -189,7 +189,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         public async Task Activate_Test()
         {
             // Arrange
-            UsersIdsDto usersIdsDto = new UsersIdsDto
+            IdsDto usersIdsDto = new IdsDto
             {
                 Ids = new List<Guid>
                 {
@@ -205,8 +205,8 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             var response = await _client.PatchAsJsonAsync($"{Endpoint}/activate", usersIdsDto);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            ResponsesDto<UserResponseStatusDto>? activateUsersResponseDto =
-                await response.Content.ReadFromJsonAsync<ResponsesDto<UserResponseStatusDto>>();
+            ResponsesDto<IdResponseStatusDto>? activateUsersResponseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<IdResponseStatusDto>>();
             
             // Assert
             activateUsersResponseDto.Should().NotBeNull();
@@ -228,7 +228,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         public async Task Deactivate_Test()
         {
             // Arrange
-            UsersIdsDto usersIdsDto = new UsersIdsDto
+            IdsDto usersIdsDto = new IdsDto
             {
                 Ids = new List<Guid>
                 {
@@ -244,8 +244,8 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             var response = await _client.PatchAsJsonAsync($"{Endpoint}/deactivate", usersIdsDto);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            ResponsesDto<UserResponseStatusDto>? activateUsersResponseDto =
-                await response.Content.ReadFromJsonAsync<ResponsesDto<UserResponseStatusDto>>();
+            ResponsesDto<IdResponseStatusDto>? activateUsersResponseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<IdResponseStatusDto>>();
             
             // Assert
             activateUsersResponseDto.Should().NotBeNull();

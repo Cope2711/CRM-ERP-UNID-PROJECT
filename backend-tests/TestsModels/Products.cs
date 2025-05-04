@@ -101,7 +101,7 @@ public static partial class Models
             ProductBarcode = "9",
             ProductPrice = 30.00m,
             ProductDescription = "Breathable athletic shirt",
-            IsActive = true,
+            IsActive = false,
             BrandId = Brands.Nike.BrandId
         };
     }

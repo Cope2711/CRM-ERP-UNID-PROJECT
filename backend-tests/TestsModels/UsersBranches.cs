@@ -19,6 +19,13 @@ public static partial class Models
            UserId = Models.Users.Admin.UserId,
            BranchId = Branches.HermosilloMiguelHidalgo.BranchId
        };
+       
+       public static readonly UserBranch AdminUserBranchObregon = new UserBranch
+       {
+           UserBranchId = Guid.Parse("c8dea86f-52f9-4799-9485-51ba3939eed3"),
+           UserId = Models.Users.Admin.UserId,
+           BranchId = Branches.Obregon.BranchId
+       };
 
        public static readonly UserBranch InactiveTestUserBranchHermosillo = new UserBranch
        {

@@ -9,9 +9,14 @@ public class BranchesQueryService(
     IGenericService<Branch> _genericService
 ) : IBranchesQueryService
 {
-    public Task<Branch> GetByIdThrowsNotFoundAsync(Guid id)
+    public async Task<Branch?> GetById(Guid id)
     {
-        return _genericService.GetByIdThrowsNotFound(id);
+        return await _genericService.GetById(id);
+    }
+    
+    public async Task<Branch> GetByIdThrowsNotFoundAsync(Guid id)
+    {
+        return await _genericService.GetByIdThrowsNotFound(id);
     }
 
     public async Task<Branch> GetByNameThrowsNotFoundAsync(string name)

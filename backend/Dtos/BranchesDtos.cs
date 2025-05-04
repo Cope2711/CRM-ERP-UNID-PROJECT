@@ -65,5 +65,4 @@ public class UpdateBranchDto
     
     [IsPhoneNumberWithLada]
     public string? BranchPhone { get; set; }
-    public bool IsActive { get; set; }
 }

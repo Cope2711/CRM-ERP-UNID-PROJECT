@@ -62,18 +62,3 @@ function App() {
 }
 
 export default App;
-
-
-
-// import MakeSidebar from './components/Sidebar/MakeSidebar';
-
-// function App() {
-//   return (
-//     <div className="flex">
-//       <MakeSidebar />
-//       <main className="flex-1 p-4">Texto de Prueba</main>
-//     </div>
-//   );
-// }
-
-// export default App;
