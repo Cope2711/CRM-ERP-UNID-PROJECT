@@ -7,4 +7,6 @@ public interface ISuppliersManagementService
 {
     Task<Supplier> Create(CreateSupplierDto createSupplierDto);
     Task<Supplier> Update(Guid id, UpdateSupplierDto updateSupplierDto);
+    Task<ResponsesDto<IdResponseStatusDto>> Activate(IdsDto idsDto);
+    Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto);
 }

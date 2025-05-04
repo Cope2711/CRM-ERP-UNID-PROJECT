@@ -30,5 +30,17 @@ public static partial class Models
             CreatedDate = DateTime.Now,
             UpdatedDate = DateTime.Now
         };
+        
+        public static readonly Supplier CentelInactive = new Supplier{
+            SupplierId = Guid.Parse("a0f536b1-0ed8-4f4e-b490-b6228746162e"),
+            SupplierName = "Centel",
+            SupplierContact = "Centel` Contact",
+            SupplierEmail = "Centel@email.com",
+            SupplierPhone = "Centel Phone",
+            SupplierAddress = "Centel Address",
+            IsActive = false,
+            CreatedDate = DateTime.Now,
+            UpdatedDate = DateTime.Now
+        };
     }
 }

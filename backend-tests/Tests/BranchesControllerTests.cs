@@ -1,9 +1,9 @@
-
 using System.Net;
 using System.Net.Http.Json;
 using CRM_ERP_UNID_TESTS.TestsModels;
 using CRM_ERP_UNID_TESTS.Dtos;
 using CRM_ERP_UNID_TESTS.TestsBase;
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -41,7 +41,7 @@ public class BranchesTests
         {
         }
     }
-    
+
     public class CreateBranchesTests : BranchesTests
     {
         public CreateBranchesTests(CustomWebApiFactory factory) : base(factory)
@@ -84,10 +84,12 @@ public class BranchesTests
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
-    
+
     public class UpdateBranchTests : BranchesTests
     {
-        public UpdateBranchTests(CustomWebApiFactory factory) : base(factory) { }
+        public UpdateBranchTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
 
         public static IEnumerable<object[]> UpdateBranchTestData()
         {
@@ -99,7 +101,6 @@ public class BranchesTests
                     BranchName = "Olivares de la Frontera",
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
                     BranchPhone = "+526623296985",
-                    IsActive = true
                 },
                 HttpStatusCode.OK
             };
@@ -112,7 +113,6 @@ public class BranchesTests
                     BranchName = Models.Branches.CampoReal.BranchName,
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
                     BranchPhone = "+526623296985",
-                    IsActive = true
                 },
                 HttpStatusCode.Conflict
             };
@@ -125,7 +125,6 @@ public class BranchesTests
                     BranchName = Models.Branches.CampoReal.BranchName,
                     BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
                     BranchPhone = "+526623296985",
-                    IsActive = true
                 },
                 HttpStatusCode.NotFound
             };
@@ -136,7 +135,6 @@ public class BranchesTests
                 new UpdateBranchDto
                 {
                     BranchName = "Hermosillo Miguel Hidalgo",
-                    IsActive = true
                 },
                 HttpStatusCode.Forbidden
             };
@@ -144,10 +142,85 @@ public class BranchesTests
 
         [Theory]
         [MemberData(nameof(UpdateBranchTestData))]
-        public async Task UpdateBranch_ReturnsExpectedResult(Guid branchId, UpdateBranchDto updateBranchDto, HttpStatusCode expectedStatusCode)
+        public async Task UpdateBranch_ReturnsExpectedResult(Guid branchId, UpdateBranchDto updateBranchDto,
+            HttpStatusCode expectedStatusCode)
         {
             var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{branchId}", updateBranchDto);
             response.StatusCode.Should().Be(expectedStatusCode);
+        }
+    }
+
+    public class ActivateUserTests : BranchesTests
+    {
+        public ActivateUserTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
+
+        [Fact]
+        public async Task Activate_Test()
+        {
+            // Arrange
+            IdsDto usersIdsDto = new IdsDto
+            {
+                Ids = new List<Guid>
+                {
+                    Models.Branches.Obregon.BranchId, // Success
+                    Guid.NewGuid(), // Not found
+                    Models.Branches.HermosilloMiguelHidalgo.BranchId, // Already proccessed
+                    Models.Branches.PuertoRico.BranchId // Not access
+                }
+            };
+
+            // Act
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/activate", usersIdsDto);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            ResponsesDto<IdResponseStatusDto>? activateUsersResponseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<IdResponseStatusDto>>();
+
+            // Assert
+            activateUsersResponseDto.Should().NotBeNull();
+            activateUsersResponseDto.Success.Count.Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotFound).Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.AlreadyProcessed).Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.BranchNotMatched).Should().Be(1);
+
+        }
+    }
+
+    public class DeactivateUserTests : BranchesTests
+    {
+        public DeactivateUserTests(CustomWebApiFactory factory) : base(factory)
+        {
+        }
+
+        [Fact]
+        public async Task Deactivate_Test()
+        {
+            // Arrange
+            IdsDto usersIdsDto = new IdsDto
+            {
+                Ids = new List<Guid>
+                {
+                    Models.Branches.HermosilloMiguelHidalgo.BranchId, // Success
+                    Models.Branches.Obregon.BranchId, // AlreadyProcessed
+                    Guid.NewGuid(), // Not found
+                    Models.Branches.PuertoRico.BranchId
+                }
+            };
+
+            // Act
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/deactivate", usersIdsDto);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            ResponsesDto<IdResponseStatusDto>? activateUsersResponseDto =
+                await response.Content.ReadFromJsonAsync<ResponsesDto<IdResponseStatusDto>>();
+
+            // Assert
+            activateUsersResponseDto.Should().NotBeNull();
+            activateUsersResponseDto.Success.Count.Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.NotFound).Should().Be(1);
+            activateUsersResponseDto.Failed.Count(aur => aur.Status == ResponseStatus.AlreadyProcessed).Should().Be(1);
         }
     }
 }

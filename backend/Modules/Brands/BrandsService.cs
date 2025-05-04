@@ -13,21 +13,26 @@ public class BrandsService(
     IHttpContextAccessor _httpContextAccessor
 ) : IBrandsService
 {
-    public async Task<Brand> GetByIdThrowsNotFound(Guid brandId)
+    public async Task<Brand?> GetById(Guid id)
     {
-        return await _genericService.GetByIdThrowsNotFound(brandId);
+        return await _genericService.GetById(id);
     }
     
+    public async Task<Brand> GetByIdThrowsNotFound(Guid id)
+    {
+        return await _genericService.GetByIdThrowsNotFound(id);
+    }
+
     public async Task<Brand> GetByNameThrowsNotFound(string brandName)
     {
         return await _genericService.GetFirstThrowsNotFoundAsync(b => b.BrandName, brandName);
     }
-    
+
     public async Task<GetAllResponseDto<Brand>> GetAll(GetAllDto getAllDto)
     {
         return await _genericService.GetAllAsync(getAllDto);
     }
-    
+
     public async Task<bool> ExistByIdThrowsNotFound(Guid brandId)
     {
         if (!await _genericService.ExistsAsync(b => b.BrandId, brandId))
@@ -36,23 +41,26 @@ public class BrandsService(
                 message: $"Brand with id: {brandId} not found!",
                 field: Fields.Brands.BrandId);
         }
+
         return true;
     }
-    
+
     public async Task<Brand> Create(CreateBrandDto createBrandDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        
+
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested CreateAsync for BrandName {TargetBrandName}",
             authenticatedUserId, createBrandDto.BrandName);
-        
+
         // Check unique camps
-        if (await ExistByName(createBrandDto.BrandName)){
+        if (await ExistByName(createBrandDto.BrandName))
+        {
             _logger.LogError(
                 "User with Id {authenticatedUserId} requested CreateAsync for BrandName {TargetBrandName} but the brandname already exists",
                 authenticatedUserId, createBrandDto.BrandName);
-            throw new UniqueConstraintViolationException("Brand with this name already exists", Fields.Brands.BrandName);
+            throw new UniqueConstraintViolationException("Brand with this name already exists",
+                Fields.Brands.BrandName);
         }
 
         // Create brand
@@ -65,20 +73,20 @@ public class BrandsService(
 
         _brandsRepository.Add(brand);
 
-        await _brandsRepository.SaveChangesAsync();
+        await _brandsRepository.SaveChanges();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested CreateAsync for BrandName {TargetBrandName} and the brand was created",
             authenticatedUserId, createBrandDto.BrandName);
-        
+
         return brand;
     }
-    
+
     public async Task<bool> ExistByName(string brandName)
     {
         return await _genericService.ExistsAsync(b => b.BrandName, brandName);
     }
-    
+
     public async Task<Brand> Update(Guid id, UpdateBrandDto updateBrandDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
@@ -86,22 +94,22 @@ public class BrandsService(
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested UpdateAsync for BrandId {TargetBrandId}",
             authenticatedUserId, id);
-        
+
         bool hasChanges = ModelsHelper.UpdateModel(brand, updateBrandDto, async (field, value) =>
         {
             switch (field)
             {
                 case nameof(updateBrandDto.BrandName):
                     return await ExistByName((string)value);
-                
+
                 default:
                     return false;
             }
         });
-        
+
         if (hasChanges)
         {
-            await _brandsRepository.SaveChangesAsync();
+            await _brandsRepository.SaveChanges();
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for BrandId {TargetBrandId} and the brand was updated",
                 authenticatedUserId, id);
@@ -112,7 +120,89 @@ public class BrandsService(
                 "User with Id {authenticatedUserId} requested UpdateAsync for BrandId {TargetBrandId} and the brand was not updated",
                 authenticatedUserId, id);
         }
-        
+
         return brand;
+    }
+
+    public async Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto)
+    {
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
+        ResponsesDto<IdResponseStatusDto> responseDto = new();
+
+        foreach (Guid id in idsDto.Ids)
+        {
+            Brand? brand = await GetById(id);
+            if (brand == null)
+            {
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
+                    Fields.Brands.BrandId, "Brand not found");
+                continue;
+            }
+
+            if (!brand.IsActive)
+            {
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
+                    Fields.Brands.BrandId,
+                    "Brand was already deactivated");
+                continue;
+            }
+
+            brand.IsActive = false;
+            await _brandsRepository.SaveChanges();
+
+            responseDto.Success.Add(new IdResponseStatusDto
+            {
+                Id = id,
+                Status = ResponseStatus.Success,
+                Message = "Brand successfully deactivated"
+            });
+        }
+
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} processed Deactivate Brands request. Response: {responseDto}",
+            authenticatedUserId, responseDto);
+
+        return responseDto;
+    }
+
+    public async Task<ResponsesDto<IdResponseStatusDto>> Activate(IdsDto idsDto)
+    {
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
+        ResponsesDto<IdResponseStatusDto> responseDto = new();
+
+        foreach (Guid id in idsDto.Ids)
+        {
+            Brand? brand = await GetById(id);
+            if (brand == null)
+            {
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
+                    Fields.Brands.BrandId, "Brand not found");
+                continue;
+            }
+
+            if (brand.IsActive)
+            {
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
+                    Fields.Brands.BrandId,
+                    "Brand was already activated");
+                continue;
+            }
+
+            brand.IsActive = true;
+            await _brandsRepository.SaveChanges();
+
+            responseDto.Success.Add(new IdResponseStatusDto
+            {
+                Id = id,
+                Status = ResponseStatus.Success,
+                Message = "Brand successfully activated"
+            });
+        }
+
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} processed Activate Brands request. Response: {responseDto}",
+            authenticatedUserId, responseDto);
+
+        return responseDto;
     }
 }

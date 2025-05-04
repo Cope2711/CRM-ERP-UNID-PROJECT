@@ -358,8 +358,8 @@ DECLARE @PermissionId_ViewReports UNIQUEIDENTIFIER = 'a5088356-4272-4939-b18b-97
 DECLARE @PermissionId_EditContent UNIQUEIDENTIFIER = '2a831d9d-1245-451e-8b02-de6542f74574';
 DECLARE @PermissionId_Create UNIQUEIDENTIFIER = '99f766ee-3fd5-4e33-9771-d3821322acea';
 DECLARE @PermissionId_Delete UNIQUEIDENTIFIER = '722399bc-76f4-4bfa-950d-85e8b93f7af5';
-DECLARE @PermissionId_DeactivateUser UNIQUEIDENTIFIER = '10d321bd-b667-40c9-adb0-50e62d37c4cc';
-DECLARE @PermissionId_ActivateUser UNIQUEIDENTIFIER = 'a43b1178-931e-4eed-9742-30af024ec05b';
+DECLARE @PermissionId_Deactivate UNIQUEIDENTIFIER = '10d321bd-b667-40c9-adb0-50e62d37c4cc';
+DECLARE @PermissionId_Activate UNIQUEIDENTIFIER = 'a43b1178-931e-4eed-9742-30af024ec05b';
 DECLARE @PermissionId_Assign UNIQUEIDENTIFIER = 'd2d43370-14ec-4bc1-824b-cf956acc8c46';
 DECLARE @PermissionId_Revoke UNIQUEIDENTIFIER = 'a67c7aeb-12e1-41af-8e60-27e8c188ddde';
 
@@ -369,8 +369,8 @@ VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
     (@PermissionId_EditContent, 'Edit_Content', 'Permission to edit content'),
     (@PermissionId_Create, 'Create', 'Create objects'),
     (@PermissionId_Delete, 'Delete', 'Delete objects'),
-    (@PermissionId_DeactivateUser, 'Deactivate_User', 'Deactivate user'),
-    (@PermissionId_ActivateUser, 'Activate_User', 'Activate user'),
+    (@PermissionId_Deactivate, 'Deactivate', 'Deactivate objects'),
+    (@PermissionId_Activate, 'Activate', 'Activate objects'),
     (@PermissionId_Assign, 'Assign', 'Assign objects'),
     (@PermissionId_Revoke, 'Revoke', 'Revoke objects');
         
@@ -417,8 +417,7 @@ VALUES (@ResourceId_Users, 'Users', 'Users module'),
 INSERT INTO RolesPermissionsResources (RolePermissionId, RoleId, PermissionId, ResourceId)
 VALUES  (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
         (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Users),
-        (NEWID(), @RoleId_Admin, @PermissionId_DeactivateUser, NULL),
-        (NEWID(), @RoleId_Admin, @PermissionId_EditContent, NULL),
+        (NEWID(), @RoleId_Admin, @PermissionId_Deactivate, @ResourceId_Users),
         (NEWID(), @RoleId_Admin, @PermissionId_Assign, @ResourceId_UsersRoles),
         (NEWID(), @RoleId_Admin, @PermissionId_Revoke, @ResourceId_UsersRoles),
         (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Users),
@@ -434,7 +433,7 @@ VALUES  (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
         (NEWID(), @RoleId_Admin, @PermissionId_Delete, @ResourceId_Roles),
         (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Resources),
         (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Permissions),
-        (NEWID(), @RoleId_Admin, @PermissionId_ActivateUser, NULL),
+        (NEWID(), @RoleId_Admin, @PermissionId_Activate, @ResourceId_Users),
         (NEWID(), @RoleId_User, @PermissionId_EditContent, @ResourceId_Users),
         (NEWID(), @RoleId_User, @PermissionId_Revoke, @ResourceId_Roles),
         (NEWID(), @ROleId_User, @PermissionId_Revoke, @ResourceId_Permissions),
@@ -479,7 +478,17 @@ VALUES  (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
         (NEWID(), @RoleId_Admin, @PermissionId_Delete, @ResourceId_Categories),
         (NEWID(), @RoleId_Admin, @PermissionId_Delete, @ResourceId_Sales),
         (NEWID(), @RoleId_Admin, @PermissionId_Create, @ResourceId_Sales),
-        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Sales)
+        (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Sales),
+        (NEWID(), @RoleId_Admin, @PermissionId_Deactivate, @ResourceId_Branches),
+        (NEWID(), @RoleId_Admin, @PermissionId_Activate, @ResourceId_Branches),
+        (NEWID(), @RoleId_Admin, @PermissionId_Deactivate, @ResourceId_Brands),
+        (NEWID(), @RoleId_Admin, @PermissionId_Activate, @ResourceId_Brands),
+        (NEWID(), @RoleId_Admin, @PermissionId_Deactivate, @ResourceId_Suppliers),
+        (NEWID(), @RoleId_Admin, @PermissionId_Activate, @ResourceId_Suppliers),
+        (NEWID(), @RoleId_Admin, @PermissionId_Deactivate, @ResourceId_Products),
+        (NEWID(), @RoleId_Admin, @PermissionId_Activate, @ResourceId_Products)
+
+
 
 -- Insertar ejemplos de marcas
 DECLARE @BrandId_Apple UNIQUEIDENTIFIER = 'c3146b6f-b50f-4b26-8e77-827fc538b7d1';

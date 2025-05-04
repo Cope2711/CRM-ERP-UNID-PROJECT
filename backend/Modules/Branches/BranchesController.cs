@@ -89,4 +89,24 @@ public class Branches(
         Branch branch = await _branchesManagementService.Update(id, updateBranchDto);
         return Ok(branch.ToDto());
     }
+    
+    [HttpPatch("deactivate")]
+    [PermissionAuthorize("Deactivate", "Branches")]
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> Deactivate(
+        [FromBody] IdsDto idsDto)
+    {
+        ResponsesDto<IdResponseStatusDto> deactivateResponseDto =
+            await _branchesManagementService.Deactivate(idsDto);
+        return Ok(deactivateResponseDto);
+    }
+
+    [HttpPatch("activate")]
+    [PermissionAuthorize("Activate", "Branches")]
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> Activate(
+        [FromBody] IdsDto idsDto)
+    {
+        ResponsesDto<IdResponseStatusDto> activateResponseDto =
+            await _branchesManagementService.Activate(idsDto);
+        return Ok(activateResponseDto);
+    }
 }

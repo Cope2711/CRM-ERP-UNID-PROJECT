@@ -27,7 +27,7 @@ public static partial class Models
             BrandId = Guid.Parse("5b23b9a8-bd17-4b2a-8e61-b9863a8f77b5"),
             BrandName = "Nike",
             BrandDescription = "Nike Inc. - Sportswear and equipment",
-            IsActive = true
+            IsActive = false
         };
     }
 }

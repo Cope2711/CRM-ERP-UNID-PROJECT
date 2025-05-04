@@ -5,6 +5,7 @@ import DynamicUpdateForm from "@/components/dynamic/forms/DynamicUpdateForm";
 import DynamicRelationViewer from "@/components/dynamic/dynamicRelationViewer/DynamicRelationViewer";
 import { LoadingSpinner } from "@/components/Loading/loadingSpinner";
 import NotFoundPage from "./NotFoundPage";
+import ChangeActiveStatusButton from "@/components/Button/ChangeActiveStatusButton";
 
 /**
  * Props del componente GenericDetailPage
@@ -71,14 +72,23 @@ const GenericDetailPage = ({ modelName }: DetailPageProps) => {
         <div className="flex w-full">
             {/* Panel izquierdo */}
             <div className="w-1/2 min-h-screen bg-white shadow rounded-xl p-6 border border-gray-200">
-                <h2 className="text-lg font-semibold mb-4 text-blue-700">
-                    {modelName} Information
-                </h2>
+                {/* Header con título y botón alineados */}
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold text-blue-700">
+                        {modelName} Information
+                    </h2>
+                    <ChangeActiveStatusButton
+                        modelName={modelName}
+                        id={id}
+                        isActive={data?.isActive}
+                    />
+                </div>
+
                 <div className="bg-blue-100 p-4 rounded-xl mb-4">
-                    <DynamicUpdateForm 
-                        modelName={modelName} 
-                        id={id} 
-                        defaultData={data} 
+                    <DynamicUpdateForm
+                        modelName={modelName}
+                        id={id}
+                        defaultData={data}
                     />
                 </div>
             </div>

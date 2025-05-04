@@ -7,7 +7,7 @@ public interface IUsersManagementService
 {
     Task<User?> Create(CreateUserDto createUserDto);
     Task<User> Update(Guid id,UpdateUserDto updateUserDto);
-    Task<ResponsesDto<UserResponseStatusDto>> ActivateUsers(UsersIdsDto usersIdsDto);
-    Task<ResponsesDto<UserResponseStatusDto>> DeactivateUsers(UsersIdsDto usersIdsDto);
+    Task<ResponsesDto<IdResponseStatusDto>> Activate(IdsDto idsDto);
+    Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto);
     Task<User> ChangePassword(ChangePasswordDto changePasswordDto);
 }

@@ -78,4 +78,24 @@ public class SupplierController(
         
         return Ok(supplier.ToDto());
     }
+    
+    [HttpPatch("deactivate")]
+    [PermissionAuthorize("Deactivate", "Suppliers")]
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> Deactivate(
+        [FromBody] IdsDto idsDto)
+    {
+        ResponsesDto<IdResponseStatusDto> deactivateResponseDto =
+            await _suppliersManagementService.Deactivate(idsDto);
+        return Ok(deactivateResponseDto);
+    }
+
+    [HttpPatch("activate")]
+    [PermissionAuthorize("Activate", "Suppliers")]
+    public async Task<ActionResult<ResponsesDto<IdResponseStatusDto>>> Activate(
+        [FromBody] IdsDto idsDto)
+    {
+        ResponsesDto<IdResponseStatusDto> activateResponseDto =
+            await _suppliersManagementService.Activate(idsDto);
+        return Ok(activateResponseDto);
+    }
 }

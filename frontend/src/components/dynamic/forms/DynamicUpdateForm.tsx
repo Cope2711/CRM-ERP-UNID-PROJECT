@@ -33,10 +33,10 @@ type UpdateFormProps = {
 const useUpdateForm = (modelName: string, id: string, defaultData?: Record<string, any> | null) => {
   // Estado para el esquema del formulario
   const [schema, setSchema] = useState<Schema | null>(null);
-  
+
   // Instancia del formulario Antd
   const [form] = Form.useForm();
-  
+
   // Estado para controlar el mensaje de éxito
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -72,20 +72,17 @@ const useUpdateForm = (modelName: string, id: string, defaultData?: Record<strin
     try {
       // Envía los datos a la API
       await genericService.update(modelName, values, id);
-      
+
       // Muestra mensaje de éxito
       setShowSuccess(true);
-      
-      // Oculta el mensaje después de 3 segundos
-      setTimeout(() => setShowSuccess(false), 3000);
     } catch (error: any) {
       console.error("Update error:", error);
-      
+
       // Manejo de errores específicos por campo
       if (error?.field && error?.detail) {
-        form.setFields([{ 
-          name: error.field.toLowerCase(), 
-          errors: [error.detail] 
+        form.setFields([{
+          name: error.field.toLowerCase(),
+          errors: [error.detail]
         }]);
       } else {
         // Error genérico

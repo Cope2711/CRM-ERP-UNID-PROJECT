@@ -13,27 +13,113 @@ public class SuppliersManagementService(
     IHttpContextAccessor _httpContextAccessor
 ) : ISuppliersManagementService
 {
+    public async Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto)
+    {
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
+        ResponsesDto<IdResponseStatusDto> responseDto = new();
+
+        foreach (Guid id in idsDto.Ids)
+        {
+            Supplier? supplier = await _suppliersQueryService.GetById(id);
+            if (supplier == null)
+            {
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
+                    Fields.Suppliers.SupplierId, "Supplier not found");
+                continue;
+            }
+
+            if (!supplier.IsActive)
+            {
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
+                    Fields.Suppliers.SupplierId,
+                    "Supplier was already deactivated");
+                continue;
+            }
+
+            supplier.IsActive = false;
+            await _suppliersRepository.SaveChanges();
+
+            responseDto.Success.Add(new IdResponseStatusDto
+            {
+                Id = id,
+                Status = ResponseStatus.Success,
+                Message = "Supplier successfully deactivated"
+            });
+        }
+
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} processed Deactivate Suppliers request. Response: {responseDto}",
+            authenticatedUserId, responseDto);
+
+        return responseDto;
+    }
+
+    public async Task<ResponsesDto<IdResponseStatusDto>> Activate(IdsDto idsDto)
+    {
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
+        ResponsesDto<IdResponseStatusDto> responseDto = new();
+
+        foreach (Guid id in idsDto.Ids)
+        {
+            Supplier? supplier = await _suppliersQueryService.GetById(id);
+            if (supplier == null)
+            {
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
+                    Fields.Suppliers.SupplierId, "Supplier not found");
+                continue;
+            }
+
+            if (supplier.IsActive)
+            {
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
+                    Fields.Suppliers.SupplierId,
+                    "Supplier was already activated");
+                continue;
+            }
+
+            supplier.IsActive = true;
+            await _suppliersRepository.SaveChanges();
+
+            responseDto.Success.Add(new IdResponseStatusDto
+            {
+                Id = id,
+                Status = ResponseStatus.Success,
+                Message = "Supplier successfully activated"
+            });
+        }
+
+        _logger.LogInformation(
+            "User with Id {authenticatedUserId} processed Activate Suppliers request. Response: {responseDto}",
+            authenticatedUserId, responseDto);
+
+        return responseDto;
+    }
+    
     public async Task<Supplier> Create(CreateSupplierDto createSupplierDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        
+
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested CreateAsync for SupplierName {TargetSupplierName}",
             authenticatedUserId, createSupplierDto.SupplierName);
-        
+
         // Check unique camps
-        if (await _suppliersQueryService.ExistByName(createSupplierDto.SupplierName)){
+        if (await _suppliersQueryService.ExistByName(createSupplierDto.SupplierName))
+        {
             _logger.LogError(
                 "User with Id {authenticatedUserId} requested CreateAsync for SupplierName {TargetSupplierName} but the suppliername already exists",
                 authenticatedUserId, createSupplierDto.SupplierName);
-            throw new UniqueConstraintViolationException("Supplier with this name already exists", Fields.Suppliers.SupplierName);
+            throw new UniqueConstraintViolationException("Supplier with this name already exists",
+                Fields.Suppliers.SupplierName);
         }
-        
-        if (await _suppliersQueryService.ExistByEmail(createSupplierDto.SupplierEmail)){
+
+        if (await _suppliersQueryService.ExistByEmail(createSupplierDto.SupplierEmail))
+        {
             _logger.LogError(
                 "User with Id {authenticatedUserId} requested CreateAsync for SupplierEmail {TargetSupplierEmail} but the supplieremail already exists",
                 authenticatedUserId, createSupplierDto.SupplierEmail);
-            throw new UniqueConstraintViolationException("Supplier with this email already exists", Fields.Suppliers.SupplierEmail);
+            throw new UniqueConstraintViolationException("Supplier with this email already exists",
+                Fields.Suppliers.SupplierEmail);
         }
 
         // Create supplier
@@ -54,19 +140,19 @@ public class SuppliersManagementService(
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested CreateAsync for SupplierName {TargetSupplierName} and the supplier was created",
             authenticatedUserId, createSupplierDto.SupplierName);
-        
+
         return supplier;
     }
-    
+
     public async Task<Supplier> Update(Guid id, UpdateSupplierDto updateSupplierDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         Supplier supplier = await _suppliersQueryService.GetByIdThrowsNotFoundAsync(id);
-        
+
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested UpdateAsync for SupplierId {TargetSupplierId}",
             authenticatedUserId, id);
-        
+
         bool hasChanges = ModelsHelper.UpdateModel(supplier, updateSupplierDto, async (field, value) =>
         {
             switch (field)
@@ -75,12 +161,12 @@ public class SuppliersManagementService(
                     return await _suppliersQueryService.ExistByName((string)value);
                 case nameof(updateSupplierDto.SupplierEmail):
                     return await _suppliersQueryService.ExistByEmail((string)value);
-                
+
                 default:
                     return false;
             }
         });
-        
+
         if (hasChanges)
         {
             await _suppliersRepository.SaveChanges();
@@ -94,7 +180,7 @@ public class SuppliersManagementService(
                 "User with Id {authenticatedUserId} requested UpdateAsync for SupplierId {TargetSupplierId} and the supplier was not updated",
                 authenticatedUserId, id);
         }
-        
+
         return supplier;
     }
 }

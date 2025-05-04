@@ -89,7 +89,5 @@ public class UpdateSupplierDto
     
     [MinLength(3)]
     [MaxLength(255)]
-    public string? SupplierAddress { get; set; }
-
-    public bool IsActive { get; set; } = new();
+    public string? SupplierAddress { get; set; } 
 }

@@ -55,18 +55,18 @@ public static partial class Models
             PermissionDescription = "Delete objects"
         };
         
-        public static readonly Permission DeactivateUser = new Permission
+        public static readonly Permission Activate = new Permission
         {
-            PermissionId = Guid.Parse("10d321bd-b667-40c9-adb0-50e62d37c4cc"),
-            PermissionName = "Deactivate_User",
-            PermissionDescription = "Deactivate user"
+            PermissionId = Guid.Parse("cafac91d-73d5-4f38-85a8-215d1b82e453"),
+            PermissionName = "Activate",
+            PermissionDescription = "Activate objects"
         };
         
-        public static readonly Permission ActivateUser = new Permission
+        public static readonly Permission Deactivate = new Permission
         {
-            PermissionId = Guid.Parse("a43b1178-931e-4eed-9742-30af024ec05b"),
-            PermissionName = "Activate_User",
-            PermissionDescription = "Activate user"
+            PermissionId = Guid.Parse("6707e72f-0120-423f-ace1-e016de411531"),
+            PermissionName = "Deactivate",
+            PermissionDescription = "Deactivate objects"
         };
     }
 }

@@ -6,7 +6,7 @@ namespace CRM_ERP_UNID.Modules;
 public interface IBrandsRepository
 {
     void Add(Brand brand);
-    Task SaveChangesAsync();
+    Task SaveChanges();
 }
 
 public class BrandsRepository(
@@ -18,7 +18,7 @@ public class BrandsRepository(
         _context.Brands.Add(brand);
     }
     
-    public async Task SaveChangesAsync()
+    public async Task SaveChanges()
     {
         await _context.SaveChangesAsync();
     }

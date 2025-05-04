@@ -62,41 +62,41 @@ public class UsersManagementService(
         return user;
     }
 
-    public async Task<ResponsesDto<UserResponseStatusDto>> DeactivateUsers(UsersIdsDto usersIdsDto)
+    public async Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        ResponsesDto<UserResponseStatusDto> responseDto = new();
+        ResponsesDto<IdResponseStatusDto> responseDto = new();
 
         using var transaction = await _usersRepository.BeginTransactionAsync();
 
         try
         {
-            foreach (Guid id in usersIdsDto.Ids)
+            foreach (Guid id in idsDto.Ids)
             {
                 User? user = await _usersQueryService.GetById(id);
                 if (user == null)
                 {
-                    AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound, Fields.Users.UserId, "User not found");
+                    ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound, Fields.Users.UserId, "User not found");
                     continue;
                 }
                 
                 if (!await _usersBranchesQueryServices.EnsureUserCanModifyUserNotThrows(authenticatedUserId, id))
                 {
-                    AddFailedResponseDto(responseDto, id, ResponseStatus.BranchNotMatched, Fields.Users.UserId,
+                    ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.BranchNotMatched, Fields.Users.UserId,
                         "Not have the permissions to deactivate that user in that branch");
                     continue;
                 }
 
                 if (!user.IsActive)
                 {
-                    AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed, Fields.Users.UserId,
+                    ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed, Fields.Users.UserId,
                         "User was already deactivated");
                     continue;
                 }
 
                 if (authenticatedUserId != user.UserId && !_priorityValidationService.ValidateUserPriority(user))
                 {
-                    AddFailedResponseDto(responseDto, id, ResponseStatus.NotEnoughPriority, Fields.Users.UserId,
+                    ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotEnoughPriority, Fields.Users.UserId,
                         "Not have enough priority to deactivate that user");
                     continue;
                 }
@@ -105,9 +105,9 @@ public class UsersManagementService(
                 await _tokenService.RevokeRefreshTokensByUserId(id);
                 await _usersRepository.SaveChangesAsync();
 
-                responseDto.Success.Add(new UserResponseStatusDto
+                responseDto.Success.Add(new IdResponseStatusDto
                 {
-                    UserId = id,
+                    Id = id,
                     Status = ResponseStatus.Success,
                     Message = "User successfully deactivated"
                 });
@@ -130,50 +130,52 @@ public class UsersManagementService(
         }
     }
 
-    public async Task<ResponsesDto<UserResponseStatusDto>> ActivateUsers(UsersIdsDto usersIdsDto)
+    public async Task<ResponsesDto<IdResponseStatusDto>> Activate(IdsDto idsDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        ResponsesDto<UserResponseStatusDto> responseDto = new();
+        ResponsesDto<IdResponseStatusDto> responseDto = new();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested ActivateUser for UsersIds {TargetUsersIds}",
-            authenticatedUserId, usersIdsDto.Ids);
+            authenticatedUserId, idsDto.Ids)
+            // ELIMINAR DTOS
+            ;
 
-        foreach (Guid id in usersIdsDto.Ids)
+        foreach (Guid id in idsDto.Ids)
         {
             User? user = await _usersQueryService.GetById(id);
             if (user == null)
             {
-                AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound, Fields.Users.UserId, "User not found");
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound, Fields.Users.UserId, "User not found");
                 continue;
             }
             
             if (!await _usersBranchesQueryServices.EnsureUserCanModifyUserNotThrows(authenticatedUserId, id))
             {
-                AddFailedResponseDto(responseDto, id, ResponseStatus.BranchNotMatched, Fields.Users.UserId,
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.BranchNotMatched, Fields.Users.UserId,
                     "Not have the permissions to activate that user in that branch");
                 continue;
             }
             
             if (user.IsActive)
             {
-                AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed, Fields.Users.UserId,
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed, Fields.Users.UserId,
                     "User already activated");
                 continue;
             }
 
             if (authenticatedUserId != user.UserId && !_priorityValidationService.ValidateUserPriority(user))
             {
-                AddFailedResponseDto(responseDto, id, ResponseStatus.NotEnoughPriority, Fields.Users.UserId,
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotEnoughPriority, Fields.Users.UserId,
                     "Not have enough priority to activate that user");
                 continue;
             }
 
             user.IsActive = true;
             await _usersRepository.SaveChangesAsync();
-            responseDto.Success.Add(new UserResponseStatusDto
+            responseDto.Success.Add(new IdResponseStatusDto
             {
-                UserId = id,
+                Id = id,
                 Status = ResponseStatus.Success,
                 Message = "User Activated"
             });
@@ -268,17 +270,5 @@ public class UsersManagementService(
         }
 
         return user;
-    }
-
-    private void AddFailedResponseDto(ResponsesDto<UserResponseStatusDto> responseDto, Guid id, string status,
-        string field, string message)
-    {
-        responseDto.Failed.Add(new UserResponseStatusDto
-        {
-            UserId = id,
-            Status = status,
-            Field = field,
-            Message = message
-        });
     }
 }

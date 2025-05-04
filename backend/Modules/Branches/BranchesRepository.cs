@@ -6,7 +6,7 @@ namespace CRM_ERP_UNID.Modules;
 public interface IBranchesRepository
 {
     void Add(Branch branch);
-    Task SaveChangesAsync();
+    Task SaveChanges();
 }
 
 public class BranchesRepository(
@@ -18,7 +18,7 @@ public class BranchesRepository(
         _context.Branches.Add(branch);
     }
 
-    public async Task SaveChangesAsync()
+    public async Task SaveChanges()
     {
         await _context.SaveChangesAsync();
     }

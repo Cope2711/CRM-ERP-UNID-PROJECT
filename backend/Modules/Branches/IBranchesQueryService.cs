@@ -6,6 +6,7 @@ namespace CRM_ERP_UNID.Modules;
 public interface IBranchesQueryService
 {
     Task<Branch> GetByIdThrowsNotFoundAsync(Guid id);
+    Task<Branch?> GetById(Guid id);
     Task<Branch> GetByNameThrowsNotFoundAsync(string name);
     Task<GetAllResponseDto<Branch>> GetAll(GetAllDto getAllDto);
     Task<bool> ExistByName(string name);
