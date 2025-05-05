@@ -24,6 +24,6 @@ public class ResourceService(
 
     public async Task<bool> ExistById(Guid id)
     {
-        return await _genericService.ExistsAsync(r => r.ResourceId, id);
+        return await _genericService.ExistsAsync(r => r.ResourceId == id);
     }
 }

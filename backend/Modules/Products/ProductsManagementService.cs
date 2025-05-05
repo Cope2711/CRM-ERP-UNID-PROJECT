@@ -11,8 +11,9 @@ public class ProductsManagementService(
     IProductsRepository _productsRepository,
     IBrandsService _brandsService,
     ILogger<ProductsManagementService> _logger,
-    IHttpContextAccessor _httpContextAccessor
-) : IProductsManagementService
+    IHttpContextAccessor _httpContextAccessor,
+    IGenericService<Product> _genericService
+    ) : IProductsManagementService
 {
     public async Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto)
     {
@@ -123,51 +124,7 @@ public class ProductsManagementService(
 
     public async Task<Product> Create(CreateProductDto createProductDto)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested Create for ProductName {TargetProductName}",
-            authenticatedUserId, createProductDto.ProductName);
-
-        // Check unique camps
-        if (await _productsQueryService.ExistByName(createProductDto.ProductName))
-        {
-            _logger.LogError(
-                "User with Id {authenticatedUserId} requested Create for ProductName {TargetProductName} but the productname already exists",
-                authenticatedUserId, createProductDto.ProductName);
-            throw new UniqueConstraintViolationException("Product with this name already exists",
-                Fields.Products.ProductName);
-        }
-
-        if (await _productsQueryService.ExistByBarcode(createProductDto.ProductBarcode))
-        {
-            _logger.LogError(
-                "User with Id {authenticatedUserId} requested Create for ProductBarcode {TargetProductBarcode} but the productbarcode already exists",
-                authenticatedUserId, createProductDto.ProductBarcode);
-            throw new UniqueConstraintViolationException("Product with this barcode already exists",
-                Fields.Products.ProductBarcode);
-        }
-
-        // Create product
-        Product product = new()
-        {
-            ProductName = createProductDto.ProductName,
-            ProductBarcode = createProductDto.ProductBarcode,
-            ProductPrice = createProductDto.ProductPrice,
-            ProductDescription = createProductDto.ProductDescription,
-            IsActive = createProductDto.IsActive,
-            BrandId = createProductDto.BrandId
-        };
-
-        _productsRepository.Add(product);
-
-        await _productsRepository.SaveChanges();
-
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested CreateAsync for ProductName {TargetProductName} and the product was created",
-            authenticatedUserId, createProductDto.ProductName);
-
-        return product;
+        return await _genericService.Create(createProductDto.ToModel());
     }
 
     public async Task<Product> Update(Guid id, UpdateProductDto updateProductDto)

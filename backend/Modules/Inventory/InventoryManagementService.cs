@@ -12,8 +12,9 @@ public class InventoryManagementService(
     ILogger<InventoryManagementService> _logger,
     IHttpContextAccessor _httpContextAccessor,
     IBranchesQueryService _branchesQueryService,
-    IUsersBranchesQueryService _usersBranchesQueryService
-) : IInventoryManagementService
+    IUsersBranchesQueryService _usersBranchesQueryService,
+    IGenericService<Inventory> _genericService
+    ) : IInventoryManagementService
 {
     public async Task IncreaseStockBulk(List<StockChangeDto> stockChanges, Guid branchId)
     {
@@ -93,38 +94,17 @@ public class InventoryManagementService(
 
         return inventory;
     }
-
-
+    
     public async Task<Inventory> Create(CreateInventoryDto createInventoryDto)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 
-        _logger.LogInformation("User with id {UserId} is creating an inventory for product with id {ProductId}",
-            authenticatedUserId, createInventoryDto.ProductId);
-
         // Exist branch?, user has access to branch?, product exists in branch?
         await _branchesQueryService.ExistsByIdThrowsNotFound(createInventoryDto.BranchId);
-        await _usersBranchesQueryService.EnsureUserHasAccessToBranch(authenticatedUserId,
-            createInventoryDto.BranchId);
-        if (await _inventoryQueryService.ExistProductInBranch(createInventoryDto.ProductId,
-                createInventoryDto.BranchId))
-            throw new UniqueConstraintViolationException("This product already exists in the inventory",
-                Fields.InventoryFields.ProductId);
-
-        Inventory inventory = new()
-        {
-            ProductId = createInventoryDto.ProductId,
-            BranchId = createInventoryDto.BranchId,
-            Quantity = createInventoryDto.Quantity,
-            IsActive = createInventoryDto.IsActive ?? true
-        };
-
-        _inventoryRepository.Add(inventory);
-        await _inventoryRepository.SaveChangesAsync();
-
-        _logger.LogInformation("User with id {UserId} has created an inventory for product with id {ProductId}",
-            authenticatedUserId, createInventoryDto.ProductId);
-
-        return inventory;
+        await _usersBranchesQueryService.EnsureUserHasAccessToBranch(authenticatedUserId, createInventoryDto.BranchId);
+        if (await _inventoryQueryService.ExistProductInBranch(createInventoryDto.ProductId, createInventoryDto.BranchId))
+            throw new UniqueConstraintViolationException("This product already exists in the inventory", Fields.InventoryFields.ProductId);
+        
+        return await _genericService.Create(createInventoryDto.ToModel());
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Dtos;
+using CRM_ERP_UNID.Helpers;
 
 namespace CRM_ERP_UNID.Data.Models;
 
@@ -12,6 +14,7 @@ public class User
     
     [Required]
     [MaxLength(50)]
+    [Unique]
     public required string UserUserName { get; set; }
     
     [Required]
@@ -25,6 +28,7 @@ public class User
     
     [Required]
     [MaxLength(100)]
+    [Unique]
     public required string UserEmail { get; set; }
     
     [Required]
@@ -70,5 +74,18 @@ public static class UserExtensions
     public static double[] ToUserRolesPriority(this User user)
     {
         return user.UserRoles.Select(ur => ur.Role.RolePriority).ToArray();
+    }
+
+    public static User ToModel(this CreateUserDto createUserDto)
+    {
+        return new User
+        {
+            UserUserName = createUserDto.UserUserName,
+            UserFirstName = createUserDto.UserFirstName,
+            UserLastName = createUserDto.UserLastName,
+            UserEmail = createUserDto.UserEmail,
+            UserPassword = HasherHelper.HashString(createUserDto.UserPassword),
+            IsActive = createUserDto.IsActive
+        };
     }
 }

@@ -10,31 +10,13 @@ public class CategoriesManagementService(
     ICategoriesQueryService _categoriesQueryService,
     ICategoriesRepository _categoriesRepository,
     ILogger<CategoriesManagementService> _logger,
-    IHttpContextAccessor _httpContextAccessor
-) : ICategoriesManagementService
+    IHttpContextAccessor _httpContextAccessor,
+    IGenericService<Category> _genericService
+    ) : ICategoriesManagementService
 {
     public async Task<Category> Create(CreateCategoryDto createCategoryDto)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        _logger.LogInformation("User with Id {authenticatedUserId} requested Create for CategoryName {TargetCategoryName}", authenticatedUserId, createCategoryDto.CategoryName);
-
-        if (await _categoriesQueryService.ExistsByName(createCategoryDto.CategoryName))
-        {
-            _logger.LogError("User with Id {authenticatedUserId} requested Create for CategoryName {TargetCategoryName} but the category already exists", authenticatedUserId, createCategoryDto.CategoryName);
-            throw new UniqueConstraintViolationException("Category with this name already exists", Fields.Categories.CategoryName);
-        }
-        
-        Category category = new()
-        {
-            CategoryName = createCategoryDto.CategoryName,
-            CategoryDescription = createCategoryDto.CategoryDescription
-        };
-
-        _categoriesRepository.Add(category);
-        await _categoriesRepository.SaveChanges();
-        
-        _logger.LogInformation("User with Id {authenticatedUserId} requested Create for CategoryName {TargetCategoryName} and the category was created", authenticatedUserId, createCategoryDto.CategoryName);
-        return category;
+        return await _genericService.Create(createCategoryDto.ToModel());
     }
     
     public async Task<Category> Update(Guid id, UpdateCategoryDto updateCategoryDto)

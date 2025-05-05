@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Dtos;
 
 namespace CRM_ERP_UNID.Data.Models;
@@ -12,6 +13,7 @@ public class Category
     
     [Required]
     [MaxLength(50)]
+    [Unique]
     public required string CategoryName { get; set; }
     
     [MaxLength(255)]
@@ -29,6 +31,15 @@ public static class CategoryExtensions
             CategoryId = category.CategoryId,
             CategoryName = category.CategoryName,
             CategoryDescription = category.CategoryDescription
+        };
+    }
+    
+    public static Category ToModel(this CreateCategoryDto dto)
+    {
+        return new Category
+        {
+            CategoryName = dto.CategoryName,
+            CategoryDescription = dto.CategoryDescription,
         };
     }
 }

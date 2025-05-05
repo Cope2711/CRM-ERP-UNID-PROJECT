@@ -12,12 +12,14 @@ namespace CRM_ERP_UNID.Modules;
 
 public interface IGenericRepository<T> where T : class
 {
+    void Add(T entity);
+    Task SaveChanges();
     Task<T?> GetByIdAsync(Guid id, Func<IQueryable<T>, IQueryable<T>> include = null);
 
     Task<T?> GetFirstAsync(Expression<Func<T, object>> fieldSelector, object value,
         Func<IQueryable<T>, IQueryable<T>> include = null);
-
-    Task<bool> ExistsAsync(Expression<Func<T, object>> fieldSelector, object value);
+    
+    Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
 
     Task<List<Dictionary<string, object>>> GetAllAsync(GetAllDto getAllDto, Func<IQueryable<T>, IQueryable<T>> queryModifier = null);
 
@@ -28,22 +30,28 @@ public interface IGenericRepository<T> where T : class
 
 public class GenericRepository<T> : IGenericRepository<T> where T : class
 {
+    private readonly AppDbContext _context;
     private readonly DbSet<T> _dbSet;
 
     public GenericRepository(AppDbContext context)
     {
+        _context = context;
         _dbSet = context.Set<T>();
     }
 
-    public async Task<bool> ExistsAsync(Expression<Func<T, object>> fieldSelector, object value)
+    public async Task SaveChanges()
     {
-        IQueryable<T> queryable = _dbSet.AsQueryable();
+        await _context.SaveChangesAsync();
+    }
 
-        string fieldName =
-            ((MemberExpression)(fieldSelector.Body is UnaryExpression unary ? unary.Operand : fieldSelector.Body))
-            .Member.Name;
-
-        return await queryable.AnyAsync(e => EF.Property<object>(e, fieldName).Equals(value));
+    public void Add(T entity)
+    {
+        _dbSet.Add(entity);
+    }
+    
+    public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _dbSet.AnyAsync(predicate);
     }
 
     public async Task<T?> GetByIdAsync(Guid id, Func<IQueryable<T>, IQueryable<T>> include = null)

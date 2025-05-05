@@ -11,8 +11,9 @@ public class BranchesManagementService(
     IBranchesRepository _branchesRepository,
     ILogger<BranchesManagementService> _logger,
     IHttpContextAccessor _httpContextAccessor,
-    IUsersBranchesQueryService _usersBranchesQueryService
-) : IBranchesManagementService
+    IUsersBranchesQueryService _usersBranchesQueryService,
+    IGenericService<Branch> _genericService
+    ) : IBranchesManagementService
 {
     public async Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto)
     {
@@ -116,40 +117,7 @@ public class BranchesManagementService(
 
     public async Task<Branch> Create(CreateBranchDto createBranchDto)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested CreateAsync for BranchName {TargetBranchName}",
-            authenticatedUserId, createBranchDto.BranchName);
-
-        // Check unique camps
-        if (await _branchesQueryService.ExistByName(createBranchDto.BranchName))
-        {
-            _logger.LogError(
-                "User with Id {authenticatedUserId} requested CreateAsync for BranchName {TargetBranchName} but the branchname already exists",
-                authenticatedUserId, createBranchDto.BranchName);
-            throw new UniqueConstraintViolationException("Branch with this name already exists",
-                Fields.Branches.BranchName);
-        }
-
-        // Create branch
-        Branch branch = new()
-        {
-            BranchName = createBranchDto.BranchName,
-            BranchAddress = createBranchDto.BranchAddress,
-            BranchPhone = createBranchDto.BranchPhone,
-            IsActive = createBranchDto.IsActive
-        };
-
-        _branchesRepository.Add(branch);
-
-        await _branchesRepository.SaveChanges();
-
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested CreateAsync for BranchName {TargetBranchName} and the branch was created",
-            authenticatedUserId, createBranchDto.BranchName);
-
-        return branch;
+        return await _genericService.Create(createBranchDto.ToModel());
     }
 
     public async Task<Branch> Update(Guid id, UpdateBranchDto updateBranchDto)

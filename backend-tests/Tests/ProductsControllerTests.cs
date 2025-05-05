@@ -59,12 +59,11 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new CreateProductDto
                 {
-                    ProductName = "iPhone 133333",
+                    ProductName = "iPhonasdsadsa",
                     ProductPrice = 999.99m,
                     ProductBarcode = "1111111111",
                     ProductDescription = "Latest iPhone model",
                     IsActive = true,
-                    BrandId = Models.Brands.Apple.BrandId
                 },
                 HttpStatusCode.OK
             };
@@ -78,7 +77,6 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
                     ProductBarcode = "111111111121312321",
                     ProductDescription = "Latest iPhone model",
                     IsActive = true,
-                    BrandId = Models.Brands.Apple.BrandId
                 },
                 HttpStatusCode.Conflict
             };
@@ -92,7 +90,6 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
                     ProductBarcode = Models.Products.iPhone13.ProductBarcode,
                     ProductDescription = "Latest iPhone model",
                     IsActive = true,
-                    BrandId = Models.Brands.Apple.BrandId
                 },
                 HttpStatusCode.Conflict
             };

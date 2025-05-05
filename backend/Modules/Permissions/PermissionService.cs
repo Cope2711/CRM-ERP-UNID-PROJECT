@@ -25,6 +25,6 @@ public class PermissionService(
 
     public async Task<bool> ExistById(Guid id)
     {
-        return await _genericService.ExistsAsync(p => p.PermissionId, id);
+        return await _genericService.ExistsAsync(p => p.PermissionId == id);
     }
 }

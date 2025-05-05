@@ -43,12 +43,12 @@ public class ProductsQueryService(
     
     public Task<bool> ExistByName(string name)
     {
-        return _genericService.ExistsAsync(p => p.ProductName, name);
+        return _genericService.ExistsAsync(p => p.ProductName == name);
     }
     
     public async Task<bool> ExistById(Guid id)
     {
-        return await _genericService.ExistsAsync(p => p.ProductId, id);
+        return await _genericService.ExistsAsync(p => p.ProductId == id);
     }
 
     public async Task<bool> ExistByIdThrowsNotFound(Guid id)
@@ -62,6 +62,6 @@ public class ProductsQueryService(
 
     public async Task<bool> ExistByBarcode(string barcode)
     {
-        return await _genericService.ExistsAsync(p => p.ProductBarcode, barcode);
+        return await _genericService.ExistsAsync(p => p.ProductBarcode == barcode);
     }
 }

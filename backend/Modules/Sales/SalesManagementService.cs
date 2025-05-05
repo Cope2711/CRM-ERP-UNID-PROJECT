@@ -12,7 +12,7 @@ public class SalesManagementService(
     ISalesRepository _salesRepository,
     ISalesQueryService _salesQueryService,
     IInventoryManagementService _inventoryManagementService
-) : ISalesManagementService
+    ) : ISalesManagementService
 {
     public async Task Delete(Guid id)
     {

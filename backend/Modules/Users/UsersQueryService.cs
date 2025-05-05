@@ -71,18 +71,18 @@ public class UsersQueryService(
 
     public async Task<bool> ExistById(Guid id)
     {
-        return await _genericService.ExistsAsync(u => u.UserId, id);
+        return await _genericService.ExistsAsync(u => u.UserId == id);
     }
 
 
     public async Task<bool> ExistByUserName(string userName)
     {
-        return await _genericService.ExistsAsync(u => u.UserUserName, userName);
+        return await _genericService.ExistsAsync(u => u.UserUserName == userName);
     }
 
     public async Task<bool> ExistByEmail(string email)
     {
-        return await _genericService.ExistsAsync(u => u.UserEmail, email);
+        return await _genericService.ExistsAsync(u => u.UserEmail == email);
     }
 
     public async Task<User?> GetByEmail(string email)

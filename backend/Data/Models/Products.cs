@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Dtos;
 
 namespace CRM_ERP_UNID.Data.Models;
@@ -12,10 +13,12 @@ public class Product
     
     [Required]
     [MaxLength(50)]
+    [Unique]
     public required string ProductName { get; set; }
     
     [Required]
     [MaxLength(255)]
+    [Unique]
     public required string ProductBarcode { get; set; }
     
     [Required]
@@ -27,8 +30,7 @@ public class Product
     [Required]
     public bool IsActive { get; set; }
     
-    [Required]
-    public Guid BrandId { get; set; }
+    public Guid? BrandId { get; set; }
     
     public Brand? Brand { get; set; }
     
@@ -58,6 +60,18 @@ public static class ProductExtensions
                 CategoryName = pc.Category.CategoryName,
                 CategoryDescription = pc.Category.CategoryDescription
             }).ToList()
+        };
+    }
+
+    public static Product ToModel(this CreateProductDto dto)
+    {
+        return new Product
+        {
+            ProductName = dto.ProductName,
+            ProductBarcode = dto.ProductBarcode,
+            ProductPrice = dto.ProductPrice,
+            ProductDescription = dto.ProductDescription,
+            IsActive = dto.IsActive,
         };
     }
 }

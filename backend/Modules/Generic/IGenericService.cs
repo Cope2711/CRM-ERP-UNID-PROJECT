@@ -12,12 +12,14 @@ public interface IGenericService<T> where T : class
 
     Task<T?> GetFirstAsync(Expression<Func<T, object>> fieldSelector, object value,
         Func<IQueryable<T>, IQueryable<T>> include = null);
-
-    Task<bool> ExistsAsync(Expression<Func<T, object>> fieldSelector, object value);
-
+    
     Task<T> GetByIdThrowsNotFound(Guid id, Func<IQueryable<T>, IQueryable<T>>? include = null);
 
     Task<GetAllResponseDto<T>> GetAllAsync(
         GetAllDto getAllDto,
         Func<IQueryable<T>, IQueryable<T>> queryModifier = null);
+
+    Task<T> Create(T entity);
+
+    Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
 }

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Dtos;
 
 namespace CRM_ERP_UNID.Data.Models;
@@ -12,6 +13,7 @@ public class Supplier
     
     [Required]
     [MaxLength(100)]
+    [Unique]
     public required string SupplierName { get; set; }
     
     [MaxLength(50)]
@@ -19,6 +21,7 @@ public class Supplier
     
     [Required]
     [MaxLength(100)]
+    [Unique]
     public required string SupplierEmail { get; set; }
     
     [MaxLength(20)]
@@ -49,6 +52,19 @@ public static class SupplierExtensions
             SupplierPhone = supplier.SupplierPhone,
             SupplierAddress = supplier.SupplierAddress,
             IsActive = supplier.IsActive,
+        };
+    }
+
+    public static Supplier ToModel(this CreateSupplierDto dto)
+    {
+        return new Supplier()
+        {
+            SupplierName = dto.SupplierName,
+            SupplierContact = dto.SupplierContact,
+            SupplierEmail = dto.SupplierEmail,
+            SupplierPhone = dto.SupplierPhone,
+            SupplierAddress = dto.SupplierAddress,
+            IsActive = dto.IsActive
         };
     }
 }
