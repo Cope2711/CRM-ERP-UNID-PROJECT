@@ -89,7 +89,7 @@ CREATE TABLE Products
     ProductPrice DECIMAL(10,2) NOT NULL,
     ProductDescription VARCHAR(255) NULL,
     IsActive BIT DEFAULT 1,
-    BrandId UNIQUEIDENTIFIER NOT NULL,
+    BrandId UNIQUEIDENTIFIER NULL,
     CreatedDate DATETIME DEFAULT GETDATE(),
     UpdatedDate DATETIME DEFAULT GETDATE(),
 

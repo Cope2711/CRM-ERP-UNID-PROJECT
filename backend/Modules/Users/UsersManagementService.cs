@@ -14,52 +14,13 @@ public class UsersManagementService(
     IMailService _mailService,
     IHttpContextAccessor _httpContextAccessor,
     ITokenService _tokenService,
-    IUsersBranchesQueryService _usersBranchesQueryServices
-) : IUsersManagementService
+    IUsersBranchesQueryService _usersBranchesQueryServices,
+    IGenericService<User> _genericService
+    ) : IUsersManagementService
 {
     public async Task<User?> Create(CreateUserDto createUserDto)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        
-        _logger.LogInformation("User with Id {authenticatedUserId} requested CreateUser with UserName {UserUserName}",
-            authenticatedUserId, createUserDto.UserUserName);
-
-        if (await _usersQueryService.ExistByUserName(createUserDto.UserUserName))
-        {
-            _logger.LogError(
-                "User with Id {authenticatedUserId} requested CreateUser but the user with username {UserUserName} already exists",
-                authenticatedUserId, createUserDto.UserUserName);
-            throw new UniqueConstraintViolationException(
-                message: $"User with username {createUserDto.UserUserName} already exists", field: Fields.Users.UserUserName);
-        }
-
-        if (await _usersQueryService.ExistByEmail(createUserDto.UserEmail))
-        {
-            _logger.LogError(
-                "User with Id {authenticatedUserId} requested CreateUser but the user with email {UserEmail} already exists",
-                authenticatedUserId, createUserDto.UserEmail);
-            throw new UniqueConstraintViolationException(
-                message: $"User with email {createUserDto.UserEmail} already exists", field: Fields.Users.UserEmail);
-        }
-
-        User user = new User
-        {
-            UserUserName = createUserDto.UserUserName,
-            UserFirstName = createUserDto.UserFirstName,
-            UserLastName = createUserDto.UserLastName,
-            UserEmail = createUserDto.UserEmail,
-            UserPassword = HasherHelper.HashString(createUserDto.UserPassword),
-            IsActive = createUserDto.IsActive
-        };
-
-        _usersRepository.Add(user);
-        await _usersRepository.SaveChangesAsync();
-
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested CreateUser and the user was created with Id {CreatedUserId}",
-            authenticatedUserId, user.UserId);
-
-        return user;
+        return await _genericService.Create(createUserDto.ToModel());
     }
 
     public async Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto)

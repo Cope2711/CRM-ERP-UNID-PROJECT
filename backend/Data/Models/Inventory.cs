@@ -9,7 +9,11 @@ public class Inventory
 {
     [Key]
     public Guid InventoryId { get; set; }
+    
+    [ForeignKey(nameof(Product.ProductId))]
     public required Guid ProductId { get; set; }
+    
+    [ForeignKey(nameof(Branch.BranchId))]
     public required Guid BranchId { get; set; }
     public required int Quantity { get; set; }
     public required bool IsActive { get; set; }
@@ -27,11 +31,23 @@ public static class InventoryExtensions
         {
             InventoryId = inventory.InventoryId,
             ProductId = inventory.ProductId,
+            BranchId = inventory.BranchId,
             Quantity = inventory.Quantity,
             IsActive = inventory.IsActive,
             CreatedDate = inventory.CreatedDate,
             UpdatedDate = inventory.UpdatedDate,
             Product = inventory.Product?.ToDto()
+        };
+    }
+    
+    public static Inventory ToModel(this CreateInventoryDto dto)
+    {
+        return new Inventory
+        {
+            ProductId = dto.ProductId,
+            BranchId = dto.BranchId,
+            Quantity = dto.Quantity,
+            IsActive = dto.IsActive ?? true,
         };
     }
 }

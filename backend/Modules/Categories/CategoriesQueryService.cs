@@ -9,12 +9,12 @@ public class CategoriesQueryService(
 {
     public async Task<bool> ExistsById(Guid categoryId)
     {
-        return await _genericService.ExistsAsync(query => query.CategoryId, categoryId);
+        return await _genericService.ExistsAsync(query => query.CategoryId == categoryId);
     }
 
     public async Task<bool> ExistsByName(string categoryName)
     {
-        return await _genericService.ExistsAsync(query => query.CategoryName, categoryName);
+        return await _genericService.ExistsAsync(query => query.CategoryName == categoryName);
     }
 
     public async Task<Category> GetByIdThrowsNotFound(Guid categoryId)

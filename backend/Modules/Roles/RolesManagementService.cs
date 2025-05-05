@@ -10,8 +10,9 @@ public class RolesManagementService(
     IHttpContextAccessor _httpContextAccessor,
     IRolesQueryService _rolesQueryService,
     IPriorityValidationService _priorityValidationService,
-    IRolesRepository rolesRepository
-) : IRolesManagementService
+    IRolesRepository _rolesRepository,
+    IGenericService<Role> _genericService
+    ) : IRolesManagementService
 {
     public async Task<Role> DeleteById(Guid id)
     {
@@ -22,8 +23,8 @@ public class RolesManagementService(
 
         Role role = await _rolesQueryService.GetByIdThrowsNotFound(id);
         _priorityValidationService.ValidateRolePriorityThrowsForbiddenException(role);
-        rolesRepository.Remove(role);
-        await rolesRepository.SaveChangesAsync();
+        _rolesRepository.Remove(role);
+        await _rolesRepository.SaveChangesAsync();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested DeleteById for RoleId {TargetRoleId} and the role was deleted",
@@ -34,41 +35,9 @@ public class RolesManagementService(
 
     public async Task<Role> Create(CreateRoleDto createRoleDto)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested CreateRoleAsync for RoleName {TargetRoleName}",
-            authenticatedUserId, createRoleDto.RoleName);
-
         _priorityValidationService.ValidatePriorityThrowsForbiddenException(createRoleDto.RolePriority);
 
-        // Exist roleName?
-        if (await _rolesQueryService.ExistRoleName(createRoleDto.RoleName))
-        {
-            _logger.LogError(
-                "User with Id {authenticatedUserId} requested CreateRoleAsync for RoleName {TargetRoleName} but the rolename already exists",
-                authenticatedUserId, createRoleDto.RoleName);
-
-            throw new UniqueConstraintViolationException(
-                $"A role with the name '{createRoleDto.RoleName}' already exists.",
-                field: "RoleName");
-        }
-
-        Role newRole = new Role
-        {
-            RoleName = createRoleDto.RoleName,
-            RolePriority = createRoleDto.RolePriority,
-            RoleDescription = createRoleDto.RoleDescription,
-        };
-
-        rolesRepository.Add(newRole);
-        await rolesRepository.SaveChangesAsync();
-
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested CreateRoleAsync for RoleName {TargetRoleName} and the role was created",
-            authenticatedUserId, createRoleDto.RoleName);
-
-        return newRole;
+        return await _genericService.Create(createRoleDto.ToModel());
     }
 
     public async Task<Role> Update(Guid id, UpdateRoleDto updateRoleDto)
@@ -97,7 +66,7 @@ public class RolesManagementService(
 
         if (hasChanges)
         {
-            await rolesRepository.SaveChangesAsync();
+            await _rolesRepository.SaveChangesAsync();
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested UpdateAsync for RoleId {TargetRoleId} and the role was updated",
                 authenticatedUserId, id);

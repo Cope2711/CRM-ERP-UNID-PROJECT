@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Dtos;
 
 namespace CRM_ERP_UNID.Data.Models;
@@ -12,6 +13,7 @@ public class Role
 
     [Required] 
     [MaxLength(50)] 
+    [Unique]
     public required string RoleName { get; set; }
     
     [Required]
@@ -34,6 +36,16 @@ public static class RoleExtensions
             RoleName = role.RoleName,
             RolePriority = role.RolePriority,
             RoleDescription = role.RoleDescription
+        };
+    }
+
+    public static Role ToModel(this CreateRoleDto dto)
+    {
+        return new Role
+        {
+            RoleName = dto.RoleName,
+            RolePriority = dto.RolePriority,
+            RoleDescription = dto.RoleDescription,
         };
     }
 }

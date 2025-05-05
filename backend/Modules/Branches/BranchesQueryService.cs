@@ -31,17 +31,17 @@ public class BranchesQueryService(
     
     public async Task<bool> ExistByName(string name)
     {
-        return await _genericService.ExistsAsync(b => b.BranchName, name);
+        return await _genericService.ExistsAsync(b => b.BranchName == name);
     }
     
     public async Task<bool> ExistById(Guid id)
     {
-        return await _genericService.ExistsAsync(b => b.BranchId, id);
+        return await _genericService.ExistsAsync(b => b.BranchId == id);
     }
     
     public async Task<bool> ExistsByIdThrowsNotFound(Guid id)
     {
-        bool exists = await _genericService.ExistsAsync(b => b.BranchId, id);
+        bool exists = await _genericService.ExistsAsync(b => b.BranchId == id);
 
         if (!exists)
         {

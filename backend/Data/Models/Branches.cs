@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Dtos;
 
 namespace CRM_ERP_UNID.Data.Models;
@@ -12,6 +13,7 @@ public class Branch
     
     [Required]
     [StringLength(100)]
+    [Unique]
     public required string BranchName { get; set; }
     
     [Required]
@@ -39,6 +41,17 @@ public static class BranchExtensions
             BranchAddress = branch.BranchAddress,
             BranchPhone = branch.BranchPhone,
             IsActive = branch.IsActive
+        };
+    }
+
+    public static Branch ToModel(this CreateBranchDto dto)
+    {
+        return new Branch()
+        {
+            BranchName = dto.BranchName,
+            BranchAddress = dto.BranchAddress,
+            BranchPhone = dto.BranchPhone,
+            IsActive = dto.IsActive
         };
     }
 }

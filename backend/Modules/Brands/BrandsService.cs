@@ -35,7 +35,7 @@ public class BrandsService(
 
     public async Task<bool> ExistByIdThrowsNotFound(Guid brandId)
     {
-        if (!await _genericService.ExistsAsync(b => b.BrandId, brandId))
+        if (!await _genericService.ExistsAsync(b => b.BrandId == brandId))
         {
             throw new NotFoundException(
                 message: $"Brand with id: {brandId} not found!",
@@ -47,44 +47,12 @@ public class BrandsService(
 
     public async Task<Brand> Create(CreateBrandDto createBrandDto)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested CreateAsync for BrandName {TargetBrandName}",
-            authenticatedUserId, createBrandDto.BrandName);
-
-        // Check unique camps
-        if (await ExistByName(createBrandDto.BrandName))
-        {
-            _logger.LogError(
-                "User with Id {authenticatedUserId} requested CreateAsync for BrandName {TargetBrandName} but the brandname already exists",
-                authenticatedUserId, createBrandDto.BrandName);
-            throw new UniqueConstraintViolationException("Brand with this name already exists",
-                Fields.Brands.BrandName);
-        }
-
-        // Create brand
-        Brand brand = new()
-        {
-            BrandName = createBrandDto.BrandName,
-            BrandDescription = createBrandDto.BrandDescription,
-            IsActive = createBrandDto.IsActive
-        };
-
-        _brandsRepository.Add(brand);
-
-        await _brandsRepository.SaveChanges();
-
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested CreateAsync for BrandName {TargetBrandName} and the brand was created",
-            authenticatedUserId, createBrandDto.BrandName);
-
-        return brand;
+        return await _genericService.Create(createBrandDto.ToModel());
     }
 
     public async Task<bool> ExistByName(string brandName)
     {
-        return await _genericService.ExistsAsync(b => b.BrandName, brandName);
+        return await _genericService.ExistsAsync(b => b.BrandName == brandName);
     }
 
     public async Task<Brand> Update(Guid id, UpdateBrandDto updateBrandDto)

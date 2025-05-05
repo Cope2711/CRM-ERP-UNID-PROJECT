@@ -28,9 +28,8 @@ public class ProductDto
     
     public bool IsActive { get; set; }
     
-    [Required]
     [GuidNotEmpty]
-    public required Guid BrandId { get; set; }
+    public Guid? BrandId { get; set; }
     
     [RelationInfo("ProductsCategories", "products-categories", new[] { "ProductCategoryId", "Category.CategoryId", "Category.CategoryName" })]
     public List<CategoryDto> Categories { get; set; } = new();
@@ -60,10 +59,6 @@ public class CreateProductDto
     public string? ProductDescription { get; set; }
     
     public bool IsActive { get; set; }
-    
-    [Required]
-    [GuidNotEmpty]
-    public required Guid BrandId { get; set; }
 }
 
 public class UpdateProductDto
