@@ -21,31 +21,9 @@ public class CategoriesManagementService(
     
     public async Task<Category> Update(Guid id, UpdateCategoryDto updateCategoryDto)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         Category category = await _categoriesQueryService.GetByIdThrowsNotFound(id);
-        _logger.LogInformation("User with Id {authenticatedUserId} requested Update for CategoryId {TargetCategoryId}", authenticatedUserId, id);
         
-        bool hasChanges = ModelsHelper.UpdateModel(category, updateCategoryDto, async (field, value) =>
-        {
-            switch (field)
-            {
-                case nameof(updateCategoryDto.CategoryName):
-                    return await _categoriesQueryService.ExistsByName((string)value);
-                
-                default:
-                    return false;
-            }
-        });
-        
-        if (hasChanges)
-        {
-            await _categoriesRepository.SaveChanges();
-            _logger.LogInformation("User with Id {authenticatedUserId} requested Update for CategoryId {TargetCategoryId} and the category was updated", authenticatedUserId, id);
-        }
-        else
-        {
-            _logger.LogInformation("User with Id {authenticatedUserId} requested Update for CategoryId {TargetCategoryId} and the category was not updated", authenticatedUserId, id);
-        }
+        await _genericService.Update(category, updateCategoryDto);
         
         return category;
     }

@@ -103,40 +103,9 @@ public class SuppliersManagementService(
 
     public async Task<Supplier> Update(Guid id, UpdateSupplierDto updateSupplierDto)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         Supplier supplier = await _suppliersQueryService.GetByIdThrowsNotFoundAsync(id);
 
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested UpdateAsync for SupplierId {TargetSupplierId}",
-            authenticatedUserId, id);
-
-        bool hasChanges = ModelsHelper.UpdateModel(supplier, updateSupplierDto, async (field, value) =>
-        {
-            switch (field)
-            {
-                case nameof(updateSupplierDto.SupplierName):
-                    return await _suppliersQueryService.ExistByName((string)value);
-                case nameof(updateSupplierDto.SupplierEmail):
-                    return await _suppliersQueryService.ExistByEmail((string)value);
-
-                default:
-                    return false;
-            }
-        });
-
-        if (hasChanges)
-        {
-            await _suppliersRepository.SaveChanges();
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateAsync for SupplierId {TargetSupplierId} and the supplier was updated",
-                authenticatedUserId, id);
-        }
-        else
-        {
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateAsync for SupplierId {TargetSupplierId} and the supplier was not updated",
-                authenticatedUserId, id);
-        }
+        await _genericService.Update(supplier, updateSupplierDto);
 
         return supplier;
     }

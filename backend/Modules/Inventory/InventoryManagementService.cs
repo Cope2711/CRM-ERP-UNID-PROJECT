@@ -53,44 +53,27 @@ public class InventoryManagementService(
 
         Inventory inventory = await _inventoryQueryService.GetByIdThrowsNotFoundAsync(id);
 
-        if (updateInventoryDto.BranchId.HasValue && updateInventoryDto.BranchId != inventory.BranchId)
+        if (updateInventoryDto.BranchId.HasValue && updateInventoryDto.BranchId != inventory.BranchId) 
         {
             await _usersBranchesQueryService.EnsureUserHasAccessToBranch(authenticatedUserId,
                 updateInventoryDto.BranchId.Value);
         }
 
-        _logger.LogInformation(
-            "User with id {UserId} is updating inventory with id {InventoryId} for product with id {ProductId} in branch {BranchId}",
-            authenticatedUserId, inventory.InventoryId, inventory.ProductId, inventory.BranchId);
-
-        bool hasChanges = ModelsHelper.UpdateModel(inventory, updateInventoryDto, async (field, value) =>
+        if (updateInventoryDto.ProductId != null && 
+            updateInventoryDto.ProductId != inventory.ProductId &&
+            await _inventoryQueryService.ExistProductInBranch(inventory.ProductId, inventory.BranchId))
         {
-            switch (field)
-            {
-                case nameof(updateInventoryDto.ProductId):
-                    return await _inventoryQueryService.ExistProductInBranch((Guid)value, inventory.BranchId);
-
-                case nameof(updateInventoryDto.BranchId):
-                    return await _inventoryQueryService.ExistProductInBranch(inventory.ProductId, (Guid)value);
-
-                default:
-                    _logger.LogWarning("Unexpected field '{Field}' encountered during inventory update.", field);
-                    return false;
-            }
-        });
-
-        if (hasChanges)
-        {
-            await _inventoryRepository.SaveChangesAsync();
-            _logger.LogInformation(
-                "User with id {UserId} successfully updated inventory with id {InventoryId} for product with id {ProductId} in branch {BranchId}",
-                authenticatedUserId, inventory.InventoryId, inventory.ProductId, inventory.BranchId);
+            throw new UniqueConstraintViolationException(message: "This product already exists in this branch", field: Fields.Products.ProductId);
         }
-        else
+
+        if (updateInventoryDto.BranchId != null &&
+            updateInventoryDto.BranchId != inventory.BranchId &&
+            await _inventoryQueryService.ExistProductInBranch(inventory.ProductId, inventory.BranchId))
         {
-            _logger.LogInformation("No changes were made to inventory with id {InventoryId} by user with id {UserId}",
-                inventory.InventoryId, authenticatedUserId);
+            throw new UniqueConstraintViolationException(message: "This branch already has this product", field: Fields.Branches.BranchId);
         }
+
+        await _genericService.Update(inventory, updateInventoryDto); 
 
         return inventory;
     }

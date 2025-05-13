@@ -129,39 +129,9 @@ public class ProductsManagementService(
 
     public async Task<Product> Update(Guid id, UpdateProductDto updateProductDto)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         Product product = await _productsQueryService.GetByIdThrowsNotFound(id);
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested UpdateAsync for ProductId {TargetProductId}",
-            authenticatedUserId, id);
 
-        bool hasChanges = ModelsHelper.UpdateModel(product, updateProductDto, async (field, value) =>
-        {
-            switch (field)
-            {
-                case nameof(updateProductDto.ProductName):
-                    return await _productsQueryService.ExistByName((string)value);
-                case nameof(updateProductDto.ProductBarcode):
-                    return await _productsQueryService.ExistByBarcode((string)value);
-
-                default:
-                    return false;
-            }
-        });
-
-        if (hasChanges)
-        {
-            await _productsRepository.SaveChanges();
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateAsync for ProductId {TargetProductId} and the product was updated",
-                authenticatedUserId, id);
-        }
-        else
-        {
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateAsync for ProductId {TargetProductId} and the product was not updated",
-                authenticatedUserId, id);
-        }
+        await _genericService.Update(product, updateProductDto);
 
         return product;
     }

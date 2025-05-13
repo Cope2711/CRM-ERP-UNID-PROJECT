@@ -20,6 +20,8 @@ public interface IGenericService<T> where T : class
         Func<IQueryable<T>, IQueryable<T>> queryModifier = null);
 
     Task<T> Create(T entity);
+    
+    Task<(T, bool)> Update(T entity, object updateDto);
 
     Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
 }

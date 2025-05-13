@@ -57,37 +57,9 @@ public class BrandsService(
 
     public async Task<Brand> Update(Guid id, UpdateBrandDto updateBrandDto)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         Brand brand = await GetByIdThrowsNotFound(id);
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested UpdateAsync for BrandId {TargetBrandId}",
-            authenticatedUserId, id);
-
-        bool hasChanges = ModelsHelper.UpdateModel(brand, updateBrandDto, async (field, value) =>
-        {
-            switch (field)
-            {
-                case nameof(updateBrandDto.BrandName):
-                    return await ExistByName((string)value);
-
-                default:
-                    return false;
-            }
-        });
-
-        if (hasChanges)
-        {
-            await _brandsRepository.SaveChanges();
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateAsync for BrandId {TargetBrandId} and the brand was updated",
-                authenticatedUserId, id);
-        }
-        else
-        {
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateAsync for BrandId {TargetBrandId} and the brand was not updated",
-                authenticatedUserId, id);
-        }
+        
+        await _genericService.Update(brand, updateBrandDto);
 
         return brand;
     }

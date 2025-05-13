@@ -19,7 +19,7 @@ public class UsersBranchesQueryServices(
         return await _usersBranchesRepository.AreUsersInSameBranch(affectedUserId, authenticatedUserId);
     }
     
-    public async Task EnsureUserCanModifyUser(Guid authenticatedUserId, Guid affectedUserId)
+    public async Task EnsureUserCanModifyUserThrows(Guid authenticatedUserId, Guid affectedUserId)
     {
         if (!await EnsureUserCanModifyUserNotThrows(affectedUserId, authenticatedUserId))
         {

@@ -48,35 +48,13 @@ public class RolesManagementService(
         if (authenticatedUserId != id)
             _priorityValidationService.ValidateRolePriorityThrowsForbiddenException(role);
 
-        bool hasChanges = ModelsHelper.UpdateModel(role, updateRoleDto, async (field, value) =>
+        if (updateRoleDto.RolePriority != null &&
+            updateRoleDto.RolePriority != role.RolePriority)
         {
-            switch (field)
-            {
-                case nameof(updateRoleDto.RoleName):
-                    return await _rolesQueryService.ExistRoleName((string)value);
-
-                case nameof(updateRoleDto.RolePriority):
-                    _priorityValidationService.ValidatePriorityThrowsForbiddenException((double)value);
-                    return true;
-
-                default:
-                    return false;
-            }
-        });
-
-        if (hasChanges)
-        {
-            await _rolesRepository.SaveChangesAsync();
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateAsync for RoleId {TargetRoleId} and the role was updated",
-                authenticatedUserId, id);
+            _priorityValidationService.ValidatePriorityThrowsForbiddenException(updateRoleDto.RolePriority.Value);
         }
-        else
-        {
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateAsync for RoleId {TargetRoleId} and the role was not updated",
-                authenticatedUserId, id);
-        }
+
+        await _genericService.Update(role, updateRoleDto);
 
         return role;
     }

@@ -10,6 +10,6 @@ public interface IUsersBranchesQueryService
     Task<bool> IsUserAssignedToBranch(Guid userId, Guid branchId);
     Task EnsureUserHasAccessToBranch(Guid userId, Guid branchId);
     Task<bool> EnsureUserHasAccessToBranchNotThrows(Guid userId, Guid branchId);
-    Task EnsureUserCanModifyUser(Guid authenticatedUserId, Guid affectedUserId);
+    Task EnsureUserCanModifyUserThrows(Guid authenticatedUserId, Guid affectedUserId);
     Task<bool> EnsureUserCanModifyUserNotThrows(Guid authenticatedUserId, Guid affectedUserId);
 }

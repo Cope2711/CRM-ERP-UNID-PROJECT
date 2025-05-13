@@ -12,40 +12,15 @@ public class SuppliersBranchesManagementService(
     ISuppliersBranchesRepository _suppliersBranchesRepository,
     ISuppliersQueryService _suppliersQueryService,
     IBranchesQueryService _branchesQueryService,
-    IUsersBranchesQueryService _usersBranchesQueryService
+    IUsersBranchesQueryService _usersBranchesQueryService,
+    IGenericService<SupplierBranch> _genericService
 ) : ISuppliersBranchesManagementService
 {
     public async Task<SupplierBranch> Update(UpdateSupplierBranchDto updateSupplierBranchDto)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested UpdateSupplierBranch with SupplierBranchId {TargetSupplierBranchId}",
-            authenticatedUserId, updateSupplierBranchDto.SupplierBranchId);
-        
         SupplierBranch? supplierBranch = await _suppliersBranchesQueryService.GetByIdThrowsNotFound(updateSupplierBranchDto.SupplierBranchId);
         
-        bool hasChanges = ModelsHelper.UpdateModel(supplierBranch, updateSupplierBranchDto, async (field, value) =>
-        {
-            return field switch
-            {
-                nameof(updateSupplierBranchDto.IsPreferredSupplier) => value == null,
-                _ => false
-            };
-        });
-        
-        if (hasChanges)
-        {
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} updated SupplierBranch with Id {UpdatedSupplierBranchId}",
-                authenticatedUserId, supplierBranch.SupplierBranchId);
-        }
-        else
-        {
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateSupplierBranch but no changes were made",
-                authenticatedUserId);
-        }
+        await _genericService.Update(supplierBranch, updateSupplierBranchDto);
         
         return supplierBranch;
     }

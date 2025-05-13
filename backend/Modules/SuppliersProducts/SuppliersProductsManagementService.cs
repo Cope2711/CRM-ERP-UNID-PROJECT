@@ -12,41 +12,15 @@ public class SuppliersProductsManagementService(
     IHttpContextAccessor _httpContextAccessor,
     ISuppliersQueryService _suppliersQueryService,
     IProductsQueryService _productsQueryService,
-    ISuppliersProductsQueryService _suppliersProductsQueryService
+    ISuppliersProductsQueryService _suppliersProductsQueryService,
+    IGenericService<SupplierProduct> _genericService
 ) : ISuppliersProductsManagementService
 {
     public async Task<SupplierProduct> Update(UpdateSupplierProductDto updateSupplierProductDto)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested UpdateSupplierProduct with SupplierProductId {TargetSupplierProductId}",
-            authenticatedUserId, updateSupplierProductDto.SupplierProductId);
-        
         SupplierProduct? supplierProduct = await _suppliersProductsQueryService.GetByIdThrowsNotFound(updateSupplierProductDto.SupplierProductId);
         
-        bool hasChanges = ModelsHelper.UpdateModel(supplierProduct, updateSupplierProductDto, async (field, value) =>
-        {
-            return field switch
-            {
-                nameof(updateSupplierProductDto.SupplyPrice) => value == null,
-                nameof(updateSupplierProductDto.SupplyLeadTime) => value == null,
-                _ => false
-            };
-        });
-        
-        if (hasChanges)
-        {
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} updated SupplierProduct with Id {UpdatedSupplierProductId}",
-                authenticatedUserId, supplierProduct.SupplierProductId);
-        }
-        else
-        {
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateSupplierProduct but no changes were made",
-                authenticatedUserId);
-        }
+        await _genericService.Update(supplierProduct, updateSupplierProductDto);
         
         return supplierProduct;
     }
