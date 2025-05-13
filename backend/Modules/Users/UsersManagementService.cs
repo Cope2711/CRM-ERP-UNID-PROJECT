@@ -194,41 +194,15 @@ public class UsersManagementService(
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 
-        _logger.LogInformation(
-            "User with Id {authenticatedUserId} requested UpdateUser with UserId {TargetUserId}",
-            authenticatedUserId, id);
-
         User user = await _usersQueryService.GetByIdThrowsNotFoundAsync(id);
 
         if (authenticatedUserId != id)
         {
             _priorityValidationService.ValidateUserPriorityThrowsForbiddenException(user);
-            await _usersBranchesQueryServices.EnsureUserCanModifyUser(authenticatedUserId, id);
+            await _usersBranchesQueryServices.EnsureUserCanModifyUserThrows(authenticatedUserId, id);
         }
-        
-        bool hasChanges = ModelsHelper.UpdateModel(user, updateUserDto, async (field, value) =>
-        {
-            return field switch
-            {
-                nameof(updateUserDto.UserEmail) => await _usersQueryService.ExistByEmail((string)value),
-                nameof(updateUserDto.UserUserName) => await _usersQueryService.ExistByUserName((string)value),
-                _ => false
-            };
-        });
 
-        if (hasChanges)
-        {
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} updated User with Id {UpdatedUserId}",
-                authenticatedUserId, user.UserId);
-            await _usersRepository.SaveChangesAsync();
-        }
-        else
-        {
-            _logger.LogInformation(
-                "User with Id {authenticatedUserId} requested UpdateUser but no changes were made",
-                authenticatedUserId);
-        }
+        await _genericService.Update(user, updateUserDto);
 
         return user;
     }

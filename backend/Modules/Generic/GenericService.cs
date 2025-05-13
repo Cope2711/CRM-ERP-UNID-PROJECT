@@ -13,12 +13,55 @@ public class GenericService<T>(
     IHttpContextAccessor _httpContextAccessor
     ) : IGenericService<T> where T : class
 {
+    public async Task<(T, bool)> Update(T entity, object updateDto)
+    {
+        await ValidateUpdateFields(entity, updateDto);
+        
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
+        _logger.LogInformation("User with id: {authenticatedUserId} Updating entity of type {EntityType}", authenticatedUserId, typeof(T).Name);
+
+        
+        var dtoType = updateDto.GetType();
+        var entityType = typeof(T);
+
+        bool hasChanges = false;
+
+        var nonNullDtoProps = dtoType.GetProperties()
+            .Where(p => p.GetValue(updateDto) != null);
+        
+        foreach (var dtoProp in nonNullDtoProps)
+        {
+            var entityProp = entityType.GetProperty(dtoProp.Name);
+            if (entityProp == null || !entityProp.CanWrite) continue;
+
+            var newValue = dtoProp.GetValue(updateDto);
+            var currentValue = entityProp.GetValue(entity);
+
+            if (!Equals(newValue, currentValue))
+            {
+                entityProp.SetValue(entity, newValue);
+                hasChanges = true;
+            }
+        }
+
+        if (hasChanges)
+        {
+            await _genericRepository.SaveChanges();
+            _logger.LogInformation("User with id: {authenticatedUserId} Updated entity of type {EntityType}", authenticatedUserId, typeof(T).Name);
+        }
+        else
+        {
+            _logger.LogInformation("User with id: {authenticatedUserId} Not Updated entity of type {EntityType}", authenticatedUserId, typeof(T).Name);
+        }
+        
+        return (entity, hasChanges);
+    }
+    
     public async Task<T> Create(T entity)
     {
-        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
+        await ValidateCreateFields(entity);
         
-        await ValidateFields(entity);
-
+        Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         _logger.LogInformation("User with id: {authenticatedUserId} Creating entity of type {EntityType}", authenticatedUserId, typeof(T).Name);
 
         _genericRepository.Add(entity);
@@ -29,16 +72,60 @@ public class GenericService<T>(
         return entity;
     }
 
-    private async Task ValidateFields(T entity)
+    private async Task ValidateUpdateFields(T entity, object updateDto)
+    {
+        var modelType = typeof(T);
+        var dtoType = updateDto.GetType();
+
+        var propertiesWithUniqueAttr = modelType
+            .GetProperties()
+            .Where(p => Attribute.IsDefined(p, typeof(UniqueAttribute)))
+            .Where(p =>
+            {
+                var dtoProp = dtoType.GetProperty(p.Name);
+                if (dtoProp == null) return false;
+                var newValue = dtoProp.GetValue(updateDto);
+                var currentValue = p.GetValue(entity);
+                // Validar solo si hay nuevo valor y cambió respecto al actual
+                return newValue != null && !Equals(currentValue, newValue);
+            });
+
+        foreach (PropertyInfo modelProp in propertiesWithUniqueAttr)
+        {
+            var dtoProp = dtoType.GetProperty(modelProp.Name);
+            var newValue = dtoProp.GetValue(updateDto);
+
+            // Armar expresión lambda: x => x.Prop == newValue
+            var parameter = Expression.Parameter(modelType, "x");
+            var member = Expression.Property(parameter, modelProp.Name);
+            var constant = Expression.Constant(newValue);
+            var body = Expression.Equal(
+                Expression.Convert(member, typeof(object)),
+                Expression.Convert(constant, typeof(object))
+            );
+            var lambda = Expression.Lambda<Func<T, bool>>(body, parameter);
+
+            bool exists = await ExistsAsync(lambda);
+            if (exists)
+            {
+                throw new UniqueConstraintViolationException(
+                    $"{modelType.Name} with {modelProp.Name} '{newValue}' already exists",
+                    modelProp.Name
+                );
+            }
+        }
+    }
+
+    private async Task ValidateCreateFields(T entity)
     {
         var propertiesWithUniqueAttr = typeof(T)
             .GetProperties()
-            .Where(p => Attribute.IsDefined(p, typeof(UniqueAttribute)));
+            .Where(p => Attribute.IsDefined(p, typeof(UniqueAttribute)))
+            .Where(p => p.GetValue(entity) != null); 
 
         foreach (PropertyInfo prop in propertiesWithUniqueAttr)
         {
             var value = prop.GetValue(entity);
-            if (value == null) continue;
 
             var parameter = Expression.Parameter(typeof(T), "x");
             var member = Expression.Property(parameter, prop.Name);
@@ -48,9 +135,9 @@ public class GenericService<T>(
                 Expression.Convert(member, typeof(object)),
                 Expression.Convert(constant, typeof(object))
             );
-            
+
             var lambda = Expression.Lambda<Func<T, bool>>(body, parameter);
-            
+
             bool exists = await ExistsAsync(lambda);
             if (exists)
             {
