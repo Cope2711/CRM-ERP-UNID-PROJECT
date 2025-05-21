@@ -27,7 +27,7 @@ public static class DtoSchemaHelper
             { typeof(IsEmailAttribute), nameof(IsEmailAttribute).Replace("Attribute", "") },
             { typeof(IsPhoneNumberWithLadaAttribute), nameof(IsPhoneNumberWithLadaAttribute).Replace("Attribute", "") },
             { typeof(IsPasswordAttribute), nameof(IsPasswordAttribute).Replace("Attribute", "") },
-            { typeof(IsObjectKeyAttribute), nameof(IsObjectKeyAttribute).Replace("Attribute", "") }
+            { typeof(IsObjectKeyAttribute), nameof(IsObjectKeyAttribute).Replace("Attribute", "") },
         };
 
         var properties = dtoType.GetProperties();
@@ -60,6 +60,7 @@ public static class DtoSchemaHelper
             var maxLengthAttr = attributes.OfType<MaxLengthAttribute>().FirstOrDefault();
             var minLengthAttr = attributes.OfType<MinLengthAttribute>().FirstOrDefault();
             var rangeAttr = attributes.OfType<RangeAttribute>().FirstOrDefault();
+            var referenceAttr = attributes.OfType<ReferenceInfoAttribute>().FirstOrDefault();
 
             if (maxLengthAttr != null)
                 propertySchema["maxLength"] = maxLengthAttr.Length;
@@ -71,6 +72,12 @@ public static class DtoSchemaHelper
             {
                 propertySchema["min"] = rangeAttr.Minimum;
                 propertySchema["max"] = rangeAttr.Maximum;
+            }
+
+            if (referenceAttr != null)
+            {
+                propertySchema["select"] = referenceAttr.Select;
+                propertySchema["controller"] = referenceAttr.Controller;
             }
 
             // Check for any custom special attributes

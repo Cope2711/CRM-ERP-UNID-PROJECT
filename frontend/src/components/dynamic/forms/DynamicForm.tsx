@@ -1,8 +1,8 @@
+import { DtoSchema } from '@/types/Schema';
 import { Form, Input, Select } from 'antd';
-import type { Schema } from '@/types/Schema';
 
 type DynamicFormProps = {
-    schema: Schema;
+    schema: DtoSchema;
 };
 
 export default function DynamicForm({ schema }: DynamicFormProps) {
@@ -12,7 +12,7 @@ export default function DynamicForm({ schema }: DynamicFormProps) {
                 const lowerKey = key.toLowerCase();
 
                 const rules = [];
-
+                
                 // Reglas de validación dinámicas
                 if (config.required) {
                     rules.push({ required: true, message: `${key} es requerido` });

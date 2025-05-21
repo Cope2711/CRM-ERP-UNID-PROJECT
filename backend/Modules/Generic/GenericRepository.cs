@@ -18,10 +18,11 @@ public interface IGenericRepository<T> where T : class
 
     Task<T?> GetFirstAsync(Expression<Func<T, object>> fieldSelector, object value,
         Func<IQueryable<T>, IQueryable<T>> include = null);
-    
+
     Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
 
-    Task<List<Dictionary<string, object>>> GetAllAsync(GetAllDto getAllDto, Func<IQueryable<T>, IQueryable<T>> queryModifier = null);
+    Task<List<Dictionary<string, object>>> GetAllAsync(GetAllDto getAllDto,
+        Func<IQueryable<T>, IQueryable<T>> queryModifier = null);
 
     Task<int> GetTotalItemsAsync(GetAllDto getAllDto);
 
@@ -48,7 +49,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         _dbSet.Add(entity);
     }
-    
+
     public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
     {
         return await _dbSet.AnyAsync(predicate);
@@ -106,7 +107,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
         return await queryable.FirstOrDefaultAsync(e => EF.Property<object>(e, fieldName).Equals(value));
     }
-    
+
     public async Task<int> GetTotalItemsAsync(GetAllDto getAllDto)
     {
         IQueryable<T> query = _dbSet.AsQueryable();
@@ -120,7 +121,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             .FirstOrDefault(p => p.GetCustomAttributes(typeof(KeyAttribute), false).Any());
     }
 
-    public async Task<List<Dictionary<string, object>>> GetAllAsync(GetAllDto getAllDto, Func<IQueryable<T>, IQueryable<T>> queryModifier = null)
+    public async Task<List<Dictionary<string, object>>> GetAllAsync(GetAllDto getAllDto,
+        Func<IQueryable<T>, IQueryable<T>> queryModifier = null)
     {
         IQueryable<T> queryable = _dbSet.AsQueryable();
 
@@ -143,24 +145,26 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
         return await selectedQuery.ToListAsync();
     }
-    
+
     private static IQueryable<Dictionary<string, object>> ApplySelects<T>(IQueryable<T> query, List<string> selects)
     {
-        if (selects == null || !selects.Any()) return query.Select(e => typeof(T).GetProperties()
-            .ToDictionary(p => p.Name, p => (object)p.GetValue(e, null) ?? DBNull.Value));
+        if (selects == null || !selects.Any())
+            return query.Select(e => typeof(T).GetProperties()
+                .ToDictionary(p => p.Name, p => (object)p.GetValue(e, null) ?? DBNull.Value));
 
         var parameter = Expression.Parameter(typeof(T), "e");
 
         var bindings = selects
             .Select(column =>
             {
-                var propertyPath = column.Split('.');  // Dividir el path en partes (por ejemplo: "Role.roleName")
-                Expression expression = Expression.Property(parameter, propertyPath[0]);  // Primer nivel
+                var propertyPath = column.Split('.'); // Dividir el path en partes (por ejemplo: "Role.roleName")
+                Expression expression = Expression.Property(parameter, propertyPath[0]); // Primer nivel
 
                 // Navegar a través de las propiedades anidadas si hay más niveles
                 for (int i = 1; i < propertyPath.Length; i++)
                 {
-                    var property = expression.Type.GetProperty(propertyPath[i], BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    var property = expression.Type.GetProperty(propertyPath[i],
+                        BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                     if (property == null) return null;
 
                     expression = Expression.Property(expression, property);
@@ -177,13 +181,14 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         var addMethod = typeof(Dictionary<string, object>).GetMethod("Add");
 
         var memberInit = Expression.ListInit(newExpression, bindings.Select(b =>
-            Expression.ElementInit(addMethod, Expression.Constant(b.Column), Expression.Convert(b.Expression, typeof(object)))));
+            Expression.ElementInit(addMethod, Expression.Constant(b.Column),
+                Expression.Convert(b.Expression, typeof(object)))));
 
         var lambda = Expression.Lambda<Func<T, Dictionary<string, object>>>(memberInit, parameter);
 
         return query.Select(lambda);
     }
-    
+
     private static IQueryable<T> ApplyFilters<T>(IQueryable<T> query, List<FilterDto>? filters)
     {
         if (filters == null || !filters.Any()) return query;
@@ -191,49 +196,63 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
         Expression? finalExpression = null;
 
-        foreach (var filter in filters)
+        foreach (var filter in filters) 
         {
-            var property = typeof(T).GetProperty(filter.Column,
-                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var propertyPath = filter?.Column?.Split('.');
+            Expression propertyExpression = Expression.Property(parameter, propertyPath[0]);
 
-            if (property == null) continue;
+            for (int i = 1; i < propertyPath.Length; i++)
+            {
+                var propertyInfo = propertyExpression.Type.GetProperty(propertyPath[i],
+                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                if (propertyInfo == null)
+                {
+                    propertyExpression = null;
+                    break;
+                }
 
-            Type propertyType = property.PropertyType;
-            Type underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
+                propertyExpression = Expression.Property(propertyExpression, propertyInfo);
+            }
 
-            object? filterValue = string.IsNullOrEmpty(filter.Value)
+            if (propertyExpression == null) continue;
+
+            var propertyType = propertyExpression.Type;
+            var underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
+
+            object? filterValue = string.IsNullOrEmpty(filter?.Value)
                 ? null
-                : (underlyingType == typeof(Guid) 
-                    ? (object)Guid.Parse(filter.Value)  
-                    : Convert.ChangeType(filter.Value, underlyingType)); 
+                : (underlyingType == typeof(Guid)
+                    ? (object)Guid.Parse(filter.Value)
+                    : Convert.ChangeType(filter.Value, underlyingType));
 
-            Expression left = Expression.Property(parameter, property);
             Expression right = Expression.Constant(filterValue, propertyType);
 
-            Expression? comparison = filter.Operator switch
+            Expression? comparison = filter?.Operator switch
             {
-                FilterOperators.Equal => Expression.Equal(left, right),
-                FilterOperators.NotEqual => Expression.NotEqual(left, right),
-                FilterOperators.GreaterThan => Expression.GreaterThan(left, right),
-                FilterOperators.LessThan => Expression.LessThan(left, right),
-                FilterOperators.GreaterThanOrEqual => Expression.GreaterThanOrEqual(left, right),
-                FilterOperators.LessThanOrEqual => Expression.LessThanOrEqual(left, right),
-                FilterOperators.Like or FilterOperators.Contains => Expression.Call(left,
+                FilterOperators.Equal => Expression.Equal(propertyExpression, right),
+                FilterOperators.NotEqual => Expression.NotEqual(propertyExpression, right),
+                FilterOperators.GreaterThan => Expression.GreaterThan(propertyExpression, right),
+                FilterOperators.LessThan => Expression.LessThan(propertyExpression, right),
+                FilterOperators.GreaterThanOrEqual => Expression.GreaterThanOrEqual(propertyExpression, right),
+                FilterOperators.LessThanOrEqual => Expression.LessThanOrEqual(propertyExpression, right),
+                FilterOperators.Like or FilterOperators.Contains => Expression.Call(propertyExpression,
                     typeof(string).GetMethod("Contains", new[] { typeof(string) })!, right),
-                FilterOperators.StartsWith => Expression.Call(left,
+                FilterOperators.StartsWith => Expression.Call(propertyExpression,
                     typeof(string).GetMethod("StartsWith", new[] { typeof(string) })!, right),
-                FilterOperators.EndsWith => Expression.Call(left,
+                FilterOperators.EndsWith => Expression.Call(propertyExpression,
                     typeof(string).GetMethod("EndsWith", new[] { typeof(string) })!, right),
                 FilterOperators.In when filterValue is not null =>
                     Expression.Call(Expression.Constant(filterValue),
                         typeof(List<>).MakeGenericType(propertyType).GetMethod("Contains", new[] { propertyType })!,
-                        left),
+                        propertyExpression),
                 _ => null
             };
 
             if (comparison == null) continue;
 
-            finalExpression = finalExpression == null ? comparison : Expression.AndAlso(finalExpression, comparison);
+            finalExpression = finalExpression == null
+                ? comparison
+                : Expression.AndAlso(finalExpression, comparison);
         }
 
         if (finalExpression != null)
@@ -256,14 +275,15 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             var propertyPath = orderBy.Split('.');
 
             // Navegar a través de las propiedades anidadas
-            Expression propertyAccess = Expression.Property(parameter, propertyPath[0]);  // Primer nivel
+            Expression propertyAccess = Expression.Property(parameter, propertyPath[0]); // Primer nivel
 
             for (int i = 1; i < propertyPath.Length; i++)
             {
-                var property = propertyAccess.Type.GetProperty(propertyPath[i], BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                if (property == null) return queryable;  // Si no encontramos la propiedad, no aplicamos el orden
+                var property = propertyAccess.Type.GetProperty(propertyPath[i],
+                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                if (property == null) return queryable; // Si no encontramos la propiedad, no aplicamos el orden
 
-                propertyAccess = Expression.Property(propertyAccess, property);  // Navegar al siguiente nivel
+                propertyAccess = Expression.Property(propertyAccess, property); // Navegar al siguiente nivel
             }
 
             var orderExpression = Expression.Lambda(propertyAccess, parameter);
@@ -272,7 +292,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             var methodName = descending ? "OrderByDescending" : "OrderBy";
             var orderByCall = Expression.Call(
                 typeof(Queryable), methodName,
-                new Type[] { typeof(T), propertyAccess.Type }, 
+                new Type[] { typeof(T), propertyAccess.Type },
                 queryable.Expression,
                 Expression.Quote(orderExpression)
             );

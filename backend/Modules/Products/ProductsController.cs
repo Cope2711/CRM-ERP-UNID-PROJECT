@@ -42,14 +42,6 @@ public class ProductsController(
     [PermissionAuthorize("View", "Products")]
     public async Task<ActionResult<GetAllResponseDto<Product>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Product));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Product));
-
-        CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Selects, typeof(Product));
-
         GetAllResponseDto<Product> getAllResponseDto = await _productsQueryService.GetAll(getAllDto);
 
         return Ok(getAllResponseDto);

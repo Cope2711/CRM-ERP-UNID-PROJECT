@@ -29,6 +29,7 @@ public class ProductDto
     public bool IsActive { get; set; }
     
     [GuidNotEmpty]
+    [ReferenceInfo("brands", "Brand.brandName")]
     public Guid? BrandId { get; set; }
     
     [RelationInfo("ProductsCategories", "products-categories", new[] { "ProductCategoryId", "Category.CategoryId", "Category.CategoryName" })]
