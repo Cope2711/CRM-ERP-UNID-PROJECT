@@ -13,6 +13,7 @@ import { Tag, Tooltip } from 'antd';
 import { Drawer } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import DynamicCreateForm from "@/components/dynamic/forms/DynamicCreateForm";
+import { DtoSchema } from '@/types/Schema';
 
 type ListViewPageProps = {
     modelName: string;
@@ -38,27 +39,27 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
     const { primaryKey, validFields } = useMemo(() => {
         if (!schema) return { primaryKey: 'id', validFields: [] };
 
+        const typedSchema = schema as DtoSchema;
         let pk = 'id';
         const fields: string[] = [];
 
-        for (const [key, meta] of Object.entries(schema) as [string, any][]) {
+        for (const [key, meta] of Object.entries(typedSchema)) {
             if (meta.type === 'list`1') continue;
 
-            if (Array.isArray(meta.specialData) && meta.specialData.includes('IsPassword')) {
+            if (meta.specialData?.includes('IsPassword')) continue;
+
+            if (meta.specialData?.includes('IsObjectKey')) {
+                pk = key;
                 continue;
             }
 
-            if (
-                meta.type === 'guid' &&
-                Array.isArray(meta.specialData) &&
-                meta.specialData.includes('IsObjectKey')
-            ) {
-                pk = key;
+            if (meta.type === 'guid' && meta.select) {
+                fields.push(meta.select);
+                fields.push(key);
+                continue;
             }
 
-            if (meta.type !== 'guid') {
-                fields.push(key);
-            }
+            fields.push(key);
         }
 
         return { primaryKey: pk, validFields: fields };
@@ -98,10 +99,13 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
                     filters: filters,
                     selects: [primaryKey, ...validFields],
                 };
+
                 const response = await genericService.getAll(modelName, getAllDto);
+
                 setItems(response.data);
                 setTotalItems(response.totalItems);
             } catch (err) {
+                console.error(err);
                 setError((err as Error).message || 'Ocurrió un error inesperado.');
             } finally {
                 setIsLoading(false);

@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { Button, Form, message } from "antd";
 import genericService from "@/services/genericService";
 import { normalizeKeysToLower } from "@/utils/objectUtils";
-import { Schema } from "@/types/Schema";
 import DynamicForm from "./DynamicForm";
 import SuccessMessage from "../../message/SuccessMessage";
 import { LoadingSpinner } from "@/components/Loading/loadingSpinner";
+import { DtoSchema } from "@/types/Schema";
 
 /**
  * Props del componente DynamicUpdateForm
@@ -32,7 +32,7 @@ type UpdateFormProps = {
  */
 const useUpdateForm = (modelName: string, id: string, defaultData?: Record<string, any> | null) => {
   // Estado para el esquema del formulario
-  const [schema, setSchema] = useState<Schema | null>(null);
+  const [schema, setSchema] = useState<DtoSchema | null>(null);
 
   // Instancia del formulario Antd
   const [form] = Form.useForm();

@@ -36,7 +36,6 @@ public static class InventoryExtensions
             IsActive = inventory.IsActive,
             CreatedDate = inventory.CreatedDate,
             UpdatedDate = inventory.UpdatedDate,
-            Product = inventory.Product?.ToDto()
         };
     }
     

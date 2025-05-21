@@ -60,14 +60,6 @@ public class InventoryController(
     [PermissionAuthorize("View", "Inventory")]
     public async Task<ActionResult<GetAllResponseDto<Inventory>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Inventory));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Inventory));
-
-        CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Selects, typeof(Inventory));
-
         GetAllResponseDto<Inventory> getAllResponseDto = await _inventoryQueryService.GetAll(getAllDto);
 
         return Ok(getAllResponseDto);

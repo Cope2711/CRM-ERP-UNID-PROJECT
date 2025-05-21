@@ -6,7 +6,6 @@ import GenericDetailPage from './pages/GenericDetailPage';
 import AboutPage from './pages/AboutPage';
 import ListViewPage from './pages/ListViewPage';
 import SalesPage from './pages/SalesPage';
-import Inventory from './pages/Inventory';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -24,10 +23,13 @@ const AppRoutes = () => {
     <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/inventory" element={<Inventory/>} />
+
         <Route path="/sales" element={<SalesPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/settings" element={<div>Settings Page</div>} />
+
+        <Route path="/inventory" element={<ListViewPage key="inventory" modelName="inventory" />} />
+        <Route path="/inventory/:id" element={<GenericDetailPage modelName="inventory" />} />
 
         <Route path="/products" element={<ListViewPage key="products" modelName="products" />} />
         <Route path="/products/:id" element={<GenericDetailPage modelName="products" />} />

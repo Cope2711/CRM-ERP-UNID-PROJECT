@@ -5,18 +5,22 @@ namespace CRM_ERP_UNID.Dtos;
 
 public class InventoryDto
 {
-    [GuidNotEmpty]
+    [IsObjectKey]
     public Guid InventoryId { get; set; }
+    
     [GuidNotEmpty]
+    [ReferenceInfo("products", "Product.ProductName")]
     public Guid ProductId { get; set; }
+    
     [GuidNotEmpty]
+    [ReferenceInfo("branches", "Branch.BranchName")]
     public Guid? BranchId { get; set; }
-    [Range(1, int.MaxValue)]
+    
+    [Range(0, int.MaxValue)]
     public int Quantity { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime UpdatedDate { get; set; }
-    public ProductDto? Product { get; set; }
 }
 
 public class CreateInventoryDto

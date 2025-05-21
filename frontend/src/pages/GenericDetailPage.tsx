@@ -63,7 +63,7 @@ const useDetailData = (modelName: string, id?: string) => {
  */
 const GenericDetailPage = ({ modelName }: DetailPageProps) => {
     const { id } = useParams<{ id: string }>();
-    const { data, schema, relationData, setRelationData, loading, notFound } = useDetailData(modelName, id);
+    const { data, schema, setRelationData, loading, notFound } = useDetailData(modelName, id);
 
     if (loading) return <LoadingSpinner />;
     if (notFound || !id) return <NotFoundPage />;
