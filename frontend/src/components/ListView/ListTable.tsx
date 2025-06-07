@@ -3,19 +3,12 @@ import { ColumnsType } from 'antd/es/table';
 import { EyeOutlined } from '@ant-design/icons';
 import { useMemo } from 'react';
 import LinkedRef from '../LinkedRef';
-
-type SchemaMeta = {
-  type?: string;
-  required?: boolean;
-  select?: string;
-  controller?: string;
-  [key: string]: any;
-};
+import { PropertiesSchema } from '@/types/Schema';
 
 type ListTableProps = {
   modelName: string; // Current model name, used for routing and LinkedRef component
   items: any[]; // Data rows to display in the table
-  schema: Record<string, SchemaMeta> | null; // Metadata describing each field of the model
+  propertiesSchema: PropertiesSchema; // Metadata describing each field of the model
   validFields: string[]; // Fields to show in the table (filtered externally)
   primaryKey: string; // Field name used as unique identifier for rows
   page: number; // Current pagination page
@@ -28,7 +21,7 @@ type ListTableProps = {
 export default function ListTable({
   modelName,
   items,
-  schema,
+  propertiesSchema,
   validFields,
   primaryKey,
   page,
@@ -39,28 +32,28 @@ export default function ListTable({
 }: ListTableProps) {
   // Generate table columns based on schema and valid fields
   const columns: ColumnsType<any> = useMemo(() => {
-    if (!schema) return [];
+    if (!propertiesSchema) return [];
 
     // Build a map of "select" fields to their corresponding schema keys for quick lookups
     const selectMap = new Map<string, string>();
-    Object.entries(schema).forEach(([key, meta]) => {
+    Object.entries(propertiesSchema).forEach(([key, meta]) => {
       if (meta.select) selectMap.set(meta.select, key);
     });
 
     // Filter out guid fields that are referenced via "select" to avoid duplicate columns
     const filteredFields = validFields.filter((key) => {
-      const meta = schema[key];
+      const meta = propertiesSchema[key];
       return !(meta?.type === 'guid' && meta.select);
     });
 
     // Map filtered fields to column definitions
     const generatedColumns = filteredFields.map((key) => {
       // Resolve field metadata, accounting for nested fields (dot notation)
-      let meta: SchemaMeta = schema[key];
+      let meta = propertiesSchema[key];
       if (key.includes('.')) {
         const relatedKey = selectMap.get(key);
         // Fallback to default meta if no related key found
-        meta = relatedKey ? schema[relatedKey] : { type: 'unknown', required: false };
+        meta = relatedKey ? propertiesSchema[relatedKey] : { type: 'unknown', required: false };
       }
 
       return {
@@ -78,7 +71,7 @@ export default function ListTable({
 
           // For guid fields, render a LinkedRef component linking to related record
           const relatedKey = selectMap.get(key);
-          const relatedMeta = relatedKey ? schema[relatedKey] : undefined;
+          const relatedMeta = relatedKey ? propertiesSchema[relatedKey] : undefined;
           const relatedId = relatedKey ? record[relatedKey] : undefined;
           const linkedModel = relatedMeta?.controller || modelName;
 
@@ -112,7 +105,7 @@ export default function ListTable({
     });
 
     return generatedColumns;
-  }, [schema, validFields, modelName, primaryKey, navigate]);
+  }, [propertiesSchema, validFields, modelName, primaryKey, navigate]);
 
   return (
     <Table

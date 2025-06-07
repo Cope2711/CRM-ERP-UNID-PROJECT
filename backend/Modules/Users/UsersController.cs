@@ -1,8 +1,6 @@
 using CRM_ERP_UNID.Attributes;
-using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
-using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,23 +17,9 @@ public class UsersController(
 {
     [HttpGet("schema")]
     [PermissionAuthorize("View", "Users")]
-    public IActionResult GetSchema([FromQuery] string type)
+    public IActionResult GetSchema([FromQuery] bool ignoreRequired = false)
     {
-        if (!Utils.ValidSchemaTypes.Contains(type.ToLower()))
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-        
-        var dtoType = type.ToLower() switch
-        {
-            "create" => typeof(CreateUserDto),
-            "update" => typeof(UpdateUserDto),
-            "model" or "read" => typeof(UserDto),
-            _ => null
-        };
-
-        if (dtoType == null)
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-
-        return Ok(DtoSchemaHelper.GetDtoSchema(dtoType));
+        return Ok(DtoSchemaHelper.GetDtoSchema(typeof(User), ignoreRequired));
     }
     
     [HttpPatch("update/{id}")]
@@ -59,14 +43,6 @@ public class UsersController(
     [PermissionAuthorize("View", "Users")]
     public async Task<ActionResult<GetAllResponseDto<User>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(User));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(User));
-
-        CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Selects, typeof(User));
-
         GetAllResponseDto<User> getAllResponseDto = await _usersQueryService.GetAll(getAllDto);
 
         return Ok(getAllResponseDto);

@@ -1,7 +1,7 @@
 import genericService from "@/services/genericService";
 import { Button } from "antd";
 import { useState } from "react";
-import SuccessMessage from "../message/SuccessMessage";
+import PopupMessage from "../message/SuccessMessage";
 
 interface ChangeActiveStatusButtonProps {
     modelName: string;
@@ -43,7 +43,7 @@ const ChangeActiveStatusButton: React.FC<ChangeActiveStatusButtonProps> = ({ mod
             onClick={onClick}
         />
         {showSuccess && (
-            <SuccessMessage
+            <PopupMessage
                 message={`${modelName.charAt(0).toUpperCase() + modelName.slice(1)} ${active ? "deactivated" : "activated"} successfully`}
             />
         )}

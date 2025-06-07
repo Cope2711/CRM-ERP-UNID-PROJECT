@@ -1,7 +1,6 @@
 ﻿using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
-using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,12 +38,6 @@ public class ResourceController : ControllerBase
     [PermissionAuthorize("View", "Resources")]
     public async Task<ActionResult<GetAllResponseDto<Resource>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Resource));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Resource));
-
         GetAllResponseDto<Resource> getAllResponseDto = await _resourceService.GetAllAsync(getAllDto);
 
         return Ok(getAllResponseDto);

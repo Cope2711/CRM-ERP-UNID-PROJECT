@@ -1,276 +1,167 @@
-import { useState, useEffect, useMemo } from "react";
-import genericService from "@/services/genericService";
-import { extractIsObjectKeyName, toLowerRelationKey } from "@/utils/objectUtils";
-import { FilterDto, GetAllDto } from "@/dtos/GenericDtos";
 import { FilterOperators } from "@/constants/filterOperators";
-import { Tabs, Button, Space, Alert } from "antd";
-import AlertMessage from "@/components/message/AlertMessage";
-import SuccessMessage from "@/components/message/SuccessMessage";
+import genericService from "@/services/genericService";
+import { RelationSchema } from "@/types/Schema";
+import { IdResponseStatusSchema } from "@/types/Status";
 import { LoadingOutlined } from "@ant-design/icons";
-import AssignButton from "@/components/Button/AssignButton";
-import { useRelationData } from "./useRelationData";
-import { RelationTable } from "./RelationTable";
-import { extractLastKeyPart, extractLastKeyParts } from "@/utils/stringUtils";
+import { Button, Select, Table, Tabs } from "antd";
+import { useEffect, useState } from "react";
 
-/**
- * Props para el componente DynamicRelationViewer
- */
-type RelationViewerProps = {
-    id: string; // ID del modelo principal
-    schema: Record<string, any>; // Esquema que define las relaciones
-    setRelationData: (data: Record<string, any>) => void; // Callback para actualizar datos de relación
+type NewRelationViewerProps = {
+    columnName: string;
+    id: string;
+    relationsSchemas: RelationSchema[];
+    modelName: string;
 };
 
-/**
- * Componente para visualizar y gestionar relaciones dinámicas entre modelos
- * 
- * Muestra las relaciones disponibles en pestañas y permite:
- * - Visualizar datos relacionados
- * - Asignar nuevas relaciones
- * - Revocar relaciones existentes
- */
-const DynamicRelationViewer = ({ id, schema, setRelationData }: RelationViewerProps) => {
-    // Estados del componente
-    const [activeKey, setActiveKey] = useState<string>(""); // Pestaña activa
-    const [loadedRelations, setLoadedRelations] = useState<Set<string>>(new Set()); // Relaciones ya cargadas
-    const [relationData, setLocalRelationData] = useState<Record<string, any>>({}); // Datos de relaciones
-    const [loading, setLoading] = useState(false); // Estado de carga
-    const [error, setError] = useState<string | null>(null); // Mensaje de error
-    const [selectedIds, setSelectedIds] = useState<string[]>([]); // IDs seleccionados
-    const [showSuccess, setShowSuccess] = useState(false); // Mostrar mensaje de éxito
+export default function DynamicRelationViewer({ columnName, id, relationsSchemas }: NewRelationViewerProps) {
+    const [activeRelation, setActiveRelation] = useState<RelationSchema>(relationsSchemas[0]);
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState<any[]>([]);
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const [assignMode, setAssignMode] = useState<boolean>(false);
 
-    // Obtener las claves de relación del esquema
-    const relationKeys = useRelationData(schema);
-
-    // Mapeo de información de relación para acceso rápido
-    const relationInfoMap = useMemo(() => {
-        const map: Record<string, any> = {};
-        relationKeys.forEach(key => {
-            map[key] = schema[key]?.relationInfo;
-        });
-        return map;
-    }, [schema, relationKeys]);
-
-    // Efecto para cargar la primera relación al montar el componente
     useEffect(() => {
-        if (relationKeys.length > 0 && !activeKey) {
-            const firstKey = relationKeys[0];
-            setActiveKey(firstKey);
-            loadRelationData();
+        if (activeRelation) {
+            fetchData();
         }
-    }, [relationKeys]);
+    }, [activeRelation]);
 
-    // Efecto para cargar datos cuando cambia la pestaña activa
     useEffect(() => {
-        if (activeKey && !loadedRelations.has(activeKey)) {
-            loadRelationData();
-        }
-    }, [activeKey]);
+        fetchData();
+    }, [assignMode]);
 
-    /**
-     * Carga los datos de la relación activa
-     */
-    const loadRelationData = async () => {
-        if (!activeKey) return;
-        await fetchRelationData(activeKey, false);
+    const handleTabChange = (key: string) => {
+        const selectedRelation = relationsSchemas.find(r => r.modelName === key);
+        if (selectedRelation && selectedRelation.modelName !== activeRelation.modelName) {
+            setActiveRelation(selectedRelation);
+            setSelectedRowKeys([]); // Limpiar selección al cambiar de tab
+        }
     };
 
-    /**
-     * Fuerza la recarga de los datos de la relación activa
-     */
-    const forceReloadRelationData = async () => {
-        if (!activeKey) return;
-        await fetchRelationData(activeKey, true);
-    };
-
-    /**
-     * Obtiene los datos de una relación específica
-     * @param key - Clave de la relación a cargar
-     * @param force - Forzar recarga incluso si ya estaba cargada
-     */
-    const fetchRelationData = async (key: string, force = false) => {
-        const relationInfo = relationInfoMap[key];
-        if (!relationInfo) return;
-
-        // Evitar recarga innecesaria
-        if (!force && loadedRelations.has(key)) return;
-
+    const fetchData = async () => {
         setLoading(true);
-        setError(null);
-        setSelectedIds([]);
 
         try {
-            // Configurar filtros para obtener solo las relaciones del modelo actual
-            const filters: FilterDto[] = [
-                { 
-                    column: extractIsObjectKeyName(schema), 
-                    operator: FilterOperators.Equal, 
-                    value: id 
-                },
-            ];
-
-            // Configurar DTO para la consulta
-            const getAllDto: GetAllDto = {
-                pageNumber: 1,
-                pageSize: 10,
-                orderBy: relationInfo.selects[0],
-                descending: false,
-                filters,
-                selects: relationInfo.selects,
-            };
-            
-            // Obtener datos del servicio
-            const response = await genericService.getAll(relationInfo.controller, getAllDto);
-            const newData = { [key]: response.data };
-
-            // Actualizar estados con los nuevos datos
-            setLocalRelationData(prev => ({ ...prev, ...newData }));
-            setRelationData((prev: any) => ({ ...prev, ...newData }));
-            setLoadedRelations(prev => new Set(prev).add(key));
-        } catch (err) {
-            console.error(`Error loading relation ${key}`, err);
-            setError(`Error loading ${key} data`);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    /**
-     * Maneja la selección/deselección de filas
-     * @param id - ID del elemento
-     * @param isSelected - Indica si está seleccionado o no
-     */
-    const handleRowSelect = (id: string, isSelected: boolean) => {
-        setSelectedIds(prev =>
-            isSelected 
-                ? [...prev, id] // Agregar si está seleccionado
-                : prev.filter(existingId => existingId !== id) // Remover si no está seleccionado
-        );
-    };
-
-    /**
-     * Revoca las relaciones seleccionadas
-     */
-    const handleRevoke = async () => {
-        if (selectedIds.length === 0) return;
-        setLoading(true);
-        setError(null);
-
-        const relationInfo = relationInfoMap[activeKey];
-        if (!relationInfo) return;
-
-        try {
-            // Enviar solicitud de revocación
-            const response = await genericService.revoke(relationInfo.controller, selectedIds);
-
-            if (response.failed?.length > 0) {
-                setError(`Failed to revoke: ${response.failed?.join(", ")}`);
-                return;
+            if (assignMode) {
+                const response = await genericService.getAll(activeRelation.modelName, {
+                    pageNumber: 1,
+                    pageSize: 10,
+                    orderBy: activeRelation.selects[1].split('.')[1],
+                    descending: false,
+                    filters: [],
+                    selects: activeRelation.selects
+                        .filter(select => select.includes('.')).map(select => select.split('.')[1]),
+                });
+                setData(response.data);
+            } else {
+                const response = await genericService.getAll(activeRelation.controller, {
+                    pageNumber: 1,
+                    pageSize: 10,
+                    orderBy: activeRelation.selects[0],
+                    descending: false,
+                    filters:
+                        [
+                            {
+                                column: columnName,
+                                operator: assignMode ? FilterOperators.NotEqual : FilterOperators.Equal,
+                                value: id
+                            },
+                        ],
+                    selects: activeRelation.selects,
+                });
+                setData(response.data);
             }
-            
-            // Recargar datos y resetear selección
-            forceReloadRelationData();
-            setSelectedIds([]);
-            setShowSuccess(true);
-        } catch (err) {
-            console.error(`Error revoking relation ${activeKey}`, err);
-            setError(`Error revoking ${activeKey} data`);
+
+        } catch (error: any) {
+            console.error(error);
         } finally {
             setLoading(false);
         }
     };
 
-    // Mostrar mensaje si no hay relaciones
-    if (relationKeys.length === 0) {
+    const handleActionClick = async () => {
+        console.log("Selected Row Keys:", selectedRowKeys);
+
+        if (assignMode) {
+            try {
+                const response = await genericService.assign(activeRelation.controller, { modelId: id, assignIds: selectedRowKeys.map(key => key.toString()) }, activeRelation.modelName);
+                console.log(response);
+            } catch (error: any) {
+                console.error(error);
+            };
+        }
+        else {
+            try {
+                const response: IdResponseStatusSchema = await genericService.revoke(activeRelation.controller, selectedRowKeys.map(key => key.toString()));
+                console.log(response);
+            } catch (error: any) {
+                console.error(error);
+            };
+        }
+    };
+
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (selectedKeys: React.Key[]) => {
+            setSelectedRowKeys(selectedKeys);
+        },
+    };
+
+    if (relationsSchemas.length === 0) {
         return <div className="text-center text-gray-500">No relations to display.</div>;
     }
 
-    // Datos y columnas para la relación activa
-    const currentData = activeKey ? relationData[activeKey] : [];
-    const columns = activeKey && relationInfoMap[activeKey]?.selects || [];
-
     return (
         <div className="h-full flex flex-col gap-4">
-            {/* Pestañas de relaciones */}
             <Tabs
-                activeKey={activeKey}
-                onChange={setActiveKey}
-                items={relationKeys.map((key: string) => ({
-                    label: key.charAt(0).toUpperCase() + key.slice(1), // Capitalizar primera letra
-                    key,
+                activeKey={activeRelation.modelName}
+                items={relationsSchemas.map(r => ({
+                    label: r.modelName,
+                    key: r.modelName,
                 }))}
+                onChange={handleTabChange}
             />
 
-            {/* Indicador de carga */}
             {loading && (
                 <div className="flex justify-center py-4">
                     <LoadingOutlined spin style={{ fontSize: 24 }} />
                 </div>
             )}
 
-            {/* Mensajes de estado */}
-            {error && <AlertMessage message={error} />}
-            {showSuccess && <SuccessMessage message="Operación Completada!" />}
+            {!loading && (
+                <>
+                    <div className="flex justify-end gap-4">
+                        <Select
+                            style={{ width: 120 }}
+                            options={[{ value: 'Revocar', label: 'Revocar' }, { value: 'Asignar', label: 'Asignar' }]}
+                            defaultValue={assignMode ? 'Asignar' : 'Revocar'}
+                            onChange={(value) => setAssignMode(value === 'Asignar')}
+                        />
+                        <Button type="primary" onClick={handleActionClick} disabled={selectedRowKeys.length === 0}
+                            className={assignMode ? "bg-green-500" : "bg-red-500"}>
+                            {assignMode ? "Asignar" : "Revocar"}
+                        </Button>
 
-            {/* Contenido de la relación activa */}
-            {activeKey && !loading && (
-                <div className="flex-1 flex flex-col gap-4">
-                    <div className="border rounded-lg overflow-hidden">
-                        {currentData?.length > 0 ? (
-                            <>
-                                {/* Tabla de datos de relación */}
-                                <RelationTable
-                                    columns={columns.filter((_: number, i: number) => i !== 1)} // Excluir columna ID
-                                    data={currentData}
-                                    selectedIds={selectedIds}
-                                    onRowSelect={handleRowSelect}
-                                />
-                                
-                                {/* Info de elementos seleccionados */}
-                                {selectedIds.length > 0 && (
-                                    <Alert
-                                        message={`${selectedIds.length} elemento(s) seleccionado(s).`}
-                                        type="info"
-                                        showIcon
-                                    />
-                                )}
-                            </>
-                        ) : (
-                            <div className="text-center text-gray-500 py-4">
-                                No hay datos disponibles para esta relación.
-                            </div>
-                        )}
                     </div>
 
-                    {/* Botones de acción */}
-                    <Space className="justify-end w-full">
-                        {/* Botón para asignar nuevas relaciones */}
-                        <AssignButton
-                            modelId={id}
-                            modelController={toLowerRelationKey(activeKey)}
-                            relationController={relationInfoMap[activeKey]?.controller}
-                            orderBy={extractLastKeyPart(relationInfoMap[activeKey]?.selects[2])}
-                            selects={extractLastKeyParts(relationInfoMap[activeKey]?.selects.slice(1))}
-                            senderResource={activeKey}
-                            onSuccess={() => {
-                                forceReloadRelationData();
-                                setShowSuccess(true);
-                            }}
-                        />
-                        
-                        {/* Botón para revocar relaciones seleccionadas */}
-                        <Button
-                            danger
-                            disabled={selectedIds.length === 0}
-                            onClick={handleRevoke}
-                        >
-                            Revocar
-                        </Button>
-                    </Space>
-                </div>
+                    <div className="flex-1 flex flex-col gap-4">
+                        <div className="border rounded-lg overflow-hidden overflow-x-auto">
+                            <Table
+                                dataSource={data}
+                                rowKey={(record) => record[Object.keys(record)[0]]}
+                                rowSelection={rowSelection}
+                                columns={data.length > 0
+                                    ? Object.keys(data[0]).map((key, index) => ({
+                                        title: key,
+                                        dataIndex: key,
+                                        key: index.toString(),
+                                    }))
+                                    : []}
+                            />
+                        </div>
+                    </div>
+                </>
             )}
         </div>
-    );
-};
-
-export default DynamicRelationViewer;
+    )
+}

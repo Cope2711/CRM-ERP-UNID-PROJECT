@@ -9,22 +9,30 @@ namespace CRM_ERP_UNID.Data.Models;
 public class Brand
 {
     [Key]
+    [NonModificable]
     public Guid BrandId { get; set; }
     
     [Required]
+    [MinLength(3)]
     [MaxLength(50)]
     [Unique]
     public required string BrandName { get; set; }
     
+    [MinLength(3)]
     [MaxLength(255)]
     public string? BrandDescription { get; set; }
     
     [Required]
+    [NonModificable]
     public bool IsActive { get; set; }
     
+    [NonModificable]
     public DateTime? CreatedDate { get; set; }
+    
+    [NonModificable]
     public DateTime? UpdatedDate { get; set; }
     
+    [NonModificable]
     public ICollection<Product> Products { get; set; } = new List<Product>();
 }
 

@@ -10,37 +10,53 @@ namespace CRM_ERP_UNID.Data.Models;
 public class User
 {
     [Key]
+    [NonModificable]
     public Guid UserId { get; set; }
     
     [Required]
+    [MinLength(3)]
     [MaxLength(50)]
     [Unique]
     public required string UserUserName { get; set; }
     
     [Required]
+    [MinLength(3)]
     [MaxLength(50)]
     public required string UserFirstName { get; set; }
     
     [Required]
+    [MinLength(3)]
     [MaxLength(50)]
 
     public required string UserLastName { get; set; }
     
     [Required]
+    [MinLength(3)]
     [MaxLength(100)]
     [Unique]
     public required string UserEmail { get; set; }
     
     [Required]
+    [MinLength(4)]
     [MaxLength(255)]
+    [IsPassword]
     public required string UserPassword { get; set; }
     
-    [Required]
+    [NonModificable]
     public bool IsActive { get; set; }
+    
+    [NonModificable]
+    [RelationInfo("roles", "users-roles", new[] { "UserRoleId", "Role.RoleId", "Role.RoleName", "Role.RolePriority" })]
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    
+    [NonModificable]
+    [RelationInfo("branches", "users-branches", new[] { "UserBranchId", "Branch.BranchId", "Branch.BranchName" })]
     public ICollection<UserBranch> UsersBranches { get; set; } = new List<UserBranch>();
     
+    [NonModificable]
     public DateTime? CreatedDate { get; set; }
+    
+    [NonModificable]
     public DateTime? UpdatedDate { get; set; } 
 }
 

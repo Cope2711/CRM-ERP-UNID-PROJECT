@@ -1,4 +1,5 @@
 using CRM_ERP_UNID.Exceptions;
+using CRM_ERP_UNID.Helpers;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ public static class ProblemDetailsExtensions
                 Title = "Resource Not Found",
                 Status = StatusCodes.Status404NotFound,
                 Detail = ex.Message,
-                Extensions = { { "field", ex.Field } }
+                Extensions = { { "field", StringsHelper.ToCamelCase(ex.Field) } }
             });
 
             options.Map<UniqueConstraintViolationException>(ex => new ProblemDetails
@@ -26,7 +27,7 @@ public static class ProblemDetailsExtensions
                 Title = "Unique Constraint Violation",
                 Status = StatusCodes.Status409Conflict,
                 Detail = ex.Message,
-                Extensions = { { "field", ex.Field } }
+                Extensions = { { "field", StringsHelper.ToCamelCase(ex.Field) } }
             });
 
             options.Map<UnauthorizedException>(ex => new ProblemDetails
@@ -34,7 +35,7 @@ public static class ProblemDetailsExtensions
                 Title = "Unauthorized",
                 Status = StatusCodes.Status401Unauthorized,
                 Detail = ex.Message,
-                Extensions = { { "reason", ex.Reason }, { "field", ex.Field } }
+                Extensions = { { "reason", ex.Reason }, { "field", StringsHelper.ToCamelCase(ex.Field) } }
             });
 
             options.Map<ForbiddenException>(ex => new ProblemDetails
@@ -42,7 +43,7 @@ public static class ProblemDetailsExtensions
                 Title = "Forbidden",
                 Status = StatusCodes.Status403Forbidden,
                 Detail = ex.Message,
-                Extensions = { { "permission", ex.Permission }, { "resource", ex.Resource }, { "field", ex.Field } }
+                Extensions = { { "permission", ex.Permission }, { "resource", ex.Resource }, { "field", StringsHelper.ToCamelCase(ex.Field) } }
             });
             
             options.Map<BadRequestException>(ex => new ProblemDetails
@@ -50,7 +51,7 @@ public static class ProblemDetailsExtensions
                 Title = "Bad Request",
                 Status = StatusCodes.Status400BadRequest,
                 Detail = ex.Message,
-                Extensions = { { "field", ex.Field },{ "reason", ex.Reason } }
+                Extensions = { { "field", StringsHelper.ToCamelCase(ex.Field) },{ "reason", ex.Reason } }
             });
             
             options.MapToStatusCode<NotImplementedException>(StatusCodes.Status501NotImplemented);

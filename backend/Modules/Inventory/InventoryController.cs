@@ -19,23 +19,9 @@ public class InventoryController(
 {
     [HttpGet("schema")]
     [PermissionAuthorize("View", "Inventory")]
-    public IActionResult GetSchema([FromQuery] string type)
+    public IActionResult GetSchema([FromQuery] bool ignoreRequired = false)
     {
-        if (!Utils.ValidSchemaTypes.Contains(type.ToLower()))
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-        
-        var dtoType = type.ToLower() switch
-        {
-            "create" => typeof(CreateInventoryDto),
-            "update" => typeof(UpdateInventoryDto),
-            "model" or "read" => typeof(InventoryDto),
-            _ => null
-        };
-
-        if (dtoType == null)
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-
-        return Ok(DtoSchemaHelper.GetDtoSchema(dtoType));
+        return Ok(DtoSchemaHelper.GetDtoSchema(typeof(Inventory), ignoreRequired));
     }
     
     [HttpGet("get-by-id")]

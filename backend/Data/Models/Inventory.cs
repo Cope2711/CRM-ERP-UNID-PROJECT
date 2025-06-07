@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Dtos;
 
 namespace CRM_ERP_UNID.Data.Models;
@@ -8,18 +9,34 @@ namespace CRM_ERP_UNID.Data.Models;
 public class Inventory
 {
     [Key]
+    [NonModificable]
     public Guid InventoryId { get; set; }
     
-    [ForeignKey(nameof(Product.ProductId))]
-    public required Guid ProductId { get; set; }
+    [Required]
+    [ReferenceInfo("products", "Product.ProductName")]
+    public Guid ProductId { get; set; }
     
-    [ForeignKey(nameof(Branch.BranchId))]
-    public required Guid BranchId { get; set; }
-    public required int Quantity { get; set; }
-    public required bool IsActive { get; set; }
-    public DateTime CreatedDate { get; set; }
-    public DateTime UpdatedDate { get; set; }
+    [Required]
+    [ReferenceInfo("branches", "Branch.BranchName")]
+    public Guid BranchId { get; set; }
+    
+    [Required]
+    [Range(0, int.MaxValue)]
+    public int Quantity { get; set; }
+    
+    [NonModificable]
+    public bool IsActive { get; set; }
+    
+    [NonModificable]
+    public DateTime? CreatedDate { get; set; }
+    
+    [NonModificable]
+    public DateTime? UpdatedDate { get; set; }
+    
+    [NonModificable]
     public Product? Product { get; set; }
+    
+    [NonModificable]
     public Branch? Branch { get; set; }
 }
 
@@ -33,9 +50,7 @@ public static class InventoryExtensions
             ProductId = inventory.ProductId,
             BranchId = inventory.BranchId,
             Quantity = inventory.Quantity,
-            IsActive = inventory.IsActive,
-            CreatedDate = inventory.CreatedDate,
-            UpdatedDate = inventory.UpdatedDate,
+            IsActive = inventory.IsActive
         };
     }
     

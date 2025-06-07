@@ -18,11 +18,6 @@ public class PermissionController(
     [PermissionAuthorize("View", "Permissions")]
     public async Task<ActionResult<GetAllResponseDto<Permission>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Permission));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Permission));
         GetAllResponseDto<Permission> getAllResponseDto = await _permissionService.GetAllAsync(getAllDto);
 
         return Ok(getAllResponseDto);

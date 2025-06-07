@@ -59,7 +59,6 @@ public class CreateSupplierDto
     public required string SupplierEmail { get; set; }
     
     [MaxLength(20)]
-    [IsPhoneNumberWithLada]
     public string? SupplierPhone { get; set; }
     
     [MaxLength(255)]

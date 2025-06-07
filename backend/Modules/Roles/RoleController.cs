@@ -1,8 +1,6 @@
 ﻿using CRM_ERP_UNID.Attributes;
-using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
-using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,23 +17,9 @@ public class RoleController(
 {
     [HttpGet("schema")]
     [PermissionAuthorize("View", "Roles")]
-    public IActionResult GetSchema([FromQuery] string type)
+    public IActionResult GetSchema([FromQuery] bool ignoreRequired = false)
     {
-        if (!Utils.ValidSchemaTypes.Contains(type.ToLower()))
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-        
-        var dtoType = type.ToLower() switch
-        {
-            "create" => typeof(CreateRoleDto),
-            "update" => typeof(UpdateRoleDto),
-            "model" or "read" => typeof(RoleDto),
-            _ => null
-        };
-
-        if (dtoType == null)
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-
-        return Ok(DtoSchemaHelper.GetDtoSchema(dtoType));
+        return Ok(DtoSchemaHelper.GetDtoSchema(typeof(Role), ignoreRequired));
     }
     
     [HttpPatch("update/{id}")]
@@ -68,12 +52,6 @@ public class RoleController(
     [PermissionAuthorize("View", "Roles")]
     public async Task<ActionResult<GetAllResponseDto<Role>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Role));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Role));
-
         GetAllResponseDto<Role> getAllResponseDto = await _rolesQueryService.GetAll(getAllDto);
 
         return Ok(getAllResponseDto);

@@ -18,24 +18,10 @@ public class CategoriesController(
 ) : ControllerBase
 {
     [HttpGet("schema")]
-    [PermissionAuthorize("View", "Categories")]
-    public IActionResult GetSchema([FromQuery] string type)
+    [PermissionAuthorize("View", "Roles")]
+    public IActionResult GetSchema([FromQuery] bool ignoreRequired = false)
     {
-        if (!Utils.ValidSchemaTypes.Contains(type.ToLower()))
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-        
-        var dtoType = type.ToLower() switch
-        {
-            "create" => typeof(CreateCategoryDto),
-            "update" => typeof(UpdateCategoryDto),
-            "model" or "read" => typeof(CategoryDto),
-            _ => null
-        };
-
-        if (dtoType == null)
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-
-        return Ok(DtoSchemaHelper.GetDtoSchema(dtoType));
+        return Ok(DtoSchemaHelper.GetDtoSchema(typeof(Category), ignoreRequired));
     }
     
     [HttpGet("get-by-id")]
@@ -51,14 +37,6 @@ public class CategoriesController(
     [PermissionAuthorize("View", "Categories")]
     public async Task<ActionResult<GetAllResponseDto<Category>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Category));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Category));
-
-        CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Selects, typeof(Category));
-
         GetAllResponseDto<Category> getAllResponseDto = await categoriesQueryService.GetAll(getAllDto);
 
         return Ok(getAllResponseDto);

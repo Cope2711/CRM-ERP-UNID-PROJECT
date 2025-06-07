@@ -28,7 +28,7 @@ public class ProductsCategoriesController(
     [PermissionAuthorize("Assign", "ProductsCategories")]
     public async Task<ActionResult<ResponsesDto<ModelAndAssignResponseStatusDto>>> Assign([FromBody] ModelsAndAssignsDtos modelsAndAssignsDtos, [FromQuery] string? modelName)
     {
-        if (modelName != null && modelName == "Products")
+        if (modelName != null && modelName.ToLower() == "products")
         {
             foreach (var assign in modelsAndAssignsDtos.ModelAssignIds)
             {

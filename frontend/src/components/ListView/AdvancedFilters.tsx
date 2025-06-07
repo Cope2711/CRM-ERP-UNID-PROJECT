@@ -2,17 +2,18 @@ import { Card, Form, Row, Col, Button, Space, DatePicker, Input, Select } from '
 import { FilterOperators, FilterOperator } from '@/constants/filterOperators';
 import { FilterDto } from '@/dtos/GenericDtos';
 import React from 'react';
+import { PropertiesSchema } from '@/types/Schema';
 
 const { RangePicker } = DatePicker;
 
 type AdvancedFiltersProps = {
-    schema: Record<string, any>;
+    propertiesSchema: PropertiesSchema;
     validFields: string[];
     onSubmit: (filter: FilterDto) => void; 
     onClear: () => void;
   };
 
-export default function AdvancedFilters({ schema, validFields, onSubmit, onClear }: AdvancedFiltersProps) {
+export default function AdvancedFilters({ propertiesSchema, validFields, onSubmit, onClear }: AdvancedFiltersProps) {
     const [form] = Form.useForm();
     const [selectedField, setSelectedField] = React.useState<string | null>(null);
     const [selectedOperator, setSelectedOperator] = React.useState<FilterOperator | null>(null);
@@ -52,7 +53,7 @@ export default function AdvancedFilters({ schema, validFields, onSubmit, onClear
     };
 
     const renderFilterInput = (field: string, type: string, operator: FilterOperator) => {
-        const meta = schema[field];
+        const meta = propertiesSchema[field];
 
         switch (type) {
             case 'DateTime':
@@ -133,7 +134,7 @@ export default function AdvancedFilters({ schema, validFields, onSubmit, onClear
                                 rules={[{ required: true, message: 'Por favor seleccione un operador' }]}
                             >
                                 <Select onChange={handleOperatorChange} placeholder="Seleccionar operador">
-                                    {getOperatorsForType(schema[selectedField].type).map(operator => (
+                                    {getOperatorsForType(propertiesSchema[selectedField].type).map(operator => (
                                         <Select.Option key={operator} value={operator}>
                                             {operator}
                                         </Select.Option>
@@ -151,7 +152,7 @@ export default function AdvancedFilters({ schema, validFields, onSubmit, onClear
                                 label="Valor"
                                 rules={[{ required: true, message: 'Por favor ingrese un valor' }]}
                             >
-                                {renderFilterInput(selectedField, schema[selectedField].type, selectedOperator)}
+                                {renderFilterInput(selectedField, propertiesSchema[selectedField].type, selectedOperator)}
                             </Form.Item>
                         )}
                     </Col>

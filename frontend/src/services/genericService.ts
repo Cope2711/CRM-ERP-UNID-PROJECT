@@ -1,6 +1,7 @@
 import { axiosInstance } from '@/services/axiosConfig';
-import type { Schema } from "@/types/Schema";
 import {GetAllDto} from "@/dtos/GenericDtos.ts";
+import { IdResponseStatusSchema } from '@/types/Status';
+import { PropertiesSchema } from '@/types/Schema';
 
 class GenericService {
     async getAll(modelName: string, getAllDto: GetAllDto): Promise<any> {
@@ -12,9 +13,9 @@ class GenericService {
         }
     }
 
-    async getSchemas(modelName: string, schemaType: string): Promise<Schema> {
+    async getSchemas(modelName: string, ignoreRequired = false): Promise<PropertiesSchema> {
         try {
-            const { data } = await axiosInstance.get(`${modelName}/schema?type=${schemaType}`);
+            const { data } = await axiosInstance.get(`${modelName}/schema?ignoreRequired=${ignoreRequired}`);
             return data;
         } catch (error: any) {
             const response = error.response.data;
@@ -49,7 +50,7 @@ class GenericService {
         }
     }
 
-    async revoke(modelName: string, ids: string[]): Promise<any> {
+    async revoke(modelName: string, ids: string[]): Promise<IdResponseStatusSchema> {
         try {
             const { data } = await axiosInstance.delete(`${modelName}/revoke`, {
                 data: { ids: ids }
@@ -60,7 +61,7 @@ class GenericService {
         }
     }
 
-    async assign(modelName: string, modelAssignIds: { modelId: string, assignIds: string[] }, senderResource: string): Promise<any> {
+    async assign(controller: string, modelAssignIds: { modelId: string, assignIds: string[] }, senderResource: string): Promise<any> {
         try {
             const payload = {
                 ModelAssignIds: modelAssignIds.assignIds.map(assignId => ({
@@ -69,7 +70,7 @@ class GenericService {
                 })),
             };
     
-            const { data: responseData } = await axiosInstance.post(`${modelName}/assign`, payload, {
+            const { data: responseData } = await axiosInstance.post(`${controller}/assign`, payload, {
                 params: {
                     modelName: senderResource, 
                 }

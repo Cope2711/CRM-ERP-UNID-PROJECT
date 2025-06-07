@@ -19,23 +19,9 @@ public class Branches(
 {
     [HttpGet("schema")]
     [PermissionAuthorize("View", "Branches")]
-    public IActionResult GetSchema([FromQuery] string type)
+    public IActionResult GetSchema([FromQuery] bool ignoreRequired = false)
     {
-        if (!Utils.ValidSchemaTypes.Contains(type.ToLower()))
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-        
-        var dtoType = type.ToLower() switch
-        {
-            "create" => typeof(CreateBranchDto),
-            "update" => typeof(UpdateBranchDto),
-            "model" or "read" => typeof(BranchDto),
-            _ => null
-        };
-
-        if (dtoType == null)
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-
-        return Ok(DtoSchemaHelper.GetDtoSchema(dtoType));
+        return Ok(DtoSchemaHelper.GetDtoSchema(typeof(Branch), ignoreRequired));
     }
     
     [HttpGet("get-by-id")]
@@ -60,14 +46,6 @@ public class Branches(
     [PermissionAuthorize("View", "Branches")]
     public async Task<ActionResult<GetAllResponseDto<Branch>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Branch));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Branch));
-
-        CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Selects, typeof(Branch));
-
         GetAllResponseDto<Branch> getAllResponseDto = await _branchesQueryService.GetAll(getAllDto);
 
         return Ok(getAllResponseDto);

@@ -12,8 +12,8 @@ import ListTable from '@/components/ListView/ListTable';
 import { Tag, Tooltip } from 'antd';
 import { Drawer } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import DynamicCreateForm from "@/components/dynamic/forms/DynamicCreateForm";
-import { DtoSchema } from '@/types/Schema';
+import DynamicCreateForm from '@/components/dynamic/forms/DynamicCreateForm';
+import { PropertiesSchema } from '@/types/Schema';
 
 type ListViewPageProps = {
     modelName: string;
@@ -21,7 +21,7 @@ type ListViewPageProps = {
 
 export default function ListViewPage({ modelName }: ListViewPageProps) {
     const [items, setItems] = useState<any[]>([]);
-    const [schema, setSchema] = useState<Record<string, any> | null>(null);
+    const [propertiesSchema, setPropertiesSchema] = useState<PropertiesSchema | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
@@ -37,41 +37,41 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
 
     // Memoized primary key and valid fields based on schema
     const { primaryKey, validFields } = useMemo(() => {
-        if (!schema) return { primaryKey: 'id', validFields: [] };
+        if (!propertiesSchema) return { primaryKey: 'id', validFields: [] };
 
-        const typedSchema = schema as DtoSchema;
+        const typedSchema = propertiesSchema as PropertiesSchema;
         let pk = 'id';
         const fields: string[] = [];
 
         for (const [key, meta] of Object.entries(typedSchema)) {
-            if (meta.type === 'list`1') continue;
-
-            if (meta.specialData?.includes('IsPassword')) continue;
-
-            if (meta.specialData?.includes('IsObjectKey')) {
+            if (meta.key) {
                 pk = key;
                 continue;
             }
 
-            if (meta.type === 'guid' && meta.select) {
+            if (meta.type === 'guid' && meta.select && meta.controller) {
                 fields.push(meta.select);
                 fields.push(key);
                 continue;
             }
 
+            if (meta.isPassword) continue;
+
+            if (meta.nonmodificable) continue;
+
             fields.push(key);
         }
 
         return { primaryKey: pk, validFields: fields };
-    }, [schema]);
+    }, [propertiesSchema]);
 
     // Fetch schema only when modelName changes
     useEffect(() => {
         const fetchSchema = async () => {
             setIsLoading(true);
             try {
-                const schemaData = await genericService.getSchemas(modelName, 'model');
-                setSchema(schemaData);
+                const schemaData = await genericService.getSchemas(modelName);
+                setPropertiesSchema(schemaData);
             } catch (err) {
                 setError((err as Error).message || 'Failed to load schema');
             } finally {
@@ -84,7 +84,7 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
 
     // Fetch data when filters, page, pageSize, or schema changes
     useEffect(() => {
-        if (!schema || !primaryKey || validFields.length === 0) return;
+        if (!propertiesSchema || !primaryKey || validFields.length === 0) return;
 
         const fetchData = async () => {
             setIsLoading(true);
@@ -113,7 +113,7 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
         };
 
         fetchData();
-    }, [page, pageSize, schema, primaryKey, validFields, modelName, filters]);
+    }, [page, pageSize, propertiesSchema, primaryKey, validFields, modelName, filters]);
 
     const handleSearch = (text: string, field: string) => {
         setSearchText(text);
@@ -143,13 +143,15 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
                     setPage(1);
                 }}
                 extraButton={
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={() => setShowCreateForm(true)}
-                    >
-                        Crear
-                    </Button>
+                    <Space>
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={() => setShowCreateForm(true)}
+                        >
+                            Crear
+                        </Button>
+                    </Space>
                 }
             />
 
@@ -160,17 +162,19 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
                 open={showCreateForm}
                 destroyOnClose
             >
-                {schema && (
+                {propertiesSchema && (
                     <DynamicCreateForm
                         modelName={modelName}
+                        defaultPropertiesSchema={propertiesSchema}
                     />
                 )}
             </Drawer>
 
+
             <SearchBar
                 searchText={searchText}
                 searchField={searchField}
-                validFields={validFields.filter(field => schema?.[field]?.type === 'string')}
+                validFields={validFields.filter(field => propertiesSchema?.[field]?.type === 'string')}
                 onSearch={handleSearch}
                 onToggleFilters={() => setShowFilters(!showFilters)}
                 showFilters={showFilters}
@@ -200,9 +204,9 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
                 </div>
             )}
 
-            {showFilters && schema && (
+            {showFilters && propertiesSchema && (
                 <AdvancedFilters
-                    schema={schema}
+                    propertiesSchema={propertiesSchema}
                     validFields={validFields}
                     onSubmit={(newFilter) => {
                         setFilters(prev => [...prev, newFilter]);
@@ -218,24 +222,27 @@ export default function ListViewPage({ modelName }: ListViewPageProps) {
 
             {error && <ErrorMessage message={error} />}
 
-            <Spin spinning={isLoading}>
-                <ListTable
-                    modelName={modelName}
-                    items={items}
-                    schema={schema}
-                    validFields={validFields}
-                    primaryKey={primaryKey}
-                    page={page}
-                    pageSize={pageSize}
-                    totalItems={totalItems}
-                    onPageChange={(newPage, newPageSize) => {
-                        setPage(newPage);
-                        if (newPageSize !== pageSize) {
-                            setPageSize(newPageSize);
-                        }
-                    }}
-                    navigate={navigate}
-                />
+            <Spin spinning={isLoading || !propertiesSchema}>
+                {propertiesSchema && (
+                    <ListTable
+                        modelName={modelName}
+                        items={items}
+                        propertiesSchema={propertiesSchema}
+                        validFields={validFields}
+                        primaryKey={primaryKey}
+                        page={page}
+                        pageSize={pageSize}
+                        totalItems={totalItems}
+                        onPageChange={(newPage, newPageSize) => {
+                            setPage(newPage);
+                            if (newPageSize !== pageSize) {
+                                setPageSize(newPageSize);
+                            }
+                        }}
+                        navigate={navigate}
+                    />
+                )
+                }
             </Spin>
         </Space>
     );

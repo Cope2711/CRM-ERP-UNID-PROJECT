@@ -1,11 +1,12 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import genericService from "@/services/genericService";
-import DynamicUpdateForm from "@/components/dynamic/forms/DynamicUpdateForm";
-import DynamicRelationViewer from "@/components/dynamic/dynamicRelationViewer/DynamicRelationViewer";
 import { LoadingSpinner } from "@/components/Loading/loadingSpinner";
 import NotFoundPage from "./NotFoundPage";
 import ChangeActiveStatusButton from "@/components/Button/ChangeActiveStatusButton";
+import DynamicUpdateForm from "@/components/dynamic/forms/DynamicUpdateForm";
+import DynamicRelationViewer from "@/components/dynamic/dynamicRelationViewer/DynamicRelationViewer";
+import { extractKeyFieldName, schemaToRelationsSchemas } from "@/utils/objectUtils";
 
 /**
  * Props del componente GenericDetailPage
@@ -23,7 +24,7 @@ type DetailPageProps = {
  */
 const useDetailData = (modelName: string, id?: string) => {
     const [data, setData] = useState<Record<string, any> | null>(null);
-    const [schema, setSchema] = useState<any | null>(null);
+    const [propertiesSchema, setPropertiesSchema] = useState<any | null>(null);
     const [relationData, setRelationData] = useState<Record<string, any>>({});
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
@@ -35,14 +36,14 @@ const useDetailData = (modelName: string, id?: string) => {
 
             Promise.all([
                 genericService.getById(modelName, id),
-                genericService.getSchemas(modelName, "model")
+                genericService.getSchemas(modelName)
             ])
                 .then(([entityData, entitySchema]) => {
                     if (!entityData) {
                         setNotFound(true);
                     } else {
                         setData(entityData);
-                        setSchema(entitySchema);
+                        setPropertiesSchema(entitySchema);
                     }
                 })
                 .catch(() => {
@@ -52,7 +53,7 @@ const useDetailData = (modelName: string, id?: string) => {
         }
     }, [id, modelName]);
 
-    return { data, schema, relationData, setRelationData, loading, notFound }
+    return { data, propertiesSchema, relationData, setRelationData, loading, notFound }
 };
 
 /**
@@ -63,7 +64,7 @@ const useDetailData = (modelName: string, id?: string) => {
  */
 const GenericDetailPage = ({ modelName }: DetailPageProps) => {
     const { id } = useParams<{ id: string }>();
-    const { data, schema, setRelationData, loading, notFound } = useDetailData(modelName, id);
+    const { data, propertiesSchema, loading, notFound } = useDetailData(modelName, id);
 
     if (loading) return <LoadingSpinner />;
     if (notFound || !id) return <NotFoundPage />;
@@ -89,6 +90,7 @@ const GenericDetailPage = ({ modelName }: DetailPageProps) => {
                         modelName={modelName}
                         id={id}
                         defaultData={data}
+                        defaultPropertiesSchema={propertiesSchema}
                     />
                 </div>
             </div>
@@ -98,9 +100,10 @@ const GenericDetailPage = ({ modelName }: DetailPageProps) => {
                 <div className="bg-white shadow rounded-xl p-6 border border-gray-200 h-full flex flex-col">
                     <h2 className="text-lg font-semibold mb-4 text-purple-700">Relations</h2>
                     <DynamicRelationViewer
+                        columnName={extractKeyFieldName(propertiesSchema)}
                         id={id}
-                        schema={schema}
-                        setRelationData={setRelationData}
+                        relationsSchemas={schemaToRelationsSchemas(propertiesSchema)}
+                        modelName={modelName}
                     />
                 </div>
             </div>

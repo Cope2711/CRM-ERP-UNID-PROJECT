@@ -18,23 +18,9 @@ public class BrandsController(
 {
     [HttpGet("schema")]
     [PermissionAuthorize("View", "Brands")]
-    public IActionResult GetSchema([FromQuery] string type)
+    public IActionResult GetSchema([FromQuery] bool ignoreRequired = false)
     {
-        if (!Utils.ValidSchemaTypes.Contains(type.ToLower()))
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-        
-        var dtoType = type.ToLower() switch
-        {
-            "create" => typeof(CreateBrandDto),
-            "update" => typeof(UpdateBrandDto),
-            "model" or "read" => typeof(BrandDto),
-            _ => null
-        };
-
-        if (dtoType == null)
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-
-        return Ok(DtoSchemaHelper.GetDtoSchema(dtoType));
+        return Ok(DtoSchemaHelper.GetDtoSchema(typeof(Brand), ignoreRequired));
     }
     
     [HttpGet("get-by-id")]
@@ -59,14 +45,6 @@ public class BrandsController(
     [PermissionAuthorize("View", "Brands")]
     public async Task<ActionResult<GetAllResponseDto<Brand>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(Brand));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(Brand));
-
-        CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Selects, typeof(Brand));
-
         GetAllResponseDto<Brand> getAllResponseDto = await _brandsService.GetAll(getAllDto);
 
         return Ok(getAllResponseDto);
