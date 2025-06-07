@@ -9,24 +9,40 @@ namespace CRM_ERP_UNID.Data.Models;
 public class Branch
 {
     [Key]
+    [NonModificable]
     public Guid BranchId { get; set; }
     
     [Required]
-    [StringLength(100)]
+    [MinLength(3)]
+    [MaxLength(50)]
     [Unique]
     public required string BranchName { get; set; }
     
     [Required]
-    [StringLength(255)]
+    [MinLength(3)]
+    [MaxLength(255)]
     public required string BranchAddress { get; set; }
     
-    [StringLength(20)]
+    [MinLength(9)]
+    [MaxLength(11)]
     public string? BranchPhone { get; set; }
+    
+    [NonModificable]
     public bool IsActive { get; set; }
-    public DateTime CreatedDate { get; set; }
-    public DateTime UpdatedDate { get; set; }
+    [NonModificable]
+    public DateTime? CreatedDate { get; set; }
+    [NonModificable]
+    public DateTime? UpdatedDate { get; set; }
+    
+    [NonModificable]
     public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
+    
+    [NonModificable]
+    [RelationInfo("users", "users-branches", new[] { "UserBranchId", "User.UserId", "User.UserUserName" })]
     public ICollection<UserBranch> UsersBranches { get; set; } = new List<UserBranch>();
+    
+    [NonModificable]
+    [RelationInfo("suppliers", "suppliers-branches", new[] { "SupplierBranchId", "Supplier.SupplierId", "Supplier.SupplierName" })]
     public ICollection<SupplierBranch> SupplierBranches { get; set; } = new List<SupplierBranch>();
 }
 

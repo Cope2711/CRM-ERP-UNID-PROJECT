@@ -1,7 +1,6 @@
 using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
-using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,7 +48,7 @@ public class SuppliersProductsController(
         [FromBody] ModelsAndAssignsDtos modelsAndAssignsDtos, [FromQuery] string? modelName)
     {
         // Change the model and assigns ids depending on the frontend context
-        if (modelName != null && modelName == "Suppliers")
+        if (modelName != null && modelName.ToLower() == "suppliers")
         {
             foreach (var assign in modelsAndAssignsDtos.ModelAssignIds)
             {

@@ -1,137 +1,115 @@
-import { useEffect, useState } from "react";
-import { Button, Form, message } from "antd";
 import genericService from "@/services/genericService";
-import { normalizeKeysToLower } from "@/utils/objectUtils";
+import { PropertiesSchema } from "@/types/Schema";
+import { setFormErrorField } from "@/utils/setterHelper";
+import { Button, Form } from "antd";
+import { useEffect, useState } from "react";
 import DynamicForm from "./DynamicForm";
-import SuccessMessage from "../../message/SuccessMessage";
-import { LoadingSpinner } from "@/components/Loading/loadingSpinner";
-import { DtoSchema } from "@/types/Schema";
+import PopupMessage from "@/components/message/SuccessMessage";
+import { getChangedValues } from "@/utils/objectUtils";
 
-/**
- * Props del componente DynamicUpdateForm
- * @property {string} modelName - Nombre del modelo a actualizar (ej. "users", "products")
- * @property {string} id - ID del registro a actualizar
- * @property {Record<string, any>} [defaultData] - Datos iniciales opcionales para el formulario
- */
-type UpdateFormProps = {
-  modelName: string;
-  id: string;
-  defaultData?: Record<string, any> | null;
+type DynamicUpdateFormProps = {
+    modelName: string; // Name of the model to update (eg. "users", "products")
+    id: string; // ID of the record to update
+    defaultData?: Record<string, any> | null; // Optional default data for the form
+    defaultPropertiesSchema?: PropertiesSchema; // Optional default schema for the form
 };
 
 /**
- * Hook personalizado para manejar la lógica del formulario de actualización
- * @param {string} modelName - Nombre del modelo
- * @param {string} id - ID del registro
- * @param {Record<string, any>} [defaultData] - Datos iniciales opcionales
- * @returns {Object} Objeto con:
- * - schema: Esquema del formulario
- * - form: Instancia del formulario Antd
- * - showSuccess: Estado para mostrar mensaje de éxito
- * - handleSubmit: Función para manejar el envío del formulario
+ * Component for a dynamic form to update a record
+ * 
+ * Displays a form with fields based on the model schema
+ * Handles the creation or update of records
+ * Provides visual feedback for success or failure
  */
-const useUpdateForm = (modelName: string, id: string, defaultData?: Record<string, any> | null) => {
-  // Estado para el esquema del formulario
-  const [schema, setSchema] = useState<DtoSchema | null>(null);
+export default function DynamicUpdateForm({ modelName, id, defaultData, defaultPropertiesSchema: defaultSchema }: DynamicUpdateFormProps) {
+    const [form] = Form.useForm();
+    const [propertiesSchema, setPropertiesSchema] = useState<PropertiesSchema | undefined>(defaultSchema);
+    const [data, setData] = useState<Record<string, any> | null>(null);
+    const [showErrorMessage, setShowErrorMessage] = useState(false);
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
-  // Instancia del formulario Antd
-  const [form] = Form.useForm();
+    // Load the schema when the model name changes
+    useEffect(() => {
+        getSchema();
+        getData();
+    }, [propertiesSchema, modelName]);
 
-  // Estado para controlar el mensaje de éxito
-  const [showSuccess, setShowSuccess] = useState(false);
+    // Set the data in the form when it changes
+    useEffect(() => {
+        if (data && propertiesSchema) {
+            form.setFieldsValue(data);
+        }
+    }, [data]);
 
-  /**
-   * Efecto para cargar:
-   * 1. El esquema del formulario
-   * 2. Los datos iniciales del registro
-   */
-  useEffect(() => {
-    // Carga el esquema solo si no está cargado
-    if (!schema) {
-      genericService.getSchemas(modelName, "update")
-        .then(setSchema)
-        .catch(() => message.error("Error loading schema"));
-    }
+    // Load the schema from the API
+    const getSchema = async () => {
+        if (propertiesSchema) return;
 
-    // Si hay datos por defecto, los establece en el formulario
-    if (defaultData) {
-      form.setFieldsValue(normalizeKeysToLower(defaultData));
-    } else {
-      // Si no hay datos por defecto, los carga desde la API
-      genericService.getById(modelName, id)
-        .then(data => form.setFieldsValue(normalizeKeysToLower(data)))
-        .catch(() => message.error("Error loading data"));
-    }
-  }, [schema, modelName, id, defaultData, form]);
+        try {
+            const schema = await genericService.getSchemas(modelName, true);
+            setPropertiesSchema(schema);
+            await getData(); // Load the data from the API
+        } catch (error: any) {
+            setShowErrorMessage(true);
+        }
+    };
 
-  /**
-   * Función para manejar el envío del formulario
-   * @param {Record<string, any>} values - Valores del formulario
-   */
-  const handleSubmit = async (values: Record<string, any>) => {
-    try {
-      // Envía los datos a la API
-      await genericService.update(modelName, values, id);
+    // Load the data from the API
+    const getData = async () => {
+        // If there is a default data, set it in the form
+        if (defaultData) {
+            setData(defaultData);
+            return;
+        }
 
-      // Muestra mensaje de éxito
-      setShowSuccess(true);
-    } catch (error: any) {
-      console.error("Update error:", error);
+        try {
+            const data = await genericService.getById(modelName, id);
+            setData(data);
+        } catch (error: any) {
+            setShowErrorMessage(true); // Show error message
+        }
+    };
 
-      // Manejo de errores específicos por campo
-      if (error?.field && error?.detail) {
-        form.setFields([{
-          name: error.field.toLowerCase(),
-          errors: [error.detail]
-        }]);
-      } else {
-        // Error genérico
-        message.error("Update failed");
-      }
-    }
-  };
+    const handleSubmit = async (values: Record<string, any>) => {
+        try {
+            if (!data) return;
 
-  return { schema, form, showSuccess, handleSubmit };
+            const changedValues = getChangedValues(data, values); // Get the changed values
+
+            // If there are no changes, do nothing
+            if (Object.keys(changedValues).length === 0) {
+                return;
+            }
+
+            await genericService.update(modelName, changedValues, id);
+            setShowSuccessMessage(true);
+        } catch (error: any) {
+            setFormErrorField(form, error); // Show error message in the form
+            // If there is no field or detail in the error, show a generic error message
+            if (!error?.field || !error?.detail) {
+                setShowErrorMessage(true);
+            }
+        }
+    };
+
+    // Show a loading spinner if the schema is not loaded
+    if (!propertiesSchema) return <p style={{ padding: 24 }}>Cargando formulario...</p>;
+
+    return (
+        <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            style={{ maxWidth: 600, margin: "0 auto", padding: 24 }}
+        >
+            <DynamicForm propertiesSchema={propertiesSchema} />
+
+            <Form.Item>
+                <Button type="primary" htmlType="submit" block> Guardar </Button>
+            </Form.Item>
+
+            {showSuccessMessage && <PopupMessage message={`Objeto actualizado con éxito`} />}
+            {showErrorMessage && <PopupMessage message={`Error al actualizar objeto`} isSuccess={false} />}
+        </Form>
+    );
 };
-
-/**
- * Componente principal del formulario dinámico de actualización
- * - Genera campos basados en el esquema del modelo
- * - Maneja la actualización de registros
- * - Proporciona feedback visual
- */
-const DynamicUpdateForm = ({ modelName, id, defaultData }: UpdateFormProps) => {
-  // Usa el hook personalizado para manejar la lógica del formulario
-  const { schema, form, showSuccess, handleSubmit } = useUpdateForm(modelName, id, defaultData);
-
-  // Muestra spinner mientras carga el esquema
-  if (!schema) return <LoadingSpinner />;
-
-  return (
-    <Form
-      form={form}
-      layout="vertical"  // Diseño vertical para los campos
-      onFinish={handleSubmit}  // Manejador de envío
-      style={{ maxWidth: 600, margin: "0 auto", padding: 24 }}  // Estilos del contenedor
-    >
-      {/* Componente dinámico que genera los campos basados en el schema */}
-      <DynamicForm schema={schema} />
-
-      {/* Botón de envío del formulario */}
-      <Form.Item>
-        <Button type="primary" htmlType="submit" block>
-          Update
-        </Button>
-      </Form.Item>
-
-      {/* Mensaje de éxito al actualizar */}
-      {showSuccess && (
-        <SuccessMessage
-          message={`${modelName.charAt(0).toUpperCase() + modelName.slice(1)} updated successfully`}
-        />
-      )}
-    </Form>
-  );
-};
-
-export default DynamicUpdateForm;

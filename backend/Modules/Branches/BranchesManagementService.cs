@@ -127,7 +127,7 @@ public class BranchesManagementService(
         await _usersBranchesQueryService.EnsureUserHasAccessToBranch(authenticatedUserId, id);
         
         await _genericService.Update(branch, updateBranchDto);
-
+        
         return branch;
     }
 }

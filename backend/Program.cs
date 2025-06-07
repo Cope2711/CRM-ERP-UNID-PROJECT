@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Extensions;
 using Hellang.Middleware.ProblemDetails;
 using Serilog;
@@ -18,7 +19,12 @@ if (!builder.Environment.IsEnvironment("Test"))
 // Add services to the container.
 builder.Services.AddScopedServices();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
+
 builder.Services.AddHttpContextAccessor();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

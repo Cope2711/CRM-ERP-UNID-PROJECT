@@ -9,20 +9,29 @@ namespace CRM_ERP_UNID.Data.Models;
 public class Role
 {
     [Key] 
+    [NonModificable]
     public Guid RoleId { get; set; }
 
-    [Required] 
+    [Required]
+    [MinLength(3)]
     [MaxLength(50)] 
     [Unique]
-    public required string RoleName { get; set; }
+    public string RoleName { get; set; }
     
     [Required]
-    public required double RolePriority { get; set; }
+    [Range(0, int.MaxValue)]
+    public double RolePriority { get; set; }
     
+    [MinLength(4)]
     [MaxLength(255)] 
     public string? RoleDescription { get; set; }
     
+    [NonModificable]
+    [RelationInfo("permissions", "roles-permissions", new []{ "RolePermissionId", "Permission.PermissionId", "Permission.PermissionName", "Resource.ResourceName" })]
     public ICollection<RolePermissionResource> RolesPermissionsResources { get; set; } = new List<RolePermissionResource>();
+    
+    [NonModificable]
+    [RelationInfo("users", "users-roles", new []{ "UserRoleId", "User.UserId", "User.UserUserName" })]
     public ICollection<UserRole> UsersRoles { get; set; } = new List<UserRole>();
 }
 

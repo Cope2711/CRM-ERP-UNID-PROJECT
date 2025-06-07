@@ -46,7 +46,6 @@ public class CreateBranchDto
     public required string BranchAddress { get; set; }
     
     [Required]
-    [IsPhoneNumberWithLada]
     public required string BranchPhone { get; set; }
 
     [Required] 

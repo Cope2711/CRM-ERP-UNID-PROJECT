@@ -19,23 +19,9 @@ public class ProductsController(
 {
     [HttpGet("schema")]
     [PermissionAuthorize("View", "Users")]
-    public IActionResult GetSchema([FromQuery] string type)
+    public IActionResult GetSchema([FromQuery] bool ignoreRequired = false)
     {
-        if (!Utils.ValidSchemaTypes.Contains(type.ToLower()))
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-        
-        var dtoType = type.ToLower() switch
-        {
-            "create" => typeof(CreateProductDto),
-            "update" => typeof(UpdateProductDto),
-            "model" or "read" => typeof(ProductDto),
-            _ => null
-        };
-
-        if (dtoType == null)
-            throw new BadRequestException(message: "Invalid schema type requested.", field: "type");
-
-        return Ok(DtoSchemaHelper.GetDtoSchema(dtoType));
+        return Ok(DtoSchemaHelper.GetDtoSchema(typeof(Product), ignoreRequired));
     }
     
     [HttpPost("get-all")]

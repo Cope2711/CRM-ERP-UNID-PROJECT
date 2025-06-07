@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.ComponentModel.DataAnnotations;
 using CRM_ERP_UNID.Attributes;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace CRM_ERP_UNID.Helpers;
 
@@ -10,25 +11,78 @@ namespace CRM_ERP_UNID.Helpers;
 /// </summary>
 public static class DtoSchemaHelper
 {
+    private static readonly Dictionary<Type, Action<Attribute, IDictionary<string, object>>> ValidationExtractors =
+        new()
+        {
+            {
+                typeof(MaxLengthAttribute), (attr, schema) =>
+                {
+                    var a = (MaxLengthAttribute)attr;
+                    schema["maxLength"] = a.Length;
+                }
+            },
+            {
+                typeof(MinLengthAttribute), (attr, schema) =>
+                {
+                    var a = (MinLengthAttribute)attr;
+                    schema["minLength"] = a.Length;
+                }
+            },
+            {
+                typeof(RangeAttribute), (attr, schema) =>
+                {
+                    var a = (RangeAttribute)attr;
+                    schema["min"] = a.Minimum;
+                    schema["max"] = a.Maximum;
+                }
+            },
+            {
+                typeof(KeyAttribute), (attr, schema) =>
+                {
+                    schema["key"] = true;
+                }
+            },
+            {
+                typeof(NonModificable), (attr, schema) =>
+                {
+                    schema["nonmodificable"] = true;
+                }
+            },
+            {
+                typeof(RelationInfoAttribute), (attr, schema) =>
+                {
+                    var a = (RelationInfoAttribute)attr;
+                    schema["model"] = a.RelationModel;
+                    schema["controller"] = a.Controller;
+                    schema["selects"] = a.Selects;
+                }
+            },
+            {
+                typeof(ReferenceInfoAttribute), (attr, schema) =>
+                {
+                    var a = (ReferenceInfoAttribute)attr;
+                    schema["controller"] = a.Controller;
+                    schema["select"] = a.Select;
+                }
+            },
+            {
+                typeof(IsPasswordAttribute), (attr, schema) =>
+                {
+                    var a = (IsPasswordAttribute)attr;
+                    schema["isPassword"] = true;
+                }
+            }
+        };
+
     /// <summary>
-    /// Generates a schema from a given DTO type.
-    /// The schema includes type information, validation rules,
-    /// nullable info, and special attributes such as custom relationships or formats.
+    /// Extracts all the mapped properties of the specified type and converts them into a dictionary.
     /// </summary>
-    /// <param name="dtoType">The DTO <see cref="Type"/> to inspect.</param>
-    /// <returns>An <see cref="ExpandoObject"/> representing the DTO schema.</returns>
-    public static object GetDtoSchema(Type dtoType)
+    /// <param name="dtoType">The type from which to extract all the properties.</param>
+    /// <param name="ignoreRequired">Indicates whether the [Required] attribute should be ignored.</param>
+    /// <returns>A dictionary containing the mapped properties.</returns>
+    public static object GetDtoSchema(Type dtoType, bool ignoreRequired)
     {
         var schema = new System.Dynamic.ExpandoObject() as IDictionary<string, object>;
-
-        // Maps custom attribute types to short string identifiers
-        var specialAttributeMap = new Dictionary<Type, string>
-        {
-            { typeof(IsEmailAttribute), nameof(IsEmailAttribute).Replace("Attribute", "") },
-            { typeof(IsPhoneNumberWithLadaAttribute), nameof(IsPhoneNumberWithLadaAttribute).Replace("Attribute", "") },
-            { typeof(IsPasswordAttribute), nameof(IsPasswordAttribute).Replace("Attribute", "") },
-            { typeof(IsObjectKeyAttribute), nameof(IsObjectKeyAttribute).Replace("Attribute", "") },
-        };
 
         var properties = dtoType.GetProperties();
 
@@ -37,100 +91,36 @@ public static class DtoSchemaHelper
             var propertySchema = new System.Dynamic.ExpandoObject() as IDictionary<string, object>;
             var attributes = property.GetCustomAttributes();
 
-            // Extract the underlying type if it's a nullable value type (e.g., decimal?)
+            // Obtener tipo real y nullable
             Type type = property.PropertyType;
             bool isNullable = false;
-
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 type = Nullable.GetUnderlyingType(type)!;
                 isNullable = true;
             }
 
-            // Basic type and required rule
             propertySchema["type"] = type.Name.ToLower();
-            propertySchema["required"] = attributes.Any(a => a is RequiredAttribute);
 
+            if (!ignoreRequired)
+            {
+                propertySchema["required"] = attributes.Any(a => a is RequiredAttribute);
+            }
+            
             if (isNullable)
-            {
                 propertySchema["nullable"] = true;
-            }
 
-            // Validation attributes
-            var maxLengthAttr = attributes.OfType<MaxLengthAttribute>().FirstOrDefault();
-            var minLengthAttr = attributes.OfType<MinLengthAttribute>().FirstOrDefault();
-            var rangeAttr = attributes.OfType<RangeAttribute>().FirstOrDefault();
-            var referenceAttr = attributes.OfType<ReferenceInfoAttribute>().FirstOrDefault();
-
-            if (maxLengthAttr != null)
-                propertySchema["maxLength"] = maxLengthAttr.Length;
-
-            if (minLengthAttr != null)
-                propertySchema["minLength"] = minLengthAttr.Length;
-
-            if (rangeAttr != null)
+            foreach (var attr in attributes)
             {
-                propertySchema["min"] = rangeAttr.Minimum;
-                propertySchema["max"] = rangeAttr.Maximum;
-            }
-
-            if (referenceAttr != null)
-            {
-                propertySchema["select"] = referenceAttr.Select;
-                propertySchema["controller"] = referenceAttr.Controller;
-            }
-
-            // Check for any custom special attributes
-            var specialAttributes = attributes
-                .Where(attr => specialAttributeMap.ContainsKey(attr.GetType()))
-                .Select(attr => specialAttributeMap[attr.GetType()])
-                .ToList();
-
-            // Detect one-to-many relationships via List<SomeDto>
-            if (property.PropertyType.IsGenericType &&
-                property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
-            {
-                var itemType = property.PropertyType.GetGenericArguments()[0];
-                if (itemType.Name.EndsWith("Dto"))
+                if (ValidationExtractors.TryGetValue(attr.GetType(), out var extractor))
                 {
-                    specialAttributes.Add("IsRelation");
-
-                    // Infer relationship model and controller names
-                    string mainDtoName = dtoType.Name.Replace("Dto", "");
-                    string relatedDtoName = itemType.Name.Replace("Dto", "");
-                    string inferredModel = $"{mainDtoName}s{relatedDtoName}s";
-
-                    var relAttr = property.GetCustomAttribute<RelationInfoAttribute>();
-                    string model = relAttr?.RelationModel ?? inferredModel;
-                    string controller = relAttr?.Controller ?? model.ToLower();
-                    string[] selects = relAttr?.Selects ?? Array.Empty<string>();
-
-                    propertySchema["relationInfo"] = new
-                    {
-                        model,
-                        controller,
-                        selects
-                    };
+                    extractor(attr, propertySchema);
                 }
             }
 
-            // Add special data if any
-            if (specialAttributes.Any())
-                propertySchema["specialData"] = specialAttributes;
-
-            schema[property.Name] = propertySchema;
+            schema[StringsHelper.ToCamelCase(property.Name)] = propertySchema;
         }
 
         return schema;
-    }
-
-    /// <summary>
-    /// Generic version of <see cref="GetDtoSchema(Type)"/> that infers the type.
-    /// </summary>
-    /// <typeparam name="T">The DTO type.</typeparam>
-    /// <returns>The generated schema for the DTO type.</returns>
-    public static object GetDtoSchema<T>()
-    {
-        return GetDtoSchema(typeof(T));
     }
 }

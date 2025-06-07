@@ -5,7 +5,7 @@ namespace CRM_ERP_UNID.Dtos;
 
 public class ProductDto
 {
-    [IsObjectKey]
+        [IsObjectKey]
     public Guid ProductId { get; set; }
     
     [MinLength(3)]
@@ -32,10 +32,10 @@ public class ProductDto
     [ReferenceInfo("brands", "Brand.brandName")]
     public Guid? BrandId { get; set; }
     
-    [RelationInfo("ProductsCategories", "products-categories", new[] { "ProductCategoryId", "Category.CategoryId", "Category.CategoryName" })]
+    [RelationInfo("Categories", "products-categories", new[] { "ProductCategoryId", "Category.CategoryId", "Category.CategoryName" })]
     public List<CategoryDto> Categories { get; set; } = new();
     
-    [RelationInfo("SupplierProducts", "suppliers-products", new[] { "SupplierProductId", "Supplier.SupplierId", "Supplier.SupplierName" })]
+    [RelationInfo("Suppliers", "suppliers-products", new[] { "SupplierProductId", "Supplier.SupplierId", "Supplier.SupplierName" })]
     public List<SupplierDto> Suppliers { get; set; } = new();
 }
 
@@ -60,6 +60,7 @@ public class CreateProductDto
     public string? ProductDescription { get; set; }
     
     public bool IsActive { get; set; }
+    public Guid BrandId { get; set; }
 }
 
 public class UpdateProductDto

@@ -1,7 +1,6 @@
 ﻿using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
-using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +20,7 @@ public class UsersRolesController(
         [FromBody] ModelsAndAssignsDtos modelsAndAssignsDtos, 
         [FromQuery] string? modelName) 
     {
-        if (modelName != null && modelName == "Users")
+        if (modelName != null && modelName.ToLower() == "users")
         {
             foreach (var assign in modelsAndAssignsDtos.ModelAssignIds)
             {

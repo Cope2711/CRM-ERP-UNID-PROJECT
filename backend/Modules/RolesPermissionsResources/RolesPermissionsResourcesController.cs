@@ -1,7 +1,6 @@
 ﻿using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
-using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,12 +37,6 @@ public class RolesPermissionsResourcesController(
     [PermissionAuthorize("View", "RolesPermissionsResources")]
     public async Task<ActionResult<GetAllResponseDto<RolePermissionResource>>> GetAll([FromBody] GetAllDto getAllDto)
     {
-        if (getAllDto.OrderBy != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.OrderBy, typeof(RolePermissionResource));
-
-        if (getAllDto.Filters != null)
-            CustomValidators.ValidateModelContainsColumnsNames(getAllDto.Filters, typeof(RolePermissionResource));
-
         GetAllResponseDto<RolePermissionResource> getAllResponseDto =
             await _rolesPermissionsResourcesService.GetAllAsync(getAllDto);
 

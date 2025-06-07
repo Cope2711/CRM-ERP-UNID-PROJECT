@@ -9,35 +9,50 @@ namespace CRM_ERP_UNID.Data.Models;
 public class Product
 {
     [Key]
+    [NonModificable]
     public Guid ProductId { get; set; }
     
     [Required]
+    [MinLength(4)]
     [MaxLength(50)]
     [Unique]
-    public required string ProductName { get; set; }
+    public string ProductName { get; set; }
     
     [Required]
+    [MinLength(4)]
     [MaxLength(255)]
     [Unique]
-    public required string ProductBarcode { get; set; }
+    public string ProductBarcode { get; set; }
     
     [Required]
+    [Range(0, int.MaxValue)]
     public decimal ProductPrice { get; set; }
     
+    [MinLength(4)]
     [MaxLength(255)]
     public string? ProductDescription { get; set; }
     
-    [Required]
+    [NonModificable]
     public bool IsActive { get; set; }
-    
-    public Guid? BrandId { get; set; }
-    
-    public Brand? Brand { get; set; }
-    
+
+    [NonModificable]
     public DateTime? CreatedDate { get; set; }
+    
+    [NonModificable]
     public DateTime? UpdatedDate { get; set; }
     
+    [ReferenceInfo("brands", "Brand.brandName")]
+    public Guid? BrandId { get; set; }
+    
+    [NonModificable]
+    public Brand? Brand { get; set; }
+    
+    [NonModificable]
+    [RelationInfo("suppliers", "suppliers-products", new []{ "SupplierProductId", "Supplier.SupplierId", "Supplier.SupplierName", "Supplier.SupplierEmail" })]
     public ICollection<SupplierProduct> SupplierProducts { get; set; } = new List<SupplierProduct>();
+    
+    [NonModificable]
+    [RelationInfo("categories", "products-categories", new[] { "ProductCategoryId", "Category.CategoryId", "Category.CategoryName" })]
     public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 }
 
