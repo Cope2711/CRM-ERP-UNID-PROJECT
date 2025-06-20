@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
@@ -53,18 +54,18 @@ public class Branches(
     
     [HttpPost("create")]
     [PermissionAuthorize("Create", "Branches")]
-    public async Task<ActionResult<BranchDto>> Create([FromBody] CreateBranchDto createBranchDto)
+    public async Task<ActionResult<BranchDto>> Create([FromBody] Branch data)
     {
-        Branch branch = await _branchesManagementService.Create(createBranchDto);
+        Branch branch = await _branchesManagementService.Create(data);
 
         return Ok(branch.ToDto());
     }
     
     [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Branches")]
-    public async Task<ActionResult<BranchDto>> Update(Guid id, [FromBody] UpdateBranchDto updateBranchDto)
+    public async Task<ActionResult<BranchDto>> Update(Guid id, [FromBody] JsonElement jsonData)
     {
-        Branch branch = await _branchesManagementService.Update(id, updateBranchDto);
+        Branch branch = await _branchesManagementService.Update(id, jsonData);
         return Ok(branch.ToDto());
     }
     

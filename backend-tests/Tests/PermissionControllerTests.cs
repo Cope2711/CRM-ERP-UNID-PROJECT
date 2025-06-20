@@ -22,7 +22,7 @@ public class PermissionControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Permissions.View.PermissionId.ToString(),
+                        ValidValue = Models.Permissions.View.id.ToString(),
                         FieldName = "id"
                     }
                 }

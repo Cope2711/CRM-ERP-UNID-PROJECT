@@ -19,11 +19,11 @@ public class ResourceService(
 
     public async Task<Resource> GetByNameThrowsNotFoundAsync(string resourceName)
     {
-        return await _genericService.GetFirstThrowsNotFoundAsync(r => r.ResourceName, resourceName);
+        return await _genericService.GetFirstThrowsNotFoundAsync(r => r.name, resourceName);
     }
 
     public async Task<bool> ExistById(Guid id)
     {
-        return await _genericService.ExistsAsync(r => r.ResourceId == id);
+        return await _genericService.ExistsAsync(r => r.id == id);
     }
 }

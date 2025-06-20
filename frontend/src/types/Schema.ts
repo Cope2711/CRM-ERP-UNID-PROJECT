@@ -18,4 +18,5 @@ export type RelationSchema = {
   controller: string;
   selects: string[];
   modelName: string;
+  actualModelKey: string;
 };

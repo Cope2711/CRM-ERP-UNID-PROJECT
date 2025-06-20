@@ -8,16 +8,16 @@ namespace CRM_ERP_UNID.Data.Models;
 public class UserRole
 {
     [Key]
-    public Guid UserRoleId { get; set; }
+    public Guid id { get; set; }
 
     [Required]
-    [ForeignKey("UserId")]
-    public Guid UserId { get; set; }
+    [ForeignKey("userId")]
+    public Guid userId { get; set; }
     public User User { get; set; }
 
     [Required]
-    [ForeignKey("RoleId")]
-    public Guid RoleId { get; set; }
+    [ForeignKey("roleId")]
+    public Guid roleId { get; set; }
     public Role Role { get; set; }
 }
 
@@ -27,12 +27,12 @@ public static class UserRoleExtensions
     {
         return new UserRoleDto
         {
-            UserRoleId = userRole.UserRoleId,
-            UserId = userRole.UserId,
-            UserUserName = userRole.User.UserUserName,
-            RoleId = userRole.RoleId,
-            RoleName = userRole.Role.RoleName,
-            RoleDescription = userRole.Role.RoleDescription
+            id = userRole.id,
+            userId = userRole.userId,
+            userName = userRole.User.userName,
+            roleId = userRole.roleId,
+            roleName = userRole.Role.name,
+            roleDescription = userRole.Role.description
         };
     }
 }

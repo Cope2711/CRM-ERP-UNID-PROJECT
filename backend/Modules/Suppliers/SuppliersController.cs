@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -41,17 +42,17 @@ public class SupplierController(
     
     [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Suppliers")]
-    public async Task<ActionResult<SupplierDto>> UpdateSupplier(Guid id, [FromBody] UpdateSupplierDto updateSupplierDto)
+    public async Task<ActionResult<SupplierDto>> UpdateSupplier(Guid id, [FromBody] JsonElement data)
     {
-        Supplier supplier = await _suppliersManagementService.Update(id, updateSupplierDto);
+        Supplier supplier = await _suppliersManagementService.Update(id, data);
         return Ok(supplier.ToDto());
     }
     
     [HttpPost("create")]
     [PermissionAuthorize("Create", "Suppliers")]
-    public async Task<ActionResult<SupplierDto>> CreateSupplier([FromBody] CreateSupplierDto createSupplierDto)
+    public async Task<ActionResult<SupplierDto>> CreateSupplier([FromBody] Supplier data)
     {
-        Supplier supplier = await _suppliersManagementService.Create(createSupplierDto);
+        Supplier supplier = await _suppliersManagementService.Create(data);
         
         return Ok(supplier.ToDto());
     }

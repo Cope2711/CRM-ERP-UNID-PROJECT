@@ -48,250 +48,249 @@ DROP TABLE IF EXISTS Categories;
 
 CREATE TABLE Suppliers
 (
-    SupplierId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    SupplierName VARCHAR(100) NOT NULL UNIQUE,
-    SupplierContact VARCHAR(50) NULL,
-    SupplierEmail VARCHAR(100) UNIQUE NULL,
-    SupplierPhone VARCHAR(20) NULL,
-    SupplierAddress VARCHAR(255) NULL,
-    IsActive BIT DEFAULT 1,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    UpdatedDate DATETIME DEFAULT GETDATE()
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    contact VARCHAR(50) NULL,
+    email VARCHAR(100) UNIQUE NULL,
+    phone VARCHAR(20) NULL,
+    address VARCHAR(255) NULL,
+    isActive BIT DEFAULT 1,
+    createdDate DATETIME DEFAULT GETDATE(),
+    updatedDate DATETIME DEFAULT GETDATE()
 );
 
 
 CREATE TABLE Branches
 (
-    BranchId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    BranchName VARCHAR(100) UNIQUE NOT NULL,
-    BranchAddress VARCHAR(255) NOT NULL,
-    BranchPhone VARCHAR(20) NULL,
-    IsActive BIT DEFAULT 1,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    UpdatedDate DATETIME DEFAULT GETDATE()
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) NULL,
+    isActive BIT DEFAULT 1,
+    createdDate DATETIME DEFAULT GETDATE(),
+    updatedDate DATETIME DEFAULT GETDATE()
 );
 
 CREATE TABLE Brands
 (
-    BrandId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    BrandName VARCHAR(50) NOT NULL UNIQUE,
-    BrandDescription VARCHAR(255) NULL,
-    IsActive BIT DEFAULT 1,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    UpdatedDate DATETIME DEFAULT GETDATE()
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(255) NULL,
+    isActive BIT DEFAULT 1,
+    createdDate DATETIME DEFAULT GETDATE(),
+    updatedDate DATETIME DEFAULT GETDATE()
 );
 
 CREATE TABLE Products
 (
-    ProductId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    ProductName VARCHAR(50) NOT NULL,
-    ProductBarcode VARCHAR (255) NOT NULL,
-    ProductPrice DECIMAL(10,2) NOT NULL,
-    ProductDescription VARCHAR(255) NULL,
-    IsActive BIT DEFAULT 1,
-    BrandId UNIQUEIDENTIFIER NULL,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    UpdatedDate DATETIME DEFAULT GETDATE(),
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    barcode VARCHAR (255) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    description VARCHAR(255) NULL,
+    isActive BIT DEFAULT 1,
+    brandId UNIQUEIDENTIFIER NULL,
+    createdDate DATETIME DEFAULT GETDATE(),
+    updatedDate DATETIME DEFAULT GETDATE(),
 
-    CONSTRAINT FK_Products_Brands FOREIGN KEY (BrandId)
-        REFERENCES Brands (BrandId) ON DELETE CASCADE
+    CONSTRAINT FK_Products_Brands FOREIGN KEY (brandId)
+        REFERENCES Brands (id) ON DELETE CASCADE
 );
 
 CREATE TABLE Categories
 (
-    CategoryId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    CategoryName VARCHAR(50) NOT NULL,
-    CategoryDescription VARCHAR(255) NOT NULL
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE ProductsCategories
 (
-    ProductCategoryId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    ProductId UNIQUEIDENTIFIER NOT NULL,
-    CategoryId UNIQUEIDENTIFIER NOT NULL,
-    CreatedDate DATETIME DEFAULT GETDATE(),
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    productId UNIQUEIDENTIFIER NOT NULL,
+    categoryId UNIQUEIDENTIFIER NOT NULL,
+    createdDate DATETIME DEFAULT GETDATE(),
     
-    CONSTRAINT FK_ProductsCategories_Products FOREIGN KEY (ProductId)
-        REFERENCES Products (ProductId) ON DELETE CASCADE,
-    CONSTRAINT FK_ProductsCategories_Categories FOREIGN KEY (CategoryId)
-        REFERENCES Categories (CategoryId) ON DELETE CASCADE,
-    CONSTRAINT UQ_ProductsCategories UNIQUE (ProductId, CategoryId)
+    CONSTRAINT FK_ProductsCategories_Products FOREIGN KEY (productId)
+        REFERENCES Products (id) ON DELETE CASCADE,
+    CONSTRAINT FK_ProductsCategories_Categories FOREIGN KEY (categoryId)
+        REFERENCES Categories (id) ON DELETE CASCADE,
+    CONSTRAINT UQ_ProductsCategories UNIQUE (productId, categoryId)
 );
 
 CREATE TABLE Inventory
 (
-    InventoryId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    ProductId UNIQUEIDENTIFIER NOT NULL,
-    BranchId UNIQUEIDENTIFIER NOT NULL,
-    Quantity INT NOT NULL,
-    IsActive BIT NOT NULL DEFAULT 1,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    UpdatedDate DATETIME DEFAULT GETDATE(),
-    CONSTRAINT FK_Inventory_Products FOREIGN KEY (ProductId)
-        REFERENCES Products (ProductId) ON DELETE CASCADE,
-    CONSTRAINT FK_Inventory_Branches FOREIGN KEY (BranchId)
-        REFERENCES Branches (BranchId) ON DELETE CASCADE 
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    productId UNIQUEIDENTIFIER NOT NULL,
+    branchId UNIQUEIDENTIFIER NOT NULL,
+    quantity INT NOT NULL,
+    isActive BIT NOT NULL DEFAULT 1,
+    createdDate DATETIME DEFAULT GETDATE(),
+    updatedDate DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_Inventory_Products FOREIGN KEY (productId)
+        REFERENCES Products (id) ON DELETE CASCADE,
+    CONSTRAINT FK_Inventory_Branches FOREIGN KEY (branchId)
+        REFERENCES Branches (id) ON DELETE CASCADE 
 );
 
 CREATE TABLE Users
 (
-    UserId        UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    UserUserName  VARCHAR(50) UNIQUE  NOT NULL,
-    UserFirstName VARCHAR(50)         NOT NULL,
-    UserLastName  VARCHAR(50)         NOT NULL,
-    UserEmail     VARCHAR(255) UNIQUE NOT NULL,
-    UserPassword  VARCHAR(255)        NOT NULL,
-    IsActive      BIT              DEFAULT 1,
-    CreatedDate   DATETIME         DEFAULT GETDATE(),
-    UpdatedDate   DATETIME         DEFAULT GETDATE(),
+    id        UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    userName  VARCHAR(50) UNIQUE  NOT NULL,
+    firstName VARCHAR(50)         NOT NULL,
+    lastName  VARCHAR(50)         NOT NULL,
+    email     VARCHAR(255) UNIQUE NOT NULL,
+    password  VARCHAR(255)        NOT NULL,
+    isActive      BIT              DEFAULT 1,
+    createdDate   DATETIME         DEFAULT GETDATE(),
+    updatedDate   DATETIME         DEFAULT GETDATE(),
 );
 
 CREATE TABLE SuppliersProducts
 (
-    SupplierProductId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    SupplierId UNIQUEIDENTIFIER NOT NULL,
-    ProductId UNIQUEIDENTIFIER NOT NULL,
-    SupplyPrice DECIMAL(10,2) NULL, 
-    SupplyLeadTime INT NULL, 
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    UpdatedDate DATETIME DEFAULT GETDATE(),
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    supplierId UNIQUEIDENTIFIER NOT NULL,
+    productId UNIQUEIDENTIFIER NOT NULL,
+    supplyPrice DECIMAL(10,2) NULL, 
+    supplyLeadTime INT NULL, 
+    createdDate DATETIME DEFAULT GETDATE(),
+    updatedDate DATETIME DEFAULT GETDATE(),
 
-    CONSTRAINT FK_SupplierProducts_Suppliers FOREIGN KEY (SupplierId)
-        REFERENCES Suppliers (SupplierId) ON DELETE CASCADE,
-    CONSTRAINT FK_SupplierProducts_Products FOREIGN KEY (ProductId)
-        REFERENCES Products (ProductId) ON DELETE CASCADE,
-    CONSTRAINT UQ_SupplierProducts UNIQUE (SupplierId, ProductId)
+    CONSTRAINT FK_SupplierProducts_Suppliers FOREIGN KEY (supplierId)
+        REFERENCES Suppliers (id) ON DELETE CASCADE,
+    CONSTRAINT FK_SupplierProducts_Products FOREIGN KEY (productId)
+        REFERENCES Products (id) ON DELETE CASCADE,
+    CONSTRAINT UQ_SupplierProducts UNIQUE (supplierId, productId)
 );
 
 CREATE TABLE SuppliersBranches
 (
-    SupplierBranchId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    SupplierId UNIQUEIDENTIFIER NOT NULL,
-    BranchId UNIQUEIDENTIFIER NOT NULL,
-    IsPreferredSupplier BIT DEFAULT 0,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    UpdatedDate DATETIME DEFAULT GETDATE(),
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    supplierId UNIQUEIDENTIFIER NOT NULL,
+    branchId UNIQUEIDENTIFIER NOT NULL,
+    isPreferredSupplier BIT DEFAULT 0,
+    createdDate DATETIME DEFAULT GETDATE(),
+    updatedDate DATETIME DEFAULT GETDATE(),
 
-    CONSTRAINT FK_SupplierBranches_Suppliers FOREIGN KEY (SupplierId)
-        REFERENCES Suppliers (SupplierId) ON DELETE CASCADE,
-    CONSTRAINT FK_SupplierBranches_Branches FOREIGN KEY (BranchId)
-        REFERENCES Branches (BranchId) ON DELETE CASCADE,
-    CONSTRAINT UQ_SupplierBranches UNIQUE (SupplierId, BranchId)
+    CONSTRAINT FK_SupplierBranches_Suppliers FOREIGN KEY (supplierId)
+        REFERENCES Suppliers (id) ON DELETE CASCADE,
+    CONSTRAINT FK_SupplierBranches_Branches FOREIGN KEY (branchId)
+        REFERENCES Branches (id) ON DELETE CASCADE,
+    CONSTRAINT UQ_SupplierBranches UNIQUE (supplierId, branchId)
 );
 
 CREATE TABLE UsersBranches
 (
-    UserBranchId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    UserId UNIQUEIDENTIFIER NOT NULL,
-    BranchId UNIQUEIDENTIFIER NOT NULL,
-    CONSTRAINT FK_UsersBranches_Users FOREIGN KEY (UserId)
-        REFERENCES Users (UserId) ON DELETE CASCADE,
-    CONSTRAINT FK_UsersBranches_Branches FOREIGN KEY (BranchId)
-        REFERENCES Branches (BranchId) ON DELETE CASCADE,
-    CONSTRAINT UQ_UsersBranches UNIQUE (UserId, BranchId)
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    userId UNIQUEIDENTIFIER NOT NULL,
+    branchId UNIQUEIDENTIFIER NOT NULL,
+    CONSTRAINT FK_UsersBranches_Users FOREIGN KEY (userId)
+        REFERENCES Users (id) ON DELETE CASCADE,
+    CONSTRAINT FK_UsersBranches_Branches FOREIGN KEY (branchId)
+        REFERENCES Branches (id) ON DELETE CASCADE,
+    CONSTRAINT UQ_UsersBranches UNIQUE (userId, branchId)
 );
 
 CREATE TABLE TestTable
 (
-    TestTableID   UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    TestTableCamp VARCHAR(50) NOT NULL
+    id   UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    camp VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE Resources
 (
-    ResourceId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    ResourceName        VARCHAR(50) NOT NULL UNIQUE,
-    ResourceDescription VARCHAR(255)
+    id          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    name        VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(255)
 );
 
 CREATE TABLE Permissions
 (
-    PermissionId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    PermissionName        VARCHAR(100) NOT NULL,
-    PermissionDescription VARCHAR(255) NULL
+    id          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    name        VARCHAR(100) NOT NULL,
+    description VARCHAR(255) NULL
 );
 
 CREATE TABLE Roles
 (
-    RoleId          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    RoleName        VARCHAR(50)  NOT NULL,
-    RolePriority    FLOAT      NOT NULL,
-    RoleDescription VARCHAR(255) NULL
+    id          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    name        VARCHAR(50)  NOT NULL,
+    priority    FLOAT      NOT NULL,
+    description VARCHAR(255) NULL
 );
 
 CREATE TABLE RolesPermissionsResources
 (
-    RolePermissionId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    RoleId           UNIQUEIDENTIFIER NOT NULL,
-    PermissionId     UNIQUEIDENTIFIER NOT NULL,
-    ResourceId       UNIQUEIDENTIFIER,
-    FOREIGN KEY (RoleId) REFERENCES Roles (RoleId) ON DELETE CASCADE,
-    FOREIGN KEY (PermissionId) REFERENCES Permissions (PermissionId) ON DELETE CASCADE,
-    FOREIGN KEY (ResourceId) REFERENCES Resources (ResourceId) ON DELETE CASCADE
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    roleId           UNIQUEIDENTIFIER NOT NULL,
+    permissionId     UNIQUEIDENTIFIER NOT NULL,
+    resourceId       UNIQUEIDENTIFIER,
+    FOREIGN KEY (roleId) REFERENCES Roles (id) ON DELETE CASCADE,
+    FOREIGN KEY (permissionId) REFERENCES Permissions (id) ON DELETE CASCADE,
+    FOREIGN KEY (resourceId) REFERENCES Resources (id) ON DELETE CASCADE
 );
 
 CREATE TABLE UsersRoles
 (
-    UserRoleId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    UserId     UNIQUEIDENTIFIER NOT NULL,
-    RoleId     UNIQUEIDENTIFIER NOT NULL,
-    FOREIGN KEY (UserId) REFERENCES Users (UserId) ON DELETE CASCADE,
-    FOREIGN KEY (RoleId) REFERENCES Roles (RoleId) ON DELETE CASCADE
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    userId     UNIQUEIDENTIFIER NOT NULL,
+    roleId     UNIQUEIDENTIFIER NOT NULL,
+    FOREIGN KEY (userId) REFERENCES Users (id) ON DELETE CASCADE,
+    FOREIGN KEY (roleId) REFERENCES Roles (id) ON DELETE CASCADE
 );
 
 CREATE TABLE RefreshTokens
 (
-    RefreshTokenId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    UserId         UNIQUEIDENTIFIER     NOT NULL,
-    Token          NVARCHAR(255) UNIQUE NOT NULL,
-    DeviceId       NVARCHAR(255)        NOT NULL,
-    ExpiresAt      DATETIME             NOT NULL,
-    RevokedAt      DATETIME             NULL,
-    FOREIGN KEY (UserId) REFERENCES Users (UserId) ON DELETE CASCADE
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    userId         UNIQUEIDENTIFIER     NOT NULL,
+    token          NVARCHAR(255) UNIQUE NOT NULL,
+    deviceId       NVARCHAR(255)        NOT NULL,
+    expiresAt      DATETIME             NOT NULL,
+    revokedAt      DATETIME             NULL,
+    FOREIGN KEY (userId) REFERENCES Users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE PasswordRecoveryTokens
 (
-    ResetId UNIQUEIDENTIFIER PRIMARY KEY NOT NULL, -- Clave primaria
-    UserId UNIQUEIDENTIFIER NOT  NULL, -- Clave foránea 
-    ResetToken NVARCHAR(MAX) NOT NULL, -- Token de restablecimiento
-    ExpiresAt DATETIME2(0) NOT NULL, -- Fecha de expiración del token
-    CreatedAt DATETIME2(0) NOT NULL 
+    id UNIQUEIDENTIFIER PRIMARY KEY NOT NULL, 
+    userId UNIQUEIDENTIFIER NOT  NULL,  
+    resetToken NVARCHAR(MAX) NOT NULL, 
+    expiresAt DATETIME2(0) NOT NULL, 
+    createdAt DATETIME2(0) NOT NULL 
 
-    -- relación con la tabla de usuarios
-    CONSTRAINT FK_PasswordResets_Users FOREIGN KEY (UserId)
-        REFERENCES Users(UserId)
+    CONSTRAINT FK_PasswordResets_Users FOREIGN KEY (userId)
+        REFERENCES Users(id)
         ON DELETE CASCADE
 );
 
 CREATE TABLE Sales
 (
-    SaleId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    BranchId UNIQUEIDENTIFIER NOT NULL,
-    UserId UNIQUEIDENTIFIER NOT NULL,
-    SaleDate DATETIME DEFAULT GETDATE(),
-    TotalAmount DECIMAL(12, 2) NOT NULL,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    UpdatedDate DATETIME DEFAULT GETDATE(),
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    branchId UNIQUEIDENTIFIER NOT NULL,
+    userId UNIQUEIDENTIFIER NOT NULL,
+    saleDate DATETIME DEFAULT GETDATE(),
+    totalAmount DECIMAL(12, 2) NOT NULL,
+    createdDate DATETIME DEFAULT GETDATE(),
+    updatedDate DATETIME DEFAULT GETDATE(),
 
-    CONSTRAINT FK_Sales_Branches FOREIGN KEY (BranchId)
-        REFERENCES Branches (BranchId) ON DELETE CASCADE,
-    CONSTRAINT FK_Sales_Users FOREIGN KEY (UserId)
-        REFERENCES Users (UserId) ON DELETE CASCADE 
+    CONSTRAINT FK_Sales_Branches FOREIGN KEY (branchId)
+        REFERENCES Branches (id) ON DELETE CASCADE,
+    CONSTRAINT FK_Sales_Users FOREIGN KEY (userId)
+        REFERENCES Users (id) ON DELETE CASCADE 
 );
 
 CREATE TABLE SalesDetails
 (
-    SaleDetailId UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    SaleId UNIQUEIDENTIFIER NOT NULL,
-    ProductId UNIQUEIDENTIFIER NOT NULL,
-    Quantity INT NOT NULL,
-    UnitPrice DECIMAL(10, 2) NOT NULL,
+    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+    saleId UNIQUEIDENTIFIER NOT NULL,
+    productId UNIQUEIDENTIFIER NOT NULL,
+    quantity INT NOT NULL,
+    unitPrice DECIMAL(10, 2) NOT NULL,
 
-    CONSTRAINT FK_SalesDetails_Sales FOREIGN KEY (SaleId)
-        REFERENCES Sales (SaleId) ON DELETE CASCADE,
-    CONSTRAINT FK_SalesDetails_Products FOREIGN KEY (ProductId)
-        REFERENCES Products (ProductId) ON DELETE CASCADE
+    CONSTRAINT FK_SalesDetails_Sales FOREIGN KEY (saleId)
+        REFERENCES Sales (id) ON DELETE CASCADE,
+    CONSTRAINT FK_SalesDetails_Products FOREIGN KEY (productId)
+        REFERENCES Products (id) ON DELETE CASCADE
 );
 
 -- Insertar Roles
@@ -299,7 +298,7 @@ DECLARE @RoleId_Admin UNIQUEIDENTIFIER = 'aad0f879-79bf-42b5-b829-3e14b9ef0e4b';
 DECLARE @RoleId_User UNIQUEIDENTIFIER = '523a8c97-735e-41f7-b4b2-16f92791adf5';
 DECLARE @RoleId_Guest UNIQUEIDENTIFIER = 'd9b540dd-7e8e-4aa8-a97c-3cdf3a4b08d4';
 
-INSERT INTO Roles (RoleId, RoleName, RolePriority, RoleDescription)
+INSERT INTO Roles (id, name, priority, description)
 VALUES (@RoleId_Admin, 'Admin', 10, 'Admin role'),
        (@RoleId_User, 'User', 5, 'User role'),
        (@RoleId_Guest, 'Guest', 4.5, 'Guest role');
@@ -309,7 +308,7 @@ DECLARE @UserId_Admin UNIQUEIDENTIFIER = '172422a0-5164-4470-acae-72022d3820b1';
 DECLARE @UserId_Test UNIQUEIDENTIFIER = '2c0180d4-040c-4c00-b8f9-31f7a1e72259';
 DECLARE @UserId_TestDeactivated UNIQUEIDENTIFIER = '6a820228-e221-4e80-9b0a-b8eda7042f30';
 
-INSERT INTO Users (UserId, UserUserName, UserFirstName, UserLastName, UserEmail, UserPassword, IsActive)
+INSERT INTO Users (id, userName, firstName, lastName, email, password, isActive)
 VALUES (@UserId_Admin, 'admin', 'Admin', 'User', 'admin@admin.com',
         '$2a$10$H/STMY/cHyRA4LHxLJMUWuajKp4Fw5TiKF.UdGo5hzKqQWTMshKlW', 1),
        (@UserId_Test, 'test-user', 'Test', 'User', 'test-user@test.com',
@@ -322,7 +321,7 @@ DECLARE @BranchId_HermosilloMiguelHidalgo UNIQUEIDENTIFIER = '4bf33a98-874d-4673
 DECLARE @BranchId_CampoReal UNIQUEIDENTIFIER = 'b0821f0a-20ab-4f64-8c00-5b95d331a836';
 DECLARE @BranchId_PuertoRico UNIQUEIDENTIFIER = 'b3a28df0-fd7d-405e-9820-3d0f137a9ff9';
 
-INSERT INTO Branches (BranchId, BranchName, BranchAddress, BranchPhone, IsActive)
+INSERT INTO Branches (id, name, address, phone, isActive)
 VALUES
     (@BranchId_HermosilloMiguelHidalgo, 'Hermosillo Miguel Hidalgo', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1),
     (@BranchId_CampoReal, 'Campo Real', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', NULL, 1),
@@ -334,7 +333,7 @@ DECLARE @UserRoleId_Admin UNIQUEIDENTIFIER = '842193b4-5048-4cd9-be60-b7ca343192
 DECLARE @UserRoleId_Test UNIQUEIDENTIFIER = 'fe904dcf-eeb1-4a71-a229-71185cc15453';
 DECLARE @UserRoleId_TestDeactivated UNIQUEIDENTIFIER = '327a4fd3-03bc-430f-a0ca-a2262624abf7';
 
-INSERT INTO UsersRoles (UserRoleId, UserId, RoleId)
+INSERT INTO UsersRoles (id, userId, roleId)
 VALUES (@UserRoleId_Admin, @UserId_Admin, @RoleId_Admin),
        (@UserRoleId_Test, @UserId_Test, @RoleId_User),
        (@UserRoleId_TestDeactivated, @UserId_TestDeactivated, @RoleId_User)
@@ -345,7 +344,7 @@ DECLARE @UserBranchId_AdminCampoReal UNIQUEIDENTIFIER = 'd6759449-fe42-4fff-ab94
 DECLARE @UserBranchId_TestHermosillo UNIQUEIDENTIFIER = '7f26e050-0e3a-4b3e-90bd-8db17ee012cf';
 DECLARE @UserBranch_Id_TestDeactivatedPuertoRico UNIQUEIDENTIFIER = 'a15c7696-0400-40e8-a789-16949f72c6a9';
 
-INSERT INTO UsersBranches (UserBranchId, UserId, BranchId)
+INSERT INTO UsersBranches (id, userId, branchId)
 VALUES
     (@UserBranchId_AdminHermosillo, @UserId_Admin, @BranchId_HermosilloMiguelHidalgo),
     (@UserBranchId_AdminCampoReal, @UserId_Admin, @BranchId_CampoReal),
@@ -363,7 +362,7 @@ DECLARE @PermissionId_Activate UNIQUEIDENTIFIER = 'a43b1178-931e-4eed-9742-30af0
 DECLARE @PermissionId_Assign UNIQUEIDENTIFIER = 'd2d43370-14ec-4bc1-824b-cf956acc8c46';
 DECLARE @PermissionId_Revoke UNIQUEIDENTIFIER = 'a67c7aeb-12e1-41af-8e60-27e8c188ddde';
 
-INSERT INTO Permissions (PermissionId, PermissionName, PermissionDescription)
+INSERT INTO Permissions (id, name, description)
 VALUES (@PermissionId_View, 'View', 'Ability to view resources'),
     (@PermissionId_ViewReports, 'View_Reports', 'Access to view reports'),
     (@PermissionId_EditContent, 'Edit_Content', 'Permission to edit content'),
@@ -394,7 +393,7 @@ DECLARE @ResourceId_Categories UNIQUEIDENTIFIER = '6e289d1b-247a-4e97-8614-dee88
 DECLARE @ResourceId_ProductsCategories UNIQUEIDENTIFIER = '9fbeb6a1-d337-4363-82f9-cfa8f77070b1';
 DECLARE @ResourceId_Sales UNIQUEIDENTIFIER = '4fd1a4aa-750b-48d0-bb8c-b055360ee31e';
 
-INSERT INTO Resources (ResourceId, ResourceName, ResourceDescription)
+INSERT INTO Resources (id, name, description)
 VALUES (@ResourceId_Users, 'Users', 'Users module'),
        (@ResourceId_Roles, 'Roles', 'Roles module'),
        (@ResourceId_Permissions, 'Permissions', 'Permissions module'),
@@ -414,7 +413,7 @@ VALUES (@ResourceId_Users, 'Users', 'Users module'),
        (@ResourceId_Sales, 'Sales', 'Sales module')
 
 -- Insertar Permisos a los Roles
-INSERT INTO RolesPermissionsResources (RolePermissionId, RoleId, PermissionId, ResourceId)
+INSERT INTO RolesPermissionsResources (id, roleId, permissionId, resourceId)
 VALUES  (NEWID(), @RoleId_Admin, @PermissionId_View, @ResourceId_Users),
         (NEWID(), @RoleId_Admin, @PermissionId_EditContent, @ResourceId_Users),
         (NEWID(), @RoleId_Admin, @PermissionId_Deactivate, @ResourceId_Users),
@@ -495,7 +494,7 @@ DECLARE @BrandId_Apple UNIQUEIDENTIFIER = 'c3146b6f-b50f-4b26-8e77-827fc538b7d1'
 DECLARE @BrandId_Samsung UNIQUEIDENTIFIER = '809fb57d-ff80-496f-88c3-7b50f0d9b55d';
 DECLARE @BrandId_Nike UNIQUEIDENTIFIER = '5b23b9a8-bd17-4b2a-8e61-b9863a8f77b5';
 
-INSERT INTO Brands (BrandId, BrandName, BrandDescription, IsActive)
+INSERT INTO Brands (id, name, description, isActive)
 VALUES
     (@BrandId_Apple, 'Apple', 'Apple Inc. - Premium electronics', 1),
     (@BrandId_Samsung, 'Samsung', 'Samsung Electronics - Leading technology company', 1),
@@ -506,7 +505,7 @@ DECLARE @SupplierId_Apple UNIQUEIDENTIFIER = '2508d864-5904-4833-a00c-e1ee2b19ea
 DECLARE @SupplierId_Samsung UNIQUEIDENTIFIER = '5d6fc463-1a01-43e0-8304-6a7e0b1d4455';
 DECLARE @SupplierId_Nike UNIQUEIDENTIFIER = '6457d1cc-0160-464c-873e-25fa3a1f7bf1';
 
-INSERT INTO Suppliers (SupplierId, SupplierName, SupplierContact, SupplierEmail, SupplierPhone, SupplierAddress, IsActive)
+INSERT INTO Suppliers (id, name, contact, email, phone, address, isActive)
 VALUES
     (@SupplierId_Apple, 'Apple', 'Juan Perez', 'apple@apple.com', '+56999999999', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', 1),
     (@SupplierId_Samsung, 'Samsung', 'Pancho Perez', 'samsung@samsung.com', '+56999999999', 'Calle 123 Nº 1, Hermosillo, Sonora, Mexico', 1),
@@ -523,7 +522,7 @@ DECLARE @ProductId_NikeAirMax270 UNIQUEIDENTIFIER = 'de30da34-c216-488e-8b3b-3cb
 DECLARE @ProductId_NikeZoomX UNIQUEIDENTIFIER = 'e9ade468-590a-4c0e-bfbe-91ab9dbb6830';
 DECLARE @ProductId_NikeDriFitTShirt UNIQUEIDENTIFIER = 'ac99dcd4-b451-416d-bb12-59b706c5db30';
 
-INSERT INTO Products (ProductId, ProductName, ProductBarcode, ProductPrice, ProductDescription, IsActive, BrandId)  
+INSERT INTO Products (id, name, barcode, price, description, isActive, brandId)  
 VALUES
     (@ProductId_iPhone13, 'iPhone 13', 'IPHONE13', 999.99, 'Latest iPhone model', 1, @BrandId_Apple),
     (@ProductId_MacBookPro, 'MacBook Pro', 'MACBOOK', 1999.99, 'High-performance laptop', 1, @BrandId_Apple),
@@ -540,7 +539,7 @@ DECLARE @CategoryId_Tecnology UNIQUEIDENTIFIER = '55d2645a-76b6-4474-9ae2-7b590b
 DECLARE @CategoryId_Business UNIQUEIDENTIFIER = 'b6985551-da66-419d-ad18-42e9ab653763';
 DECLARE @CategoryId_Hombre UNIQUEIDENTIFIER = 'ca7e9834-f00e-48b4-b7fd-2b854bf00605';
 
-INSERT INTO Categories (CategoryId, CategoryName, CategoryDescription)
+INSERT INTO Categories (id, name, description)
 VALUES
     (@CategoryId_Tecnology, 'Tecnology', 'Tecnology category'),
     (@CategoryId_Business, 'Business', 'Business category'),
@@ -550,7 +549,7 @@ VALUES
 DECLARE @ProductCategoryId_iPhone13Tecnology UNIQUEIDENTIFIER = '861d7899-915e-4dd3-b8f8-108e1b8b58b4';
 DECLARE @ProductCategoryId_MacBookProBusiness UNIQUEIDENTIFIER = '6ec7f6ea-9b8b-4617-9515-a197e34ad8d9';
 
-INSERT INTO ProductsCategories (ProductCategoryId, ProductId, CategoryId, CreatedDate)
+INSERT INTO ProductsCategories (id, productId, categoryId, createdDate)
 VALUES
     (@ProductCategoryId_iPhone13Tecnology, @ProductId_iPhone13, @CategoryId_Tecnology, GETUTCDATE()),
     (@ProductCategoryId_MacBookProBusiness, @ProductId_MacBookPro, @CategoryId_Business, GETUTCDATE());
@@ -568,7 +567,7 @@ DECLARE @InventoryId_NikeAirMax270CampoReal UNIQUEIDENTIFIER = 'c90f6718-aace-4a
 DECLARE @InventoryId_NikeZoomXCampoReal UNIQUEIDENTIFIER = 'b857ab9e-5a6c-45c5-bfa9-100db2ac3d7f';
 DECLARE @InventoryId_NikeDriFitTShirtCampoReal UNIQUEIDENTIFIER = '695fad36-e817-4383-bea4-8ca68ae7b719';
 
-INSERT INTO Inventory (InventoryID, ProductID, BranchId, Quantity, CreatedDate, UpdatedDate)
+INSERT INTO Inventory (id, productId, branchId, quantity, createdDate, updatedDate)
 VALUES
     (@InventoryId_iPhone13Hermosillo, @ProductId_iPhone13, @BranchId_HermosilloMiguelHidalgo, 10, GETUTCDATE(), GETUTCDATE()),
     (@InventoryId_MacBookProHermosillo, @ProductId_MacBookPro, @BranchId_HermosilloMiguelHidalgo, 20, GETUTCDATE(), GETUTCDATE()),
@@ -593,7 +592,7 @@ DECLARE @SupplierProduct_NikeAirMax270_Nike UNIQUEIDENTIFIER = 'd90aff60-8f76-47
 DECLARE @SupplierProduct_NikeZoomX_Nike UNIQUEIDENTIFIER = 'f8f18e35-b049-419d-bbc0-f332fe9e4f1e';
 DECLARE @SupplierProduct_NikeDriFitTShirt_Nike UNIQUEIDENTIFIER = 'a9c86b8a-f667-41f5-9c3a-d2840be7e297';
 
-INSERT INTO SuppliersProducts (SupplierProductId, SupplierId, ProductId, SupplyPrice, SupplyLeadTime, CreatedDate, UpdatedDate)
+INSERT INTO SuppliersProducts (id, supplierId, productId, supplyPrice, supplyLeadTime, createdDate, updatedDate)
 VALUES
     (@SupplierProduct_iPhone13_Apple, @SupplierId_Apple, @ProductId_iPhone13, 999.99, 12, GETUTCDATE(), GETUTCDATE()),
     (@SupplierProduct_MacBookPro_Apple, @SupplierId_Apple, @ProductId_MacBookPro, 1999.99, 12, GETUTCDATE(), GETUTCDATE()),
@@ -610,7 +609,7 @@ DECLARE @SupplierBranchId_AppleHermosillo UNIQUEIDENTIFIER = '5d3842a3-67f1-4d61
 DECLARE @SupplierBranchId_SamsungCampoReal UNIQUEIDENTIFIER = 'f405b105-feec-4e92-b732-6d3c940f861e';
 DECLARE @SupplierBranchId_NikePuertoRico UNIQUEIDENTIFIER = '7bb723a8-786e-49d2-85cc-553a5e2d7a5c';
 
-INSERT INTO SuppliersBranches (SupplierBranchId, SupplierId, BranchId, IsPreferredSupplier)
+INSERT INTO SuppliersBranches (id, supplierId, branchId, isPreferredSupplier)
 VALUES
     (@SupplierBranchId_AppleHermosillo, @SupplierId_Apple, @BranchId_HermosilloMiguelHidalgo, 1),
     (@SupplierBranchId_SamsungCampoReal, @SupplierId_Samsung, @BranchId_CampoReal, 0),
@@ -622,10 +621,10 @@ DECLARE @SaleExample1 UNIQUEIDENTIFIER = '14ed6c32-a588-499d-8fa1-99159627fff8';
 DECLARE @SaleExample1Detail1 UNIQUEIDENTIFIER = '0e70cd61-640a-4433-8a36-a3028c2cdbc5';
 DECLARE @SaleExample1Detail2 UNIQUEIDENTIFIER= '2d7f8555-481e-4783-8536-623c08cd963b';
 
-INSERT INTO Sales (SaleId, BranchId, UserId, SaleDate, TotalAmount)
+INSERT INTO Sales (id, branchId, userId, saleDate, totalAmount)
 VALUES (@SaleExample1, @BranchId_HermosilloMiguelHidalgo, @UserId_Admin, GETDATE(), 3396);
 
-INSERT INTO SalesDetails (SaleDetailId, SaleId, ProductId, Quantity, UnitPrice)
+INSERT INTO SalesDetails (id, saleId, productId, quantity, unitPrice)
 VALUES
     (@SaleExample1Detail1, @SaleExample1Detail1, @ProductId_iPadPro, 1, 999),
     (@SaleExample1Detail2, @SaleExample1Detail1, @ProductId_iPhone13, 3, 799);
@@ -635,10 +634,10 @@ DECLARE @SaleExample2Detail1 UNIQUEIDENTIFIER = 'a8f9c601-6b4f-4b26-af52-c00946e
 DECLARE @SaleExample2Detail2 UNIQUEIDENTIFIER= '2b4a2595-e5fe-4fcd-9739-1821b4735473';
 
 -- Venta 2
-INSERT INTO Sales (SaleId, BranchId, UserId, SaleDate, TotalAmount)
+INSERT INTO Sales (id, branchId, userId, saleDate, totalAmount)
 VALUES (@SaleExample2, @BranchId_HermosilloMiguelHidalgo, @UserId_Test, GETDATE(), 340.00);
 
-INSERT INTO SalesDetails (SaleDetailId, SaleId, ProductId, Quantity, UnitPrice)
+INSERT INTO SalesDetails (id, saleId, productId, quantity, unitPrice)
 VALUES
     (@SaleExample2Detail1, @SaleExample2, @ProductId_iPadPro, 2, 999),
     (@SaleExample2Detail2, @SaleExample2, @ProductId_iPhone13, 2, 7999);

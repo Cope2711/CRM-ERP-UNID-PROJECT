@@ -26,11 +26,11 @@ public class SalesManagementService(
             // Revertir el inventario (restaurar el stock de los productos vendidos)
             var stockChanges = sale.SaleDetails.Select(sd => new StockChangeDto
             {
-                ProductId = sd.ProductId,
-                Quantity = sd.Quantity
+                productId = sd.productId,
+                quantity = sd.quantity
             }).ToList();
         
-            await _inventoryManagementService.IncreaseStockBulk(stockChanges, sale.BranchId);
+            await _inventoryManagementService.IncreaseStockBulk(stockChanges, sale.branchId);
 
             // Eliminar los detalles de la venta y la venta en sí
             _salesRepository.Remove(sale);
@@ -59,40 +59,40 @@ public class SalesManagementService(
             try
             {
                 // Check if Branch exists
-                await _branchesQueryService.ExistsByIdThrowsNotFound(createFullSaleDto.BranchId);
+                await _branchesQueryService.ExistsByIdThrowsNotFound(createFullSaleDto.branchId);
 
                 // Check if all products exist
                 foreach (CreateSaleDetailDto createSaleDetailDto in createFullSaleDto.SaleDetails)
                 {
-                    await _productsQueryService.ExistByIdThrowsNotFound(createSaleDetailDto.ProductId);
+                    await _productsQueryService.ExistByIdThrowsNotFound(createSaleDetailDto.productId);
                 }
 
                 // Prepare the sale
                 var sale = new Sale
                 {
-                    BranchId = createFullSaleDto.BranchId,
-                    UserId = authenticatedUserId,
-                    SaleDate = DateTime.UtcNow,
-                    TotalAmount = createFullSaleDto.TotalAmount,
-                    CreatedDate = DateTime.UtcNow,
-                    UpdatedDate = DateTime.UtcNow,
+                    branchId = createFullSaleDto.branchId,
+                    userId = authenticatedUserId,
+                    saleDate = DateTime.UtcNow,
+                    totalAmount = createFullSaleDto.totalAmount,
+                    createdDate = DateTime.UtcNow,
+                    updatedDate = DateTime.UtcNow,
                     SaleDetails = createFullSaleDto.SaleDetails.Select(detail => new SaleDetail
                     {
-                        ProductId = detail.ProductId,
-                        Quantity = detail.Quantity,
-                        UnitPrice = detail.UnitPrice
+                        productId = detail.productId,
+                        quantity = detail.quantity,
+                        unitPrice = detail.unitPrice
                     }).ToList()
                 };
 
                 // Prepare stock change DTOs
                 List<StockChangeDto> stockChanges = createFullSaleDto.SaleDetails.Select(detail => new StockChangeDto
                 {
-                    ProductId = detail.ProductId,
-                    Quantity = detail.Quantity
+                    productId = detail.productId,
+                    quantity = detail.quantity
                 }).ToList();
 
                 // Decrease stock
-                await _inventoryManagementService.DecreaseStockBulk(stockChanges, createFullSaleDto.BranchId);
+                await _inventoryManagementService.DecreaseStockBulk(stockChanges, createFullSaleDto.branchId);
 
                 // Add sale to repository
                 _salesRepository.Add(sale);

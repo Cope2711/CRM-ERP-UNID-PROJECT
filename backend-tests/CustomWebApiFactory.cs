@@ -43,11 +43,11 @@ public class CustomWebApiFactory : WebApplicationFactory<Program>
 
     private async Task AuthenticateAsync(HttpClient client)
     {
-        LoginUserDto loginRequest = new LoginUserDto { UserUserName = Models.Users.Admin.UserUserName, UserPassword = "123456", DeviceId = "devicexd"};
+        LoginUserDto loginRequest = new LoginUserDto { UserUserName = Models.Users.Admin.userName, UserPassword = "123456", DeviceId = "devicexd"};
         var loginResponse = await client.PostAsJsonAsync("/api/auth/login", loginRequest);
         loginResponse.EnsureSuccessStatusCode();    
     
         var loginResult = await loginResponse.Content.ReadFromJsonAsync<TokenDto>();
-        _bearerToken = loginResult?.Token;
+        _bearerToken = loginResult?.token;
     }
 }

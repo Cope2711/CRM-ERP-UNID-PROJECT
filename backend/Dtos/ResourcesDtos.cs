@@ -6,11 +6,11 @@ namespace CRM_ERP_UNID.Dtos;
 public class ResourceDto
 {
     [GuidNotEmpty]
-    public Guid ResourceId { get; set; }
+    public Guid id { get; set; }
     
     [MaxLength(50)]
-    public string ResourceName { get; set; }
+    public string name { get; set; }
     
     [MaxLength(255)]
-    public string? ResourceDescription { get; set; }
+    public string? description { get; set; }
 }

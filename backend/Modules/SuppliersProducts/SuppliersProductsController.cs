@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -16,9 +17,9 @@ public class SuppliersProductsController(
 {
     [HttpPatch("update")]
     [PermissionAuthorize("Edit_Content", "SuppliersProducts")]
-    public async Task<ActionResult<SupplierProductDto>> Update([FromBody] UpdateSupplierProductDto updateSupplierProductDto)
+    public async Task<ActionResult<SupplierProductDto>> Update([FromBody] JsonElement data)
     {
-        SupplierProduct? supplierProduct = await _suppliersProductsManagementService.Update(updateSupplierProductDto);
+        SupplierProduct? supplierProduct = await _suppliersProductsManagementService.Update(data);
 
         return Ok(supplierProduct.ToDto());
     }

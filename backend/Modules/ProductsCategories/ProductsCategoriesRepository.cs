@@ -33,6 +33,6 @@ public class ProductsCategoriesRepository(
     
     public async Task<bool> ExistsByProductCategoryIds(Guid productId, Guid categoryId)
     {
-        return await _context.ProductsCategories.AnyAsync(pc => pc.ProductId == productId && pc.CategoryId == categoryId);
+        return await _context.ProductsCategories.AnyAsync(pc => pc.productId == productId && pc.categoryId == categoryId);
     }
 }

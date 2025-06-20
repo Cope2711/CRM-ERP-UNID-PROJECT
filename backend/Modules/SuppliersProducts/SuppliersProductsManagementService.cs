@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -16,12 +17,19 @@ public class SuppliersProductsManagementService(
     IGenericService<SupplierProduct> _genericService
 ) : ISuppliersProductsManagementService
 {
-    public async Task<SupplierProduct> Update(UpdateSupplierProductDto updateSupplierProductDto)
+    public async Task<SupplierProduct> Update(JsonElement data)
     {
-        SupplierProduct? supplierProduct = await _suppliersProductsQueryService.GetByIdThrowsNotFound(updateSupplierProductDto.SupplierProductId);
-        
-        await _genericService.Update(supplierProduct, updateSupplierProductDto);
-        
+        if (!data.TryGetProperty(Fields.SuppliersProducts.id, out JsonElement idElement) || 
+            idElement.ValueKind != JsonValueKind.String || 
+            !Guid.TryParse(idElement.GetString(), out Guid supplierProductId))
+        {
+            throw new ArgumentException("Invalid or missing 'id' in JSON data.");
+        }
+
+        SupplierProduct supplierProduct = await _suppliersProductsQueryService.GetByIdThrowsNotFound(supplierProductId);
+
+        await _genericService.Update(supplierProduct, data);
+
         return supplierProduct;
     }
     
@@ -41,31 +49,31 @@ public class SuppliersProductsManagementService(
                     modelAssignIdsDto.AssignId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIdsDto, ResponseStatus.AlreadyProcessed,
-                    Fields.Products.ProductId, "Product already assigned to supplier");
+                    Fields.Products.id, "Product already assigned to supplier");
                 continue;
             }
 
             if (!await _suppliersQueryService.ExistById(modelAssignIdsDto.ModelId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIdsDto, ResponseStatus.NotFound,
-                    Fields.Suppliers.SupplierId, "Supplier not exist");
+                    Fields.Suppliers.id, "Supplier not exist");
                 continue;
             }
 
             if (!await _productsQueryService.ExistById(modelAssignIdsDto.AssignId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIdsDto, ResponseStatus.NotFound,
-                    Fields.Products.ProductId, "Product not exist");
+                    Fields.Products.id, "Product not exist");
                 continue;
             }
 
             // Add to database
             SupplierProduct supplierProduct = new()
             {
-                SupplierId = modelAssignIdsDto.ModelId,
-                ProductId = modelAssignIdsDto.AssignId,
-                CreatedDate = DateTime.UtcNow,
-                UpdatedDate = DateTime.UtcNow
+                supplierId = modelAssignIdsDto.ModelId,
+                productId = modelAssignIdsDto.AssignId,
+                createdDate = DateTime.UtcNow,
+                updatedDate = DateTime.UtcNow
             };
 
             _suppliersProductsRepository.Add(supplierProduct);
@@ -104,7 +112,7 @@ public class SuppliersProductsManagementService(
             if (supplierProduct == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, supplierProductId, ResponseStatus.NotFound,
-                    Fields.SuppliersProducts.SupplierProductId, "SupplierProduct not exist");
+                    Fields.SuppliersProducts.id, "SupplierProduct not exist");
                 continue;
             }
             

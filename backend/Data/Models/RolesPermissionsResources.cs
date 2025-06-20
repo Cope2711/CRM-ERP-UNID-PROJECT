@@ -8,20 +8,20 @@ namespace CRM_ERP_UNID.Data.Models;
 public class RolePermissionResource
 {
     [Key] 
-    public Guid RolePermissionId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
-    [ForeignKey("RoleId")]
-    public Guid RoleId { get; set; }
+    [ForeignKey("roleId")]
+    public Guid roleId { get; set; }
     public Role Role { get; set; }
     
     [Required]
-    [ForeignKey("PermissionId")]
-    public Guid PermissionId { get; set; }
+    [ForeignKey("permissionId")]
+    public Guid permissionId { get; set; }
     public Permission Permission { get; set; }
 
-    [ForeignKey("ResourceId")] 
-    public Guid? ResourceId { get; set; }
+    [ForeignKey("resourceId")] 
+    public Guid? resourceId { get; set; }
 
     public Resource? Resource { get; set; }
 }
@@ -32,15 +32,15 @@ public static class RolePermissionResourceExtensions
     {
         return new RolePermissionResourceDto
         {
-            RoleId = rolePermissionResource.RoleId,
-            RoleName = rolePermissionResource.Role.RoleName,
-            RoleDescription = rolePermissionResource.Role.RoleDescription,
-            PermissionId = rolePermissionResource.PermissionId,
-            PermissionName = rolePermissionResource.Permission.PermissionName,
-            PermissionDescription = rolePermissionResource.Permission.PermissionDescription,
-            ResourceId = rolePermissionResource.ResourceId,
-            ResourceName = rolePermissionResource.Resource?.ResourceName,
-            ResourceDescription = rolePermissionResource.Resource?.ResourceDescription
+            roleId = rolePermissionResource.roleId,
+            roleName = rolePermissionResource.Role.name,
+            roleDescription = rolePermissionResource.Role.description,
+            permissionId = rolePermissionResource.permissionId,
+            permissionName = rolePermissionResource.Permission.name,
+            permissionDescription = rolePermissionResource.Permission.description,
+            resourceId = rolePermissionResource.resourceId,
+            resourceName = rolePermissionResource.Resource?.name,
+            resourceDescription = rolePermissionResource.Resource?.description
         };
     }
 }

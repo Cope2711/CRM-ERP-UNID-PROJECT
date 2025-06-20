@@ -6,10 +6,10 @@ namespace CRM_ERP_UNID.Data.Models;
 public class Example
 {
     [Key]
-    public Guid ExampleId { get; set; }
+    public Guid id { get; set; }
     
     [MaxLength(50)]
-    public required string ExampleName { get; set; }
+    public string name { get; set; }
 }
 
 public static class ExampleExtensions
@@ -18,8 +18,8 @@ public static class ExampleExtensions
     {
         return new ExampleDto
         {
-            ExampleId = example.ExampleId,
-            ExampleName = example.ExampleName
+            id = example.id,
+            name = example.name
         };
     }
 }

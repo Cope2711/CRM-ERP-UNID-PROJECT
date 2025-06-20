@@ -1,9 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using CRM_ERP_UNID_TESTS.TestsModels;
 using CRM_ERP_UNID_TESTS.Dtos;
 using CRM_ERP_UNID_TESTS.TestsBase;
 using CRM_ERP_UNID.Constants;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -27,12 +29,12 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Brands.Apple.BrandName,
+                        ValidValue = Models.Brands.Apple.name,
                         FieldName = "name"
                     },
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Brands.Apple.BrandId.ToString(),
+                        ValidValue = Models.Brands.Apple.id.ToString(),
                         FieldName = "id"
                     }
                 }
@@ -51,22 +53,22 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new Object[] // All ok
             {
-                new CreateBrandDto
+                new Brand
                 {
-                    BrandName = "Apples",
-                    BrandDescription = "Apples company",
-                    IsActive = true
+                    name = "Apples",
+                    description = "Apples company",
+                    isActive = true
                 },
                 HttpStatusCode.OK
             };
 
             yield return new Object[] // BrandName already exist
             {
-                new CreateBrandDto
+                new Brand
                 {
-                    BrandName = Models.Brands.Apple.BrandName,
-                    BrandDescription = "Apples company",
-                    IsActive = false
+                    name = Models.Brands.Apple.name,
+                    description = "Apples company",
+                    isActive = false
                 },
                 HttpStatusCode.Conflict
             };
@@ -74,7 +76,7 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(CreateBrandTestData))]
-        public async Task CreateBrand_ReturnsExpectedResult(CreateBrandDto createBrandDto,
+        public async Task CreateBrand_ReturnsExpectedResult(Brand createBrandDto,
             HttpStatusCode expectedStatusCode)
         {
             var response = await _client.PostAsJsonAsync($"{Endpoint}/create", createBrandDto);
@@ -92,22 +94,22 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new object[] // All OK
             {
-                Models.Brands.Nike.BrandId,
-                new UpdateBrandDto
+                Models.Brands.Nike.id,
+                new
                 {
-                    BrandName = "Appless",
-                    BrandDescription = "Apples company",
+                    name = "Appless",
+                    description = "Apples company",
                 },
                 HttpStatusCode.OK
             };
 
             yield return new object[] // BrandName already exist
             {
-                Models.Brands.Nike.BrandId,
-                new UpdateBrandDto
+                Models.Brands.Nike.id,
+                new
                 {
-                    BrandName = Models.Brands.Apple.BrandName,
-                    BrandDescription = "Apples company",
+                    name = Models.Brands.Apple.name,
+                    description = "Apples company",
                 },
                 HttpStatusCode.Conflict
             };
@@ -115,10 +117,10 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
             yield return new object[] // Not found
             {
                 Guid.NewGuid(),
-                new UpdateBrandDto
+                new
                 {
-                    BrandName = Models.Brands.Apple.BrandName,
-                    BrandDescription = "Apples company",
+                    name = Models.Brands.Apple.name,
+                    description = "Apples company",
                 },
                 HttpStatusCode.NotFound
             };
@@ -126,10 +128,10 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(UpdateBrandTestData))]
-        public async Task UpdateBrand_ReturnsExpectedResult(Guid brandId, UpdateBrandDto updateBrandDto,
+        public async Task UpdateBrand_ReturnsExpectedResult(Guid brandId, object data,
             HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{brandId}", updateBrandDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{brandId}", data);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
@@ -148,9 +150,9 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 Ids = new List<Guid>
                 {
-                    Models.Brands.Nike.BrandId, // Success
+                    Models.Brands.Nike.id, // Success
                     Guid.NewGuid(), // Not found
-                    Models.Brands.Apple.BrandId // Already proccessed
+                    Models.Brands.Apple.id // Already proccessed
                 }
             };
 
@@ -183,8 +185,8 @@ public class BrandsControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 Ids = new List<Guid>
                 {
-                    Models.Brands.Samsung.BrandId, // Success
-                    Models.Brands.Nike.BrandId, // AlreadyProcessed
+                    Models.Brands.Samsung.id, // Success
+                    Models.Brands.Nike.id, // AlreadyProcessed
                     Guid.NewGuid() // Not found
                 }
             };

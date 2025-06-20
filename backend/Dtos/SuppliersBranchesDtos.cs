@@ -13,17 +13,17 @@ public class UpdateSupplierBranchDto
 public class SupplierBranchDto
 {
     [GuidNotEmpty]
-    public Guid SupplierBranchId { get; set; }
+    public Guid id { get; set; }
     
     [GuidNotEmpty]
-    public Guid SupplierId { get; set; }
+    public Guid supplierId { get; set; }
     
     [GuidNotEmpty]
-    public Guid BranchId { get; set; }
+    public Guid branchId { get; set; }
     
-    public bool? IsPreferredSupplier { get; set; }
-    public DateTime CreatedDate { get; set; }
-    public DateTime UpdatedDate { get; set; }
+    public bool? isPreferredSupplier { get; set; }
+    public DateTime createdDate { get; set; }
+    public DateTime updatedDate { get; set; }
     public SupplierDto? Supplier { get; set; }
     public BranchDto? Branch { get; set; }
 }

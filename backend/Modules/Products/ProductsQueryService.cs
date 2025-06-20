@@ -23,17 +23,17 @@ public class ProductsQueryService(
 
     public Task<Product> GetByNameThrowsNotFound(string name)
     {
-        return _genericService.GetFirstThrowsNotFoundAsync(p => p.ProductName, name);
+        return _genericService.GetFirstThrowsNotFoundAsync(p => p.name, name);
     }
 
     public Task<Product> GetByBarcodeThrowsNotFound(string barcode)
     {
-        return _genericService.GetFirstThrowsNotFoundAsync(p => p.ProductBarcode, barcode);
+        return _genericService.GetFirstThrowsNotFoundAsync(p => p.barcode, barcode);
     }
 
     public Task<Product?> GetByName(string name)
     {
-        return _genericService.GetFirstAsync(p => p.ProductName, name);
+        return _genericService.GetFirstAsync(p => p.name, name);
     }
 
     public Task<GetAllResponseDto<Product>> GetAll(GetAllDto getAllDto)
@@ -43,25 +43,25 @@ public class ProductsQueryService(
     
     public Task<bool> ExistByName(string name)
     {
-        return _genericService.ExistsAsync(p => p.ProductName == name);
+        return _genericService.ExistsAsync(p => p.name == name);
     }
     
     public async Task<bool> ExistById(Guid id)
     {
-        return await _genericService.ExistsAsync(p => p.ProductId == id);
+        return await _genericService.ExistsAsync(p => p.id == id);
     }
 
     public async Task<bool> ExistByIdThrowsNotFound(Guid id)
     {
         if (!await ExistById(id))
         {
-            throw new NotFoundException(message: "Product not found", field: Fields.Sales.SaleId);
+            throw new NotFoundException(message: "Product not found", field: Fields.Sales.id);
         }
         return true;
     }
 
     public async Task<bool> ExistByBarcode(string barcode)
     {
-        return await _genericService.ExistsAsync(p => p.ProductBarcode == barcode);
+        return await _genericService.ExistsAsync(p => p.barcode == barcode);
     }
 }

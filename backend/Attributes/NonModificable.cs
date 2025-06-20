@@ -1,9 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CRM_ERP_UNID.Attributes;
+﻿namespace CRM_ERP_UNID.Attributes;
 
 [AttributeUsage(AttributeTargets.Property)]
-public class NonModificable : ValidationAttribute
+public class NonModificable : Attribute
 {
     public NonModificable()
     {

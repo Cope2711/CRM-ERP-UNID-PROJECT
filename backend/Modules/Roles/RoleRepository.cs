@@ -18,8 +18,8 @@ public class RolesRepository(
 {
     public async Task<double?> GetRolePriorityById(Guid roleId)
     {
-        return await _context.Roles.Where(r => r.RoleId == roleId)
-            .Select(r => r.RolePriority)
+        return await _context.Roles.Where(r => r.id == roleId)
+            .Select(r => r.priority)
             .FirstOrDefaultAsync();
     }
     

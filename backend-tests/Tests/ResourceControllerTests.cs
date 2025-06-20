@@ -22,12 +22,12 @@ public class ResourceControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Resources.Users.ResourceName,
+                        ValidValue = Models.Resources.Users.name,
                         FieldName = "resourcename"
                     },
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Resources.Users.ResourceId.ToString(),
+                        ValidValue = Models.Resources.Users.id.ToString(),
                         FieldName = "id"
                     }
                 }

@@ -28,11 +28,11 @@ public class InventoryRepository(
     
     public async Task<bool> ExistProductInBranch(Guid productId, Guid branchId)
     {
-        return await _context.Inventory.AnyAsync(i => i.ProductId == productId && i.BranchId == branchId);
+        return await _context.Inventory.AnyAsync(i => i.productId == productId && i.branchId == branchId);
     }
     
     public async Task<Inventory?> GetByProductIdInBranchId(Guid productId, Guid branchId)
     {
-        return await _context.Inventory.Include(i => i.Product).FirstOrDefaultAsync(i => i.ProductId == productId && i.BranchId == branchId);
+        return await _context.Inventory.Include(i => i.Product).FirstOrDefaultAsync(i => i.productId == productId && i.branchId == branchId);
     }
 }

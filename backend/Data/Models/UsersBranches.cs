@@ -8,13 +8,13 @@ namespace CRM_ERP_UNID.Data.Models;
 public class UserBranch
 {
     [Key]
-    public Guid UserBranchId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
-    public Guid UserId { get; set; }
+    public Guid userId { get; set; }
     
     [Required]
-    public Guid BranchId { get; set; }
+    public Guid branchId { get; set; }
     
     public User User { get; set; }
     public Branch Branch { get; set; }
@@ -26,9 +26,9 @@ public static class UserBranchExtensions
     {
         return new UserBranchDto
         {
-            UserBranchId = userBranch.UserBranchId,
-            UserId = userBranch.UserId,
-            BranchId = userBranch.BranchId
+            id = userBranch.id,
+            userId = userBranch.userId,
+            branchId = userBranch.branchId
         };
     }
 }

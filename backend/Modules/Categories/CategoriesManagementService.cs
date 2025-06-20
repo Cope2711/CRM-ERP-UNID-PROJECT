@@ -1,7 +1,5 @@
-using CRM_ERP_UNID.Constants;
+using System.Text.Json;
 using CRM_ERP_UNID.Data.Models;
-using CRM_ERP_UNID.Dtos;
-using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
 
 namespace CRM_ERP_UNID.Modules;
@@ -14,16 +12,16 @@ public class CategoriesManagementService(
     IGenericService<Category> _genericService
     ) : ICategoriesManagementService
 {
-    public async Task<Category> Create(CreateCategoryDto createCategoryDto)
+    public async Task<Category> Create(Category data)
     {
-        return await _genericService.Create(createCategoryDto.ToModel());
+        return await _genericService.Create(data);
     }
     
-    public async Task<Category> Update(Guid id, UpdateCategoryDto updateCategoryDto)
+    public async Task<Category> Update(Guid id, JsonElement data)
     {
         Category category = await _categoriesQueryService.GetByIdThrowsNotFound(id);
         
-        await _genericService.Update(category, updateCategoryDto);
+        await _genericService.Update(category, data);
         
         return category;
     }

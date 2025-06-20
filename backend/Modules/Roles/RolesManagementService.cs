@@ -1,6 +1,7 @@
+using System.Text.Json;
+using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
-using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
 
 namespace CRM_ERP_UNID.Modules;
@@ -33,28 +34,32 @@ public class RolesManagementService(
         return role;
     }
 
-    public async Task<Role> Create(CreateRoleDto createRoleDto)
+    public async Task<Role> Create(Role data)
     {
-        _priorityValidationService.ValidatePriorityThrowsForbiddenException(createRoleDto.RolePriority);
+        _priorityValidationService.ValidatePriorityThrowsForbiddenException(data.priority);
 
-        return await _genericService.Create(createRoleDto.ToModel());
+        return await _genericService.Create(data);
     }
 
-    public async Task<Role> Update(Guid id, UpdateRoleDto updateRoleDto)
+    public async Task<Role> Update(Guid id, JsonElement data)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
+
         Role role = await _rolesQueryService.GetByIdThrowsNotFound(id);
 
         if (authenticatedUserId != id)
             _priorityValidationService.ValidateRolePriorityThrowsForbiddenException(role);
 
-        if (updateRoleDto.RolePriority != null &&
-            updateRoleDto.RolePriority != role.RolePriority)
+        string rolePriorityKey = Fields.Roles.priority; 
+
+        if (data.TryGetProperty(rolePriorityKey, out var rolePriorityElement) &&
+            rolePriorityElement.ValueKind != JsonValueKind.Null)
         {
-            _priorityValidationService.ValidatePriorityThrowsForbiddenException(updateRoleDto.RolePriority.Value);
+            double newPriority = rolePriorityElement.GetDouble();
+            _priorityValidationService.ValidatePriorityThrowsForbiddenException(newPriority);
         }
 
-        await _genericService.Update(role, updateRoleDto);
+        await _genericService.Update(role, data);
 
         return role;
     }

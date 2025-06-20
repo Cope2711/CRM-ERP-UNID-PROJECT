@@ -48,11 +48,12 @@ export function schemaToRelationsSchemas(schema: Record<string, any>): RelationS
     );
 
     // Mapear cada relación a su esquema
-    const relationsSchemas: RelationSchema[] = relationsFields.map(([, value]): any => {
+    const relationsSchemas: RelationSchema[] = relationsFields.map(([, value]): RelationSchema => {
         return {
             modelName: value.model,
             controller: value.controller,
             selects: value.selects,
+            actualModelKey: value.actualModelKey
         };
     });
 

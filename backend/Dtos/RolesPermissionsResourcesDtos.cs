@@ -6,31 +6,31 @@ namespace CRM_ERP_UNID.Dtos;
 public abstract class BaseRolePermissionResourceDto
 {
     [GuidNotEmpty(ErrorMessage = "The role id cannot be empty.")]
-    public Guid RoleId { get; set; }
+    public Guid roleId { get; set; }
     
     [MaxLength(50)]
-    public string? RoleName { get; set; }
+    public string? roleName { get; set; }
     
     [MaxLength(255)]
-    public string? RoleDescription { get; set; }
+    public string? roleDescription { get; set; }
     
     [GuidNotEmpty(ErrorMessage = "The permission id cannot be empty.")]
-    public Guid PermissionId { get; set; }
+    public Guid permissionId { get; set; }
     
     [MaxLength(100)]
-    public string? PermissionName { get; set; }
+    public string? permissionName { get; set; }
     
     [MaxLength(255)]
-    public string? PermissionDescription { get; set; }
+    public string? permissionDescription { get; set; }
 
     [GuidNotEmpty(ErrorMessage = "The resource id cannot be empty.")]
-    public Guid? ResourceId { get; set; } = null;
+    public Guid? resourceId { get; set; } = null;
     
     [MaxLength(50)]
-    public string? ResourceName { get; set; }
+    public string? resourceName { get; set; }
     
     [MaxLength(255)]
-    public string? ResourceDescription { get; set; }
+    public string? resourceDescription { get; set; }
 }
 
 public class RolePermissionResourceDto : BaseRolePermissionResourceDto { }
@@ -50,10 +50,10 @@ public class PermissionsResourcesAndRolesIdsDto
 public class PermissionResourceAndRoleIdsDto
 {
     [GuidNotEmpty]
-    public Guid RoleId { get; set; }
+    public Guid roleId { get; set; }
     
     [GuidNotEmpty]
-    public Guid PermissionId { get; set; }
+    public Guid permissionId { get; set; }
     
-    public Guid? ResourceId { get; set; } = null;
+    public Guid? resourceId { get; set; } = null;
 }

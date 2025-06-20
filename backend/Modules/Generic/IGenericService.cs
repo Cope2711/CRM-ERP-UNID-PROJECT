@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text.Json;
 using CRM_ERP_UNID.Dtos;
 
 namespace CRM_ERP_UNID.Modules;
@@ -21,7 +22,7 @@ public interface IGenericService<T> where T : class
 
     Task<T> Create(T entity);
     
-    Task<(T, bool)> Update(T entity, object updateDto);
+    Task<(T, bool)> Update(T entity, JsonElement data);
 
     Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
 }

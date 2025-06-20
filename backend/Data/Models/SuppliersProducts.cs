@@ -8,21 +8,21 @@ namespace CRM_ERP_UNID.Data.Models;
 public class SupplierProduct
 {
     [Key]
-    public Guid SupplierProductId { get; set; }
+    public Guid id { get; set; }
     
-    [ForeignKey("SupplierId")]
-    public required Guid SupplierId { get; set; }
+    [ForeignKey("supplierId")]
+    public Guid supplierId { get; set; }
     
-    [ForeignKey("ProductId")]
-    public required Guid ProductId { get; set; }
+    [ForeignKey("productId")]
+    public Guid productId { get; set; }
     
-    public decimal? SupplyPrice { get; set; }
+    public decimal? supplyPrice { get; set; }
     
-    public int? SupplyLeadTime { get; set; }
+    public int? supplyLeadTime { get; set; }
     
-    public DateTime CreatedDate { get; set; }
+    public DateTime createdDate { get; set; }
     
-    public DateTime UpdatedDate { get; set; }
+    public DateTime updatedDate { get; set; }
     
     public Supplier? Supplier { get; set; }
     
@@ -35,15 +35,15 @@ public static class SupplierProductExtensions
     {
         return new SupplierProductDto
         {
-            SupplierProductId = supplierProduct.SupplierProductId,
-            SupplierId = supplierProduct.SupplierId,
-            ProductId = supplierProduct.ProductId,
-            SupplyPrice = supplierProduct.SupplyPrice,
-            SupplyLeadTime = supplierProduct.SupplyLeadTime,
-            CreatedDate = supplierProduct.CreatedDate,
-            UpdatedDate = supplierProduct.UpdatedDate,
-            Supplier = supplierProduct.Supplier?.ToDto(),
-            Product = supplierProduct.Product?.ToDto()
+            id = supplierProduct.id,
+            supplierId = supplierProduct.supplierId,
+            productId = supplierProduct.productId,
+            price = supplierProduct.supplyPrice,
+            supplyLeadTime = supplierProduct.supplyLeadTime,
+            createdDate = supplierProduct.createdDate,
+            updatedDate = supplierProduct.updatedDate,
+            supplier = supplierProduct.Supplier?.ToDto(),
+            product = supplierProduct.Product?.ToDto()
         };
     }
 }

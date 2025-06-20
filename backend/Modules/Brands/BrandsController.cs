@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
@@ -52,18 +53,18 @@ public class BrandsController(
     
     [HttpPost("create")]
     [PermissionAuthorize("Create", "Brands")]
-    public async Task<ActionResult<BrandDto>> Create([FromBody] CreateBrandDto createBrandDto)
+    public async Task<ActionResult<BrandDto>> Create([FromBody] Brand data)
     {
-        Brand brand = await _brandsService.Create(createBrandDto);
+        Brand brand = await _brandsService.Create(data);
 
         return Ok(brand.ToDto());
     }
     
     [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Brands")]
-    public async Task<ActionResult<BrandDto>> Update(Guid id, [FromBody] UpdateBrandDto updateBrandDto)
+    public async Task<ActionResult<BrandDto>> Update(Guid id, [FromBody] JsonElement data)
     {
-        Brand brand = await _brandsService.Update(id, updateBrandDto);
+        Brand brand = await _brandsService.Update(id, data);
 
         return Ok(brand.ToDto());
     }

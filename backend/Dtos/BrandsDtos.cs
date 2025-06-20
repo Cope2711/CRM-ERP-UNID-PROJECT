@@ -8,39 +8,15 @@ public class BrandDto
     [IsObjectKey]
     [GuidNotEmpty]
     [Required]
-    public Guid BrandId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
     [MinLength(3)]
     [MaxLength(255)]
-    public required string BrandName { get; set; }
+    public string name { get; set; }
     
     [MinLength(3)]
     [MaxLength(255)]
-    public string? BrandDescription { get; set; }
+    public string? description { get; set; }
     public bool IsActive { get; set; }
-}
-
-public class CreateBrandDto
-{
-    [Required]
-    [MinLength(3)]
-    [MaxLength(255)]
-    public required string BrandName { get; set; }
-    
-    [MinLength(3)]
-    [MaxLength(255)]
-    public string? BrandDescription { get; set; }
-    public bool IsActive { get; set; }
-}
-
-public class UpdateBrandDto
-{
-    [MinLength(3)]
-    [MaxLength(255)]
-    public string? BrandName { get; set; }
-    
-    [MinLength(3)]
-    [MaxLength(255)]
-    public string? BrandDescription { get; set; }
 }

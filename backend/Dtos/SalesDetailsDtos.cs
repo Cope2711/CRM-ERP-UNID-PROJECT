@@ -7,30 +7,15 @@ public class CreateSaleDetailDto
 {
     [Required]
     [GuidNotEmpty]
-    public Guid ProductId { get; set; }
+    public Guid productId { get; set; }
 
     [Required]
     [Range(1, int.MaxValue)]
-    public int Quantity { get; set; }
+    public int quantity { get; set; }
 
     [Required]
     [Range(0.01, double.MaxValue)]
-    public decimal UnitPrice { get; set; }
-}
-
-public class UpdateSaleDetailDto
-{
-    [GuidNotEmpty]
-    public Guid? SaleId { get; set; }
-
-    [GuidNotEmpty]
-    public Guid? ProductId { get; set; }
-
-    [Range(1, int.MaxValue)]
-    public int? Quantity { get; set; }
-
-    [Range(0.01, double.MaxValue)]
-    public decimal? UnitPrice { get; set; }
+    public decimal unitPrice { get; set; }
 }
 
 public class SaleDetailDto
@@ -38,22 +23,22 @@ public class SaleDetailDto
     [Required]
     [GuidNotEmpty]
     [IsObjectKey]
-    public Guid SaleDetailId { get; set; }
+    public Guid id { get; set; }
 
     [Required]
     [GuidNotEmpty]
-    public Guid SaleId { get; set; }
+    public Guid saleId { get; set; }
 
     [Required]
     [GuidNotEmpty]
-    public Guid ProductId { get; set; }
+    public Guid productId { get; set; }
 
     [Required]
-    public int Quantity { get; set; }
+    public int quantity { get; set; }
 
     [Required]
-    public decimal UnitPrice { get; set; }
+    public decimal unitPrice { get; set; }
     
     [Required]
-    public required string ProductName { get; set; }
+    public string productName { get; set; }
 }

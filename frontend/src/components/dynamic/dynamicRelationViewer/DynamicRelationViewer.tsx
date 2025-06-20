@@ -6,14 +6,12 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { Button, Select, Table, Tabs } from "antd";
 import { useEffect, useState } from "react";
 
-type NewRelationViewerProps = {
-    columnName: string;
+type RelationViewerProps = {
     id: string;
     relationsSchemas: RelationSchema[];
-    modelName: string;
 };
 
-export default function DynamicRelationViewer({ columnName, id, relationsSchemas }: NewRelationViewerProps) {
+export default function DynamicRelationViewer({id, relationsSchemas }: RelationViewerProps) {
     const [activeRelation, setActiveRelation] = useState<RelationSchema>(relationsSchemas[0]);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<any[]>([]);
@@ -55,6 +53,7 @@ export default function DynamicRelationViewer({ columnName, id, relationsSchemas
                 setData(response.data);
             } else {
                 const response = await genericService.getAll(activeRelation.controller, {
+
                     pageNumber: 1,
                     pageSize: 10,
                     orderBy: activeRelation.selects[0],
@@ -62,7 +61,7 @@ export default function DynamicRelationViewer({ columnName, id, relationsSchemas
                     filters:
                         [
                             {
-                                column: columnName,
+                                column: activeRelation.actualModelKey,
                                 operator: assignMode ? FilterOperators.NotEqual : FilterOperators.Equal,
                                 value: id
                             },
@@ -71,7 +70,6 @@ export default function DynamicRelationViewer({ columnName, id, relationsSchemas
                 });
                 setData(response.data);
             }
-
         } catch (error: any) {
             console.error(error);
         } finally {

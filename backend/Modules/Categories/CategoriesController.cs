@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
@@ -44,18 +45,18 @@ public class CategoriesController(
     
     [HttpPost("create")]
     [PermissionAuthorize("Create", "Categories")]
-    public async Task<ActionResult<CategoryDto>> Create([FromBody] CreateCategoryDto createCategoryDto)
+    public async Task<ActionResult<CategoryDto>> Create([FromBody] Category data)
     {
-        Category category = await _categoriesManagementService.Create(createCategoryDto);
+        Category category = await _categoriesManagementService.Create(data);
 
         return Ok(category.ToDto());
     }
     
     [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Categories")]
-    public async Task<ActionResult<CategoryDto>> Update(Guid id, [FromBody] UpdateCategoryDto updateCategoryDto)
+    public async Task<ActionResult<CategoryDto>> Update(Guid id, [FromBody] JsonElement data)
     {
-        Category category = await _categoriesManagementService.Update(id, updateCategoryDto);
+        Category category = await _categoriesManagementService.Update(id, data);
 
         return Ok(category.ToDto());
     }

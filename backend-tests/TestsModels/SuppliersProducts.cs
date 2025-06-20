@@ -8,13 +8,13 @@ public static partial class Models
     {
         public static readonly SupplierProduct AppleIphone13 = new SupplierProduct
         {
-            SupplierProductId = Guid.Parse("853217ea-0769-4e3b-9153-4a20f3ca2f76"),
-            SupplierId = Suppliers.Apple.SupplierId,
-            ProductId = Products.iPhone13.ProductId,
-            SupplyPrice = 100,
-            SupplyLeadTime = 1,
-            CreatedDate = DateTime.UtcNow,
-            UpdatedDate = DateTime.UtcNow
+            id = Guid.Parse("853217ea-0769-4e3b-9153-4a20f3ca2f76"),
+            supplierId = Suppliers.Apple.id,
+            productId = Products.iPhone13.id,
+            supplyPrice = 100,
+            supplyLeadTime = 1,
+            createdDate = DateTime.UtcNow,
+            updatedDate = DateTime.UtcNow
         };
     }
 }

@@ -10,46 +10,46 @@ public class Supplier
 {
     [Key]
     [NonModificable]
-    public Guid SupplierId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
     [MinLength(4)]
     [MaxLength(100)]
     [Unique]
-    public required string SupplierName { get; set; }
+    public string name { get; set; }
     
     [MinLength(4)]
     [MaxLength(50)]
-    public string? SupplierContact { get; set; }
+    public string? contact { get; set; }
     
     [Required]
     [MinLength(4)]
     [MaxLength(100)]
     [Unique]
-    public required string SupplierEmail { get; set; }
+    public string email { get; set; }
     
     [MinLength(8)]
     [MaxLength(20)]
-    public string? SupplierPhone { get; set; }
+    public string? phone { get; set; }
     
     [MinLength(4)]
     [MaxLength(255)]
-    public string? SupplierAddress { get; set; }
+    public string? address { get; set; }
     
     [NonModificable]
-    public bool IsActive { get; set; }
+    public bool isActive { get; set; }
     
     [NonModificable]
-    public DateTime? CreatedDate { get; set; }
+    public DateTime? createdDate { get; set; }
     [NonModificable]
-    public DateTime? UpdatedDate { get; set; }
+    public DateTime? updatedDate { get; set; }
     
     [NonModificable]
-    [RelationInfo("products", "suppliers-products", new[] { "SupplierProductId", "Product.ProductId", "Product.ProductName" })]
+    [RelationInfo("products", "suppliers-products", new[] { "id", "Product.id", "Product.name" }, "supplier.id")]
     public ICollection<SupplierProduct> SupplierProducts { get; set; } = new List<SupplierProduct>();
     
     [NonModificable]
-    [RelationInfo("branches", "suppliers-branches", new[] { "SupplierBranchId", "Branch.BranchId", "Branch.BranchName" })]
+    [RelationInfo("branches", "suppliers-branches", new[] { "id", "Branch.id", "Branch.name" }, "supplier.id")]
     public ICollection<SupplierBranch> SupplierBranches { get; set; } = new List<SupplierBranch>();
 }
 
@@ -59,26 +59,13 @@ public static class SupplierExtensions
     {
         return new SupplierDto
         {
-            SupplierId = supplier.SupplierId,
-            SupplierName = supplier.SupplierName,
-            SupplierContact = supplier.SupplierContact,
-            SupplierEmail = supplier.SupplierEmail,
-            SupplierPhone = supplier.SupplierPhone,
-            SupplierAddress = supplier.SupplierAddress,
-            IsActive = supplier.IsActive,
-        };
-    }
-
-    public static Supplier ToModel(this CreateSupplierDto dto)
-    {
-        return new Supplier()
-        {
-            SupplierName = dto.SupplierName,
-            SupplierContact = dto.SupplierContact,
-            SupplierEmail = dto.SupplierEmail,
-            SupplierPhone = dto.SupplierPhone,
-            SupplierAddress = dto.SupplierAddress,
-            IsActive = dto.IsActive
+            id = supplier.id,
+            name = supplier.name,
+            contact = supplier.contact,
+            email = supplier.email,
+            phone = supplier.phone,
+            address = supplier.address,
+            isActive = supplier.isActive,
         };
     }
 }

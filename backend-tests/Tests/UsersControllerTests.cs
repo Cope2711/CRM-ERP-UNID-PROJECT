@@ -2,10 +2,12 @@
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using CRM_ERP_UNID_TESTS.TestsModels;
 using CRM_ERP_UNID_TESTS.Dtos;
 using CRM_ERP_UNID_TESTS.TestsBase;
 using CRM_ERP_UNID.Constants;
+using CRM_ERP_UNID.Data.Models;
 
 [Collection("Tests")]
 public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
@@ -27,12 +29,12 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Users.Admin.UserUserName,
+                        ValidValue = Models.Users.Admin.userName,
                         FieldName = "username"  
                     },
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Users.Admin.UserId.ToString(),
+                        ValidValue = Models.Users.Admin.id.ToString(),
                         FieldName = "id"
                     }
                 }
@@ -51,12 +53,12 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Users.Admin.UserUserName,
+                        ValidValue = Models.Users.Admin.userName,
                         FieldName = "username"
                     },
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Users.Admin.UserEmail,
+                        ValidValue = Models.Users.Admin.email,
                         FieldName = "email"
                     }
                 }
@@ -73,10 +75,10 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new object[]
             {
-                Models.Users.TestUser.UserId,
-                new UpdateUserDto
+                Models.Users.TestUser.id,
+                new 
                 {
-                    UserUserName = "test-updated"
+                    userName = "test-updated"
                 },
                 HttpStatusCode.OK
             };
@@ -84,49 +86,49 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             yield return new object[]
             {
                 Guid.NewGuid(),
-                new UpdateUserDto
+                new 
                 {
-                    UserUserName = "TestUserr"
+                    userName = "TestUserr"
                 },
                 HttpStatusCode.NotFound
             };
 
             yield return new object[]
             {
-                Models.Users.TestUser.UserId,
-                new UpdateUserDto
+                Models.Users.TestUser.id,
+                new 
                 {
-                    UserUserName = "admin"
+                    userName = "admin"
                 },
                 HttpStatusCode.Conflict
             };
 
             yield return new object[]
             {
-                Models.Users.TestUser.UserId,
-                new UpdateUserDto
+                Models.Users.TestUser.id,
+                new 
                 {
-                    UserEmail = "admin@admin.com"
+                    email = "admin@admin.com"
                 },
                 HttpStatusCode.Conflict
             };
 
             yield return new object[]
             {
-                Models.Users.HighestPriorityUser.UserId,
-                new UpdateUserDto
+                Models.Users.HighestPriorityUser.id,
+                new 
                 {
-                    UserEmail = "asdsa@gmail.com"
+                    email = "asdsa@gmail.com"
                 },
                 HttpStatusCode.Forbidden
             };
 
             yield return new object[]
             {
-                Models.Users.TestUser2.UserId,
-                new UpdateUserDto
+                Models.Users.TestUser2.id,
+                new 
                 {
-                    UserUserName = "test-updated"
+                    userName = "test-updated"
                 },
                 HttpStatusCode.Forbidden
             };
@@ -134,9 +136,9 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(UpdateUserTestData))]
-        public async Task UpdateUser_ReturnsExpectedResult(Guid userId, UpdateUserDto updateUserDto, HttpStatusCode expectedStatusCode)
+        public async Task UpdateUser_ReturnsExpectedResult(Guid userId, object data, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{userId}", updateUserDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{userId}", data);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
@@ -193,11 +195,11 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 Ids = new List<Guid>
                 {
-                    Models.Users.InactiveTestUser.UserId, // Success
-                    Models.Users.TestUser.UserId,
+                    Models.Users.InactiveTestUser.id, // Success
+                    Models.Users.TestUser.id,
                     Guid.NewGuid(),
-                    Models.Users.DeactivateHighestPriorityUser.UserId,
-                    Models.Users.TestUser2.UserId
+                    Models.Users.DeactivateHighestPriorityUser.id,
+                    Models.Users.TestUser2.id
                 }
             };
             
@@ -232,11 +234,11 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 Ids = new List<Guid>
                 {
-                    Models.Users.InactiveTestUser.UserId, 
-                    Models.Users.TestUser.UserId, // Success
+                    Models.Users.InactiveTestUser.id, 
+                    Models.Users.TestUser.id, // Success
                     Guid.NewGuid(),
-                    Models.Users.HighestPriorityUser.UserId,
-                    Models.Users.TestUser2.UserId
+                    Models.Users.HighestPriorityUser.id,
+                    Models.Users.TestUser2.id
                 }
             };
             
@@ -268,14 +270,14 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             // Returns Ok
             yield return new object[]
             {
-                new CreateUserDto
+                new User
                 {
-                    UserUserName = "test-user-1",
-                    UserFirstName = "Test",
-                    UserLastName = "User",
-                    UserEmail = "test-user-1@test.com",
-                    UserPassword = "123456",
-                    IsActive = true
+                    userName = "test-user-1",
+                    firstName = "Test",
+                    lastName = "User",
+                    email = "test-user-1@test.com",
+                    password = "123456",
+                    isActive = true
                 },
                 HttpStatusCode.OK
             };
@@ -283,14 +285,14 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             // Returns Conflict for the UserName
             yield return new object[]
             {
-                new CreateUserDto
+                new User
                 {
-                    UserUserName = Models.Users.Admin.UserUserName,
-                    UserFirstName = "Admin",
-                    UserLastName = "User",
-                    UserEmail = "admin@admin.com",
-                    UserPassword = "123456",
-                    IsActive = true
+                    userName = Models.Users.Admin.userName,
+                    firstName = "Admin",
+                    lastName = "User",
+                    email = "admin@admin.com",
+                    password = "123456",
+                    isActive = true
                 },
                 HttpStatusCode.Conflict
             };
@@ -298,14 +300,14 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
             // Returns Conflict for the Email
             yield return new object[]
             {
-                new CreateUserDto
+                new User
                 {
-                    UserUserName = "test-user-11",
-                    UserFirstName = "Test",
-                    UserLastName = "User",
-                    UserEmail = Models.Users.Admin.UserEmail,
-                    UserPassword = "123456",
-                    IsActive = true
+                    userName = "test-user-11",
+                    firstName = "Test",
+                    lastName = "User",
+                    email = Models.Users.Admin.email,
+                    password = "123456",
+                    isActive = true
                 },
                 HttpStatusCode.Conflict
             };
@@ -313,7 +315,7 @@ public class UsersControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(CreateUserTestData))]
-        public async Task CreateUser_ReturnsExpectedResult(CreateUserDto createUserDto,
+        public async Task CreateUser_ReturnsExpectedResult(User createUserDto,
             HttpStatusCode expectedStatusCode)
         {
             var response = await _client.PostAsJsonAsync($"{Endpoint}/create", createUserDto);

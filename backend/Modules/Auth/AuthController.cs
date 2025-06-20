@@ -27,7 +27,7 @@ public class AuthController : ControllerBase
     [HttpPost("request-reset")]
     public async Task<ActionResult> RequestResetAsync([FromBody] RequestPasswordResetDto request)
     {
-        var result = await _passwordResetService.RequestPasswordResetAsync(request.Email);
+        var result = await _passwordResetService.RequestPasswordResetAsync(request.email);
         if(!result)
             return BadRequest("The request could not be processed.d.");
         return Ok("It's ah sent correctly");
@@ -85,8 +85,8 @@ public class AuthController : ControllerBase
 
         return Ok(new TokenDto
         {
-            Token = null,
-            RefreshToken = refreshToken.Token
+            token = null,
+            refreshToken = refreshToken.token
         });
     }
 }

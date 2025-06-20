@@ -28,14 +28,14 @@ public class ProductsCategoriesManagementService(
             if (await _productsCategoriesQueryService.ExistsByProductCategoryIds(modelAssignIdsDto.ModelId, modelAssignIdsDto.AssignId))
             {
                 ResponsesHelper.AddFailedResponseDto(responsesDto, modelAssignIdsDto, ResponseStatus.AlreadyProcessed,
-                    Fields.ProductsCategories.ProductCategoryId, "Product already assigned to category");
+                    Fields.ProductsCategories.id, "Product already assigned to category");
                 continue;
             }
             
             if (!await _productsQueryService.ExistById(modelAssignIdsDto.ModelId))
             {
                 ResponsesHelper.AddFailedResponseDto(responsesDto, modelAssignIdsDto, ResponseStatus.NotFound,
-                    Fields.Products.ProductId, "Product not exist");
+                    Fields.Products.id, "Product not exist");
                 continue;
             }
 
@@ -48,9 +48,9 @@ public class ProductsCategoriesManagementService(
 
             ProductCategory productCategory = new()
             {
-                ProductId = modelAssignIdsDto.ModelId,
-                CategoryId = modelAssignIdsDto.AssignId,
-                CreatedDate = DateTime.UtcNow
+                productId = modelAssignIdsDto.ModelId,
+                categoryId = modelAssignIdsDto.AssignId,
+                createdDate = DateTime.UtcNow
             };
             
             _productsCategoriesRepository.Add(productCategory);
@@ -87,7 +87,7 @@ public class ProductsCategoriesManagementService(
             if (productCategory == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responsesDto, productCategoryId, ResponseStatus.NotFound,
-                    Fields.ProductsCategories.ProductCategoryId, "ProductCategory not exist");
+                    Fields.ProductsCategories.id, "ProductCategory not exist");
                 continue;
             }
             

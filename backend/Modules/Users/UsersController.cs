@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -20,14 +21,6 @@ public class UsersController(
     public IActionResult GetSchema([FromQuery] bool ignoreRequired = false)
     {
         return Ok(DtoSchemaHelper.GetDtoSchema(typeof(User), ignoreRequired));
-    }
-    
-    [HttpPatch("update/{id}")]
-    [PermissionAuthorize("Edit_Content", "Users")]
-    public async Task<ActionResult<UserDto>> UpdateUser(Guid id, [FromBody] UpdateUserDto updateUserDto)
-    {
-        User user = await _usersManagementService.Update(id, updateUserDto);
-        return Ok(user.ToDto());
     }
 
     [HttpGet("get-by-id")]
@@ -59,15 +52,18 @@ public class UsersController(
 
     [HttpPost("create")]
     [PermissionAuthorize("Create", "Users")]
-    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
+    public async Task<ActionResult<UserDto>> Create([FromBody] User data)
     {
-        User? user = await _usersManagementService.Create(createUserDto);
+        User user = await _usersManagementService.Create(data);
 
-        if (user == null)
-        {
-            return BadRequest("Some problems ocurred creating the user :(");
-        }
-
+        return Ok(user.ToDto());
+    }
+    
+    [HttpPatch("update/{id}")]
+    [PermissionAuthorize("Edit_Content", "Users")]
+    public async Task<ActionResult<UserDto>> Update(Guid id, [FromBody] JsonElement data)
+    {
+        User user = await _usersManagementService.Update(id, data);
         return Ok(user.ToDto());
     }
 

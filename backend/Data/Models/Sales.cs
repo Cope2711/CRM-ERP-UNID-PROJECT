@@ -8,27 +8,27 @@ namespace CRM_ERP_UNID.Data.Models;
 public class Sale
 {
     [Key]
-    public Guid SaleId { get; set; }
+    public Guid id { get; set; }
 
     [Required]
-    public Guid BranchId { get; set; }
+    public Guid branchId { get; set; }
 
     [Required]
-    public Guid UserId { get; set; }
+    public Guid userId { get; set; }
 
-    public DateTime? SaleDate { get; set; } = DateTime.UtcNow;
+    public DateTime? saleDate { get; set; } = DateTime.UtcNow;
 
     [Required]
     [Column(TypeName = "decimal(12, 2)")]
-    public decimal TotalAmount { get; set; }
+    public decimal totalAmount { get; set; }
 
-    public DateTime? CreatedDate { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedDate { get; set; } = DateTime.UtcNow;
+    public DateTime? createdDate { get; set; } = DateTime.UtcNow;
+    public DateTime? updatedDate { get; set; } = DateTime.UtcNow;
 
-    [ForeignKey(nameof(UserId))]
+    [ForeignKey(nameof(userId))]
     public User? User { get; set; }
 
-    [ForeignKey(nameof(BranchId))]
+    [ForeignKey(nameof(branchId))]
     public Branch? Branch { get; set; }
 
     public ICollection<SaleDetail> SaleDetails { get; set; } = new List<SaleDetail>();
@@ -40,14 +40,13 @@ public static class SaleExtensions
     {
         return new SaleDto
         {
-            SaleId = sale.SaleId,
-            BranchId = sale.BranchId,
-            UserId = sale.UserId,
-            TotalAmount = sale.TotalAmount,
-            SaleDate = sale.SaleDate,
-            CreatedDate = sale.CreatedDate,
-            UpdatedDate = sale.UpdatedDate,
-            SaleDetails = sale.SaleDetails.Select(sd => sd.ToDto()).ToList()
+            id = sale.id,
+            branchId = sale.branchId,
+            userId = sale.userId,
+            totalAmount = sale.totalAmount,
+            saleDate = sale.saleDate,
+            createdDate = sale.createdDate,
+            updatedDate = sale.updatedDate,
         };
     }
 }

@@ -26,17 +26,17 @@ public class RolesPermissionsResourcesRepository : IRolesPermissionsResourcesRep
     public async Task<bool> ArePermissionNameResourceNameAssignedToRoleIdAsync(Guid roleId, string permissionName, string? resourceName = null)
     {
         return await this._context.RolesPermissionsResources.AnyAsync(rpr =>
-            rpr.RoleId == roleId &&
-            rpr.Permission.PermissionName == permissionName &&
-            (resourceName == null ? rpr.Resource == null : rpr.Resource.ResourceName == resourceName));
+            rpr.roleId == roleId &&
+            rpr.Permission.name == permissionName &&
+            (resourceName == null ? rpr.Resource == null : rpr.Resource.name == resourceName));
     }
 
     public async Task<bool> ArePermissionIdResourceIdAssignedToRoleIdAsync(Guid roleId, Guid permissionId, Guid? resourceId = null)
     {
         return await this._context.RolesPermissionsResources.AnyAsync(rpr =>
-            rpr.RoleId == roleId &&
-            rpr.PermissionId == permissionId &&
-            (resourceId == null ? rpr.ResourceId == null : rpr.ResourceId == resourceId));
+            rpr.roleId == roleId &&
+            rpr.permissionId == permissionId &&
+            (resourceId == null ? rpr.resourceId == null : rpr.resourceId == resourceId));
     }
     
     public void Add(RolePermissionResource rolePermissionResource)
@@ -54,7 +54,7 @@ public class RolesPermissionsResourcesRepository : IRolesPermissionsResourcesRep
         return await this._context.RolesPermissionsResources
             .Include(rp => rp.Role)
             .Include(rp => rp.Permission)
-            .FirstOrDefaultAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId && (resourceId == null ? rp.ResourceId == null : rp.ResourceId == resourceId));
+            .FirstOrDefaultAsync(rp => rp.roleId == roleId && rp.permissionId == permissionId && (resourceId == null ? rp.resourceId == null : rp.resourceId == resourceId));
     }
     
     public void Remove(RolePermissionResource rolePermissionResource)

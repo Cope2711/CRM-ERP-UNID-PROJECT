@@ -1,4 +1,5 @@
-﻿using CRM_ERP_UNID.Attributes;
+﻿using System.Text.Json;
+using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Helpers;
@@ -20,14 +21,6 @@ public class RoleController(
     public IActionResult GetSchema([FromQuery] bool ignoreRequired = false)
     {
         return Ok(DtoSchemaHelper.GetDtoSchema(typeof(Role), ignoreRequired));
-    }
-    
-    [HttpPatch("update/{id}")]
-    [PermissionAuthorize("Edit_Content", "Roles")]
-    public async Task<ActionResult<RoleDto>> Update(Guid id, [FromBody] UpdateRoleDto updateRoleDto)
-    {
-        Role role = await _rolesManagementService.Update(id, updateRoleDto);
-        return Ok(role.ToDto());
     }
 
     [HttpGet("get-by-id")]
@@ -59,10 +52,18 @@ public class RoleController(
 
     [HttpPost("create")]
     [PermissionAuthorize("Create", "Roles")]
-    public async Task<ActionResult<RoleDto>> CreateRole([FromBody] CreateRoleDto createRoleDto)
+    public async Task<ActionResult<RoleDto>> CreateRole([FromBody] Role data)
     {
-        Role newRole = await _rolesManagementService.Create(createRoleDto);
-        return CreatedAtAction(nameof(GetAll), new { id = newRole.RoleId }, newRole);
+        Role role = await _rolesManagementService.Create(data);
+        return Ok(role);
+    }
+    
+    [HttpPatch("update/{id}")]
+    [PermissionAuthorize("Edit_Content", "Roles")]
+    public async Task<ActionResult<RoleDto>> Update(Guid id, [FromBody] JsonElement data)
+    {
+        Role role = await _rolesManagementService.Update(id, data);
+        return Ok(role.ToDto());
     }
 
     [HttpDelete("delete-by-id")]

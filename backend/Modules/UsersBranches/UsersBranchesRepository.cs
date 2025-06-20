@@ -20,8 +20,8 @@ public class UsersBranchesRepository(
 {
     public async Task<bool> AreUsersInSameBranch(Guid userId1, Guid userId2)
     {
-        bool user1HasNoBranches = !await _context.UsersBranches.AnyAsync(ub => ub.UserId == userId1);
-        bool user2HasNoBranches = !await _context.UsersBranches.AnyAsync(ub => ub.UserId == userId2);
+        bool user1HasNoBranches = !await _context.UsersBranches.AnyAsync(ub => ub.userId == userId1);
+        bool user2HasNoBranches = !await _context.UsersBranches.AnyAsync(ub => ub.userId == userId2);
 
         if (user1HasNoBranches || user2HasNoBranches)
         {
@@ -29,14 +29,14 @@ public class UsersBranchesRepository(
         }
 
         return await _context.UsersBranches
-            .AnyAsync(ub1 => ub1.UserId == userId1 &&
-                             _context.UsersBranches.Any(ub2 => ub2.UserId == userId2 &&
-                                                               ub2.BranchId == ub1.BranchId));
+            .AnyAsync(ub1 => ub1.userId == userId1 &&
+                             _context.UsersBranches.Any(ub2 => ub2.userId == userId2 &&
+                                                               ub2.branchId == ub1.branchId));
     }
     
     public async Task<UserBranch?> GetByUserIdAndBranchId(Guid userId, Guid branchId)
     {
-        return await _context.UsersBranches.FirstOrDefaultAsync(ub => ub.UserId == userId && ub.BranchId == branchId);
+        return await _context.UsersBranches.FirstOrDefaultAsync(ub => ub.userId == userId && ub.branchId == branchId);
     }
     
     public void Add(UserBranch usersBranches)
@@ -56,6 +56,6 @@ public class UsersBranchesRepository(
 
     public async Task<bool> IsUserAssignedToBranch(Guid userId, Guid branchId)
     {
-        return await _context.UsersBranches.AnyAsync(ub => ub.UserId == userId && ub.BranchId == branchId);
+        return await _context.UsersBranches.AnyAsync(ub => ub.userId == userId && ub.branchId == branchId);
     }
 }

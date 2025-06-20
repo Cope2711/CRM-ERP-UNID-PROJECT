@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using CRM_ERP_UNID_TESTS.Dtos;
 using CRM_ERP_UNID_TESTS.TestsBase;
 using CRM_ERP_UNID_TESTS.TestsModels;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -26,7 +28,7 @@ public class CategoriesControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Categories.Technology.CategoryId.ToString(),
+                        ValidValue = Models.Categories.Technology.id.ToString(),
                         FieldName = "id"
                     }
                 }
@@ -45,20 +47,20 @@ public class CategoriesControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new Object[] // All ok
             {
-                new CreateCategoryDto
+                new Category
                 {
-                    CategoryName = "Business",
-                    CategoryDescription = "Business category"
+                    name = "Business",
+                    description = "Business category"
                 },
                 HttpStatusCode.OK
             };
 
             yield return new Object[] // CategoryName already exist
             {
-                new CreateCategoryDto
+                new Category
                 {
-                    CategoryName = Models.Categories.Technology.CategoryName,
-                    CategoryDescription = "Technology category"
+                    name = Models.Categories.Technology.name,
+                    description = "Technology category"
                 },
                 HttpStatusCode.Conflict
             };
@@ -66,7 +68,7 @@ public class CategoriesControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(CreateCategoryTestData))]
-        public async Task CreateCategory_ReturnsExpectedResult(CreateCategoryDto createCategoryDto,
+        public async Task CreateCategory_ReturnsExpectedResult(Category createCategoryDto,
             HttpStatusCode expectedStatusCode)
         {
             var response = await _client.PostAsJsonAsync($"{Endpoint}/create", createCategoryDto);
@@ -82,20 +84,20 @@ public class CategoriesControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new object[] // CategoryName already exist
             {
-                Models.Categories.Technology.CategoryId,
-                new UpdateCategoryDto
+                Models.Categories.Technology.id,
+                new 
                 {
-                    CategoryName = Models.Categories.Men.CategoryName,
+                    name = Models.Categories.Men.name,
                 },
                 HttpStatusCode.Conflict
             };
 
             yield return new object[] // All OK
             {
-                Models.Categories.Technology.CategoryId,
-                new UpdateCategoryDto
+                Models.Categories.Technology.id,
+                new 
                 {
-                    CategoryName = "Tecnologia",
+                    name = "Tecnologia",
                 },
                 HttpStatusCode.OK
             };
@@ -103,10 +105,10 @@ public class CategoriesControllerTests : IClassFixture<CustomWebApiFactory>
             yield return new object[] // Not found
             {
                 Guid.NewGuid(),
-                new UpdateCategoryDto
+                new 
                 {
-                    CategoryName = Models.Categories.Technology.CategoryName,
-                    CategoryDescription = "Technology category"
+                    name = Models.Categories.Technology.name,
+                    description = "Technology category"
                 },
                 HttpStatusCode.NotFound
             };
@@ -114,9 +116,9 @@ public class CategoriesControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(UpdateCategoryTestData))]
-        public async Task UpdateCategory_ReturnsExpectedResult(Guid categoryId, UpdateCategoryDto dto, HttpStatusCode expectedStatusCode)
+        public async Task UpdateCategory_ReturnsExpectedResult(Guid categoryId, object data, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{categoryId}", dto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{categoryId}", data);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
@@ -131,7 +133,7 @@ public class CategoriesControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new Object[] // All OK
             {
-                Models.Categories.Technology.CategoryId,
+                Models.Categories.Technology.id,
                 HttpStatusCode.OK
             };
 

@@ -24,21 +24,21 @@ public class SuppliersQueryServices(
 
     public async Task<bool> ExistByIdThrowsNotFound(Guid id)
     {
-        return await genericService.ExistsAsync(s => s.SupplierId == id);
+        return await genericService.ExistsAsync(s => s.id == id);
     }
 
     public async Task<bool> ExistById(Guid id)
     {
-        return await genericService.ExistsAsync(s => s.SupplierId == id);
+        return await genericService.ExistsAsync(s => s.id == id);
     }
 
     public async Task<bool> ExistByName(string supplierName)
     {
-        return await genericService.ExistsAsync(s => s.SupplierName == supplierName);
+        return await genericService.ExistsAsync(s => s.name == supplierName);
     }
     
     public async Task<bool> ExistByEmail(string supplierEmail)
     {
-        return await genericService.ExistsAsync(s => s.SupplierEmail == supplierEmail);
+        return await genericService.ExistsAsync(s => s.email == supplierEmail);
     }
 }

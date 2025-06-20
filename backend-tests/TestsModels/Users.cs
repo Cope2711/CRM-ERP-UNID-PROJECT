@@ -9,51 +9,51 @@ public static partial class Models
     {
         public static readonly User Admin = new User
         {
-            UserId = Guid.Parse("172422a0-5164-4470-acae-72022d3820b1"), UserUserName = "admin",
-            UserFirstName = "Admin", UserLastName = "User", UserEmail = "admin@admin.com",
-            UserPassword = HasherHelper.HashString("123456"), IsActive = true
+            id = Guid.Parse("172422a0-5164-4470-acae-72022d3820b1"), userName = "admin",
+            firstName = "Admin", lastName = "User", email = "admin@admin.com",
+            password = HasherHelper.HashString("123456"), isActive = true
         };
 
         public static readonly User InactiveTestUser = new User
         {
-            UserId = Guid.Parse("2c0180d4-040c-4c00-b8f9-31f7a1e72259"), UserUserName = "test-user",
-            UserFirstName = "Test", UserLastName = "User", UserEmail = "test-user@test.com",
-            UserPassword = HasherHelper.HashString("123456"), IsActive = false
+            id = Guid.Parse("2c0180d4-040c-4c00-b8f9-31f7a1e72259"), userName = "test-user",
+            firstName = "Test", lastName = "User", email = "test-user@test.com",
+            password = HasherHelper.HashString("123456"), isActive = false
         };
         
         public static readonly User TestUser = new User
         {
-            UserId = Guid.Parse("2c0180d4-040c-4c00-b8f9-31f7a1e72258"), UserUserName = "test-user2",
-            UserFirstName = "Test2", UserLastName = "User2", UserEmail = "test-user2@test.com",
-            UserPassword = HasherHelper.HashString("123456"), IsActive = true
+            id = Guid.Parse("2c0180d4-040c-4c00-b8f9-31f7a1e72258"), userName = "test-user2",
+            firstName = "Test2", lastName = "User2", email = "test-user2@test.com",
+            password = HasherHelper.HashString("123456"), isActive = true
         };
         
         public static readonly User HighestPriorityUser = new User
         {
-            UserId = Guid.Parse("2c0180d4-040c-4c00-b8f9-31f7a1e71638"), UserUserName = "highest-priority",
-            UserFirstName = "Highest", UserLastName = "Priority", UserEmail = "highest-priority@test.com",
-            UserPassword = HasherHelper.HashString("123456"), IsActive = true
+            id = Guid.Parse("2c0180d4-040c-4c00-b8f9-31f7a1e71638"), userName = "highest-priority",
+            firstName = "Highest", lastName = "Priority", email = "highest-priority@test.com",
+            password = HasherHelper.HashString("123456"), isActive = true
         };
         
         public static readonly User HighestPriorityUser2 = new User
         {
-            UserId = Guid.Parse("d1dbd11d-0644-41b5-bb15-641cca9611a9"), UserUserName = "highest-priority2",
-            UserFirstName = "Highest", UserLastName = "Priority2", UserEmail = "highest-priority2@test.com",
-            UserPassword = HasherHelper.HashString("123456"), IsActive = true
+            id = Guid.Parse("d1dbd11d-0644-41b5-bb15-641cca9611a9"), userName = "highest-priority2",
+            firstName = "Highest", lastName = "Priority2", email = "highest-priority2@test.com",
+            password = HasherHelper.HashString("123456"), isActive = true
         };
         
         public static readonly User DeactivateHighestPriorityUser = new User
         {
-            UserId = Guid.Parse("2c0986d4-040c-4c00-b8f9-31f7a1e71638"), UserUserName = "deactivate-highest-priority",
-            UserFirstName = "Highest", UserLastName = "Priority", UserEmail = "highest-priority@test.com",
-            UserPassword = HasherHelper.HashString("123456"), IsActive = false
+            id = Guid.Parse("2c0986d4-040c-4c00-b8f9-31f7a1e71638"), userName = "deactivate-highest-priority",
+            firstName = "Highest", lastName = "Priority", email = "highest-priority@test.com",
+            password = HasherHelper.HashString("123456"), isActive = false
         };
         
         public static readonly User TestUser2 = new User
         {
-            UserId = Guid.Parse("8f319401-1f2c-4830-9c9b-9efff3aa56a7"), UserUserName = "test-user2",
-            UserFirstName = "Test2", UserLastName = "User2", UserEmail = "test-user2@test.com",
-            UserPassword = HasherHelper.HashString("123456"), IsActive = true
+            id = Guid.Parse("8f319401-1f2c-4830-9c9b-9efff3aa56a7"), userName = "test-user2",
+            firstName = "Test2", lastName = "User2", email = "test-user2@test.com",
+            password = HasherHelper.HashString("123456"), isActive = true
         };
     }
 }

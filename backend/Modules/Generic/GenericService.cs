@@ -1,5 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
 using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Dtos;
 using CRM_ERP_UNID.Exceptions;
@@ -11,35 +13,33 @@ public class GenericService<T>(
     IGenericRepository<T> _genericRepository,
     ILogger<GenericService<T>> _logger,
     IHttpContextAccessor _httpContextAccessor
-    ) : IGenericService<T> where T : class
+) : IGenericService<T> where T : class
 {
-    public async Task<(T, bool)> Update(T entity, object updateDto)
+    public async Task<(T, bool)> Update(T entity, JsonElement data)
     {
-        await ValidateUpdateFields(entity, updateDto);
-        
+        await ValidateUpdateFields(entity, data);
+
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        _logger.LogInformation("User with id: {authenticatedUserId} Updating entity of type {EntityType}", authenticatedUserId, typeof(T).Name);
+        _logger.LogInformation("User with id: {authenticatedUserId} Updating entity of type {EntityType}",
+            authenticatedUserId, typeof(T).Name);
 
-        
-        var dtoType = updateDto.GetType();
-        var entityType = typeof(T);
-
+        Type entityType = typeof(T);
         bool hasChanges = false;
 
-        var nonNullDtoProps = dtoType.GetProperties()
-            .Where(p => p.GetValue(updateDto) != null);
-        
-        foreach (var dtoProp in nonNullDtoProps)
+        foreach (var jsonProp in data.EnumerateObject())
         {
-            var entityProp = entityType.GetProperty(dtoProp.Name);
-            if (entityProp == null || !entityProp.CanWrite) continue;
+            // Busca la propiedad correspondiente en el modelo
+            var prop = entityType.GetProperty(jsonProp.Name,
+                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (prop == null || !prop.CanWrite) continue;
 
-            var newValue = dtoProp.GetValue(updateDto);
-            var currentValue = entityProp.GetValue(entity);
+            // Deserializa el valor del JSON al tipo correcto
+            object? newValue = JsonSerializer.Deserialize(jsonProp.Value.GetRawText(), prop.PropertyType);
+            object? currentValue = prop.GetValue(entity);
 
             if (!Equals(newValue, currentValue))
             {
-                entityProp.SetValue(entity, newValue);
+                prop.SetValue(entity, newValue);
                 hasChanges = true;
             }
         }
@@ -47,73 +47,92 @@ public class GenericService<T>(
         if (hasChanges)
         {
             await _genericRepository.SaveChanges();
-            _logger.LogInformation("User with id: {authenticatedUserId} Updated entity of type {EntityType}", authenticatedUserId, typeof(T).Name);
+            _logger.LogInformation("User with id: {authenticatedUserId} Updated entity of type {EntityType}",
+                authenticatedUserId, typeof(T).Name);
         }
         else
         {
-            _logger.LogInformation("User with id: {authenticatedUserId} Not Updated entity of type {EntityType}", authenticatedUserId, typeof(T).Name);
+            _logger.LogInformation("User with id: {authenticatedUserId} Not Updated entity of type {EntityType}",
+                authenticatedUserId, typeof(T).Name);
         }
-        
+
         return (entity, hasChanges);
     }
-    
+
+    private async Task ValidateUpdateFields(T entity, JsonElement data)
+    {
+        var modelType = typeof(T);
+
+        foreach (var jsonProp in data.EnumerateObject())
+        {
+            var propInfo = modelType.GetProperty(jsonProp.Name,
+                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (propInfo == null) continue;
+
+            object? newValue = JsonSerializer.Deserialize(
+                jsonProp.Value.GetRawText(),
+                propInfo.PropertyType);
+
+            var validationAttributes = propInfo
+                .GetCustomAttributes<ValidationAttribute>(inherit: true)
+                .Where(attr => attr.GetType() != typeof(UniqueAttribute));
+
+            var context = new ValidationContext(entity)
+            {
+                MemberName = propInfo.Name
+            };
+
+            foreach (var attr in validationAttributes)
+            {
+                var result = attr.GetValidationResult(newValue, context);
+                if (result != ValidationResult.Success)
+                {
+                    throw new ValidationException(result!.ErrorMessage ?? $"Invalid value for {propInfo.Name}");
+                }
+            }
+
+            if (Attribute.IsDefined(propInfo, typeof(UniqueAttribute)))
+            {
+                var currentValue = propInfo.GetValue(entity);
+                if (newValue != null && !Equals(currentValue, newValue))
+                {
+                    var parameter = Expression.Parameter(modelType, "x");
+                    var member = Expression.Property(parameter, propInfo.Name);
+                    var constant = Expression.Constant(newValue);
+                    var body = Expression.Equal(
+                        Expression.Convert(member, typeof(object)),
+                        Expression.Convert(constant, typeof(object))
+                    );
+                    var lambda = Expression.Lambda<Func<T, bool>>(body, parameter);
+
+                    bool exists = await ExistsAsync(lambda);
+                    if (exists)
+                    {
+                        throw new UniqueConstraintViolationException(
+                            $"{modelType.Name} with {propInfo.Name} '{newValue}' already exists",
+                            propInfo.Name
+                        );
+                    }
+                }
+            }
+        }
+    }
+
     public async Task<T> Create(T entity)
     {
         await ValidateCreateFields(entity);
-        
+
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
-        _logger.LogInformation("User with id: {authenticatedUserId} Creating entity of type {EntityType}", authenticatedUserId, typeof(T).Name);
+        _logger.LogInformation("User with id: {authenticatedUserId} Creating entity of type {EntityType}",
+            authenticatedUserId, typeof(T).Name);
 
         _genericRepository.Add(entity);
         await _genericRepository.SaveChanges();
 
-        _logger.LogInformation("User with id: {authenticatedUserId} Creating entity of type {EntityType}", authenticatedUserId, typeof(T).Name);
+        _logger.LogInformation("User with id: {authenticatedUserId} Creating entity of type {EntityType}",
+            authenticatedUserId, typeof(T).Name);
 
         return entity;
-    }
-
-    private async Task ValidateUpdateFields(T entity, object updateDto)
-    {
-        var modelType = typeof(T);
-        var dtoType = updateDto.GetType();
-
-        var propertiesWithUniqueAttr = modelType
-            .GetProperties()
-            .Where(p => Attribute.IsDefined(p, typeof(UniqueAttribute)))
-            .Where(p =>
-            {
-                var dtoProp = dtoType.GetProperty(p.Name);
-                if (dtoProp == null) return false;
-                var newValue = dtoProp.GetValue(updateDto);
-                var currentValue = p.GetValue(entity);
-                // Validar solo si hay nuevo valor y cambió respecto al actual
-                return newValue != null && !Equals(currentValue, newValue);
-            });
-
-        foreach (PropertyInfo modelProp in propertiesWithUniqueAttr)
-        {
-            var dtoProp = dtoType.GetProperty(modelProp.Name);
-            var newValue = dtoProp.GetValue(updateDto);
-
-            // Armar expresión lambda: x => x.Prop == newValue
-            var parameter = Expression.Parameter(modelType, "x");
-            var member = Expression.Property(parameter, modelProp.Name);
-            var constant = Expression.Constant(newValue);
-            var body = Expression.Equal(
-                Expression.Convert(member, typeof(object)),
-                Expression.Convert(constant, typeof(object))
-            );
-            var lambda = Expression.Lambda<Func<T, bool>>(body, parameter);
-
-            bool exists = await ExistsAsync(lambda);
-            if (exists)
-            {
-                throw new UniqueConstraintViolationException(
-                    $"{modelType.Name} with {modelProp.Name} '{newValue}' already exists",
-                    modelProp.Name
-                );
-            }
-        }
     }
 
     private async Task ValidateCreateFields(T entity)
@@ -121,7 +140,7 @@ public class GenericService<T>(
         var propertiesWithUniqueAttr = typeof(T)
             .GetProperties()
             .Where(p => Attribute.IsDefined(p, typeof(UniqueAttribute)))
-            .Where(p => p.GetValue(entity) != null); 
+            .Where(p => p.GetValue(entity) != null);
 
         foreach (PropertyInfo prop in propertiesWithUniqueAttr)
         {
@@ -153,7 +172,7 @@ public class GenericService<T>(
     {
         return await _genericRepository.ExistsAsync(predicate);
     }
-    
+
     public async Task<T?> GetById(Guid id, Func<IQueryable<T>, IQueryable<T>>? include = null)
     {
         return await _genericRepository.GetByIdAsync(id, include);

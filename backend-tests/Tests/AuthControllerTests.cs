@@ -27,7 +27,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new LoginUserDto
                 {
-                    UserUserName = Models.Users.TestUser.UserUserName,
+                    UserUserName = Models.Users.TestUser.userName,
                     UserPassword = "123456",
                     DeviceId = "1"
                 },
@@ -72,7 +72,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 LoginUserDto loginUserDto = new LoginUserDto
                 {
-                    UserUserName = Models.Users.Admin.UserUserName,
+                    UserUserName = Models.Users.Admin.userName,
                     UserPassword = "123456",
                     DeviceId = device.ToString()
                 };
@@ -83,7 +83,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             LoginUserDto loginUserDtoFinal = new LoginUserDto
             {
-                UserUserName = Models.Users.Admin.UserUserName,
+                UserUserName = Models.Users.Admin.userName,
                 UserPassword = "123456",
                 DeviceId = "1231241241241"
             };
@@ -120,13 +120,13 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             var tokenDto = await response.Content.ReadFromJsonAsync<TokenDto>();
             tokenDto.Should().NotBeNull();
-            tokenDto.Token.Should().NotBeNullOrEmpty();
-            tokenDto.RefreshToken.Should().NotBeNullOrEmpty();
+            tokenDto.token.Should().NotBeNullOrEmpty();
+            tokenDto.refreshToken.Should().NotBeNullOrEmpty();
 
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = tokenDto.RefreshToken,
+                RefreshToken = tokenDto.refreshToken,
                 DeviceId = "devicexd1"
             };
 
@@ -139,8 +139,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             var refreshTokenDto = await refreshTokenResponse.Content.ReadFromJsonAsync<TokenDto>();
             refreshTokenDto.Should().NotBeNull();
-            refreshTokenDto.Token.Should().NotBeNullOrEmpty();
-            refreshTokenDto.RefreshToken.Should().NotBeNullOrEmpty();
+            refreshTokenDto.token.Should().NotBeNullOrEmpty();
+            refreshTokenDto.refreshToken.Should().NotBeNullOrEmpty();
         }
 
         [Fact]
@@ -163,13 +163,13 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
 
             var tokenDto = await response.Content.ReadFromJsonAsync<TokenDto>();
             tokenDto.Should().NotBeNull();
-            tokenDto.Token.Should().NotBeNullOrEmpty();
-            tokenDto.RefreshToken.Should().NotBeNullOrEmpty();
+            tokenDto.token.Should().NotBeNullOrEmpty();
+            tokenDto.refreshToken.Should().NotBeNullOrEmpty();
 
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = tokenDto.RefreshToken,
+                RefreshToken = tokenDto.refreshToken,
                 DeviceId = "devicexd11"
             };
 
@@ -205,7 +205,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = Models.RefreshTokens.TestUserExpiredRefreshToken.Token,
+                RefreshToken = Models.RefreshTokens.TestUserExpiredRefreshToken.token,
                 DeviceId = "1"
             };
 
@@ -223,7 +223,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = Models.RefreshTokens.TestUserRefreshTokenRevoked.Token,
+                RefreshToken = Models.RefreshTokens.TestUserRefreshTokenRevoked.token,
                 DeviceId = "1"
             };
 
@@ -248,7 +248,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Logg in
             var loginResponse = await _client.PostAsJsonAsync($"{Endpoint}/login", new LoginUserDto
             {
-                UserUserName = Models.Users.TestUser.UserUserName,
+                UserUserName = Models.Users.TestUser.userName,
                 UserPassword = "123456",
                 DeviceId = "1"
             });
@@ -258,13 +258,13 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             TokenDto? tokenDto = await loginResponse.Content.ReadFromJsonAsync<TokenDto>();
 
             tokenDto.Should().NotBeNull();
-            tokenDto.Token.Should().NotBeNullOrEmpty();
-            tokenDto.RefreshToken.Should().NotBeNullOrEmpty();
+            tokenDto.token.Should().NotBeNullOrEmpty();
+            tokenDto.refreshToken.Should().NotBeNullOrEmpty();
 
             // Logout
             var logoutResponse = await _client.PostAsJsonAsync($"{Endpoint}/logout", new RefreshTokenEntryDto
             {
-                RefreshToken = tokenDto.RefreshToken,
+                RefreshToken = tokenDto.refreshToken,
                 DeviceId = "1"
             });
 
@@ -273,8 +273,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             TokenDto? logoutTokenDto = await logoutResponse.Content.ReadFromJsonAsync<TokenDto>();
 
             logoutTokenDto.Should().NotBeNull();
-            logoutTokenDto.Token.Should().BeNull();
-            logoutTokenDto.RefreshToken.Should().NotBeNullOrEmpty();
+            logoutTokenDto.token.Should().BeNull();
+            logoutTokenDto.refreshToken.Should().NotBeNullOrEmpty();
         }
 
         [Fact]
@@ -301,7 +301,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = Models.RefreshTokens.TestUserRefreshTokenRevoked.Token,
+                RefreshToken = Models.RefreshTokens.TestUserRefreshTokenRevoked.token,
                 DeviceId = "1"
             };
 
@@ -319,7 +319,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             // Arrange
             RefreshTokenEntryDto refreshTokenEntryDto = new RefreshTokenEntryDto
             {
-                RefreshToken = Models.RefreshTokens.TestUserRefreshTokenRevoked.Token,
+                RefreshToken = Models.RefreshTokens.TestUserRefreshTokenRevoked.token,
                 DeviceId = "1"
             };
 
@@ -344,7 +344,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new RequestPasswordResetDto
                 {
-                    Email = "admin@admin.com" // Correo electrónico válido
+                    email = "admin@admin.com" // Correo electrónico válido
                 },
                 HttpStatusCode.OK
             };
@@ -353,7 +353,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new RequestPasswordResetDto
                 {
-                    Email = "invalid-email@example.com" // Correo electrónico inválido
+                    email = "invalid-email@example.com" // Correo electrónico inválido
                 },
                 HttpStatusCode.NotFound
             };
@@ -382,10 +382,10 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
                 // Password does not match
                 new ResetPasswordDto
                 {
-                    Token = Models.PasswordRecoveryTokens.TestValidTokenAsync.ResetToken,
-                    Email = Models.Users.TestUser.UserEmail,
-                    NewPassword = "1234565557",
-                    ConfirmPassword = "123458888"
+                    token = Models.PasswordRecoveryTokens.TestValidTokenAsync.resetToken,
+                    email = Models.Users.TestUser.email,
+                    newPassword = "1234565557",
+                    confirmPassword = "123458888"
                 },
                 HttpStatusCode.BadRequest
             };
@@ -395,10 +395,10 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new ResetPasswordDto
                 {
-                    Token = Models.PasswordRecoveryTokens.TestValidTokenAsync.ResetToken, // Token válido
-                    Email = Models.Users.TestUser.UserEmail,
-                    NewPassword = "newPassword123",
-                    ConfirmPassword = "newPassword123"
+                    token = Models.PasswordRecoveryTokens.TestValidTokenAsync.resetToken, // Token válido
+                    email = Models.Users.TestUser.email,
+                    newPassword = "newPassword123",
+                    confirmPassword = "newPassword123"
                 },
                 HttpStatusCode.OK
             };
@@ -408,10 +408,10 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new ResetPasswordDto
                 {
-                    Token = "invalid-token", // Token inválido
-                    Email = Models.Users.TestUser.UserEmail,
-                    NewPassword = "newPassword123",
-                    ConfirmPassword = "newPassword123"
+                    token = "invalid-token", // Token inválido
+                    email = Models.Users.TestUser.email,
+                    newPassword = "newPassword123",
+                    confirmPassword = "newPassword123"
                 },
                 HttpStatusCode.NotFound
             };
@@ -421,10 +421,10 @@ public class AuthControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new ResetPasswordDto
                 {
-                    Token = Models.PasswordRecoveryTokens.TestExpiredTokenAsync.ResetToken, // Token expirado
-                    Email = Models.Users.TestUser.UserEmail,
-                    NewPassword = "newPassword123",
-                    ConfirmPassword = "newPassword123"
+                    token = Models.PasswordRecoveryTokens.TestExpiredTokenAsync.resetToken, // Token expirado
+                    email = Models.Users.TestUser.email,
+                    newPassword = "newPassword123",
+                    confirmPassword = "newPassword123"
                 },
                 HttpStatusCode.BadRequest
             };

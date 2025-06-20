@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -16,12 +17,19 @@ public class SuppliersBranchesManagementService(
     IGenericService<SupplierBranch> _genericService
 ) : ISuppliersBranchesManagementService
 {
-    public async Task<SupplierBranch> Update(UpdateSupplierBranchDto updateSupplierBranchDto)
+    public async Task<SupplierBranch> Update(JsonElement data)
     {
-        SupplierBranch? supplierBranch = await _suppliersBranchesQueryService.GetByIdThrowsNotFound(updateSupplierBranchDto.SupplierBranchId);
-        
-        await _genericService.Update(supplierBranch, updateSupplierBranchDto);
-        
+        if (!data.TryGetProperty(Fields.SuppliersBranches.id, out JsonElement idElement) || 
+            idElement.ValueKind != JsonValueKind.String || 
+            !Guid.TryParse(idElement.GetString(), out Guid id))
+        {
+            throw new ArgumentException("Invalid or missing id in JSON data");
+        }
+
+        SupplierBranch supplierBranch = await _suppliersBranchesQueryService.GetByIdThrowsNotFound(id);
+
+        await _genericService.Update(supplierBranch, data);
+
         return supplierBranch;
     }
     
@@ -41,38 +49,38 @@ public class SuppliersBranchesManagementService(
                     modelAssignIdsDto.AssignId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIdsDto, ResponseStatus.AlreadyProcessed,
-                    Fields.SuppliersBranches.BranchId, "Branch already assigned to supplier");
+                    Fields.SuppliersBranches.branchId, "Branch already assigned to supplier");
                 continue;
             }
 
             if (!await _suppliersQueryService.ExistById(modelAssignIdsDto.ModelId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIdsDto, ResponseStatus.NotFound,
-                    Fields.Suppliers.SupplierId, "Supplier not exist");
+                    Fields.Suppliers.id, "Supplier not exist");
                 continue;
             }
 
             if (!await _branchesQueryService.ExistById(modelAssignIdsDto.AssignId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIdsDto, ResponseStatus.NotFound,
-                    Fields.Products.ProductId, "Branch not exist");
+                    Fields.Products.id, "Branch not exist");
                 continue;
             }
             
             if (!await _usersBranchesQueryService.IsUserAssignedToBranch(authenticatedUserId, modelAssignIdsDto.AssignId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIdsDto, ResponseStatus.BranchNotMatched,
-                    Fields.Branches.BranchId, "User not assigned to branch");
+                    Fields.Branches.id, "User not assigned to branch");
                 continue;
             }
 
             // Add to database
             SupplierBranch supplierBranch = new()
             {
-                SupplierId = modelAssignIdsDto.ModelId,
-                BranchId = modelAssignIdsDto.AssignId,
-                CreatedDate = DateTime.UtcNow,
-                UpdatedDate = DateTime.UtcNow
+                supplierId = modelAssignIdsDto.ModelId,
+                branchId = modelAssignIdsDto.AssignId,
+                createdDate = DateTime.UtcNow,
+                updatedDate = DateTime.UtcNow
             };
 
             _suppliersBranchesRepository.Add(supplierBranch);
@@ -112,14 +120,14 @@ public class SuppliersBranchesManagementService(
             if (supplierBranch == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, supplierBranchId, ResponseStatus.NotFound,
-                    Fields.SuppliersBranches.SupplierBranchId, "SupplierBranch not exist");
+                    Fields.SuppliersBranches.id, "SupplierBranch not exist");
                 continue;
             }
             
-            if (!await _usersBranchesQueryService.IsUserAssignedToBranch(authenticatedUserId, supplierBranch.BranchId))
+            if (!await _usersBranchesQueryService.IsUserAssignedToBranch(authenticatedUserId, supplierBranch.branchId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, supplierBranchId, ResponseStatus.BranchNotMatched,
-                    Fields.Branches.BranchId, "User not assigned to branch");
+                    Fields.Branches.id, "User not assigned to branch");
                 continue;
             }
             

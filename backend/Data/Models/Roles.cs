@@ -10,28 +10,28 @@ public class Role
 {
     [Key] 
     [NonModificable]
-    public Guid RoleId { get; set; }
+    public Guid id { get; set; }
 
     [Required]
     [MinLength(3)]
     [MaxLength(50)] 
     [Unique]
-    public string RoleName { get; set; }
+    public string name { get; set; }
     
     [Required]
     [Range(0, int.MaxValue)]
-    public double RolePriority { get; set; }
+    public double priority { get; set; }
     
     [MinLength(4)]
     [MaxLength(255)] 
-    public string? RoleDescription { get; set; }
+    public string? description { get; set; }
     
     [NonModificable]
-    [RelationInfo("permissions", "roles-permissions", new []{ "RolePermissionId", "Permission.PermissionId", "Permission.PermissionName", "Resource.ResourceName" })]
+    [RelationInfo("permissions", "roles-permissions", new []{ "id", "Permission.id", "Permission.name", "Resource.name" }, "role.id")]
     public ICollection<RolePermissionResource> RolesPermissionsResources { get; set; } = new List<RolePermissionResource>();
     
     [NonModificable]
-    [RelationInfo("users", "users-roles", new []{ "UserRoleId", "User.UserId", "User.UserUserName" })]
+    [RelationInfo("users", "users-roles", new []{ "id", "User.id", "User.userName" }, "role.id")]
     public ICollection<UserRole> UsersRoles { get; set; } = new List<UserRole>();
 }
 
@@ -41,20 +41,10 @@ public static class RoleExtensions
     {
         return new RoleDto
         {
-            RoleId = role.RoleId,
-            RoleName = role.RoleName,
-            RolePriority = role.RolePriority,
-            RoleDescription = role.RoleDescription
-        };
-    }
-
-    public static Role ToModel(this CreateRoleDto dto)
-    {
-        return new Role
-        {
-            RoleName = dto.RoleName,
-            RolePriority = dto.RolePriority,
-            RoleDescription = dto.RoleDescription,
+            id = role.id,
+            name = role.name,
+            priority = role.priority,
+            description = role.description
         };
     }
 }

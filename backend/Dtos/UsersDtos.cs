@@ -3,94 +3,39 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CRM_ERP_UNID.Dtos;
 
-public class CreateUserDto
-{
-    [Required]
-    [MinLength(3)]
-    [MaxLength(50)] 
-    public required string UserUserName { get; set; }
-    
-    [Required]
-    [MaxLength(50)] 
-    public required string UserFirstName { get; set; }
-    
-    [Required]
-    [MaxLength(50)] 
-    public required string UserLastName { get; set; }
-    
-    [Required]
-    [MaxLength(255)]
-    [IsEmail]
-    public required string UserEmail { get; set; }
-    
-    [MinLength(6)]
-    [MaxLength(255)]
-    [IsPassword]
-    [Required]
-    public string UserPassword { get; set; } = string.Empty;
-
-    [Required] 
-    public bool IsActive { get; set; } = true;
-}
-
-public class UpdateUserDto
-{
-    [MinLength(3)]
-    [MaxLength(50)]
-    public string? UserUserName { get; set; }
-    
-    [MinLength(3)]
-    [MaxLength(50)]
-    public string? UserFirstName { get; set; }
-    
-    [MinLength(3)]
-    [MaxLength(50)]
-    public string? UserLastName { get; set; }
-    
-    [MaxLength(255)]
-    [IsEmail]
-    public string? UserEmail { get; set; }
-}
-
 public class UserDto
 {
     [IsObjectKey]
     [GuidNotEmpty]
     [Required]
-    public Guid UserId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
     [MinLength(3)]
     [MaxLength(50)] 
-    public required string UserUserName { get; set; }
+    public required string userName { get; set; }
     
     [Required]
     [MaxLength(50)] 
-    public required string UserFirstName { get; set; }
+    public required string firstName { get; set; }
     
     [Required]
     [MaxLength(50)] 
-    public required string UserLastName { get; set; }
+    public required string lastName { get; set; }
     
     [Required]
     [MaxLength(255)]
     [IsEmail]
-    public required string UserEmail { get; set; }
+    public required string email { get; set; }
     
     [MinLength(6)]
     [MaxLength(255)]
     [IsPassword]
     [Required]
-    public string UserPassword { get; set; } = string.Empty;
+    public string password { get; set; } = string.Empty;
 
     [Required] 
-    public bool IsActive { get; set; } = true;
-    
-    [RelationInfo("UsersRoles", "users-roles", new[] { "UserRoleId", "Role.RoleId", "Role.RoleName", "Role.RolePriority" })]
-    public List<RoleDto> Roles { get; set; } = new();
-    
-    [RelationInfo("UsersBranches", "users-branches", new[] { "UserBranchId", "Branch.BranchId", "Branch.BranchName" })]
-    public List<BranchDto> Branches { get; set; } = new();
+    public bool isActive { get; set; } = true;
 }
 
 public class LoginUserDto

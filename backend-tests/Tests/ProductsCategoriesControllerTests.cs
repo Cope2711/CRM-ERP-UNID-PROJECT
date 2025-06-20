@@ -33,26 +33,26 @@ public class ProductsCategoriesControllerTests : IClassFixture<CustomWebApiFacto
                 {
                     new ModelAssignIdsDto // OK
                     {
-                        ModelId = Models.Products.GalaxyS21.ProductId,
-                        AssignId = Models.Categories.Technology.CategoryId
+                        ModelId = Models.Products.GalaxyS21.id,
+                        AssignId = Models.Categories.Technology.id
                     },
                     
                     new ModelAssignIdsDto // Not found
                     {
                         ModelId = Guid.NewGuid(),
-                        AssignId = Models.Categories.Technology.CategoryId
+                        AssignId = Models.Categories.Technology.id
                     },
                     
                     new ModelAssignIdsDto // Not found
                     {
-                        ModelId = Models.Products.GalaxyS21.ProductId,
+                        ModelId = Models.Products.GalaxyS21.id,
                         AssignId = Guid.NewGuid()
                     },
                     
                     new ModelAssignIdsDto // Already assigned
                     {
-                        ModelId = Models.Products.iPhone13.ProductId,
-                        AssignId = Models.Categories.Technology.CategoryId
+                        ModelId = Models.Products.iPhone13.id,
+                        AssignId = Models.Categories.Technology.id
                     }
                 }
             };
@@ -80,7 +80,7 @@ public class ProductsCategoriesControllerTests : IClassFixture<CustomWebApiFacto
             {
                 Ids = new List<Guid>
                 {
-                    Models.ProductsCategories.iPhone13Tecnology.ProductCategoryId,
+                    Models.ProductsCategories.iPhone13Tecnology.id,
                     Guid.NewGuid()
                 }
             };

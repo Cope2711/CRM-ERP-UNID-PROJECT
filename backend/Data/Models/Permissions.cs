@@ -8,14 +8,14 @@ namespace CRM_ERP_UNID.Data.Models;
 public class Permission
 {
     [Key]
-    public Guid PermissionId { get; set; }
+    public Guid id { get; set; }
 
     [Required]
     [MaxLength(100)]
-    public required string PermissionName { get; set; }
+    public string name { get; set; }
 
     [MaxLength(255)]
-    public string? PermissionDescription { get; set; } 
+    public string? description { get; set; } 
     
     public ICollection<RolePermissionResource> RolesPermissionsResources { get; set; } = new List<RolePermissionResource>();
 }
@@ -26,9 +26,9 @@ public static class PermissionExtensions
     {
         return new PermissionDto
         {
-            PermissionId = permission.PermissionId,
-            PermissionName = permission.PermissionName,
-            PermissionDescription = permission.PermissionDescription
+            id = permission.id,
+            name = permission.name,
+            description = permission.description
         };
     }
 }

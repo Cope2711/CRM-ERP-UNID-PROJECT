@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
@@ -62,18 +63,18 @@ public class ProductsController(
     
     [HttpPost("create")]
     [PermissionAuthorize("Create", "Products")]
-    public async Task<ActionResult<ProductDto>> Create([FromBody] CreateProductDto createProductDto)
+    public async Task<ActionResult<ProductDto>> Create([FromBody] Product data)
     {
-        Product product = await _productsManagementService.Create(createProductDto);
+        Product product = await _productsManagementService.Create(data);
 
         return Ok(product.ToDto());
     }
     
     [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Products")]
-    public async Task<ActionResult<ProductDto>> Update(Guid id, [FromBody] UpdateProductDto updateProductDto)
-    {
-        Product product = await _productsManagementService.Update(id, updateProductDto);
+    public async Task<ActionResult<ProductDto>> Update(Guid id, [FromBody] JsonElement jsonData)
+    {   
+        Product product = await _productsManagementService.Update(id, jsonData);
 
         return Ok(product.ToDto());
     }

@@ -22,7 +22,7 @@ public class PasswordResetRepository : IPasswordResetRepository
     
     public async Task<PasswordRecoveryToken?> GetByTokenAndEmailThrowsNotFoundAsync(string token, string email)
     {
-        return await _context.PasswordRecoveryTokens.FirstOrDefaultAsync(prt => prt.ResetToken == token && prt.User.UserEmail == email);
+        return await _context.PasswordRecoveryTokens.FirstOrDefaultAsync(prt => prt.resetToken == token && prt.User.email == email);
     }
 
     public async Task AddAsync(PasswordRecoveryToken? passwordReset)

@@ -8,18 +8,18 @@ public static partial class Models
     {
         public static PasswordRecoveryToken TestValidTokenAsync = new PasswordRecoveryToken
         {
-            ResetId = Guid.NewGuid(),
-            UserId = Models.Users.TestUser.UserId,
-            ResetToken = "valid-reset-token",
-            ExpiresAt = DateTime.UtcNow.AddDays(1)
+            id = Guid.NewGuid(),
+            userId = Models.Users.TestUser.id,
+            resetToken = "valid-reset-token",
+            expiresAt = DateTime.UtcNow.AddDays(1)
         };
 
         public static PasswordRecoveryToken TestExpiredTokenAsync = new PasswordRecoveryToken
         {
-            ResetId = Guid.NewGuid(),
-            UserId = Models.Users.TestUser.UserId,
-            ResetToken = "expired-reset-token",
-            ExpiresAt = DateTime.UtcNow.AddHours(-1)
+            id = Guid.NewGuid(),
+            userId = Models.Users.TestUser.id,
+            resetToken = "expired-reset-token",
+            expiresAt = DateTime.UtcNow.AddHours(-1)
         };
     }
 }
