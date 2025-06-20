@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 
@@ -9,8 +10,8 @@ public interface IBrandsService
     Task<Brand> GetByNameThrowsNotFound(string brandName);
     Task<bool> ExistByIdThrowsNotFound(Guid brandId);
     Task<GetAllResponseDto<Brand>> GetAll(GetAllDto getAllDto);
-    Task<Brand> Create(CreateBrandDto createBrandDto);
-    Task<Brand> Update(Guid id, UpdateBrandDto updateBrandDto);
+    Task<Brand> Create(Brand data);
+    Task<Brand> Update(Guid id, JsonElement data);
     Task<ResponsesDto<IdResponseStatusDto>> Activate(IdsDto idsDto);
     Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto);
 }

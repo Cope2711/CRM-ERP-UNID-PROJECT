@@ -8,20 +8,20 @@ public static partial class Models
     {
         public static readonly RefreshToken TestUserRefreshTokenRevoked = new RefreshToken
         {
-            UserId = Models.Users.TestUser.UserId,
-            Token = "zVrwFaCSNYH12C2a3jbb/ejmKloVSnJgYwJNeQsW/xs=",
-            DeviceId = "1",
-            ExpiresAt = DateTime.UtcNow.AddHours(1),
-            RevokedAt = DateTime.UtcNow
+            userId = Models.Users.TestUser.id,
+            token = "zVrwFaCSNYH12C2a3jbb/ejmKloVSnJgYwJNeQsW/xs=",
+            deviceId = "1",
+            expiresAt = DateTime.UtcNow.AddHours(1),
+            revokedAt = DateTime.UtcNow
         };
         
         public static readonly RefreshToken TestUserExpiredRefreshToken = new RefreshToken
         {
-            UserId = Models.Users.TestUser.UserId,
-            Token = "zVrwFcCSNYH12C2a3jbb/ejmKloVSnJgYwJNeQsW/xs=",
-            DeviceId = "1",
-            ExpiresAt = DateTime.UtcNow.AddHours(-1),
-            RevokedAt = null
+            userId = Models.Users.TestUser.id,
+            token = "zVrwFcCSNYH12C2a3jbb/ejmKloVSnJgYwJNeQsW/xs=",
+            deviceId = "1",
+            expiresAt = DateTime.UtcNow.AddHours(-1),
+            revokedAt = null
         };
     }
 }

@@ -6,146 +6,145 @@ public static class Fields
 {
     public static class ProductsCategories
     {
-        public const string ProductCategoryId = nameof(ProductCategory.ProductCategoryId);
-        public const string ProductId = nameof(ProductCategory.ProductId);
-        public const string CategoryId = nameof(ProductCategory.CategoryId);
+        public const string id = nameof(ProductCategory.id);
+        public const string productId = nameof(ProductCategory.productId);
+        public const string categoryId = nameof(ProductCategory.categoryId);
     }
     
     public static class Categories
     {
-        public const string CategoryId = nameof(Category.CategoryId);
-        public const string CategoryName = nameof(Category.CategoryName);
-        public const string CategoryDescription = nameof(Category.CategoryDescription);
+        public const string CategoryId = nameof(Category.id);
+        public const string name = nameof(Category.name);
+        public const string description = nameof(Category.description);
     }
     
     public static class SuppliersBranches
     {
-        public const string SupplierBranchId = nameof(SupplierBranch.SupplierBranchId);
-        public const string SupplierId = nameof(SupplierBranch.SupplierId);
-        public const string BranchId = nameof(SupplierBranch.BranchId);
-        public const string IsPreferredSupplier = nameof(SupplierBranch.IsPreferredSupplier);
+        public const string id = nameof(SupplierBranch.id);
+        public const string supplierId = nameof(SupplierBranch.supplierId);
+        public const string branchId = nameof(SupplierBranch.branchId);
+        public const string isPreferredSupplier = nameof(SupplierBranch.isPreferredSupplier);
     }
     
     public static class SuppliersProducts
     {
-        public const string SupplierProductId = nameof(SupplierProduct.SupplierProductId);
-        public const string SupplierId = nameof(SupplierProduct.SupplierId);
-        public const string ProductId = nameof(SupplierProduct.ProductId);
-        public const string SupplyPrice = nameof(SupplierProduct.SupplyPrice);
-        public const string SupplyLeadTime = nameof(SupplierProduct.SupplyLeadTime);
+        public const string id = nameof(SupplierProduct.id);
+        public const string supplierId = nameof(SupplierProduct.supplierId);
+        public const string productId = nameof(SupplierProduct.productId);
+        public const string supplyPrice = nameof(SupplierProduct.supplyPrice);
+        public const string supplyLeadTime = nameof(SupplierProduct.supplyLeadTime);
     }
     
     public static class Suppliers
     {
-        public const string SupplierId = nameof(Supplier.SupplierId);
-        public const string SupplierName = nameof(Supplier.SupplierName);
-        public const string SupplierContact = nameof(Supplier.SupplierContact);
-        public const string SupplierEmail = nameof(Supplier.SupplierEmail);
-        public const string SupplierPhone = nameof(Supplier.SupplierPhone);
-        public const string SupplierAddress = nameof(Supplier.SupplierAddress);
-        public const string IsActive = nameof(Supplier.IsActive);
+        public const string id = nameof(Supplier.id);
+        public const string name = nameof(Supplier.name);
+        public const string contact = nameof(Supplier.contact);
+        public const string email = nameof(Supplier.email);
+        public const string phone = nameof(Supplier.phone);
+        public const string address = nameof(Supplier.address);
+        public const string isActive = nameof(Supplier.isActive);
     }
     
     public static class Branches
     {
-        public const string BranchId = nameof(Branch.BranchId);
-        public const string BranchName = nameof(Branch.BranchName);
-        public const string BranchAddress = nameof(Branch.BranchAddress);
-        public const string BranchPhone = nameof(Branch.BranchPhone);
-        public const string IsActive = nameof(Branch.IsActive);
+        public const string id = nameof(Branch.id);
+        public const string name = nameof(Branch.name);
+        public const string address = nameof(Branch.address);
+        public const string phone = nameof(Branch.phone);
+        public const string isActive = nameof(Branch.isActive);
     }
     
     public static class Users
     {
-        public const string UserId = nameof(User.UserId);
-        public const string UserUserName = nameof(User.UserUserName);
-        public const string UserFirstName = nameof(User.UserFirstName);
-        public const string UserLastName = nameof(User.UserLastName);
-        public const string UserEmail = nameof(User.UserEmail);
-        public const string UserPassword = nameof(User.UserPassword);
-        public const string IsActive = nameof(User.IsActive);
-        public const string UserRoles = nameof(User.UserRoles);
+        public const string id = nameof(User.id);
+        public const string userName = nameof(User.userName);
+        public const string firstName = nameof(User.firstName);
+        public const string lastName = nameof(User.lastName);
+        public const string email = nameof(User.email);
+        public const string password = nameof(User.password);
+        public const string isActive = nameof(User.isActive);
     }
     
     public static class Permissions
     {
-        public const string PermissionId = nameof(Permission.PermissionId);
-        public const string PermissionName = nameof(Permission.PermissionName);
-        public const string PermissionDescription = nameof(Permission.PermissionDescription);
+        public const string id = nameof(Permission.id);
+        public const string name = nameof(Permission.name);
+        public const string description = nameof(Permission.description);
     }
     
     public static class Roles
     {
-        public const string RoleId = nameof(Role.RoleId);
-        public const string RoleName = nameof(Role.RoleName);
-        public const string RoleDescription = nameof(Role.RoleDescription);
-        public const string RolePriority = nameof(Role.RolePriority);
+        public const string id = nameof(Role.id);
+        public const string name = nameof(Role.name);
+        public const string description = nameof(Role.description);
+        public const string priority = nameof(Role.priority);
     }
     
     public static class Resources
     {
-        public const string ResourceId = nameof(Resource.ResourceId);
-        public const string ResourceName = nameof(Resource.ResourceName);
-        public const string ResourceDescription = nameof(Resource.ResourceDescription);
+        public const string id = nameof(Resource.id);
+        public const string name = nameof(Resource.name);
+        public const string description = nameof(Resource.description);
     }
     
     public static class RefreshTokens
     {
         public const string RefreshTokenField = "RefreshToken";
-        public const string DeviceId = nameof(RefreshToken.DeviceId);
+        public const string deviceId = nameof(RefreshToken.deviceId);
     }
     
     public static class UsersRoles
     {
-        public const string UserRoleId = nameof(UserRole.UserRoleId);
-        public const string UserId = nameof(UserRole.UserId);
-        public const string RoleId = nameof(UserRole.RoleId);
+        public const string id = nameof(UserRole.id);
+        public const string userId = nameof(UserRole.userId);
+        public const string roleId = nameof(UserRole.roleId);
     }
     
     public static class PasswordRecoveryTokens
     {
-        public const string ResetId = nameof(PasswordRecoveryToken.ResetId);
-        public const string UserId = nameof(PasswordRecoveryToken.UserId);
-        public const string ResetToken = nameof(PasswordRecoveryToken.ResetToken);
-        public const string ExpiresAt = nameof(PasswordRecoveryToken.ExpiresAt);
-        public const string CreatedAt = nameof(PasswordRecoveryToken.CreatedAt);
+        public const string id = nameof(PasswordRecoveryToken.id);
+        public const string userId = nameof(PasswordRecoveryToken.userId);
+        public const string resetToken = nameof(PasswordRecoveryToken.resetToken);
+        public const string expiresAt = nameof(PasswordRecoveryToken.expiresAt);
+        public const string createdAt = nameof(PasswordRecoveryToken.createdAt);
     }
     
     public static class Brands
     {
-        public const string BrandId = nameof(Brand.BrandId);
-        public const string BrandName = nameof(Brand.BrandName);
-        public const string BrandDescription = nameof(Brand.BrandDescription);
-        public const string IsActive = nameof(Brand.IsActive);
+        public const string id = nameof(Brand.id);
+        public const string name = nameof(Brand.name);
+        public const string description = nameof(Brand.description);
+        public const string isActive = nameof(Brand.isActive);
     }
     
     public static class Products
     {
-        public const string ProductId = nameof(Product.ProductId);
-        public const string ProductName = nameof(Product.ProductName);
-        public const string ProductBarcode = nameof(Product.ProductBarcode);
-        public const string ProductPrice = nameof(Product.ProductPrice);
-        public const string ProductDescription = nameof(Product.ProductDescription);
-        public const string IsActive = nameof(Product.IsActive);
-        public const string BrandId = nameof(Product.BrandId);
+        public const string id = nameof(Product.id);
+        public const string name = nameof(Product.name);
+        public const string barcode = nameof(Product.barcode);
+        public const string price = nameof(Product.price);
+        public const string description = nameof(Product.description);
+        public const string isActive = nameof(Product.isActive);
+        public const string brandId = nameof(Product.brandId);
     }
     
     public static class InventoryFields
     {
-        public const string InventoryId = nameof(InventoryFields.InventoryId);
-        public const string ProductId = nameof(InventoryFields.ProductId);
-        public const string Quantity = nameof(InventoryFields.Quantity);
-        public const string IsActive = nameof(InventoryFields.IsActive);
+        public const string id = nameof(InventoryFields.id);
+        public const string productId = nameof(InventoryFields.productId);
+        public const string quantity = nameof(InventoryFields.quantity);
+        public const string isActive = nameof(InventoryFields.isActive);
     }
     
     public static class Examples
     {
-        public const string ExampleId = nameof(Example.ExampleId);
-        public const string ExampleName = nameof(Example.ExampleName);
+        public const string id = nameof(Example.id);
+        public const string name = nameof(Example.name);
     }
 
     public static class Sales
     {
-        public const string SaleId = nameof(Sale.SaleId);
+        public const string id = nameof(Sale.id);
     }
 }

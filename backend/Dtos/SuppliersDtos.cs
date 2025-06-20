@@ -8,85 +8,31 @@ public class SupplierDto
     [IsObjectKey]
     [GuidNotEmpty]
     [Required]
-    public Guid SupplierId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
     [MinLength(3)]
     [MaxLength(50)]
-    public required string SupplierName { get; set; }
+    public string name { get; set; }
     
     [MinLength(3)]
     [MaxLength(255)]
-    public string? SupplierContact { get; set; }
+    public string? contact { get; set; }
     
     [MinLength(3)]
     [MaxLength(255)]
     [IsEmail]
-    public string? SupplierEmail { get; set; }
+    public string? email { get; set; }
     
     [MinLength(3)]
     [MaxLength(255)]
     [IsPhoneNumberWithLada]
-    public string? SupplierPhone { get; set; }
+    public string? phone { get; set; }
     
     [MinLength(3)]
     [MaxLength(255)]
-    public string? SupplierAddress { get; set; }
+    public string? address { get; set; }
     
     [Required] 
-    public bool IsActive { get; set; } = true;
-    
-    [RelationInfo("SuppliersProducts", "suppliers-products", new[] { "SupplierProductId", "Product.ProductId", "Product.ProductName" })]
-    public List<SupplierProductDto> Products { get; set; } = new();
-    
-    [RelationInfo("SuppliersBranches", "suppliers-branches", new[] { "SupplierBranchId", "Branch.BranchId", "Branch.BranchName" })]
-    public List<SupplierBranchDto> Branches { get; set; } = new();
-}
-
-public class CreateSupplierDto
-{
-    [Required]
-    [MaxLength(100)]
-    public required string SupplierName { get; set; }
-    
-    [Required]
-    [MaxLength(50)]
-    public string? SupplierContact { get; set; }
-    
-    [Required]
-    [MaxLength(100)]
-    [IsEmail]
-    public required string SupplierEmail { get; set; }
-    
-    [MaxLength(20)]
-    public string? SupplierPhone { get; set; }
-    
-    [MaxLength(255)]
-    public string? SupplierAddress { get; set; }
-    
-    [Required] 
-    public bool IsActive { get; set; } = true;
-}
-
-public class UpdateSupplierDto
-{
-    [MinLength(3)]
-    [MaxLength(50)]
-    public string? SupplierName { get; set; }
-    
-    [MinLength(3)]
-    [MaxLength(255)]
-    public string? SupplierContact { get; set; }
-    
-    [MinLength(3)]
-    [MaxLength(255)]
-    [IsEmail]
-    public string? SupplierEmail { get; set; }
-    
-    [IsPhoneNumberWithLada]
-    public string? SupplierPhone { get; set; }
-    
-    [MinLength(3)]
-    [MaxLength(255)]
-    public string? SupplierAddress { get; set; } 
+    public bool isActive { get; set; } = true;
 }

@@ -10,28 +10,28 @@ public class Inventory
 {
     [Key]
     [NonModificable]
-    public Guid InventoryId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
-    [ReferenceInfo("products", "Product.ProductName")]
-    public Guid ProductId { get; set; }
+    [ReferenceInfo("products", "Product.name")]
+    public Guid productId { get; set; }
     
     [Required]
-    [ReferenceInfo("branches", "Branch.BranchName")]
-    public Guid BranchId { get; set; }
+    [ReferenceInfo("branches", "Branch.name")]
+    public Guid branchId { get; set; }
     
     [Required]
     [Range(0, int.MaxValue)]
-    public int Quantity { get; set; }
+    public int quantity { get; set; }
     
     [NonModificable]
-    public bool IsActive { get; set; }
+    public bool isActive { get; set; }
     
     [NonModificable]
-    public DateTime? CreatedDate { get; set; }
+    public DateTime? createdDate { get; set; }
     
     [NonModificable]
-    public DateTime? UpdatedDate { get; set; }
+    public DateTime? updatedDate { get; set; }
     
     [NonModificable]
     public Product? Product { get; set; }
@@ -46,22 +46,11 @@ public static class InventoryExtensions
     {
         return new InventoryDto
         {
-            InventoryId = inventory.InventoryId,
-            ProductId = inventory.ProductId,
-            BranchId = inventory.BranchId,
-            Quantity = inventory.Quantity,
-            IsActive = inventory.IsActive
-        };
-    }
-    
-    public static Inventory ToModel(this CreateInventoryDto dto)
-    {
-        return new Inventory
-        {
-            ProductId = dto.ProductId,
-            BranchId = dto.BranchId,
-            Quantity = dto.Quantity,
-            IsActive = dto.IsActive ?? true,
+            id = inventory.id,
+            productId = inventory.productId,
+            branchId = inventory.branchId,
+            quantity = inventory.quantity,
+            isActive = inventory.isActive
         };
     }
 }

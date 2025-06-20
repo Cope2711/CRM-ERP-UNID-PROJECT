@@ -11,53 +11,53 @@ public class User
 {
     [Key]
     [NonModificable]
-    public Guid UserId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
     [MinLength(3)]
     [MaxLength(50)]
     [Unique]
-    public required string UserUserName { get; set; }
+    public string userName { get; set; }
     
     [Required]
     [MinLength(3)]
     [MaxLength(50)]
-    public required string UserFirstName { get; set; }
+    public string firstName { get; set; }
     
     [Required]
     [MinLength(3)]
     [MaxLength(50)]
 
-    public required string UserLastName { get; set; }
+    public string lastName { get; set; }
     
     [Required]
     [MinLength(3)]
     [MaxLength(100)]
     [Unique]
-    public required string UserEmail { get; set; }
+    public string email { get; set; }
     
     [Required]
     [MinLength(4)]
     [MaxLength(255)]
     [IsPassword]
-    public required string UserPassword { get; set; }
+    public string password { get; set; }
     
     [NonModificable]
-    public bool IsActive { get; set; }
+    public bool isActive { get; set; }
     
     [NonModificable]
-    [RelationInfo("roles", "users-roles", new[] { "UserRoleId", "Role.RoleId", "Role.RoleName", "Role.RolePriority" })]
+    [RelationInfo("roles", "users-roles", new[] { "id", "Role.id", "Role.name", "Role.priority" }, "user.id")]
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     
     [NonModificable]
-    [RelationInfo("branches", "users-branches", new[] { "UserBranchId", "Branch.BranchId", "Branch.BranchName" })]
+    [RelationInfo("branches", "users-branches", new[] { "id", "Branch.id", "Branch.name" }, "user.id")]
     public ICollection<UserBranch> UsersBranches { get; set; } = new List<UserBranch>();
     
     [NonModificable]
-    public DateTime? CreatedDate { get; set; }
+    public DateTime? createdDate { get; set; }
     
     [NonModificable]
-    public DateTime? UpdatedDate { get; set; } 
+    public DateTime? updatedDate { get; set; } 
 }
 
 public static class UserExtensions
@@ -66,42 +66,17 @@ public static class UserExtensions
     {
         return new UserDto  
         {
-            UserId = user.UserId,
-            UserUserName = user.UserUserName,
-            UserFirstName = user.UserFirstName,
-            UserLastName = user.UserLastName,
-            UserEmail = user.UserEmail,
-            IsActive = user.IsActive,
-            Roles = user.UserRoles.Select(ur => new RoleDto{
-                RoleId = ur.RoleId,
-                RolePriority = ur.Role.RolePriority,
-                RoleName = ur.Role.RoleName
-            }).ToList(),
-            Branches = user.UsersBranches.Select(ub => new BranchDto{
-                BranchId = ub.BranchId,
-                BranchName = ub.Branch.BranchName,
-                BranchAddress = ub.Branch.BranchAddress,
-                BranchPhone = ub.Branch.BranchPhone,
-                IsActive = ub.Branch.IsActive
-            }).ToList()
+            id = user.id,
+            userName = user.userName,
+            firstName = user.firstName,
+            lastName = user.lastName,
+            email = user.email,
+            isActive = user.isActive
         };
     }
     
     public static double[] ToUserRolesPriority(this User user)
     {
-        return user.UserRoles.Select(ur => ur.Role.RolePriority).ToArray();
-    }
-
-    public static User ToModel(this CreateUserDto createUserDto)
-    {
-        return new User
-        {
-            UserUserName = createUserDto.UserUserName,
-            UserFirstName = createUserDto.UserFirstName,
-            UserLastName = createUserDto.UserLastName,
-            UserEmail = createUserDto.UserEmail,
-            UserPassword = HasherHelper.HashString(createUserDto.UserPassword),
-            IsActive = createUserDto.IsActive
-        };
+        return user.UserRoles.Select(ur => ur.Role.priority).ToArray();
     }
 }

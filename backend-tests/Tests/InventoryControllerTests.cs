@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using CRM_ERP_UNID_TESTS.TestsModels;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -25,7 +27,7 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new object[]
             {
-                Models.InventoryModels.iPhone13InventoryHermosillo.InventoryId,
+                Models.InventoryModels.iPhone13InventoryHermosillo.id,
                 HttpStatusCode.OK
             };
 
@@ -56,14 +58,14 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new object[]
             {
-                Models.InventoryModels.iPhone13InventoryHermosillo.ProductId,
-                Models.InventoryModels.iPhone13InventoryHermosillo.BranchId,
+                Models.InventoryModels.iPhone13InventoryHermosillo.productId,
+                Models.InventoryModels.iPhone13InventoryHermosillo.branchId,
                 HttpStatusCode.OK
             };
 
             yield return new object[]
             {
-                Models.InventoryModels.iPhone13InventoryHermosillo.ProductId,
+                Models.InventoryModels.iPhone13InventoryHermosillo.productId,
                 Guid.NewGuid(),
                 HttpStatusCode.NotFound
             };
@@ -71,7 +73,7 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
             yield return new object[]
             {
                 Guid.NewGuid(),
-                Models.InventoryModels.iPhone13InventoryHermosillo.BranchId,
+                Models.InventoryModels.iPhone13InventoryHermosillo.branchId,
                 HttpStatusCode.NotFound
             };
         }
@@ -95,30 +97,30 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new object[] // All ok
             {
-                Models.InventoryModels.iPhone13InventoryHermosillo.InventoryId,
-                new UpdateInventoryDto
+                Models.InventoryModels.iPhone13InventoryHermosillo.id,
+                new
                 {
-                    Quantity = 20,
+                    quantity = 20,
                 },
                 HttpStatusCode.OK
             };
 
             yield return new object[] // Conflict for ProductId
             {
-                Models.InventoryModels.iPhone13InventoryHermosillo.InventoryId,
-                new UpdateInventoryDto
+                Models.InventoryModels.iPhone13InventoryHermosillo.id,
+                new
                 {
-                    ProductId = Models.InventoryModels.GalaxyS21InventoryHermosillo.ProductId,
+                    productId = Models.InventoryModels.GalaxyS21InventoryHermosillo.productId,
                 },
                 HttpStatusCode.Conflict
             };
 
             yield return new object[] // Forbidden for BranchId
             {
-                Models.InventoryModels.iPadProInventoryHermosillo.InventoryId,
-                new UpdateInventoryDto
+                Models.InventoryModels.iPadProInventoryHermosillo.id,
+                new
                 {
-                    BranchId = Models.InventoryModels.iPadProInventoryCampoReal.BranchId,
+                    branchId = Models.InventoryModels.iPadProInventoryCampoReal.branchId,
                 },
                 HttpStatusCode.Forbidden
             };
@@ -126,10 +128,10 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
             yield return new object[] // NotFound for InventoryId
             {
                 Guid.NewGuid(),
-                new UpdateInventoryDto
+                new
                 {
-                    Quantity = 20,
-                    IsActive = true
+                    quantity = 20,
+                    isActive = true
                 },
                 HttpStatusCode.NotFound
             };
@@ -137,9 +139,9 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(UpdateInventoryTestData))]
-        public async Task UpdateInventory_ReturnsExpectedResult(Guid inventoryId, UpdateInventoryDto dto, HttpStatusCode expectedStatusCode)
+        public async Task UpdateInventory_ReturnsExpectedResult(Guid inventoryId, object data, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{inventoryId}", dto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{inventoryId}", data);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
@@ -154,12 +156,12 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new object[]
             {
-                new CreateInventoryDto
+                new Inventory
                 {
-                    ProductId = Models.Products.NikeDriFitTShirt.ProductId,
-                    BranchId = Models.Branches.HermosilloMiguelHidalgo.BranchId,
-                    Quantity = 1,
-                    IsActive = true
+                    productId = Models.Products.NikeDriFitTShirt.id,
+                    branchId = Models.Branches.HermosilloMiguelHidalgo.id,
+                    quantity = 1,
+                    isActive = true
                 },
                 HttpStatusCode.OK
             };
@@ -167,12 +169,12 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
             // Returns Conflict for the ProductId
             yield return new object[]
             {
-                new CreateInventoryDto
+                new Inventory
                 {
-                    ProductId = Models.InventoryModels.iPhone13InventoryHermosillo.ProductId,
-                    BranchId = Models.InventoryModels.iPhone13InventoryHermosillo.BranchId,
-                    Quantity = 5,
-                    IsActive = false
+                    productId = Models.InventoryModels.iPhone13InventoryHermosillo.productId,
+                    branchId = Models.InventoryModels.iPhone13InventoryHermosillo.branchId,
+                    quantity = 5,
+                    isActive = false
                 },
                 HttpStatusCode.Conflict
             };
@@ -180,12 +182,12 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
             // Returns Conflict for the BranchID
             yield return new object[]
             {
-                new CreateInventoryDto
+                new Inventory
                 {
-                    ProductId = Models.Products.iPadPro.ProductId,
-                    BranchId = Models.InventoryModels.iPadProInventoryHermosillo.BranchId,
-                    Quantity = 10,
-                    IsActive = true
+                    productId = Models.Products.iPadPro.id,
+                    branchId = Models.InventoryModels.iPadProInventoryHermosillo.branchId,
+                    quantity = 10,
+                    isActive = true
                 },
                 HttpStatusCode.Conflict
             };
@@ -193,12 +195,12 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
             // Returns Forbidden for the user branch
             yield return new object[]
             {
-                new CreateInventoryDto
+                new Inventory
                 {
-                    ProductId = Models.Products.iPadPro.ProductId,
-                    BranchId = Models.InventoryModels.iPadProInventoryCampoReal.BranchId,
-                    Quantity = 10,
-                    IsActive = true
+                    productId = Models.Products.iPadPro.id,
+                    branchId = Models.InventoryModels.iPadProInventoryCampoReal.branchId,
+                    quantity = 10,
+                    isActive = true
                 },
                 HttpStatusCode.Forbidden
             };
@@ -206,7 +208,7 @@ public class InventoryControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(CreateInventoryTestData))]
-        public async Task CreateInventory_ReturnsExpectedResult(CreateInventoryDto createInventoryDto,
+        public async Task CreateInventory_ReturnsExpectedResult(Inventory createInventoryDto,
             HttpStatusCode expectedStatusCode)
         {
             var response = await _client.PostAsJsonAsync($"{Endpoint}/create", createInventoryDto);

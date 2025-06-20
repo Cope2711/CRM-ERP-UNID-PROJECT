@@ -16,7 +16,7 @@ public class UsersBranchesManagementService(
     IPriorityValidationService _priorityValidationService
 ) : IUsersBranchesManagementService
 {
-    public async Task<ResponsesDto<ModelAndAssignResponseStatusDto>> AssignBranchToUserAsync(ModelsAndAssignsDtos modelsAndAssignsDtos)
+    public async Task<ResponsesDto<ModelAndAssignResponseStatusDto>> AssignBranchToUser(ModelsAndAssignsDtos modelsAndAssignsDtos)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         ResponsesDto<ModelAndAssignResponseStatusDto> responseDto = new();
@@ -30,38 +30,38 @@ public class UsersBranchesManagementService(
             if (await _usersBranchesQueryService.IsUserAssignedToBranch(modelAssignIds.ModelId, modelAssignIds.AssignId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.AlreadyProcessed,
-                    Fields.Branches.BranchId, "User already assigned to branch"); continue;
+                    Fields.Branches.id, "User already assigned to branch"); continue;
             }
             
             if (!await _branchesQueryService.ExistById(modelAssignIds.AssignId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotFound,
-                    Fields.Branches.BranchId, "Branch not exist"); continue;
+                    Fields.Branches.id, "Branch not exist"); continue;
             }
             
             if (!await _usersQueryService.ExistById(modelAssignIds.ModelId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotFound,
-                    Fields.Users.UserId, "User not exist"); continue;
+                    Fields.Users.id, "User not exist"); continue;
             }
             
             if (!await _usersBranchesQueryService.EnsureUserHasAccessToBranchNotThrows(authenticatedUserId, modelAssignIds.AssignId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.BranchNotMatched,
-                    Fields.Branches.BranchId, "Not have the permissions to modify that user in that branch"); continue;
+                    Fields.Branches.id, "Not have the permissions to modify that user in that branch"); continue;
             }
             
             if (!await _priorityValidationService.ValidateUserPriorityById(modelAssignIds.ModelId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotEnoughPriority,
-                    Fields.Users.UserId, "Not have enough priority to modify that user"); continue;
+                    Fields.Users.id, "Not have enough priority to modify that user"); continue;
             }
             
             // Add to database
             UserBranch userBranch = new UserBranch
             {
-                UserId = modelAssignIds.ModelId,
-                BranchId = modelAssignIds.AssignId
+                userId = modelAssignIds.ModelId,
+                branchId = modelAssignIds.AssignId
             };
 
             _usersBranchesRepository.Add(userBranch);
@@ -98,19 +98,19 @@ public class UsersBranchesManagementService(
             if (userBranch == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, userBranchId, ResponseStatus.NotFound,
-                    Fields.Branches.BranchId, "User not assigned to branch"); continue;
+                    Fields.Branches.id, "User not assigned to branch"); continue;
             }
             
-            if (!await _usersBranchesQueryService.EnsureUserCanModifyUserNotThrows(authenticatedUserId, userBranch.UserId))
+            if (!await _usersBranchesQueryService.EnsureUserCanModifyUserNotThrows(authenticatedUserId, userBranch.userId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, userBranchId, ResponseStatus.BranchNotMatched,
-                    Fields.Branches.BranchId, "Not have the permissions to modify that user in that branch"); continue;
+                    Fields.Branches.id, "Not have the permissions to modify that user in that branch"); continue;
             }
             
-            if (!await _priorityValidationService.ValidateUserPriorityById(userBranch.UserId))
+            if (!await _priorityValidationService.ValidateUserPriorityById(userBranch.userId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, userBranchId, ResponseStatus.NotEnoughPriority,
-                    Fields.Users.UserId, "Not have enough priority to modify that user"); continue;
+                    Fields.Users.id, "Not have enough priority to modify that user"); continue;
             }
 
             _usersBranchesRepository.Remove(userBranch);

@@ -21,7 +21,7 @@ public class RolesQueryService(
     
     public async Task<bool> ExistRoleName(string roleName)
     {
-        return await _genericService.ExistsAsync(r => r.RoleName == roleName);
+        return await _genericService.ExistsAsync(r => r.name == roleName);
     }
 
     public async Task<GetAllResponseDto<Role>> GetAll(GetAllDto getAllDto)
@@ -41,16 +41,16 @@ public class RolesQueryService(
 
     public async Task<Role> GetByNameThrowsNotFound(string roleName)
     {
-        return await _genericService.GetFirstThrowsNotFoundAsync(r => r.RoleName, roleName);
+        return await _genericService.GetFirstThrowsNotFoundAsync(r => r.name, roleName);
     }
 
     public async Task<Role?> GetByNameAsync(string roleName)
     {
-        return await _genericService.GetFirstAsync(r => r.RoleName, roleName);
+        return await _genericService.GetFirstAsync(r => r.name, roleName);
     }
 
     public async Task<bool> ExistById(Guid id)
     {
-        return await _genericService.ExistsAsync(r => r.RoleId == id);
+        return await _genericService.ExistsAsync(r => r.id == id);
     }
 }

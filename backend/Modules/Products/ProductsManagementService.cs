@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -26,19 +27,19 @@ public class ProductsManagementService(
             if (product == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
-                    Fields.Products.ProductId, "Product not found");
+                    Fields.Products.id, "Product not found");
                 continue;
             }
 
-            if (!product.IsActive)
+            if (!product.isActive)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
-                    Fields.Products.ProductId,
+                    Fields.Products.id,
                     "Product was already deactivated");
                 continue;
             }
 
-            product.IsActive = false;
+            product.isActive = false;
             await _productsRepository.SaveChanges();
 
             responseDto.Success.Add(new IdResponseStatusDto
@@ -67,19 +68,19 @@ public class ProductsManagementService(
             if (product == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
-                    Fields.Products.ProductId, "Product not found");
+                    Fields.Products.id, "Product not found");
                 continue;
             }
 
-            if (product.IsActive)
+            if (product.isActive)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
-                    Fields.Products.ProductId,
+                    Fields.Products.id,
                     "Product was already activated");
                 continue;
             }
 
-            product.IsActive = true;
+            product.isActive = true;
             await _productsRepository.SaveChanges();
 
             responseDto.Success.Add(new IdResponseStatusDto
@@ -102,7 +103,7 @@ public class ProductsManagementService(
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         Product product = await _productsQueryService.GetByIdThrowsNotFound(changeBrandProductDto.ProductId);
 
-        if (product.BrandId == changeBrandProductDto.BrandId)
+        if (product.brandId == changeBrandProductDto.BrandId)
             return product;
 
         await _brandsService.ExistByIdThrowsNotFound(changeBrandProductDto.BrandId);
@@ -111,7 +112,7 @@ public class ProductsManagementService(
             "User with Id {authenticatedUserId} requested ChangeBrandAsync for ProductId {TargetProductId}",
             authenticatedUserId, changeBrandProductDto.ProductId);
 
-        product.BrandId = changeBrandProductDto.BrandId;
+        product.brandId = changeBrandProductDto.BrandId;
 
         await _productsRepository.SaveChanges();
 
@@ -122,16 +123,16 @@ public class ProductsManagementService(
         return product;
     }
 
-    public async Task<Product> Create(CreateProductDto createProductDto)
+    public async Task<Product> Create(Product data)
     {
-        return await _genericService.Create(createProductDto.ToModel());
+        return await _genericService.Create(data);
     }
 
-    public async Task<Product> Update(Guid id, UpdateProductDto updateProductDto)
+    public async Task<Product> Update(Guid id, JsonElement data)
     {
         Product product = await _productsQueryService.GetByIdThrowsNotFound(id);
 
-        await _genericService.Update(product, updateProductDto);
+        await _genericService.Update(product, data);
 
         return product;
     }

@@ -28,7 +28,7 @@ public class SuppliersBranchesRepository(
     
     public async Task<bool> IsSupplierAssignedToBranch(Guid supplierId, Guid branchId)
     {
-        return await _context.SuppliersBranches.AnyAsync(sb => sb.SupplierId == supplierId && sb.BranchId == branchId);
+        return await _context.SuppliersBranches.AnyAsync(sb => sb.supplierId == supplierId && sb.branchId == branchId);
     }
     
     public void Remove(SupplierBranch supplierBranch)

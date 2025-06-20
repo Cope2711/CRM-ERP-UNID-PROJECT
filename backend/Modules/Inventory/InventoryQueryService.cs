@@ -21,7 +21,7 @@ public class InventoryQueryService(
         Inventory? inventory = await _inventoryRepository.GetByProductIdInBranchId(productId, branchId);
         
         if (inventory == null)
-            throw new NotFoundException("Product has no inventory", Fields.InventoryFields.ProductId);
+            throw new NotFoundException("Product has no inventory", Fields.InventoryFields.productId);
         
         return inventory;
     }
@@ -42,7 +42,7 @@ public class InventoryQueryService(
 
         if (!exists)
         {
-            throw new UniqueConstraintViolationException("This product already exists in the inventory", Fields.InventoryFields.ProductId);   
+            throw new UniqueConstraintViolationException("This product already exists in the inventory", Fields.InventoryFields.productId);   
         }
         
         return exists;

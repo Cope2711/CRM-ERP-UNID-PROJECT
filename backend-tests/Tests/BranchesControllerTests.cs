@@ -1,9 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using CRM_ERP_UNID_TESTS.TestsModels;
 using CRM_ERP_UNID_TESTS.Dtos;
 using CRM_ERP_UNID_TESTS.TestsBase;
 using CRM_ERP_UNID.Constants;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -28,12 +30,12 @@ public class BranchesTests
                 {
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Branches.HermosilloMiguelHidalgo.BranchName,
+                        ValidValue = Models.Branches.HermosilloMiguelHidalgo.name,
                         FieldName = "name"
                     },
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Branches.HermosilloMiguelHidalgo.BranchId.ToString(),
+                        ValidValue = Models.Branches.HermosilloMiguelHidalgo.id.ToString(),
                         FieldName = "id"
                     }
                 }
@@ -52,24 +54,24 @@ public class BranchesTests
         {
             yield return new Object[] // All ok
             {
-                new CreateBranchDto
+                new Branch
                 {
-                    BranchName = "Olivares de la Frontera",
-                    BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
-                    BranchPhone = "+526623296985",
-                    IsActive = true
+                    name = "Olivares de la Frontera",
+                    address = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
+                    phone = "+526623296985",
+                    isActive = true
                 },
                 HttpStatusCode.OK
             };
 
             yield return new Object[] // BranchName already exist
             {
-                new CreateBranchDto
+                new Branch
                 {
-                    BranchName = Models.Branches.HermosilloMiguelHidalgo.BranchName,
-                    BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
-                    BranchPhone = "+526623296985",
-                    IsActive = false
+                    name = Models.Branches.HermosilloMiguelHidalgo.name,
+                    address = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
+                    phone = "+526623296985",
+                    isActive = false
                 },
                 HttpStatusCode.Conflict
             };
@@ -77,7 +79,7 @@ public class BranchesTests
 
         [Theory]
         [MemberData(nameof(CreateBranchTestData))]
-        public async Task CreateBranch_ReturnsExpectedResult(CreateBranchDto createBrandDto,
+        public async Task CreateBranch_ReturnsExpectedResult(Branch createBrandDto,
             HttpStatusCode expectedStatusCode)
         {
             var response = await _client.PostAsJsonAsync($"{Endpoint}/create", createBrandDto);
@@ -95,24 +97,24 @@ public class BranchesTests
         {
             yield return new object[] // All OK
             {
-                Models.Branches.HermosilloMiguelHidalgo.BranchId,
-                new UpdateBranchDto
+                Models.Branches.HermosilloMiguelHidalgo.id,
+                new
                 {
-                    BranchName = "Olivares de la Frontera",
-                    BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
-                    BranchPhone = "+526623296985",
+                    name = "Olivares de la Frontera",
+                    address = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
+                    phone = "+526623296985",
                 },
                 HttpStatusCode.OK
             };
 
             yield return new object[] // BranchName already exists
             {
-                Models.Branches.HermosilloMiguelHidalgo.BranchId,
-                new UpdateBranchDto
+                Models.Branches.HermosilloMiguelHidalgo.id,
+                new 
                 {
-                    BranchName = Models.Branches.CampoReal.BranchName,
-                    BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
-                    BranchPhone = "+526623296985",
+                    name = Models.Branches.CampoReal.name,
+                    address = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
+                    phone = "+526623296985",
                 },
                 HttpStatusCode.Conflict
             };
@@ -120,21 +122,21 @@ public class BranchesTests
             yield return new object[] // Not found
             {
                 Guid.NewGuid(),
-                new UpdateBranchDto
+                new 
                 {
-                    BranchName = Models.Branches.CampoReal.BranchName,
-                    BranchAddress = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
-                    BranchPhone = "+526623296985",
+                    name = Models.Branches.CampoReal.name,
+                    address = "Calle 123 Nº 1, Hermosillo, Sonora, Mexico",
+                    phone = "+526623296985",
                 },
                 HttpStatusCode.NotFound
             };
 
             yield return new object[] // Forbidden for the user branch
             {
-                Models.Branches.CampoReal.BranchId,
-                new UpdateBranchDto
+                Models.Branches.CampoReal.id,
+                new 
                 {
-                    BranchName = "Hermosillo Miguel Hidalgo",
+                    name = "Hermosillo Miguel Hidalgo",
                 },
                 HttpStatusCode.Forbidden
             };
@@ -142,10 +144,10 @@ public class BranchesTests
 
         [Theory]
         [MemberData(nameof(UpdateBranchTestData))]
-        public async Task UpdateBranch_ReturnsExpectedResult(Guid branchId, UpdateBranchDto updateBranchDto,
+        public async Task UpdateBranch_ReturnsExpectedResult(Guid branchId, Object data,
             HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{branchId}", updateBranchDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{branchId}", data);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
@@ -164,10 +166,10 @@ public class BranchesTests
             {
                 Ids = new List<Guid>
                 {
-                    Models.Branches.Obregon.BranchId, // Success
+                    Models.Branches.Obregon.id, // Success
                     Guid.NewGuid(), // Not found
-                    Models.Branches.HermosilloMiguelHidalgo.BranchId, // Already proccessed
-                    Models.Branches.PuertoRico.BranchId // Not access
+                    Models.Branches.HermosilloMiguelHidalgo.id, // Already proccessed
+                    Models.Branches.PuertoRico.id // Not access
                 }
             };
 
@@ -202,10 +204,10 @@ public class BranchesTests
             {
                 Ids = new List<Guid>
                 {
-                    Models.Branches.HermosilloMiguelHidalgo.BranchId, // Success
-                    Models.Branches.Obregon.BranchId, // AlreadyProcessed
+                    Models.Branches.HermosilloMiguelHidalgo.id, // Success
+                    Models.Branches.Obregon.id, // AlreadyProcessed
                     Guid.NewGuid(), // Not found
-                    Models.Branches.PuertoRico.BranchId
+                    Models.Branches.PuertoRico.id
                 }
             };
 

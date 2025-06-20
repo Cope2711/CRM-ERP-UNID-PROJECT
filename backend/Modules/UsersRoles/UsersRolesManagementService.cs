@@ -32,25 +32,25 @@ public class UsersRolesManagementService(
             if (userRole == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, userRoleId, ResponseStatus.NotFound,
-                    Fields.UsersRoles.UserRoleId, "Relation not exists"); continue;
+                    Fields.UsersRoles.id, "Relation not exists"); continue;
             }
 
-            if (!await _usersBranchesQueryService.EnsureUserCanModifyUserNotThrows(authenticatedUserId, userRole.UserId))
+            if (!await _usersBranchesQueryService.EnsureUserCanModifyUserNotThrows(authenticatedUserId, userRole.userId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, userRoleId, ResponseStatus.BranchNotMatched,
-                    Fields.Users.UserId, "Not have branch to revoke role to that user"); continue;
+                    Fields.Users.id, "Not have branch to revoke role to that user"); continue;
             }
             
-            if (!await _priorityValidationService.ValidateRolePriorityById(userRole.RoleId))
+            if (!await _priorityValidationService.ValidateRolePriorityById(userRole.roleId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, userRoleId, ResponseStatus.NotEnoughPriority,
-                    Fields.Roles.RoleId, "Not have enough priority to modify that role"); continue;
+                    Fields.Roles.id, "Not have enough priority to modify that role"); continue;
             }
             
-            if (!await _priorityValidationService.ValidateUserPriorityById(userRole.UserId))
+            if (!await _priorityValidationService.ValidateUserPriorityById(userRole.userId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, userRoleId, ResponseStatus.NotEnoughPriority,
-                    Fields.Users.UserId, "Not have enough priority to modify that user"); continue;
+                    Fields.Users.id, "Not have enough priority to modify that user"); continue;
             }
             
             _usersRolesRepository.Remove(userRole);
@@ -85,44 +85,44 @@ public class UsersRolesManagementService(
             if (await _usersRolesQueryService.IsRoleAssignedToUserAsync(modelAssignIds.ModelId, modelAssignIds.AssignId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.AlreadyProcessed,
-                    Fields.Roles.RoleId, "Role already assigned to user"); continue;
+                    Fields.Roles.id, "Role already assigned to user"); continue;
             }
             
             if (!await _usersQueryService.ExistById(modelAssignIds.ModelId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotFound,
-                    Fields.Users.UserId, "User not exist"); continue;
+                    Fields.Users.id, "User not exist"); continue;
             }
 
             if (!await _rolesQueryService.ExistById(modelAssignIds.AssignId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotFound,
-                    Fields.Roles.RoleId, "Role not exist"); continue;
+                    Fields.Roles.id, "Role not exist"); continue;
             }
             
             if (!await _usersBranchesQueryService.EnsureUserCanModifyUserNotThrows(authenticatedUserId, modelAssignIds.ModelId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.BranchNotMatched,
-                    Fields.Users.UserId, "Not have branch to assign role to that user"); continue;
+                    Fields.Users.id, "Not have branch to assign role to that user"); continue;
             }
             
             if (!await _priorityValidationService.ValidateRolePriorityById(modelAssignIds.AssignId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotEnoughPriority,
-                    Fields.Roles.RoleId, "Not have enough priority to modify that role"); continue;
+                    Fields.Roles.id, "Not have enough priority to modify that role"); continue;
             }
             
             if (!await _priorityValidationService.ValidateUserPriorityById(modelAssignIds.ModelId))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, modelAssignIds, ResponseStatus.NotEnoughPriority,
-                    Fields.Users.UserId, "Not have enough priority to modify that user"); continue;
+                    Fields.Users.id, "Not have enough priority to modify that user"); continue;
             }
 
             // Add to database
             UserRole userRole = new UserRole
             {
-                UserId = modelAssignIds.ModelId,
-                RoleId = modelAssignIds.AssignId
+                userId = modelAssignIds.ModelId,
+                roleId = modelAssignIds.AssignId
             };
 
             _usersRolesRepository.Add(userRole);

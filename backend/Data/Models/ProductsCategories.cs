@@ -8,15 +8,15 @@ namespace CRM_ERP_UNID.Data.Models;
 public class ProductCategory
 {
     [Key]
-    public Guid ProductCategoryId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
-    public Guid ProductId { get; set; }
+    public Guid productId { get; set; }
     
     [Required]
-    public Guid CategoryId { get; set; }
+    public Guid categoryId { get; set; }
     
-    public DateTime CreatedDate { get; set; }
+    public DateTime createdDate { get; set; }
     
     public Category? Category { get; set; }
     public Product? Product { get; set; }
@@ -28,10 +28,10 @@ public static class ProductCategoryExtensions
     {
         return new ProductCategoryDto
         {
-            ProductCategoryId = productCategory.ProductCategoryId,
-            ProductId = productCategory.ProductId,
-            CategoryId = productCategory.CategoryId,
-            CreatedDate = productCategory.CreatedDate,
+            id = productCategory.id,
+            productId = productCategory.productId,
+            categoryId = productCategory.categoryId,
+            createdDate = productCategory.createdDate,
         };
     }
 }

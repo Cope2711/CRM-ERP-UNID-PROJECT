@@ -5,15 +5,15 @@ namespace CRM_ERP_UNID.Dtos;
 public class ProductCategoryDto
 {
     [GuidNotEmpty]
-    public Guid ProductCategoryId { get; set; }
+    public Guid id { get; set; }
     
     [GuidNotEmpty]
-    public Guid ProductId { get; set; }
+    public Guid productId { get; set; }
     
     [GuidNotEmpty]
-    public Guid CategoryId { get; set; }
+    public Guid categoryId { get; set; }
     
-    public DateTime CreatedDate { get; set; }
+    public DateTime createdDate { get; set; }
 }
 
 public class ProductAndCategoryIdDto

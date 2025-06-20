@@ -1,6 +1,6 @@
 import BooleanSelector from "@/components/Selectors/BooleanSelector";
 import { PropertiesSchema } from "@/types/Schema";
-import { Form, Input } from "antd";
+import { Form, Input, InputNumber } from "antd";
 import { JSX } from "react";
 
 type DynamicFormProps = {
@@ -55,10 +55,10 @@ const typeToComponent: Record<
 > = {
     boolean: () => <BooleanSelector />,
     string: () => <Input />,
-    number: () => <Input type="number" />,
-    int32: () => <Input type="number" />,
-    decimal: () => <Input type="number" />,
-    double: () => <Input type="number" />,
+    number: () => <InputNumber style={{ width: "100%" }} />,
+    int32: () => <InputNumber style={{ width: "100%" }} />,
+    decimal: () => <InputNumber style={{ width: "100%" }} />,
+    double: () => <InputNumber style={{ width: "100%" }} />,
     guid: () => <Input type="text" />,
     datetime: () => <Input type="text" />,
 };

@@ -6,37 +6,37 @@ namespace CRM_ERP_UNID.Dtos;
 public class UpdateSupplierProductDto
 {
     [GuidNotEmpty]
-    public Guid SupplierProductId { get; set; }
+    public Guid id { get; set; }
     
-    public decimal? SupplyPrice { get; set; }
+    public decimal? supplyPrice { get; set; }
     
     [Range(1, int.MaxValue)]
-    public int? SupplyLeadTime { get; set; }
+    public int? supplyLeadTime { get; set; }
 }
 
 public class SupplierProductDto
 {
     [GuidNotEmpty]
-    public Guid SupplierProductId { get; set; }
+    public Guid id { get; set; }
 
     [GuidNotEmpty]
-    public Guid SupplierId { get; set; }
+    public Guid supplierId { get; set; }
 
     [GuidNotEmpty]
-    public Guid ProductId { get; set; }
+    public Guid productId { get; set; }
 
-    public decimal? SupplyPrice { get; set; }
+    public decimal? price { get; set; }
 
     [Range(1, int.MaxValue)]
-    public int? SupplyLeadTime { get; set; }
+    public int? supplyLeadTime { get; set; }
     
-    public DateTime CreatedDate { get; set; }
+    public DateTime createdDate { get; set; }
 
-    public DateTime UpdatedDate { get; set; }
+    public DateTime updatedDate { get; set; }
     
-    public SupplierDto? Supplier { get; set; }
+    public SupplierDto? supplier { get; set; }
 
-    public ProductDto? Product { get; set; }
+    public ProductDto? product { get; set; }
 }
 
 public class SupplierAndProductIdDto

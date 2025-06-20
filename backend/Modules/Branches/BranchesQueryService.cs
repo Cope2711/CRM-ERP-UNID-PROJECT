@@ -21,7 +21,7 @@ public class BranchesQueryService(
 
     public async Task<Branch> GetByNameThrowsNotFoundAsync(string name)
     {
-        return await _genericService.GetFirstThrowsNotFoundAsync(b => b.BranchName, name);
+        return await _genericService.GetFirstThrowsNotFoundAsync(b => b.name, name);
     }
     
     public async Task<GetAllResponseDto<Branch>> GetAll(GetAllDto getAllDto)
@@ -31,21 +31,21 @@ public class BranchesQueryService(
     
     public async Task<bool> ExistByName(string name)
     {
-        return await _genericService.ExistsAsync(b => b.BranchName == name);
+        return await _genericService.ExistsAsync(b => b.name == name);
     }
     
     public async Task<bool> ExistById(Guid id)
     {
-        return await _genericService.ExistsAsync(b => b.BranchId == id);
+        return await _genericService.ExistsAsync(b => b.id == id);
     }
     
     public async Task<bool> ExistsByIdThrowsNotFound(Guid id)
     {
-        bool exists = await _genericService.ExistsAsync(b => b.BranchId == id);
+        bool exists = await _genericService.ExistsAsync(b => b.id == id);
 
         if (!exists)
         {
-            throw new NotFoundException("Branch not found", Fields.Branches.BranchId);
+            throw new NotFoundException("Branch not found", Fields.Branches.id);
         }
 
         return exists;

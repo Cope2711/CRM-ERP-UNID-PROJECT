@@ -36,12 +36,12 @@ public class TokenService(
         
         _logger.LogInformation("User with Id {authenticatedUserId} requested GenerateAccessToken", authenticatedUserId);
 
-        var rolesIds = user.UserRoles.Select(ur => ur.Role.RoleId).ToList();
+        var rolesIds = user.UserRoles.Select(ur => ur.Role.id).ToList();
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-            new Claim(ClaimTypes.Name, user.UserUserName),
+            new Claim(ClaimTypes.NameIdentifier, user.id.ToString()),
+            new Claim(ClaimTypes.Name, user.userName),
             new Claim(ClaimTypes.Role, string.Join(",", rolesIds)),
             new Claim("MaxRolePriority", user.ToUserRolesPriority().Max().ToString())
         };
@@ -75,10 +75,10 @@ public class TokenService(
 
         RefreshToken refreshTokenModel = new RefreshToken
         {
-            UserId = userId,
-            Token = refreshToken,
-            DeviceId = HasherHelper.HashDeviceIdForStorage(deviceId),
-            ExpiresAt = DateTime.UtcNow.AddHours(12),
+            userId = userId,
+            token = refreshToken,
+            deviceId = HasherHelper.HashDeviceIdForStorage(deviceId),
+            expiresAt = DateTime.UtcNow.AddHours(12),
         };
 
         _tokensRepository.AddRefreshToken(refreshTokenModel);
@@ -93,7 +93,7 @@ public class TokenService(
 
     public async Task<RefreshToken> GetRefreshTokenByRefreshTokenThrowsNotFound(string refreshToken)
     {
-        RefreshToken? refreshTokenObject = await _genericService.GetFirstAsync(rt => rt.Token, refreshToken);
+        RefreshToken? refreshTokenObject = await _genericService.GetFirstAsync(rt => rt.token, refreshToken);
 
         if (refreshTokenObject == null)
             throw new NotFoundException("Refresh token not found", field: Fields.RefreshTokens.RefreshTokenField);
@@ -107,14 +107,14 @@ public class TokenService(
         
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested RevokeRefreshTokenByObject for RefreshTokenId {TargetRefreshTokenId}",
-            authenticatedUserId, refreshToken.RefreshTokenId);
+            authenticatedUserId, refreshToken.id);
 
-        refreshToken.RevokedAt = DateTime.Now;
+        refreshToken.revokedAt = DateTime.Now;
         await _tokensRepository.SaveChangesAsync();
 
         _logger.LogInformation(
             "User with Id {authenticatedUserId} requested RevokeRefreshTokenByObject for RefreshTokenId {TargetRefreshTokenId} and the refresh token was revoked",
-            authenticatedUserId, refreshToken.RefreshTokenId);
+            authenticatedUserId, refreshToken.id);
 
         return refreshToken;
     }

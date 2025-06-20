@@ -6,7 +6,7 @@ import NotFoundPage from "./NotFoundPage";
 import ChangeActiveStatusButton from "@/components/Button/ChangeActiveStatusButton";
 import DynamicUpdateForm from "@/components/dynamic/forms/DynamicUpdateForm";
 import DynamicRelationViewer from "@/components/dynamic/dynamicRelationViewer/DynamicRelationViewer";
-import { extractKeyFieldName, schemaToRelationsSchemas } from "@/utils/objectUtils";
+import { schemaToRelationsSchemas } from "@/utils/objectUtils";
 
 /**
  * Props del componente GenericDetailPage
@@ -100,10 +100,8 @@ const GenericDetailPage = ({ modelName }: DetailPageProps) => {
                 <div className="bg-white shadow rounded-xl p-6 border border-gray-200 h-full flex flex-col">
                     <h2 className="text-lg font-semibold mb-4 text-purple-700">Relations</h2>
                     <DynamicRelationViewer
-                        columnName={extractKeyFieldName(propertiesSchema)}
                         id={id}
                         relationsSchemas={schemaToRelationsSchemas(propertiesSchema)}
-                        modelName={modelName}
                     />
                 </div>
             </div>

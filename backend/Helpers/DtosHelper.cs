@@ -55,6 +55,7 @@ public static class DtoSchemaHelper
                     schema["model"] = a.RelationModel;
                     schema["controller"] = a.Controller;
                     schema["selects"] = a.Selects;
+                    schema["actualModelKey"] = a.ActualModelKey;
                 }
             },
             {

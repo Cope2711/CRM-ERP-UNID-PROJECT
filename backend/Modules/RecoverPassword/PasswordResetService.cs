@@ -19,36 +19,36 @@ public class PasswordResetService(
 
         var passwordReset = new PasswordRecoveryToken
         {
-            UserId = user.UserId,
-            ResetToken = GenerateResetToken(),
-            ExpiresAt = DateTime.UtcNow.AddHours(1),
-            CreatedAt = DateTime.UtcNow
+            userId = user.id,
+            resetToken = GenerateResetToken(),
+            expiresAt = DateTime.UtcNow.AddHours(1),
+            createdAt = DateTime.UtcNow
         };
 
         await _passwordResetRepository.AddAsync(passwordReset);
         await _passwordResetRepository.SaveAsync();
 
-        await SendPasswordResetEmailAsync(user.UserEmail, passwordReset.ResetToken);
+        await SendPasswordResetEmailAsync(user.email, passwordReset.resetToken);
         return true;
     }
 
     public async Task<bool> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
     {
-        PasswordRecoveryToken passwordReset = await GetByTokenAndEmailThrowsNotFoundAsync(resetPasswordDto.Token, resetPasswordDto.Email);
-        if (passwordReset.ExpiresAt < DateTime.UtcNow)
+        PasswordRecoveryToken passwordReset = await GetByTokenAndEmailThrowsNotFoundAsync(resetPasswordDto.token, resetPasswordDto.email);
+        if (passwordReset.expiresAt < DateTime.UtcNow)
         {
             throw new BadRequestException("Password reset token has expired.", reason: Reasons.ExpiredToken);
         }
 
-        if (resetPasswordDto.NewPassword != resetPasswordDto.ConfirmPassword)
+        if (resetPasswordDto.newPassword != resetPasswordDto.confirmPassword)
         {
             throw new BadRequestException("Passwords do not match.", reason: Reasons.WrongPassword);
         }
 
-        User user = await _usersQueryService.GetByIdThrowsNotFoundAsync(id: passwordReset.UserId);
+        User user = await _usersQueryService.GetByIdThrowsNotFoundAsync(id: passwordReset.userId);
 
-        user.UserPassword = HasherHelper.HashString(resetPasswordDto.NewPassword);
-        user.UpdatedDate = DateTime.UtcNow;
+        user.password = HasherHelper.HashString(resetPasswordDto.newPassword);
+        user.updatedDate = DateTime.UtcNow;
         await _passwordResetRepository.SaveAsync();
         return true;
     }
@@ -57,7 +57,7 @@ public class PasswordResetService(
     {
         PasswordRecoveryToken? passwordReset = await _passwordResetRepository.GetByTokenAndEmailThrowsNotFoundAsync(token, email);
         if (passwordReset == null)
-            throw new NotFoundException("Password reset token or email not found.", field: Fields.PasswordRecoveryTokens.ResetToken);
+            throw new NotFoundException("Password reset token or email not found.", field: Fields.PasswordRecoveryTokens.resetToken);
         return passwordReset;
     }
 

@@ -20,11 +20,11 @@ public class PermissionService(
     
     public async Task<Permission?> GetByNameAsync(string permissionName)
     {
-        return await _genericService.GetFirstAsync(p => p.PermissionName, permissionName);
+        return await _genericService.GetFirstAsync(p => p.name, permissionName);
     }
 
     public async Task<bool> ExistById(Guid id)
     {
-        return await _genericService.ExistsAsync(p => p.PermissionId == id);
+        return await _genericService.ExistsAsync(p => p.id == id);
     }
 }

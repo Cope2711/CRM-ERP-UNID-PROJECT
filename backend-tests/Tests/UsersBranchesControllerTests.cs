@@ -34,43 +34,43 @@ public class UsersBranchesControllerTests : IClassFixture<CustomWebApiFactory>
                     // Success - Assigned
                     new ModelAssignIdsDto
                     {
-                        ModelId = Models.Users.TestUser2.UserId,
-                        AssignId = Models.Branches.HermosilloMiguelHidalgo.BranchId
+                        ModelId = Models.Users.TestUser2.id,
+                        AssignId = Models.Branches.HermosilloMiguelHidalgo.id
                     },
 
                     // Already assigned
                     new ModelAssignIdsDto
                     {
-                        ModelId = Models.Users.TestUser2.UserId,
-                        AssignId = Models.Branches.HermosilloMiguelHidalgo.BranchId
+                        ModelId = Models.Users.TestUser2.id,
+                        AssignId = Models.Branches.HermosilloMiguelHidalgo.id
                     },
                     
                     // Not found
                     new ModelAssignIdsDto
                     {
                         ModelId = Guid.NewGuid(),
-                        AssignId = Models.Branches.HermosilloMiguelHidalgo.BranchId
+                        AssignId = Models.Branches.HermosilloMiguelHidalgo.id
                     },
                     
                     // Not found branch
                     new ModelAssignIdsDto
                     {
-                        ModelId = Models.Users.TestUser2.UserId,
+                        ModelId = Models.Users.TestUser2.id,
                         AssignId = Guid.NewGuid()
                     },
                     
                     // Not enough priority
                     new ModelAssignIdsDto
                     {
-                        ModelId = Models.Users.HighestPriorityUser2.UserId,
-                        AssignId = Models.Branches.HermosilloMiguelHidalgo.BranchId
+                        ModelId = Models.Users.HighestPriorityUser2.id,
+                        AssignId = Models.Branches.HermosilloMiguelHidalgo.id
                     },
                     
                     // Not in the same branch
                     new ModelAssignIdsDto
                     {
-                        ModelId = Models.Users.TestUser2.UserId,
-                        AssignId = Models.Branches.CampoReal.BranchId
+                        ModelId = Models.Users.TestUser2.id,
+                        AssignId = Models.Branches.CampoReal.id
                     }
                 }
             };
@@ -102,10 +102,10 @@ public class UsersBranchesControllerTests : IClassFixture<CustomWebApiFactory>
             IdsDto usersBranchesIdsDto = new IdsDto{
                 Ids = new List<Guid>
                 {
-                    Models.UsersBranches.TestUserBranchHermosillo.UserBranchId, // Success - Revoked
+                    Models.UsersBranches.TestUserBranchHermosillo.id, // Success - Revoked
                     Guid.NewGuid(), // Not found
-                    Models.UsersBranches.HighestPriorityUserBranchHermosillo.UserBranchId, // Not enough priority
-                    Models.UsersBranches.TestUser2BranchPuertoRico.UserBranchId // Not in the same branch
+                    Models.UsersBranches.HighestPriorityUserBranchHermosillo.id, // Not enough priority
+                    Models.UsersBranches.TestUser2BranchPuertoRico.id // Not in the same branch
                 }
             };
 

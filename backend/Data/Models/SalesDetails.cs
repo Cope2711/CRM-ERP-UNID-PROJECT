@@ -8,25 +8,25 @@ namespace CRM_ERP_UNID.Data.Models;
 public class SaleDetail
 {
     [Key]
-    public Guid SaleDetailId { get; set; }
+    public Guid id { get; set; }
 
     [Required]
-    public Guid SaleId { get; set; }
+    public Guid saleId { get; set; }
 
     [Required]
-    public Guid ProductId { get; set; }
+    public Guid productId { get; set; }
 
     [Required]
-    public int Quantity { get; set; }
+    public int quantity { get; set; }
 
     [Required]
     [Column(TypeName = "decimal(10, 2)")]
-    public decimal UnitPrice { get; set; }
+    public decimal unitPrice { get; set; }
 
-    [ForeignKey(nameof(SaleId))]
+    [ForeignKey(nameof(saleId))]
     public Sale? Sale { get; set; }
 
-    [ForeignKey(nameof(ProductId))]
+    [ForeignKey(nameof(productId))]
     public Product? Product { get; set; }
 }
 
@@ -36,12 +36,12 @@ public static class SaleDetailExtensions
     {
         return new SaleDetailDto
         {
-            SaleDetailId = saleDetail.SaleDetailId,
-            SaleId = saleDetail.SaleId,
-            ProductId = saleDetail.ProductId,
-            Quantity = saleDetail.Quantity,
-            UnitPrice = saleDetail.UnitPrice,
-            ProductName = saleDetail.Product?.ProductName ?? string.Empty
+            id = saleDetail.id,
+            saleId = saleDetail.saleId,
+            productId = saleDetail.productId,
+            quantity = saleDetail.quantity,
+            unitPrice = saleDetail.unitPrice,
+            productName = saleDetail.Product?.name ?? string.Empty
         };
     }
 }

@@ -8,14 +8,14 @@ namespace CRM_ERP_UNID.Data.Models;
 public class Resource
 {
     [Key]
-    public Guid ResourceId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
     [MaxLength(50)]
-    public string ResourceName { get; set; }
+    public string name { get; set; }
     
     [MaxLength(255)]
-    public string? ResourceDescription { get; set; }
+    public string? description { get; set; }
     
     public ICollection<RolePermissionResource> RolesPermissionsResources { get; set; } = new List<RolePermissionResource>();
 }
@@ -26,9 +26,9 @@ public static class ResourceExtensions
     {
         return new ResourceDto
         {
-            ResourceId = resource.ResourceId,
-            ResourceName = resource.ResourceName,
-            ResourceDescription = resource.ResourceDescription
+            id = resource.id,
+            name = resource.name,
+            description = resource.description
         };
     }
 }

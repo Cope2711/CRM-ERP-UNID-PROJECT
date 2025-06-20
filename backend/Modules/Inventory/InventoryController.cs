@@ -1,8 +1,7 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Attributes;
-using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
-using CRM_ERP_UNID.Exceptions;
 using CRM_ERP_UNID.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -53,18 +52,18 @@ public class InventoryController(
     
     [HttpPost("create")]
     [PermissionAuthorize("Create", "Inventory")]
-    public async Task<ActionResult<InventoryDto>> Create([FromBody] CreateInventoryDto createInventoryDto)
+    public async Task<ActionResult<InventoryDto>> Create([FromBody] Inventory data)
     {
-        Inventory inventory = await _inventoryManagementService.Create(createInventoryDto);
+        Inventory inventory = await _inventoryManagementService.Create(data);
 
         return Ok(inventory.ToDto());
     }
     
     [HttpPatch("update/{id}")]
     [PermissionAuthorize("Edit_Content", "Inventory")]
-    public async Task<ActionResult<InventoryDto>> Update(Guid id, [FromBody] UpdateInventoryDto updateInventoryDto)
+    public async Task<ActionResult<InventoryDto>> Update(Guid id, [FromBody] JsonElement data)
     {
-        Inventory inventory = await _inventoryManagementService.Update(id, updateInventoryDto);
+        Inventory inventory = await _inventoryManagementService.Update(id, data);
 
         return Ok(inventory.ToDto());
     }

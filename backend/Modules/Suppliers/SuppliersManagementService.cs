@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -25,19 +26,19 @@ public class SuppliersManagementService(
             if (supplier == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
-                    Fields.Suppliers.SupplierId, "Supplier not found");
+                    Fields.Suppliers.id, "Supplier not found");
                 continue;
             }
 
-            if (!supplier.IsActive)
+            if (!supplier.isActive)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
-                    Fields.Suppliers.SupplierId,
+                    Fields.Suppliers.id,
                     "Supplier was already deactivated");
                 continue;
             }
 
-            supplier.IsActive = false;
+            supplier.isActive = false;
             await _suppliersRepository.SaveChanges();
 
             responseDto.Success.Add(new IdResponseStatusDto
@@ -66,19 +67,19 @@ public class SuppliersManagementService(
             if (supplier == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
-                    Fields.Suppliers.SupplierId, "Supplier not found");
+                    Fields.Suppliers.id, "Supplier not found");
                 continue;
             }
 
-            if (supplier.IsActive)
+            if (supplier.isActive)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
-                    Fields.Suppliers.SupplierId,
+                    Fields.Suppliers.id,
                     "Supplier was already activated");
                 continue;
             }
 
-            supplier.IsActive = true;
+            supplier.isActive = true;
             await _suppliersRepository.SaveChanges();
 
             responseDto.Success.Add(new IdResponseStatusDto
@@ -96,16 +97,16 @@ public class SuppliersManagementService(
         return responseDto;
     }
     
-    public async Task<Supplier> Create(CreateSupplierDto createSupplierDto)
+    public async Task<Supplier> Create(Supplier data)
     {
-        return await _genericService.Create(createSupplierDto.ToModel());
+        return await _genericService.Create(data);
     }
 
-    public async Task<Supplier> Update(Guid id, UpdateSupplierDto updateSupplierDto)
+    public async Task<Supplier> Update(Guid id, JsonElement data)
     {
         Supplier supplier = await _suppliersQueryService.GetByIdThrowsNotFoundAsync(id);
 
-        await _genericService.Update(supplier, updateSupplierDto);
+        await _genericService.Update(supplier, data);
 
         return supplier;
     }

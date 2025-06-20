@@ -36,7 +36,7 @@ public class UsersBranchesController(
                 assign.AssignId = temp;
             }
         }
-        ResponsesDto<ModelAndAssignResponseStatusDto> userBranchResponsesDto = await _usersBranchesManagementService.AssignBranchToUserAsync(modelsAndAssignsDtos);
+        ResponsesDto<ModelAndAssignResponseStatusDto> userBranchResponsesDto = await _usersBranchesManagementService.AssignBranchToUser(modelsAndAssignsDtos);
         return Ok(userBranchResponsesDto);
     }
     

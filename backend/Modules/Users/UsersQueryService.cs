@@ -39,7 +39,7 @@ public class UsersQueryService(
     public async Task<User?> GetByUserName(string userName)
     {
         return await _genericService.GetFirstAsync(
-            u => u.UserUserName, 
+            u => u.userName, 
             userName,
             query => query
                 .Include(u => u.UserRoles)
@@ -52,7 +52,7 @@ public class UsersQueryService(
     public async Task<User> GetByUserNameThrowsNotFound(string userName)
     {
         return await _genericService.GetFirstThrowsNotFoundAsync(
-            u => u.UserUserName, 
+            u => u.userName, 
             userName,
             query => query
                 .Include(u => u.UserRoles)
@@ -65,30 +65,30 @@ public class UsersQueryService(
     public async Task<bool> ExistByIdThrowsNotFound(Guid id)
     {
         if (!await ExistById(id))
-            throw new NotFoundException(message: $"User with id {id} not exist", field: Fields.Users.UserId);
+            throw new NotFoundException(message: $"User with id {id} not exist", field: Fields.Users.id);
         return true;
     }
 
     public async Task<bool> ExistById(Guid id)
     {
-        return await _genericService.ExistsAsync(u => u.UserId == id);
+        return await _genericService.ExistsAsync(u => u.id == id);
     }
 
 
     public async Task<bool> ExistByUserName(string userName)
     {
-        return await _genericService.ExistsAsync(u => u.UserUserName == userName);
+        return await _genericService.ExistsAsync(u => u.userName == userName);
     }
 
     public async Task<bool> ExistByEmail(string email)
     {
-        return await _genericService.ExistsAsync(u => u.UserEmail == email);
+        return await _genericService.ExistsAsync(u => u.email == email);
     }
 
     public async Task<User?> GetByEmail(string email)
     {
         return await _genericService.GetFirstAsync(
-            u => u.UserEmail, 
+            u => u.email, 
             email,
             query => query
                 .Include(u => u.UserRoles)
@@ -101,7 +101,7 @@ public class UsersQueryService(
     public async Task<User> GetByEmailThrowsNotFoundAsync(string email)
     {
         return await _genericService.GetFirstThrowsNotFoundAsync(
-            u => u.UserEmail, 
+            u => u.email, 
             email,
             query => query
                 .Include(u => u.UserRoles)

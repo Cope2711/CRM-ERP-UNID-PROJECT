@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -18,9 +19,9 @@ public class UsersManagementService(
     IGenericService<User> _genericService
     ) : IUsersManagementService
 {
-    public async Task<User?> Create(CreateUserDto createUserDto)
+    public async Task<User> Create(User data)
     {
-        return await _genericService.Create(createUserDto.ToModel());
+        return await _genericService.Create(data);
     }
 
     public async Task<ResponsesDto<IdResponseStatusDto>> Deactivate(IdsDto idsDto)
@@ -37,32 +38,32 @@ public class UsersManagementService(
                 User? user = await _usersQueryService.GetById(id);
                 if (user == null)
                 {
-                    ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound, Fields.Users.UserId, "User not found");
+                    ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound, Fields.Users.id, "User not found");
                     continue;
                 }
                 
                 if (!await _usersBranchesQueryServices.EnsureUserCanModifyUserNotThrows(authenticatedUserId, id))
                 {
-                    ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.BranchNotMatched, Fields.Users.UserId,
+                    ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.BranchNotMatched, Fields.Users.id,
                         "Not have the permissions to deactivate that user in that branch");
                     continue;
                 }
 
-                if (!user.IsActive)
+                if (!user.isActive)
                 {
-                    ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed, Fields.Users.UserId,
+                    ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed, Fields.Users.id,
                         "User was already deactivated");
                     continue;
                 }
 
-                if (authenticatedUserId != user.UserId && !_priorityValidationService.ValidateUserPriority(user))
+                if (authenticatedUserId != user.id && !_priorityValidationService.ValidateUserPriority(user))
                 {
-                    ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotEnoughPriority, Fields.Users.UserId,
+                    ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotEnoughPriority, Fields.Users.id,
                         "Not have enough priority to deactivate that user");
                     continue;
                 }
 
-                user.IsActive = false;
+                user.isActive = false;
                 await _tokenService.RevokeRefreshTokensByUserId(id);
                 await _usersRepository.SaveChangesAsync();
 
@@ -107,32 +108,32 @@ public class UsersManagementService(
             User? user = await _usersQueryService.GetById(id);
             if (user == null)
             {
-                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound, Fields.Users.UserId, "User not found");
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound, Fields.Users.id, "User not found");
                 continue;
             }
             
             if (!await _usersBranchesQueryServices.EnsureUserCanModifyUserNotThrows(authenticatedUserId, id))
             {
-                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.BranchNotMatched, Fields.Users.UserId,
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.BranchNotMatched, Fields.Users.id,
                     "Not have the permissions to activate that user in that branch");
                 continue;
             }
             
-            if (user.IsActive)
+            if (user.isActive)
             {
-                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed, Fields.Users.UserId,
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed, Fields.Users.id,
                     "User already activated");
                 continue;
             }
 
-            if (authenticatedUserId != user.UserId && !_priorityValidationService.ValidateUserPriority(user))
+            if (authenticatedUserId != user.id && !_priorityValidationService.ValidateUserPriority(user))
             {
-                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotEnoughPriority, Fields.Users.UserId,
+                ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotEnoughPriority, Fields.Users.id,
                     "Not have enough priority to activate that user");
                 continue;
             }
 
-            user.IsActive = true;
+            user.isActive = true;
             await _usersRepository.SaveChangesAsync();
             responseDto.Success.Add(new IdResponseStatusDto
             {
@@ -140,7 +141,7 @@ public class UsersManagementService(
                 Status = ResponseStatus.Success,
                 Message = "User Activated"
             });
-            await _mailService.SendReactivateAccountMailAsync(user.UserEmail);
+            await _mailService.SendReactivateAccountMailAsync(user.email);
         }
 
         _logger.LogInformation(
@@ -159,16 +160,16 @@ public class UsersManagementService(
         // Get the user
         User user = await _usersQueryService.GetByIdThrowsNotFoundAsync(authenticatedUserId);
 
-        if (!user.IsActive)
+        if (!user.isActive)
         {
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested ChangePassword but the user is already deactivated",
                 authenticatedUserId);
-            throw new BadRequestException(message: "The user is already deactivated.", field: Fields.Users.IsActive);
+            throw new BadRequestException(message: "The user is already deactivated.", field: Fields.Users.isActive);
         }
 
         // Check password
-        if (HasherHelper.VerifyHash(changePasswordDto.ActualPassword, user.UserPassword) == false)
+        if (HasherHelper.VerifyHash(changePasswordDto.ActualPassword, user.password) == false)
         {
             _logger.LogInformation(
                 "User with Id {authenticatedUserId} requested ChangePassword but the actual password is not correct",
@@ -177,7 +178,7 @@ public class UsersManagementService(
         }
 
         // Change password
-        user.UserPassword = HasherHelper.HashString(changePasswordDto.NewPassword);
+        user.password = HasherHelper.HashString(changePasswordDto.NewPassword);
 
         // Save changes
         await _usersRepository.SaveChangesAsync();
@@ -190,7 +191,7 @@ public class UsersManagementService(
         return user;
     }
 
-    public async Task<User> Update(Guid id, UpdateUserDto updateUserDto)
+    public async Task<User> Update(Guid id, JsonElement data)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 
@@ -202,7 +203,7 @@ public class UsersManagementService(
             await _usersBranchesQueryServices.EnsureUserCanModifyUserThrows(authenticatedUserId, id);
         }
 
-        await _genericService.Update(user, updateUserDto);
+        await _genericService.Update(user, data);
 
         return user;
     }

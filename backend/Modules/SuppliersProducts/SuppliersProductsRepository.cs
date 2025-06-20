@@ -28,7 +28,7 @@ public class SuppliersProductsRepository(
     
     public async Task<bool> IsProductAssignedToSupplier(Guid supplierId, Guid productId)
     {
-        return await _context.SuppliersProducts.AnyAsync(sp => sp.SupplierId == supplierId && sp.ProductId == productId);
+        return await _context.SuppliersProducts.AnyAsync(sp => sp.supplierId == supplierId && sp.productId == productId);
     }
     
     public void Remove(SupplierProduct supplierProduct)

@@ -10,27 +10,27 @@ public class Brand
 {
     [Key]
     [NonModificable]
-    public Guid BrandId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
     [MinLength(3)]
     [MaxLength(50)]
     [Unique]
-    public required string BrandName { get; set; }
+    public string name { get; set; }
     
     [MinLength(3)]
     [MaxLength(255)]
-    public string? BrandDescription { get; set; }
+    public string? description { get; set; }
     
     [Required]
     [NonModificable]
-    public bool IsActive { get; set; }
+    public bool isActive { get; set; }
     
     [NonModificable]
-    public DateTime? CreatedDate { get; set; }
+    public DateTime? createdDate { get; set; }
     
     [NonModificable]
-    public DateTime? UpdatedDate { get; set; }
+    public DateTime? updatedDate { get; set; }
     
     [NonModificable]
     public ICollection<Product> Products { get; set; } = new List<Product>();
@@ -42,20 +42,10 @@ public static class BrandExtensions
     {
         return new BrandDto
         {
-            BrandId = brand.BrandId,
-            BrandName = brand.BrandName,
-            BrandDescription = brand.BrandDescription,
-            IsActive = brand.IsActive
-        };
-    }
-
-    public static Brand ToModel(this CreateBrandDto dto)
-    {
-        return new Brand()
-        {
-            BrandName = dto.BrandName,
-            BrandDescription = dto.BrandDescription,
-            IsActive = dto.IsActive
+            id = brand.id,
+            name = brand.name,
+            description = brand.description,
+            IsActive = brand.isActive
         };
     }
 }

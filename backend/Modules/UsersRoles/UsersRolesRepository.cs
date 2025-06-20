@@ -20,8 +20,8 @@ public class UsersRolesRepository(
     public async Task<double?> GetMaxUserRolePriority(Guid userId)
     {
         return await _context.UsersRoles
-            .Where(ur => ur.UserId == userId)
-            .Select(ur => ur.Role.RolePriority)
+            .Where(ur => ur.userId == userId)
+            .Select(ur => ur.Role.priority)
             .DefaultIfEmpty() 
             .MaxAsync();
     }
@@ -38,7 +38,7 @@ public class UsersRolesRepository(
 
     public async Task<bool> IsRoleAssignedToUserAsync(Guid userId, Guid roleId)
     {
-        return await _context.UsersRoles.AnyAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+        return await _context.UsersRoles.AnyAsync(ur => ur.userId == userId && ur.roleId == roleId);
     }
 
     public void Remove(UserRole userRole)

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -25,7 +26,7 @@ public class BrandsService(
 
     public async Task<Brand> GetByNameThrowsNotFound(string brandName)
     {
-        return await _genericService.GetFirstThrowsNotFoundAsync(b => b.BrandName, brandName);
+        return await _genericService.GetFirstThrowsNotFoundAsync(b => b.name, brandName);
     }
 
     public async Task<GetAllResponseDto<Brand>> GetAll(GetAllDto getAllDto)
@@ -35,31 +36,30 @@ public class BrandsService(
 
     public async Task<bool> ExistByIdThrowsNotFound(Guid brandId)
     {
-        if (!await _genericService.ExistsAsync(b => b.BrandId == brandId))
+        if (!await _genericService.ExistsAsync(b => b.id == brandId))
         {
             throw new NotFoundException(
                 message: $"Brand with id: {brandId} not found!",
-                field: Fields.Brands.BrandId);
+                field: Fields.Brands.id);
         }
 
         return true;
     }
 
-    public async Task<Brand> Create(CreateBrandDto createBrandDto)
+    public async Task<Brand> Create(Brand data)
     {
-        return await _genericService.Create(createBrandDto.ToModel());
+        return await _genericService.Create(data);
     }
 
     public async Task<bool> ExistByName(string brandName)
     {
-        return await _genericService.ExistsAsync(b => b.BrandName == brandName);
+        return await _genericService.ExistsAsync(b => b.name == brandName);
     }
 
-    public async Task<Brand> Update(Guid id, UpdateBrandDto updateBrandDto)
+    public async Task<Brand> Update(Guid id, JsonElement data)
     {
         Brand brand = await GetByIdThrowsNotFound(id);
-        
-        await _genericService.Update(brand, updateBrandDto);
+        await _genericService.Update(brand, data);
 
         return brand;
     }
@@ -75,19 +75,19 @@ public class BrandsService(
             if (brand == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
-                    Fields.Brands.BrandId, "Brand not found");
+                    Fields.Brands.id, "Brand not found");
                 continue;
             }
 
-            if (!brand.IsActive)
+            if (!brand.isActive)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
-                    Fields.Brands.BrandId,
+                    Fields.Brands.id,
                     "Brand was already deactivated");
                 continue;
             }
 
-            brand.IsActive = false;
+            brand.isActive = false;
             await _brandsRepository.SaveChanges();
 
             responseDto.Success.Add(new IdResponseStatusDto
@@ -116,19 +116,19 @@ public class BrandsService(
             if (brand == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
-                    Fields.Brands.BrandId, "Brand not found");
+                    Fields.Brands.id, "Brand not found");
                 continue;
             }
 
-            if (brand.IsActive)
+            if (brand.isActive)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
-                    Fields.Brands.BrandId,
+                    Fields.Brands.id,
                     "Brand was already activated");
                 continue;
             }
 
-            brand.IsActive = true;
+            brand.isActive = true;
             await _brandsRepository.SaveChanges();
 
             responseDto.Success.Add(new IdResponseStatusDto

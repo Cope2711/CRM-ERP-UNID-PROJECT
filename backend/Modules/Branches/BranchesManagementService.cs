@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -26,28 +27,28 @@ public class BranchesManagementService(
             if (branch == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
-                    Fields.Branches.BranchId, "Branch not found");
+                    Fields.Branches.id, "Branch not found");
                 continue;
             }
 
             if (!await _usersBranchesQueryService.EnsureUserHasAccessToBranchNotThrows(authenticatedUserId,
-                    branch.BranchId))
+                    branch.id))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.BranchNotMatched,
-                    Fields.Branches.BranchId,
+                    Fields.Branches.id,
                     "Not have access to Branch");
                 continue;
             }
 
-            if (!branch.IsActive)
+            if (!branch.isActive)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
-                    Fields.Branches.BranchId,
+                    Fields.Branches.id,
                     "Branch was already deactivated");
                 continue;
             }
 
-            branch.IsActive = false;
+            branch.isActive = false;
             await _branchesRepository.SaveChanges();
 
             responseDto.Success.Add(new IdResponseStatusDto
@@ -76,28 +77,28 @@ public class BranchesManagementService(
             if (branch == null)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.NotFound,
-                    Fields.Branches.BranchId, "Branch not found");
+                    Fields.Branches.id, "Branch not found");
                 continue;
             }
             
             if (!await _usersBranchesQueryService.EnsureUserHasAccessToBranchNotThrows(authenticatedUserId,
-                    branch.BranchId))
+                    branch.id))
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.BranchNotMatched,
-                    Fields.Branches.BranchId,
+                    Fields.Branches.id,
                     "Not have access to Branch");
                 continue;
             }
 
-            if (branch.IsActive)
+            if (branch.isActive)
             {
                 ResponsesHelper.AddFailedResponseDto(responseDto, id, ResponseStatus.AlreadyProcessed,
-                    Fields.Branches.BranchId,
+                    Fields.Branches.id,
                     "Branch was already activated");
                 continue;
             }
 
-            branch.IsActive = true;
+            branch.isActive = true;
             await _branchesRepository.SaveChanges();
 
             responseDto.Success.Add(new IdResponseStatusDto
@@ -115,18 +116,18 @@ public class BranchesManagementService(
         return responseDto;
     }
 
-    public async Task<Branch> Create(CreateBranchDto createBranchDto)
+    public async Task<Branch> Create(Branch data)
     {
-        return await _genericService.Create(createBranchDto.ToModel());
+        return await _genericService.Create(data);
     }
 
-    public async Task<Branch> Update(Guid id, UpdateBranchDto updateBranchDto)
+    public async Task<Branch> Update(Guid id, JsonElement data)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
         Branch branch = await _branchesQueryService.GetByIdThrowsNotFoundAsync(id);
         await _usersBranchesQueryService.EnsureUserHasAccessToBranch(authenticatedUserId, id);
         
-        await _genericService.Update(branch, updateBranchDto);
+        await _genericService.Update(branch, data);
         
         return branch;
     }

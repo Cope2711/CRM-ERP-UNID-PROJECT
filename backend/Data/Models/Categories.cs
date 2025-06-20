@@ -10,20 +10,20 @@ public class Category
 {
     [Key]
     [NonModificable]
-    public Guid CategoryId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
     [MinLength(3)]
     [MaxLength(50)]
     [Unique]
-    public required string CategoryName { get; set; }
+    public string name { get; set; }
     
     [MinLength(3)]
     [MaxLength(255)]
-    public string? CategoryDescription { get; set; }
+    public string? description { get; set; }
     
     [NonModificable]
-    [RelationInfo("products", "products-categories", new []{ "ProductCategoryId", "Product.ProductId", "Product.ProductName" })]
+    [RelationInfo("products", "products-categories", new []{ "id", "Product.id", "Product.name" }, "category.id")]
     public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 }
 
@@ -33,18 +33,9 @@ public static class CategoryExtensions
     {
         return new CategoryDto
         {
-            CategoryId = category.CategoryId,
-            CategoryName = category.CategoryName,
-            CategoryDescription = category.CategoryDescription
-        };
-    }
-    
-    public static Category ToModel(this CreateCategoryDto dto)
-    {
-        return new Category
-        {
-            CategoryName = dto.CategoryName,
-            CategoryDescription = dto.CategoryDescription,
+            id = category.id,
+            name = category.name,
+            description = category.description
         };
     }
 }

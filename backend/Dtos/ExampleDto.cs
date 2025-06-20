@@ -7,25 +7,8 @@ public class ExampleDto
 {
     [Required]
     [GuidNotEmpty]
-    public Guid ExampleId { get; set; }
+    public Guid id { get; set; }
     
     [MaxLength(50)]
-    public required string ExampleName { get; set; }
-}
-
-public class CreateExampleDto
-{
-    [Required]
-    [MaxLength(50)]
-    public required string ExampleName { get; set; }
-}
-
-public class UpdateExampleDto
-{
-    [Required]
-    [GuidNotEmpty]
-    public Guid ExampleId { get; set; }
-    
-    [MaxLength(50)]
-    public string? ExampleName { get; set; }
+    public string name { get; set; }
 }

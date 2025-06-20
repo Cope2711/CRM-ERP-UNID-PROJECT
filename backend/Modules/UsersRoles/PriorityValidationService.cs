@@ -32,7 +32,7 @@ public class PriorityValidationService(
     }
 
     public void ValidateRolePriorityThrowsForbiddenException(Role role) =>
-        ValidatePriorityOrThrow(role.RolePriority);
+        ValidatePriorityOrThrow(role.priority);
 
     public void ValidateUserPriorityThrowsForbiddenException(User user) =>
         ValidatePriorityOrThrow(user.ToUserRolesPriority());
@@ -42,7 +42,7 @@ public class PriorityValidationService(
         var authMaxRolePriority = GetAuthenticatedUserMaxRolePriority();
 
         if (targetPriorities.Any() && !IsPriorityGreater(authMaxRolePriority, targetPriorities.Max()))
-            throw new ForbiddenException("Not enough permission to make the action", field: Fields.Roles.RolePriority);
+            throw new ForbiddenException("Not enough permission to make the action", field: Fields.Roles.priority);
     }
 
     private bool IsPriorityValid(params double[] targetPriorities)

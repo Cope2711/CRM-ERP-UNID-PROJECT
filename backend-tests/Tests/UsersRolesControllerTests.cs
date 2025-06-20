@@ -34,43 +34,43 @@ public class UsersRolesControllerTests : IClassFixture<CustomWebApiFactory>
                     // Success - Assigned
                     new ModelAssignIdsDto
                     {
-                        ModelId = Models.Users.TestUser.UserId,
-                        AssignId = Models.Roles.Guest.RoleId
+                        ModelId = Models.Users.TestUser.id,
+                        AssignId = Models.Roles.Guest.id
                     },
                     
                     // Already assigned
                     new ModelAssignIdsDto
                     {
-                        ModelId = Models.Users.TestUser.UserId,
-                        AssignId = Models.Roles.User.RoleId
+                        ModelId = Models.Users.TestUser.id,
+                        AssignId = Models.Roles.User.id
                     },
                     
                     // Not found
                     new ModelAssignIdsDto
                     {
                         ModelId = Guid.NewGuid(),
-                        AssignId = Models.Roles.User.RoleId
+                        AssignId = Models.Roles.User.id
                     },
                     
                     // Not enough priority
                     new ModelAssignIdsDto
                     {
-                        ModelId = Models.Users.HighestPriorityUser.UserId,
-                        AssignId = Models.Roles.User.RoleId
+                        ModelId = Models.Users.HighestPriorityUser.id,
+                        AssignId = Models.Roles.User.id
                     },
                     
                     // Not enough priority
                     new ModelAssignIdsDto
                     {
-                        ModelId = Models.Users.InactiveTestUser.UserId,
-                        AssignId = Models.Roles.HighestPriority.RoleId
+                        ModelId = Models.Users.InactiveTestUser.id,
+                        AssignId = Models.Roles.HighestPriority.id
                     },
                     
                     // Not the same branch
                     new ModelAssignIdsDto
                     {
-                        ModelId = Models.Users.TestUser2.UserId,
-                        AssignId = Models.Roles.Guest.RoleId
+                        ModelId = Models.Users.TestUser2.id,
+                        AssignId = Models.Roles.Guest.id
                     },
                 }
             };
@@ -103,10 +103,10 @@ public class UsersRolesControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 Ids = new List<Guid>
                 {
-                    Models.UsersRoles.TestUserRoleUser.UserRoleId, // Success - Revoked
+                    Models.UsersRoles.TestUserRoleUser.id, // Success - Revoked
                     Guid.NewGuid(), // Not found
-                    Models.UsersRoles.HighestPriorityUserRoleHighestPriority.UserRoleId, // Not enough priority
-                    Models.UsersRoles.TestUser2RoleUser.UserRoleId, // Not the same branch
+                    Models.UsersRoles.HighestPriorityUserRoleHighestPriority.id, // Not enough priority
+                    Models.UsersRoles.TestUser2RoleUser.id, // Not the same branch
                 }
             };
 

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Constants;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -20,8 +21,8 @@ public class InventoryManagementService(
     {
         foreach (StockChangeDto stockChangeDto in stockChanges)
         {
-            Inventory inventory = await _inventoryQueryService.GetByProductIdInBranchIdThrowsNotFound(stockChangeDto.ProductId, branchId);
-            inventory.Quantity += stockChangeDto.Quantity;
+            Inventory inventory = await _inventoryQueryService.GetByProductIdInBranchIdThrowsNotFound(stockChangeDto.productId, branchId);
+            inventory.quantity += stockChangeDto.quantity;
         }
 
         await _inventoryRepository.SaveChangesAsync();
@@ -31,63 +32,73 @@ public class InventoryManagementService(
     {
         foreach (StockChangeDto stockChangeDto in stockChanges)
         {
-            Inventory inventory = await _inventoryQueryService.GetByProductIdInBranchIdThrowsNotFound(stockChangeDto.ProductId, branchId);
+            Inventory inventory = await _inventoryQueryService.GetByProductIdInBranchIdThrowsNotFound(stockChangeDto.productId, branchId);
 
-            if (inventory.Quantity - stockChangeDto.Quantity < 0)
+            if (inventory.quantity - stockChangeDto.quantity < 0)
             {
                 throw new BadRequestException(
-                    $"Not enough stock for product {stockChangeDto.ProductId}. Requested: {stockChangeDto.Quantity}, Available: {inventory.Quantity}",
-                    field: Fields.Products.ProductId
+                    $"Not enough stock for product {stockChangeDto.productId}. Requested: {stockChangeDto.quantity}, Available: {inventory.quantity}",
+                    field: Fields.Products.id
                 );
             }
 
-            inventory.Quantity -= stockChangeDto.Quantity;
+            inventory.quantity -= stockChangeDto.quantity;
         }
 
         await _inventoryRepository.SaveChangesAsync();
     }
     
-    public async Task<Inventory> Update(Guid id, UpdateInventoryDto updateInventoryDto)
+    public async Task<Inventory> Update(Guid id, JsonElement data)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 
         Inventory inventory = await _inventoryQueryService.GetByIdThrowsNotFoundAsync(id);
 
-        if (updateInventoryDto.BranchId.HasValue && updateInventoryDto.BranchId != inventory.BranchId) 
+        string branchIdKey = nameof(Inventory.branchId)[0].ToString().ToLower() + nameof(Inventory.branchId)[1..];
+        if (data.TryGetProperty(branchIdKey, out var branchIdElement) &&
+            branchIdElement.ValueKind != JsonValueKind.Null &&
+            Guid.TryParse(branchIdElement.GetString(), out Guid branchId) &&
+            branchId != inventory.branchId)
         {
-            await _usersBranchesQueryService.EnsureUserHasAccessToBranch(authenticatedUserId,
-                updateInventoryDto.BranchId.Value);
+            await _usersBranchesQueryService.EnsureUserHasAccessToBranch(authenticatedUserId, branchId);
+
+            if (await _inventoryQueryService.ExistProductInBranch(inventory.productId, branchId))
+            {
+                throw new UniqueConstraintViolationException(
+                    message: "This branch already has this product",
+                    field: Fields.Branches.id);
+            }
         }
 
-        if (updateInventoryDto.ProductId != null && 
-            updateInventoryDto.ProductId != inventory.ProductId &&
-            await _inventoryQueryService.ExistProductInBranch(inventory.ProductId, inventory.BranchId))
+        string productIdKey = nameof(Inventory.productId)[0].ToString().ToLower() + nameof(Inventory.productId)[1..]; 
+        if (data.TryGetProperty(productIdKey, out var productIdElement) &&
+            productIdElement.ValueKind != JsonValueKind.Null &&
+            Guid.TryParse(productIdElement.GetString(), out Guid productId) &&
+            productId != inventory.productId)
         {
-            throw new UniqueConstraintViolationException(message: "This product already exists in this branch", field: Fields.Products.ProductId);
+            if (await _inventoryQueryService.ExistProductInBranch(productId, inventory.branchId))
+            {
+                throw new UniqueConstraintViolationException(
+                    message: "This product already exists in this branch",
+                    field: Fields.Products.id);
+            }
         }
 
-        if (updateInventoryDto.BranchId != null &&
-            updateInventoryDto.BranchId != inventory.BranchId &&
-            await _inventoryQueryService.ExistProductInBranch(inventory.ProductId, inventory.BranchId))
-        {
-            throw new UniqueConstraintViolationException(message: "This branch already has this product", field: Fields.Branches.BranchId);
-        }
-
-        await _genericService.Update(inventory, updateInventoryDto); 
+        await _genericService.Update(inventory, data);
 
         return inventory;
     }
     
-    public async Task<Inventory> Create(CreateInventoryDto createInventoryDto)
+    public async Task<Inventory> Create(Inventory data)
     {
         Guid authenticatedUserId = HttpContextHelper.GetAuthenticatedUserId(_httpContextAccessor);
 
         // Exist branch?, user has access to branch?, product exists in branch?
-        await _branchesQueryService.ExistsByIdThrowsNotFound(createInventoryDto.BranchId);
-        await _usersBranchesQueryService.EnsureUserHasAccessToBranch(authenticatedUserId, createInventoryDto.BranchId);
-        if (await _inventoryQueryService.ExistProductInBranch(createInventoryDto.ProductId, createInventoryDto.BranchId))
-            throw new UniqueConstraintViolationException("This product already exists in the inventory", Fields.InventoryFields.ProductId);
+        await _branchesQueryService.ExistsByIdThrowsNotFound(data.branchId);
+        await _usersBranchesQueryService.EnsureUserHasAccessToBranch(authenticatedUserId, data.branchId);
+        if (await _inventoryQueryService.ExistProductInBranch(data.productId, data.branchId))
+            throw new UniqueConstraintViolationException("This product already exists in the inventory", Fields.InventoryFields.productId);
         
-        return await _genericService.Create(createInventoryDto.ToModel());
+        return await _genericService.Create(data);
     }
 }

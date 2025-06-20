@@ -29,7 +29,7 @@ public class SuppliersProductsControllerTests : IClassFixture<CustomWebApiFactor
             // All OK
             yield return new object[]
             {
-                Models.SuppliersProducts.AppleIphone13.SupplierProductId,
+                Models.SuppliersProducts.AppleIphone13.id,
                 HttpStatusCode.OK
             };
 
@@ -66,25 +66,25 @@ public class SuppliersProductsControllerTests : IClassFixture<CustomWebApiFactor
                 {
                     new ModelAssignIdsDto // ALL OK
                     {
-                        ModelId = Models.Suppliers.Apple.SupplierId,
-                        AssignId = Models.Products.iPadPro.ProductId
+                        ModelId = Models.Suppliers.Apple.id,
+                        AssignId = Models.Products.iPadPro.id
                     },
                     
                     new ModelAssignIdsDto // ALREADY PROCESSED
                     {
-                        ModelId = Models.Suppliers.Apple.SupplierId,
-                        AssignId = Models.Products.iPhone13.ProductId
+                        ModelId = Models.Suppliers.Apple.id,
+                        AssignId = Models.Products.iPhone13.id
                     },
                     
                     new ModelAssignIdsDto // NOT FOUND FOR SUPPLIER
                     {
                         ModelId = Guid.NewGuid(),
-                        AssignId = Models.Products.iPhone13.ProductId
+                        AssignId = Models.Products.iPhone13.id
                     },
                     
                     new ModelAssignIdsDto // NOT FOUND FOR PRODUCT
                     {
-                        ModelId = Models.Suppliers.Apple.SupplierId,
+                        ModelId = Models.Suppliers.Apple.id,
                         AssignId = Guid.NewGuid()
                     }
                 }
@@ -112,7 +112,7 @@ public class SuppliersProductsControllerTests : IClassFixture<CustomWebApiFactor
             IdsDto suppliersProductsIdsDto = new IdsDto{
                 Ids = new List<Guid>
                 {
-                    Models.SuppliersProducts.AppleIphone13.SupplierProductId, // ALL OK
+                    Models.SuppliersProducts.AppleIphone13.id, // ALL OK
                     Guid.NewGuid() // NOT FOUND
                 }
             };
@@ -146,9 +146,9 @@ public class SuppliersProductsControllerTests : IClassFixture<CustomWebApiFactor
             {
                 new UpdateSupplierProductDto
                 {
-                    SupplierProductId = Models.SuppliersProducts.AppleIphone13.SupplierProductId,
-                    SupplyPrice = 999.99m,
-                    SupplyLeadTime = 10
+                    id = Models.SuppliersProducts.AppleIphone13.id,
+                    supplyPrice = 999.99m,
+                    supplyLeadTime = 10
                 },
                 HttpStatusCode.OK
             };
@@ -158,9 +158,9 @@ public class SuppliersProductsControllerTests : IClassFixture<CustomWebApiFactor
             {
                 new UpdateSupplierProductDto
                 {
-                    SupplierProductId = Guid.NewGuid(),
-                    SupplyPrice = 999.99m,
-                    SupplyLeadTime = 10
+                    id = Guid.NewGuid(),
+                    supplyPrice = 999.99m,
+                    supplyLeadTime = 10
                 },
                 HttpStatusCode.NotFound
             };

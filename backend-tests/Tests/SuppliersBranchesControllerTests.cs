@@ -31,7 +31,7 @@ public class SuppliersBranchesControllerTests : IClassFixture<CustomWebApiFactor
             {
                 new UpdateSupplierBranchDto
                 {
-                    SupplierBranchId = Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.SupplierBranchId,
+                    SupplierBranchId = Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.id,
                     IsPreferredSupplier = true
                 },
                 HttpStatusCode.OK
@@ -72,9 +72,9 @@ public class SuppliersBranchesControllerTests : IClassFixture<CustomWebApiFactor
             {
                 Ids = new List<Guid>
                 {
-                    Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.SupplierBranchId, // ALL OK
+                    Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.id, // ALL OK
                     Guid.NewGuid(), // NOT FOUND
-                    Models.SuppliersBranches.ApplePuertoRico.SupplierBranchId // Not branch assigned to user
+                    Models.SuppliersBranches.ApplePuertoRico.id // Not branch assigned to user
                 }
             };
 
@@ -111,31 +111,31 @@ public class SuppliersBranchesControllerTests : IClassFixture<CustomWebApiFactor
                 {
                     new ModelAssignIdsDto // Success
                     {
-                        ModelId = Models.Suppliers.Xataka.SupplierId,
-                        AssignId = Models.Branches.HermosilloMiguelHidalgo.BranchId
+                        ModelId = Models.Suppliers.Xataka.id,
+                        AssignId = Models.Branches.HermosilloMiguelHidalgo.id
                     },
                     
                     new ModelAssignIdsDto // Already assigned
                     {
-                        ModelId = Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.SupplierId,
-                        AssignId = Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.BranchId
+                        ModelId = Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.supplierId,
+                        AssignId = Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.branchId
                     },
                     
                     new ModelAssignIdsDto // Branch not assigned to user
                     {
-                        ModelId = Models.Suppliers.Apple.SupplierId,
-                        AssignId = Models.Branches.CampoReal.BranchId
+                        ModelId = Models.Suppliers.Apple.id,
+                        AssignId = Models.Branches.CampoReal.id
                     },
                     
                     new ModelAssignIdsDto // Supplier not exist
                     {
                         ModelId = Guid.NewGuid(),
-                        AssignId = Models.Branches.HermosilloMiguelHidalgo.BranchId
+                        AssignId = Models.Branches.HermosilloMiguelHidalgo.id
                     },
                     
                     new ModelAssignIdsDto // Branch not exist
                     {
-                        ModelId = Models.Suppliers.Apple.SupplierId,
+                        ModelId = Models.Suppliers.Apple.id,
                         AssignId = Guid.NewGuid()
                     }
                 }
@@ -163,7 +163,7 @@ public class SuppliersBranchesControllerTests : IClassFixture<CustomWebApiFactor
             // All OK
             yield return new object[]
             {
-                Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.SupplierBranchId,
+                Models.SuppliersBranches.AppleHermosilloMiguelHidalgo.id,
                 HttpStatusCode.OK
             };
 

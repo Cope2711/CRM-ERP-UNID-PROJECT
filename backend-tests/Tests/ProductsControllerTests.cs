@@ -1,9 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using CRM_ERP_UNID_TESTS.TestsModels;
 using CRM_ERP_UNID_TESTS.Dtos;
 using CRM_ERP_UNID_TESTS.TestsBase;
 using CRM_ERP_UNID.Constants;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -27,17 +29,17 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Products.iPhone13.ProductName,
+                        ValidValue = Models.Products.iPhone13.name,
                         FieldName = "name"
                     },
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Products.iPhone13.ProductId.ToString(),
+                        ValidValue = Models.Products.iPhone13.id.ToString(),
                         FieldName = "id"
                     },
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Products.iPhone13.ProductBarcode.ToString(),
+                        ValidValue = Models.Products.iPhone13.barcode.ToString(),
                         FieldName = "barcode"
                     }
                 }
@@ -57,39 +59,39 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new Object[] // All ok
             {
-                new CreateProductDto
+                new Product
                 {
-                    ProductName = "iPhonasdsadsa",
-                    ProductPrice = 999.99m,
-                    ProductBarcode = "1111111111",
-                    ProductDescription = "Latest iPhone model",
-                    IsActive = true,
+                    name = "iPhonasdsadsa",
+                    price = 999.99m,
+                    barcode = "1111111111",
+                    description = "Latest iPhone model",
+                    isActive = true,
                 },
                 HttpStatusCode.OK
             };
 
             yield return new Object[] // ProductName already exist
             {
-                new CreateProductDto
+                new Product
                 {
-                    ProductName = Models.Products.iPadPro.ProductName,
-                    ProductPrice = 999.99m,
-                    ProductBarcode = "111111111121312321",
-                    ProductDescription = "Latest iPhone model",
-                    IsActive = true,
+                    name = Models.Products.iPadPro.name,
+                    price = 999.99m,
+                    barcode = "111111111121312321",
+                    description = "Latest iPhone model",
+                    isActive = true,
                 },
                 HttpStatusCode.Conflict
             };
 
             yield return new object[] // ProductBarcode already exist
             {
-                new CreateProductDto
+                new Product
                 {
-                    ProductName = "ProductNameelpepe",
-                    ProductPrice = 999.99m,
-                    ProductBarcode = Models.Products.iPhone13.ProductBarcode,
-                    ProductDescription = "Latest iPhone model",
-                    IsActive = true,
+                    name = "ProductNameelpepe",
+                    price = 999.99m,
+                    barcode = Models.Products.iPhone13.barcode,
+                    description = "Latest iPhone model",
+                    isActive = true,
                 },
                 HttpStatusCode.Conflict
             };
@@ -97,7 +99,7 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(CreateProductTestData))]
-        public async Task CreateProduct_ReturnsExpectedResult(CreateProductDto createProductDto,
+        public async Task CreateProduct_ReturnsExpectedResult(Product createProductDto,
             HttpStatusCode expectedStatusCode)
         {
             var response = await _client.PostAsJsonAsync($"{Endpoint}/create", createProductDto);
@@ -115,30 +117,30 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
         {
             yield return new object[] // All OK
             {
-                Models.Products.iPhone13.ProductId,
-                new UpdateProductDto
+                Models.Products.iPhone13.id,
+                new 
                 {
-                    ProductName = "Appless"
+                    name = "Appless"
                 },
                 HttpStatusCode.OK
             };
 
             yield return new object[] // ProductName already exists
             {
-                Models.Products.iPhone13.ProductId,
-                new UpdateProductDto
+                Models.Products.iPhone13.id,
+                new 
                 {
-                    ProductName = Models.Products.iPadPro.ProductName,
+                    name = Models.Products.iPadPro.name,
                 },
                 HttpStatusCode.Conflict
             };
 
             yield return new object[] // ProductBarcode already exists
             {
-                Models.Products.iPhone13.ProductId,
-                new UpdateProductDto
+                Models.Products.iPhone13.id,
+                new 
                 {
-                    ProductBarcode = Models.Products.iPadPro.ProductBarcode,
+                    barcode = Models.Products.iPadPro.barcode,
                 },
                 HttpStatusCode.Conflict
             };
@@ -146,9 +148,9 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
             yield return new object[] // Not Found
             {
                 Guid.NewGuid(),
-                new UpdateProductDto
+                new 
                 {
-                    ProductName = Models.Products.iPadPro.ProductName,
+                    name = Models.Products.iPadPro.name,
                 },
                 HttpStatusCode.NotFound
             };
@@ -156,10 +158,10 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(UpdateProductTestData))]
-        public async Task UpdateProduct_ReturnsExpectedResult(Guid productId, UpdateProductDto updateDto,
+        public async Task UpdateProduct_ReturnsExpectedResult(Guid productId, object data,
             HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{productId}", updateDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{productId}", data);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
@@ -177,8 +179,8 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new ChangeBrandProductDto
                 {
-                    ProductId = Models.Products.iPhone13.ProductId,
-                    BrandId = Models.Brands.Samsung.BrandId
+                    ProductId = Models.Products.iPhone13.id,
+                    BrandId = Models.Brands.Samsung.id
                 },
                 HttpStatusCode.OK
             };
@@ -187,7 +189,7 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 new ChangeBrandProductDto
                 {
-                    ProductId = Models.Products.iPhone13.ProductId,
+                    ProductId = Models.Products.iPhone13.id,
                     BrandId = Guid.NewGuid()
                 },
                 HttpStatusCode.NotFound
@@ -198,7 +200,7 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
                 new ChangeBrandProductDto
                 {
                     ProductId = Guid.NewGuid(),
-                    BrandId = Models.Brands.Samsung.BrandId
+                    BrandId = Models.Brands.Samsung.id
                 },
                 HttpStatusCode.NotFound
             };
@@ -228,9 +230,9 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 Ids = new List<Guid>
                 {
-                    Models.Products.NikeDriFitTShirt.ProductId, // Success
+                    Models.Products.NikeDriFitTShirt.id, // Success
                     Guid.NewGuid(), // Not found
-                    Models.Products.iPadPro.ProductId // Already proccessed
+                    Models.Products.iPadPro.id // Already proccessed
                 }
             };
 
@@ -263,8 +265,8 @@ public class ProductsControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 Ids = new List<Guid>
                 {
-                    Models.Products.GalaxyTabS7.ProductId, // Success
-                    Models.Products.NikeDriFitTShirt.ProductId, // AlreadyProcessed
+                    Models.Products.GalaxyTabS7.id, // Success
+                    Models.Products.NikeDriFitTShirt.id, // AlreadyProcessed
                     Guid.NewGuid() // Not found
                 }
             };

@@ -1,9 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using CRM_ERP_UNID_TESTS.TestsModels;
 using CRM_ERP_UNID_TESTS.Dtos;
 using CRM_ERP_UNID_TESTS.TestsBase;
 using CRM_ERP_UNID.Constants;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -27,7 +29,7 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Suppliers.Apple.SupplierId.ToString(),
+                        ValidValue = Models.Suppliers.Apple.id.ToString(),
                         FieldName = "id"
                     }
                 }
@@ -47,12 +49,12 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
             // OK
             yield return new object[]
             {
-                Models.Suppliers.Apple.SupplierId,
-                new UpdateSupplierDto
+                Models.Suppliers.Apple.id,
+                new
                 {
-                    SupplierName = "Appless",
-                    SupplierContact = "Apples company",
-                    SupplierEmail = "apples@gmail.com",
+                    name = "Appless",
+                    contact = "Apples company",
+                    email = "apples@gmail.com",
                 },
                 HttpStatusCode.OK
             };
@@ -61,11 +63,11 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
             yield return new object[]
             {
                 Guid.NewGuid(),
-                new UpdateSupplierDto
+                new
                 {
-                    SupplierName = "Appless",
-                    SupplierContact = "Apples company",
-                    SupplierEmail = "apples@gmail.com",
+                    name = "Appless",
+                    contact = "Apples company",
+                    email = "apples@gmail.com",
                 },
                 HttpStatusCode.NotFound
             };
@@ -73,10 +75,10 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
             // 409 CONFLICT - NAME
             yield return new object[]
             {
-                Models.Suppliers.Apple.SupplierId,
-                new UpdateSupplierDto
+                Models.Suppliers.Apple.id,
+                new
                 {
-                    SupplierName = Models.Suppliers.Xataka.SupplierName
+                    name = Models.Suppliers.Xataka.name
                 },
                 HttpStatusCode.Conflict
             };
@@ -84,10 +86,10 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
             // 409 CONFLICT - EMAIL
             yield return new object[]
             {
-                Models.Suppliers.Apple.SupplierId,
-                new UpdateSupplierDto
+                Models.Suppliers.Apple.id,
+                new
                 {
-                    SupplierEmail = Models.Suppliers.Xataka.SupplierEmail
+                    email = Models.Suppliers.Xataka.email
                 },
                 HttpStatusCode.Conflict
             };
@@ -95,10 +97,10 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(GetTestData))]
-        public async Task UpdateSupplier_ReturnsExpectedResult(Guid supplierId, UpdateSupplierDto updateDto,
+        public async Task UpdateSupplier_ReturnsExpectedResult(Guid supplierId, object data,
             HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{supplierId}", updateDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{supplierId}", data);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
@@ -115,12 +117,12 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
             // All Ok
             yield return new object[]
             {
-                new CreateSupplierDto
+                new Supplier
                 {
-                    SupplierName = "Pepito",
-                    SupplierContact = "PepitoContact",
-                    SupplierEmail = "pepito314134@gmail.com",
-                    IsActive = true
+                    name = "Pepito",
+                    contact = "PepitoContact",
+                    email = "pepito314134@gmail.com",
+                    isActive = true
                 },
                 HttpStatusCode.OK
             };
@@ -128,12 +130,12 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
             // 409 FOR THE NAME
             yield return new object[]
             {
-                new CreateSupplierDto
+                new Supplier
                 {
-                    SupplierName = Models.Suppliers.Apple.SupplierName,
-                    SupplierContact = "PepitoContact",
-                    SupplierEmail = "pepito@gmail.com",
-                    IsActive = true
+                    name = Models.Suppliers.Apple.name,
+                    contact = "PepitoContact",
+                    email = "pepito@gmail.com",
+                    isActive = true
                 },
                 HttpStatusCode.Conflict
             };
@@ -141,12 +143,12 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
             // 409 FOR THE EMAIL
             yield return new object[]
             {
-                new CreateSupplierDto
+                new Supplier
                 {
-                    SupplierName = "Pepito",
-                    SupplierContact = "PepitoContact",
-                    SupplierEmail = Models.Suppliers.Apple.SupplierEmail,
-                    IsActive = true
+                    name = "Pepito",
+                    contact = "PepitoContact",
+                    email = Models.Suppliers.Apple.email,
+                    isActive = true
                 },
                 HttpStatusCode.Conflict
             };
@@ -154,7 +156,7 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(GetTestData))]
-        public async Task CreateSupplier_ReturnsExpectedResult(CreateSupplierDto createSupplierDto,
+        public async Task CreateSupplier_ReturnsExpectedResult(Supplier createSupplierDto,
             HttpStatusCode expectedStatusCode)
         {
             var response = await _client.PostAsJsonAsync($"{Endpoint}/create", createSupplierDto);
@@ -176,9 +178,9 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 Ids = new List<Guid>
                 {
-                    Models.Suppliers.CentelInactive.SupplierId, // Success
+                    Models.Suppliers.CentelInactive.id, // Success
                     Guid.NewGuid(), // Not found
-                    Models.Suppliers.Apple.SupplierId // Already proccessed
+                    Models.Suppliers.Apple.id // Already proccessed
                 }
             };
 
@@ -211,8 +213,8 @@ public class SuppliersControllerTests : IClassFixture<CustomWebApiFactory>
             {
                 Ids = new List<Guid>
                 {
-                    Models.Suppliers.Apple.SupplierId, // Success
-                    Models.Suppliers.CentelInactive.SupplierId, // AlreadyProcessed
+                    Models.Suppliers.Apple.id, // Success
+                    Models.Suppliers.CentelInactive.id, // AlreadyProcessed
                     Guid.NewGuid() // Not found
                 }
             };

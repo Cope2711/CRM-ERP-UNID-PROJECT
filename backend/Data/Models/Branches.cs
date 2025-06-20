@@ -10,39 +10,41 @@ public class Branch
 {
     [Key]
     [NonModificable]
-    public Guid BranchId { get; set; }
+    public Guid id { get; set; }
     
     [Required]
     [MinLength(3)]
     [MaxLength(50)]
     [Unique]
-    public required string BranchName { get; set; }
+    public required string name { get; set; }
     
     [Required]
     [MinLength(3)]
     [MaxLength(255)]
-    public required string BranchAddress { get; set; }
+    public required string address { get; set; }
     
     [MinLength(9)]
-    [MaxLength(11)]
-    public string? BranchPhone { get; set; }
+    [MaxLength(20)]
+    public string? phone { get; set; }
     
     [NonModificable]
-    public bool IsActive { get; set; }
+    public bool isActive { get; set; }
+    
     [NonModificable]
-    public DateTime? CreatedDate { get; set; }
+    public DateTime? createdDate { get; set; }
+    
     [NonModificable]
-    public DateTime? UpdatedDate { get; set; }
+    public DateTime? updatedDate { get; set; }
     
     [NonModificable]
     public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
     
     [NonModificable]
-    [RelationInfo("users", "users-branches", new[] { "UserBranchId", "User.UserId", "User.UserUserName" })]
+    [RelationInfo("users", "users-branches", new[] { "id", "User.id", "User.userName" }, "branch.id")]
     public ICollection<UserBranch> UsersBranches { get; set; } = new List<UserBranch>();
     
     [NonModificable]
-    [RelationInfo("suppliers", "suppliers-branches", new[] { "SupplierBranchId", "Supplier.SupplierId", "Supplier.SupplierName" })]
+    [RelationInfo("suppliers", "suppliers-branches", new[] { "id", "Supplier.id", "Supplier.name" }, "branch.id")]
     public ICollection<SupplierBranch> SupplierBranches { get; set; } = new List<SupplierBranch>();
 }
 
@@ -52,22 +54,11 @@ public static class BranchExtensions
     {
         return new BranchDto
         {
-            BranchId = branch.BranchId,
-            BranchName = branch.BranchName,
-            BranchAddress = branch.BranchAddress,
-            BranchPhone = branch.BranchPhone,
-            IsActive = branch.IsActive
-        };
-    }
-
-    public static Branch ToModel(this CreateBranchDto dto)
-    {
-        return new Branch()
-        {
-            BranchName = dto.BranchName,
-            BranchAddress = dto.BranchAddress,
-            BranchPhone = dto.BranchPhone,
-            IsActive = dto.IsActive
+            id = branch.id,
+            name = branch.name,
+            address = branch.address,
+            phone = branch.phone,
+            isActive = branch.isActive
         };
     }
 }

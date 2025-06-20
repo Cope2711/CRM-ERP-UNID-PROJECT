@@ -25,28 +25,28 @@ public class TokensRepository : ITokensRepository
     public async Task<int> GetActiveDevicesCount(Guid userId)
     {
         return await _context.RefreshTokens
-            .Where(rt => rt.UserId == userId && rt.RevokedAt == null && rt.ExpiresAt > DateTime.UtcNow)
-            .Select(rt => rt.DeviceId)
+            .Where(rt => rt.userId == userId && rt.revokedAt == null && rt.expiresAt > DateTime.UtcNow)
+            .Select(rt => rt.deviceId)
             .Distinct()
             .CountAsync();
     }
 
     public async Task<bool> IsNewDevice(Guid userId, string deviceId)
     {
-        return await _context.RefreshTokens.AnyAsync(rt => rt.UserId == userId && rt.DeviceId == deviceId);
+        return await _context.RefreshTokens.AnyAsync(rt => rt.userId == userId && rt.deviceId == deviceId);
     }
 
     public async Task RevokeTokensByUserIdAsync(Guid userId)
     {
         var tokens = _context.RefreshTokens
-            .Where(t => t.UserId == userId && t.RevokedAt == null)
+            .Where(t => t.userId == userId && t.revokedAt == null)
             .ToList();
 
         if (tokens.Any())
         {
             foreach (var token in tokens)
             {
-                token.RevokedAt = DateTime.UtcNow;
+                token.revokedAt = DateTime.UtcNow;
             }
 
             await _context.SaveChangesAsync();

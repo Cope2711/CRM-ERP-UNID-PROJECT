@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using CRM_ERP_UNID_TESTS.TestsModels;
 using CRM_ERP_UNID_TESTS.Dtos;
 using CRM_ERP_UNID_TESTS.TestsBase;
+using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 using FluentAssertions;
 
@@ -26,12 +28,12 @@ public class RoleControllerTests : IClassFixture<CustomWebApiFactory>
                 {
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Roles.Admin.RoleName,
+                        ValidValue = Models.Roles.Admin.name,
                         FieldName = "rolename"
                     },
                     new DoubleBasicStructureDto
                     {
-                        ValidValue = Models.Roles.Admin.RoleId.ToString(),
+                        ValidValue = Models.Roles.Admin.id.ToString(),
                         FieldName = "id"
                     }
                 }
@@ -49,11 +51,11 @@ public class RoleControllerTests : IClassFixture<CustomWebApiFactory>
             // Success
             yield return new object[]
             {
-                Models.Roles.User.RoleId,
-                new UpdateRoleDto
+                Models.Roles.User.id,
+                new 
                 {
-                    RoleName = "Adminmsamdksad",
-                    RoleDescription = "Admin role"
+                    name = "Adminmsamdksad",
+                    description = "Admin role"
                 },
                 HttpStatusCode.OK
             };
@@ -61,11 +63,11 @@ public class RoleControllerTests : IClassFixture<CustomWebApiFactory>
             // Conflict - Same RoleName as Admin
             yield return new object[]
             {
-                Models.Roles.User.RoleId,
-                new UpdateRoleDto
+                Models.Roles.User.id,
+                new 
                 {
-                    RoleName = Models.Roles.Admin.RoleName,
-                    RoleDescription = "Admin role"
+                    name = Models.Roles.Admin.name,
+                    description = "Admin role"
                 },
                 HttpStatusCode.Conflict
             };
@@ -73,11 +75,11 @@ public class RoleControllerTests : IClassFixture<CustomWebApiFactory>
             // Forbidden - Trying to update a protected role
             yield return new object[]
             {
-                Models.Roles.Admin.RoleId,
-                new UpdateRoleDto
+                Models.Roles.Admin.id,
+                new 
                 {
-                    RoleName = "asdsadsadsa",
-                    RoleDescription = "Admin role"
+                    name = "asdsadsadsa",
+                    description = "Admin role"
                 },
                 HttpStatusCode.Forbidden
             };
@@ -86,10 +88,10 @@ public class RoleControllerTests : IClassFixture<CustomWebApiFactory>
             yield return new object[]
             {
                 Guid.NewGuid(),
-                new UpdateRoleDto
+                new 
                 {
-                    RoleName = "asdsadsadsa",
-                    RoleDescription = "Admin role"
+                    name = "asdsadsadsa",
+                    description = "Admin role"
                 },
                 HttpStatusCode.NotFound
             };
@@ -97,9 +99,9 @@ public class RoleControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(UpdateRoleTestData))]
-        public async Task UpdateRole_ReturnsExpectedResult(Guid roleId, UpdateRoleDto updateDto, HttpStatusCode expectedStatusCode)
+        public async Task UpdateRole_ReturnsExpectedResult(Guid roleId, object data, HttpStatusCode expectedStatusCode)
         {
-            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{roleId}", updateDto);
+            var response = await _client.PatchAsJsonAsync($"{Endpoint}/update/{roleId}", data);
             response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
@@ -116,33 +118,33 @@ public class RoleControllerTests : IClassFixture<CustomWebApiFactory>
             yield return new object[]
             {
                 // Success
-                new CreateRoleDto
+                new Role
                 {
-                    RoleName = "Adminmsamdksad",
-                    RoleDescription = "Admin role",
-                    RolePriority = 1f
+                    name = "Adminmsamdksad",
+                    description = "Admin role",
+                    priority = 1f
                 },
-                HttpStatusCode.Created
+                HttpStatusCode.OK
             };
 
             yield return new object[]
             {
-                new CreateRoleDto
+                new Role
                 {
-                    RoleName = "Admin",
-                    RoleDescription = "Admin role",
-                    RolePriority = 1f
+                    name = "Admin",
+                    description = "Admin role",
+                    priority = 1f
                 },
                 HttpStatusCode.Conflict
             };
 
             yield return new object[]
             {
-                new CreateRoleDto
+                new Role
                 {
-                    RoleName = "Adminmsamdksad",
-                    RoleDescription = "Admin role",
-                    RolePriority = 100f
+                    name = "Adminmsamdksad",
+                    description = "Admin role",
+                    priority = 100f
                 },
                 HttpStatusCode.Forbidden
             };
@@ -150,7 +152,7 @@ public class RoleControllerTests : IClassFixture<CustomWebApiFactory>
 
         [Theory]
         [MemberData(nameof(CreateRoleTestData))]
-        public async Task CreateRole_ReturnsExpectedResult(CreateRoleDto createRoleDto,
+        public async Task CreateRole_ReturnsExpectedResult(Role createRoleDto,
             HttpStatusCode expectedStatusCode)
         {
             var response = await _client.PostAsJsonAsync($"{Endpoint}/create", createRoleDto);
@@ -169,7 +171,7 @@ public class RoleControllerTests : IClassFixture<CustomWebApiFactory>
             yield return new object[]
             {
                 // Success
-                Models.Roles.User.RoleId,
+                Models.Roles.User.id,
                 HttpStatusCode.OK
             };
             
@@ -182,7 +184,7 @@ public class RoleControllerTests : IClassFixture<CustomWebApiFactory>
             yield return new object[]
             {
                 // Success
-                Models.Roles.HighestPriority.RoleId,
+                Models.Roles.HighestPriority.id,
                 HttpStatusCode.Forbidden
             };
         }

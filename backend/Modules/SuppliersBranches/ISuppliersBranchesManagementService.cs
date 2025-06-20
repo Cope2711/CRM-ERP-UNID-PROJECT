@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
 
@@ -7,5 +8,5 @@ public interface ISuppliersBranchesManagementService
 {
     Task<ResponsesDto<ModelAndAssignResponseStatusDto>> AssignBranchesToSuppliers(ModelsAndAssignsDtos modelsAndAssignsDtos);
     Task<ResponsesDto<IdResponseStatusDto>> RevokeBranchesFromSuppliers(IdsDto idsDto);
-    Task<SupplierBranch> Update(UpdateSupplierBranchDto updateSupplierBranchDto);
+    Task<SupplierBranch> Update(JsonElement data);
 }

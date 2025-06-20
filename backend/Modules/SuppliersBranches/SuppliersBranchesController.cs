@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CRM_ERP_UNID.Attributes;
 using CRM_ERP_UNID.Data.Models;
 using CRM_ERP_UNID.Dtos;
@@ -16,9 +17,9 @@ public class SuppliersBranchesController(
 {
     [HttpPatch("update")]
     [PermissionAuthorize("Edit_Content", "SuppliersBranches")]
-    public async Task<ActionResult<SupplierBranchDto>> Update([FromBody] UpdateSupplierBranchDto updateSupplierBranchDto)
+    public async Task<ActionResult<SupplierBranchDto>> Update([FromBody] JsonElement data)
     {
-        SupplierBranch? supplierBranch = await _suppliersBranchesManagementService.Update(updateSupplierBranchDto);
+        SupplierBranch? supplierBranch = await _suppliersBranchesManagementService.Update(data);
 
         return Ok(supplierBranch.ToDto());
     }
